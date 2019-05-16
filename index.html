@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1">
+  
+  <title>WebGL & WebAudio Orbits</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+
+  <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+  <script type="text/javascript" src="js/moment.min.js"></script>
+  <script type="text/javascript" src="js/stats.min.js"></script>
+
+  <script type="text/javascript" src="js/three.min.js"></script>
+  <script type="text/javascript" src="js/three/shader/CopyShader.js"></script>
+  <script type="text/javascript" src="js/three/shader/LuminosityHighPassShader.js"></script>
+  <script type="text/javascript" src="js/three/postprocessing/EffectComposer.js"></script>
+  <script type="text/javascript" src="js/three/postprocessing/RenderPass.js"></script>
+  <script type="text/javascript" src="js/three/postprocessing/ShaderPass.js"></script>
+  <script type="text/javascript" src="js/three/postprocessing/UnrealBloomPass.js"></script>
+  
+  <script type="text/javascript" src="js/detector.js"></script>
+  <script type="text/javascript" src="js/weas.js"></script>
+  <script type="text/javascript" src="js/main.js"></script>
+  <script type="text/javascript" src="js/wewwa.js"></script>
+</head>
+
+<body>
+  <img id="background" />
+  <div id="renderContainer">
+    <canvas id="mainCvs"></canvas>
+    <canvas id="helpCvs"></canvas>
+  </div>
+  <div id="debugwnd">
+    <h2>Debug logging active for 1 minute!</h2>
+  </div>
+  <img id="overlay" />
+  <div id="txtholder"></div>
+  <img id="triggerwarn" src="./img/triggerwarning.png" />
+</body>
+
+</html>
