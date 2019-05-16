@@ -1,0 +1,81 @@
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+@font-face {
+    font-family: 'hexagon_cup_fontbold';
+    src: url('hexagon_cup-webfont.woff2') format('woff2'), url('hexagon_cup-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    background-color: #000000;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+    transition: 2s;
+    margin: 0px;
+    overflow: hidden;
+    font-family: Monospace;
+    font-size: 13px;
+    text-align: center;
+    font-weight: bold;
+}
+
+img {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
+    border: none;
+    text-decoration: none;
+    display: none;
+}
+
+#triggerwarn {
+    object-fit: none;
+}
+
+#renderContainer {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#debugwnd {
+    position: absolute;
+    right: 0px;
+    visibility: hidden;
+    color: red;
+}
+
+#txtholder {
+    position: absolute;
+    left: 25%;
+    width: 50%;
+    bottom: -40px;
+    color: white;
+    font-family: 'hexagon_cup_fontbold', sans-serif;
+    font-size: 125%;
+    text-shadow: 0 0 20px rgba(255, 255, 255, .5), 0 0 15px rgba(255, 255, 255, .5);
+    opacity: 0.7;
+    display: none;
+}
+
+.cuePreview {
+    position: absolute;
+    background: rgba(255, 0, 0, .3);
+}
