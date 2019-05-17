@@ -38,6 +38,36 @@
  * - cookie fix
 */
 
+
+// Fuck different browsers and their "feature improvements"
+var dumbIncompabilityShit = function (constraints, successCallback, errorCallback) {
+    // First get ahold of getUserMedia, if present
+    var getUserMedia = (navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia);
+
+    // Some browsers just don't implement it - return a rejected promise with an error
+    // to keep a consistent interface
+    if (!getUserMedia) {
+        return Promise.reject(new Error('getUserMedia is not implemented in this fucking shit browser'));
+    }
+    // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+    return new Promise(function (successCallback, errorCallback) {
+        getUserMedia.call(navigator, constraints, successCallback, errorCallback);
+    });
+}
+// Older browsers might not implement mediaDevices at all, so we set an empty object first
+if (navigator.mediaDevices === undefined) {
+    navigator.mediaDevices = {};
+}
+// Some browsers partially implement mediaDevices. We can't just assign an object
+// with getUserMedia as it would overwrite existing properties.
+// Here, we will just add the getUserMedia property if it's missing.
+if (navigator.mediaDevices.getUserMedia === undefined) {
+    navigator.mediaDevices.getUserMedia = dumbIncompabilityShit;
+}
+
+
 var wewwApp = wewwApp || {};
 
 wewwApp.Init = () => {
@@ -202,7 +232,7 @@ wewwApp.AddMenu = () => {
         var aud = ce("select");
         aud.innerHTML = "<option value=0>None</option><option value=1>Microphone</option><option value=2>File</option>";
         aud.addEventListener("change", function (e) {
-            switch(this.value) {
+            switch (this.value) {
                 case "0": wewwApp.StopMicrophone(); break;
                 case "1": wewwApp.RequestMicrophone(); break;
                 case "2": break;
@@ -328,18 +358,18 @@ wewwApp.UpdateSettings = () => {
     for (var p in props) {
 
         var prop = props[p];
-        
+
         if (prop.condition != null && false) {
             var result = function (str) {
                 return eval(str);
             }.call(props, prop.condition);
 
-            
+
             if (!result)
                 $("#wewwa_" + p).fadeOut();
         }
         else $("#wewwa_" + p).fadeIn();
-        
+
         var elm = document.getElementById("wewwa_" + p).childNodes[1].childNodes[0];
         switch (prop.type) {
             case 'color':
@@ -390,8 +420,8 @@ wewwApp.hexToRgb = (hex) => {
 
 // start microphone
 wewwApp.RequestMicrophone = () => {
-    navigator.getUserMedia({ audio: true },
-        (stream) => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then((stream) => {
             //Audio stops listening in FF without // window.persistAudioStream = stream;
             //https://bugzilla.mozilla.org/show_bug.cgi?id=965483
             //https://support.mozilla.org/en-US/questions/984179
@@ -409,8 +439,8 @@ wewwApp.RequestMicrophone = () => {
                 var stereo = wewwApp.convertAudio(data);
                 wewwApp.audioCallback(stereo);
             }, 33); // wallpaper engine gives audio data back at about 30fps, so 33ms it is
-        },
-        (error) => {
+        })
+        .catch((error) => {
             console.log(error);
             if (location.protocol != 'https:') {
                 var r = confirm('The Browser might require the site to be loaded using HTTPS for this feature to work! Press "ok"/"yes" to get redirected to HTTPS."');

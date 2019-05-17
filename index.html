@@ -10,7 +10,7 @@
 
   <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
   <script type="text/javascript" src="js/moment.min.js"></script>
-  <script type="text/javascript" src="js/stats.min.js"></script>
+  <script type="text/javascript" src="js/stats.js"></script>
 
   <script type="text/javascript" src="js/three.min.js"></script>
   <script type="text/javascript" src="js/three/shader/CopyShader.js"></script>
@@ -27,15 +27,15 @@
 </head>
 
 <body>
-  <img id="background" />
+  <img id="img_back" />
   <div id="renderContainer">
     <canvas id="mainCvs"></canvas>
     <canvas id="helpCvs"></canvas>
   </div>
+  <img id="img_over" />
   <div id="debugwnd">
     <h2>Debug logging active for 1 minute!</h2>
   </div>
-  <img id="overlay" />
   <div id="txtholder"></div>
   <img id="triggerwarn" src="./img/triggerwarning.png" />
 </body>
