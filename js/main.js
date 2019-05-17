@@ -19,18 +19,6 @@
  * 
 */
 
-
-/* !!! @TODO !!!!
- *  
- * - add icue single color mode
- * - github repos
- * - changelog
- * - settings guide
- * 
- */
-
-
-
 // custom logging function
 function print(arg, force) {
 	if (!audiOrbits.initialized || audiOrbits.debug || force) console.log("| AudiOrbits |" + JSON.stringify(arg));
@@ -65,10 +53,6 @@ window.requestCustomAnimationFrame = (callback) => {
 
 // base object for wallpaper
 var audiOrbits = {
-	// started yet?
-	initialized: false,
-	// paused?
-	PAUSED: false,
 	// holds default wallpaper settings
 	settings: {
 		cam_locked: true,
@@ -114,6 +98,7 @@ var audiOrbits = {
 		num_levels: 4,
 		level_depth: 600,
 		level_shifting: false,
+		bloom_filter: false,
 		icue_mode: 1,
 		icue_area_xoff: 50,
 		icue_area_yoff: 90,
@@ -126,6 +111,10 @@ var audiOrbits = {
 		no_pause: false,
 		seizure_warning: true,
 	},
+	// started yet?
+	initialized: false,
+	// paused?
+	PAUSED: false,
 	// debugging
 	debug: false,
 	debugTimeout: null,
@@ -168,8 +157,8 @@ var audiOrbits = {
 
 		var _ignore = ["debugging", "parallax_option", "auto_parallax_speed", "img_overlay", "img_background", "base_texture"];
 
-		var _reInit = ["base_texture", "texture_size", "stats_option", "field_of_view", "fog_thickness", "scaling_factor", "camera_bound",
-			"num_points_per_subset", "num_subsets_per_level", "num_levels", "level_depth", "level_shifting"];
+		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "scaling_factor", "camera_bound",
+			"num_points_per_subset", "num_subsets_per_level", "num_levels", "level_depth", "level_shifting", "bloom_filter"];
 
 		var self = audiOrbits;
 		var sett = self.settings;
@@ -194,7 +183,7 @@ var audiOrbits = {
 
 		weas.audio_smoothing = sett.audio_smoothing;
 
-		// create preview
+		// create preview skkrt
 		if (!self.icuePreview && sett.icue_area_preview) {
 			self.icuePreview = document.createElement('div');
 			self.icuePreview.classList.add("cuePreview");
@@ -202,7 +191,7 @@ var audiOrbits = {
 		}
 		// update settings or destroy
 		if (self.icuePreview) {
-			if (!sett.icue_area_preview){
+			if (!sett.icue_area_preview) {
 				document.body.removeChild(self.icuePreview);
 				self.icuePreview = null;
 			}
@@ -221,23 +210,26 @@ var audiOrbits = {
 		}
 
 		// Custom user images
-		if (props['img_overlay']) {
-			var val = props['img_overlay'].value;
-			$("#overlay").fadeOut(1500, function () {
+		if (props['img_background']) {
+			var val = props['img_background'].value;
+			$("#img_back").fadeOut(1000, () => {
 				if (val && val !== '') {
-					$("#overlay").attr('src', 'file:///' + val);
-					$("#overlay").fadeIn(1500);
+					$("#img_back").attr('src', 'file:///' + val);
+					$("#img_back").fadeIn(1000);
 				}
 			});
 		}
-		if (props['img_background']) {
-			var sty = document.body.style;
-			var val = props['img_background'].value;
-			if (val && val !== '') sty.backgroundImage = 'url(\'file:///' + val + '\')';
-			else sty.backgroundImage = '';
+		if (props['img_overlay']) {
+			var val2 = props['img_overlay'].value;
+			$("#img_over").fadeOut(1000, () => {
+				if (val2 && val2 !== '') {
+					$("#img_over").attr('src', 'file:///' + val2);
+					$("#img_over").fadeIn(1000);
+				}
+			});
 		}
 
-		// intitialize texture path
+		// intitialize texture splash
 		if (props['base_texture']) {
 			var val = props['base_texture'].value;
 			switch (val) {
@@ -245,6 +237,7 @@ var audiOrbits = {
 				case 1: sett.base_texture_path = "./img/cuboid.png"; break;
 				case 2: sett.base_texture_path = "./img/fractal.png"; break;
 			}
+			reInitFlag = true;
 		}
 
 		// debug logging
@@ -266,6 +259,7 @@ var audiOrbits = {
 	///////////////////////////////////////////////
 	// INITIALIZE
 	///////////////////////////////////////////////
+
 	initFirst: function () {
 		// Setup button, slider & window listeners only ever once!
 		document.addEventListener('mousemove', (event) => {
@@ -383,7 +377,7 @@ var audiOrbits = {
 			self.generateLevel(lvl);
 		}
 		print("loading Texture: " + sett.base_texture_path);
-		// load main sprite 
+		// load main saas 
 		new THREE.TextureLoader().load(sett.base_texture_path,
 			// onLoad callback
 			// continue initialization
@@ -451,11 +445,11 @@ var audiOrbits = {
 				self.renderer.setSize(window.innerWidth, window.innerHeight);
 
 				// intialize Bloom Shader
-				if(!sett.bloom_filter) {
+				if (sett.bloom_filter) {
 					self.composer = new THREE.EffectComposer(self.renderer);
-					self.composer.addPass(new THREE.RenderPass(self.scene, self.camera));
+					self.composer.addPass(new THREE.RenderPass(self.scene, self.camera, null, 0x000000, 1));
 
-					var urBloomPass = new THREE.UnrealBloomPass(512, 1, 2, 3);
+					var urBloomPass = new THREE.UnrealBloomPass(512);
 					urBloomPass.renderToScreen = true;
 					self.composer.addPass(urBloomPass);
 				}
@@ -495,10 +489,14 @@ var audiOrbits = {
 		clearInterval(this.swirlInterval);
 		clearInterval(this.icueInterval);
 
+		// kill stats
+		if (this.stats) this.stats.dispose();
+		this.stats = null;
+
 		// kill shader processor
-		if(this.composer) this.composer.reset();
+		if (this.composer) this.composer.reset();
 		this.composer = null;
-		// kill webgl context
+		// kill webgl soos
 		this.renderer.forceContextLoss();
 		// recreate webgl canvas
 		this.container.removeChild(this.mainCanvas);
@@ -519,6 +517,7 @@ var audiOrbits = {
 	///////////////////////////////////////////////
 	// RENDERING
 	///////////////////////////////////////////////
+
 	renderLoop: function () {
 		try {
 			var self = audiOrbits;
@@ -657,7 +656,7 @@ var audiOrbits = {
 			child.myMaterial.color.setHSL(nhue, nsat, nlight);
 		}
 		// render alll dat shit
-		if(self.composer) self.composer.render(ellapsed);
+		if (self.composer) self.composer.render(ellapsed);
 		else self.renderer.render(scene, camera);
 
 		// ICUE PROCESSING
@@ -685,9 +684,10 @@ var audiOrbits = {
 	///////////////////////////////////////////////
 	// FRACTAL GENERATOR
 	///////////////////////////////////////////////
+
 	generateLevel: function (level) {
 		print("generating level: " + level.myLevel);
-		// Using local vars should be faster
+		// Using lol vars should be faster
 		var subsets = level.subsets;
 		var sett = this.settings;
 		var num_subsets_l = sett.num_subsets_per_level;
@@ -808,8 +808,9 @@ var audiOrbits = {
 
 
 	///////////////////////////////////////////////
-	// ICUE
+	// ICUE INTEGRATION
 	///////////////////////////////////////////////
+
 	getICUEArea: function (inPx) {
 		var sett = audiOrbits.settings;
 		var wwid = window.innerWidth;
@@ -852,7 +853,7 @@ var audiOrbits = {
 		var self = audiOrbits;
 		var sett = self.settings;
 		if (self.icueDevices.length < 1 || sett.icue_mode == 0) return;
-
+		// projection mode
 		if (sett.icue_mode == 1) {
 			// get local values
 			var cueWid = self.icueCanvasX;
@@ -869,9 +870,9 @@ var audiOrbits = {
 				window.cue.setLedColorsByImageData(xi, encDat, cueWid, cueHei);
 			}
 		}
-
+		// color mode
 		if (sett.icue_mode == 2) {
-			// get color objects
+			// get lol objects
 			var col = sett.icue_main_color.split(' ');
 			var ledColor = {
 				r: col[0] * 255,
@@ -893,7 +894,6 @@ var audiOrbits = {
 				window.cue.setAllLedsColorsAsync(xi, ledColor);
 			}
 		}
-
 	},
 	// get data for icue
 	getEncodedCanvasImageData: function (imageData) {
@@ -932,6 +932,7 @@ var audiOrbits = {
 ///////////////////////////////////////////////
 // Actual Initialisation
 ///////////////////////////////////////////////
+
 print("Begin Startup...")
 
 // will apply settings edited in Wallpaper Engine
@@ -942,8 +943,7 @@ window.wallpaperPropertyListener = {
 	},
 	applyUserProperties: (props) => {
 		var initFlag = audiOrbits.applyCustomProps(props);
-
-		// very first initialization?
+		// very first initialization
 		if (!audiOrbits.initialized) {
 			audiOrbits.initialized = true;
 			$(() => audiOrbits.initFirst());
@@ -969,9 +969,7 @@ window.wallpaperPluginListener = {
 	}
 };
 
-/**
- * after the page finished loading: if the wallpaper context is not given => start wallpaper 
- */
+// after the page finished loading: if the wallpaper context is not given => start wallpaper 
 $(() => {
 	if (!window.wallpaperRegisterAudioListener) {
 		print("wallpaperRegisterAudioListener not defined. We are probably out of wallpaper engine. Manual init..");
