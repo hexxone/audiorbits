@@ -59,7 +59,6 @@ var audiOrbits = {
 		auto_parallax: false,
 		parallax_strength: 3,
 		auto_parallax_speed: 2,
-		auto_parallax_radius: 5,
 		color_fade_speed: 2,
 		default_brightness: 60,
 		default_saturation: 10,
@@ -155,7 +154,7 @@ var audiOrbits = {
 		// applies actual
 		print("apply: " + JSON.stringify(props), true);
 
-		var _ignore = ["debugging", "parallax_option", "auto_parallax_speed", "img_overlay", "img_background", "base_texture"];
+		var _ignore = ["debugging", "parallax_option", "img_overlay", "img_background", "base_texture"];
 
 		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "scaling_factor", "camera_bound",
 			"num_points_per_subset", "num_subsets_per_level", "num_levels", "level_depth", "level_shifting", "bloom_filter"];
@@ -203,10 +202,6 @@ var audiOrbits = {
 			var val = props['parallax_option'].value;
 			sett.cam_locked = (val == 0);
 			sett.auto_parallax = (val == 2);
-		}
-		if (props['auto_parallax_speed']) {
-			sett.auto_parallax_speed = props['auto_parallax_speed'].value / 500;
-			sett.swirlMlt = 360 / sett.auto_parallax_speed;
 		}
 
 		// Custom user images
@@ -465,7 +460,7 @@ var audiOrbits = {
 				// start rendering
 				self.renderLoop();
 				$("#renderContainer").fadeIn(5000);
-				self.popupMessage('<h1>AudiOrbits     1.7</h1>', true);
+				self.popupMessage('<h1>AudiOrbits 1.7</h1>', true);
 				// print
 				print("startup complete.", true);
 			},
@@ -566,7 +561,7 @@ var audiOrbits = {
 		// calculate camera parallax with smoothing
 		var clampCam = (axis) => Math.min(sett.camera_bound, Math.max(-sett.camera_bound, axis));
 		var newCamX = clampCam(self.mouseX * sett.parallax_strength / 50);
-		var newCamY = clampCam(self.mouseY * sett.parallax_strength / 50);
+		var newCamY = clampCam(self.mouseY * sett.parallax_strength / -50);
 		if (camera.position.x != newCamX) camera.position.x += (newCamX - camera.position.x) * deltaTime * 0.05;
 		if (camera.position.y != newCamY) camera.position.y += (newCamY - camera.position.y) * deltaTime * 0.05;
 
@@ -591,7 +586,7 @@ var audiOrbits = {
 			step = (sett.num_levels * sett.level_depth * 1.2) / 128;
 			// speed velocity calculation
 			if (sett.audiozoom_val > 0)
-				spvn += sett.zoom_val * boost * 0.03 + boost * sett.audiozoom_val * 0.03;
+				spvn += sett.zoom_val * boost * 0.02 + boost * sett.audiozoom_val * 0.05;
 		}
 
 		// apply smoothing or direct value
@@ -639,7 +634,7 @@ var audiOrbits = {
 				var rFreq = (cfreq * flmult / 3) / lastAudio.max;
 				// quick maths
 				nhue = (hueValues[child.mySubset] + rFreq) % 1.0;
-				nsat = Math.abs(sett.minimum_saturation / 100 + rFreq + rFreq * boost * 0.15);
+				nsat = Math.abs(sett.minimum_saturation / 100 + rFreq + rFreq * boost * 0.17);
 				nlight = Math.min(0.7, sett.minimum_brightness / 100 + rFreq + rFreq * boost * 0.05);
 			}
 			else {
@@ -786,14 +781,14 @@ var audiOrbits = {
 		var self = audiOrbits;
 		var sett = self.settings;
 		if (!sett.auto_parallax) return;
-		var r = window.innerWidth;
-		window.innerHeight < r && (r = window.innerHeight);
-		r /= 2 / sett.auto_parallax_radius / 100;
-		var ang = Math.abs(sett.auto_parallax_speed / 100 * sett.swirlStep);
-		sett.swirlStep = (sett.auto_parallax_speed > 0) ? ((sett.swirlStep + 1) % sett.swirlMlt) : (sett.swirlStep - 1);
-		if (sett.swirlStep < 0) sett.swirlStep += sett.swirlMlt;
-		self.mouseX = r * Math.sin(ang);
-		self.mouseY = r * Math.cos(ang);
+		self.swirlStep += sett.auto_parallax_speed / 3;
+		if(self.swirlStep > 360) self.swirlStep -= 360;
+		else if(self.swirlStep < 0) self.swirlStep += 360;
+		var ang = self.swirlStep * Math.PI / 180;
+		var w = window.innerHeight;
+		if(window.innerWidth < w) w = window.innerWidth;
+		self.mouseX = w / 2 * Math.sin(ang);
+		self.mouseY = w / 2 * Math.cos(ang);
 	},
 	// popup message handler
 	popupMessage: function (msg, hideAfter) {
@@ -805,12 +800,24 @@ var audiOrbits = {
 			$('#txtholder').animate({ bottom: "-40px" }, 'slow');
 		}, 10000);
 	},
+	// show a message by icue
+	icueMessage: function(msg) {
+		$('#icuetext').html(msg);
+		$('#icueholder').fadeIn({ queue: false, duration: 'slow' });
+		$('#icueholder').animate({ top: "0px" }, 'slow');
+		setTimeout(() => {
+			$('#icueholder').fadeOut({ queue: false, duration: 'slow' });
+			$('#icueholder').animate({ top: "-120px" }, 'slow');
+		}, 7000);
+	},
 
 
 	///////////////////////////////////////////////
 	// ICUE INTEGRATION
 	///////////////////////////////////////////////
 
+	// will return a rectangle object represnting the icue area in pixels
+	// choosable as integer or string with "px" suffix (for css styling)
 	getICUEArea: function (inPx) {
 		var sett = audiOrbits.settings;
 		var wwid = window.innerWidth;
@@ -826,20 +833,20 @@ var audiOrbits = {
 			top: t + (inPx ? "px" : ""),
 		};
 	},
+	// will initialize ICUE api & usage
 	initICUE: function () {
-		// will initialize ICUE api & usage
-		print("iCUE: async initialization...", true)
+		print("iCUE: async initialization...")
 		var self = audiOrbits;
 		self.icueDevices = [];
 		window.cue.getDeviceCount((deviceCount) => {
-			print("iCUE: Found " + deviceCount + " devices.", true);
+			self.icueMessage("iCUE: " + deviceCount + " devices found.");
 			for (var xi = 0; xi < deviceCount; xi++) {
 				var xl = xi;
 				window.cue.getDeviceInfo(xl, (info) => {
 					info.id = xl;
 					window.cue.getLedPositionsByDeviceIndex(xl, function (leds) {
 						info.leds = leds;
-						print("iCUE: Device " + JSON.stringify(info), true);
+						print("iCUE: Device " + JSON.stringify(info));
 						self.icueDevices[xl] = info;
 					});
 				});
@@ -936,7 +943,7 @@ var audiOrbits = {
 print("Begin Startup...")
 
 // will apply settings edited in Wallpaper Engine
-// this will cause initialization for the first time
+// this will also cause initialization for the first time
 window.wallpaperPropertyListener = {
 	applyGeneralProperties: (props) => {
 		// nothing to do here

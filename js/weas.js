@@ -78,9 +78,9 @@ var weas = {
             if (idata < min) min = idata;
 			if (idata > max) max = idata;
 			// process ranges
-			if (i < 20) bass += idata;
-			else if (i > 83) peaks += idata / 2;
-			else mids += idata / 1.5;
+			if (i < 16) bass += idata;
+			else if (i > 80) peaks += idata / 1.5;
+			else mids += idata / 1.25;
 			// calc peak average
 			sum += idata;
 		}

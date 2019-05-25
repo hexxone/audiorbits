@@ -9,29 +9,27 @@
 
 @font-face {
     font-family: 'hexagon_cup_fontbold';
-    src: url('hexagon_cup-webfont.woff2') format('woff2'), url('hexagon_cup-webfont.woff') format('woff');
-    font-weight: normal;
+    src: url(hexagon_cup-webfont.woff2) format("woff2"), url(hexagon_cup-webfont.woff) format("woff");
+    font-weight: 400;
     font-style: normal;
 }
 
 body {
-    background-color: #000000;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center center;
+    background-color: #000;
     transition: 2s;
-    margin: 0px;
+    margin: 0;
     overflow: hidden;
     font-family: Monospace;
     font-size: 13px;
     text-align: center;
-    font-weight: bold;
+    font-weight: 700;
+    color: #fff;
 }
 
-img {
+#img_back, #img_over, #triggerwarn {
     position: absolute;
-    left: 0px;
-    top: 0px;
+    left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -44,12 +42,35 @@ img {
 
 #triggerwarn {
     object-fit: none;
+    max-width: 100%;
+}
+
+#icueholder {
+    position: absolute;
+    top: -120px;
+    left: 0;
+    width: auto;
+    height: auto;
+    margin: 10px;
+    padding: 10px;
+}
+
+#icuelogo {
+    float: left;
+    height: 80px;
+    width: 80px;
+}
+
+#icuetext {
+    float: left;
+    margin: 25px 5px;
+    font-size: 175%;
 }
 
 #renderContainer {
     position: absolute;
-    left: 0px;
-    top: 0px;
+    left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
     display: none;
@@ -57,7 +78,7 @@ img {
 
 #debugwnd {
     position: absolute;
-    right: 0px;
+    right: 0;
     visibility: hidden;
     color: red;
 }
@@ -67,11 +88,12 @@ img {
     left: 25%;
     width: 50%;
     bottom: -40px;
-    color: white;
     font-family: 'hexagon_cup_fontbold', sans-serif;
     font-size: 125%;
+}
+
+#icueholder, #txtholder {
     text-shadow: 0 0 20px rgba(255, 255, 255, .5), 0 0 15px rgba(255, 255, 255, .5);
-    opacity: 0.7;
     display: none;
 }
 

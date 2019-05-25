@@ -36,37 +36,8 @@
  * - file drag drop handler on menu
  * - condition fix
  * - cookie fix
+ * - project.json translation selector & applier
 */
-
-
-// Fuck different browsers and their "feature improvements"
-var dumbIncompabilityShit = function (constraints, successCallback, errorCallback) {
-    // First get ahold of getUserMedia, if present
-    var getUserMedia = (navigator.getUserMedia ||
-        navigator.webkitGetUserMedia ||
-        navigator.mozGetUserMedia);
-
-    // Some browsers just don't implement it - return a rejected promise with an error
-    // to keep a consistent interface
-    if (!getUserMedia) {
-        return Promise.reject(new Error('getUserMedia is not implemented in this fucking shit browser'));
-    }
-    // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
-    return new Promise(function (successCallback, errorCallback) {
-        getUserMedia.call(navigator, constraints, successCallback, errorCallback);
-    });
-}
-// Older browsers might not implement mediaDevices at all, so we set an empty object first
-if (navigator.mediaDevices === undefined) {
-    navigator.mediaDevices = {};
-}
-// Some browsers partially implement mediaDevices. We can't just assign an object
-// with getUserMedia as it would overwrite existing properties.
-// Here, we will just add the getUserMedia property if it's missing.
-if (navigator.mediaDevices.getUserMedia === undefined) {
-    navigator.mediaDevices.getUserMedia = dumbIncompabilityShit;
-}
-
 
 var wewwApp = wewwApp || {};
 
@@ -82,6 +53,19 @@ wewwApp.Init = () => {
         wewwApp.AddMenu();
         wewwApp.UpdateSettings();
         wewwApp.ApplyProp(proj.general.properties);
+    });
+
+    window.addEventListener('drop', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        var droppedFiles = e.dataTransfer.files;
+        initiateAudio(droppedFiles[0]);
+    }, false);
+
+    $('#file-input').change((e) => {
+        var file = e.target.files[0];
+        if (!file) return;
+        initiateAudio(file);
     });
 }
 
@@ -233,8 +217,8 @@ wewwApp.AddMenu = () => {
         aud.innerHTML = "<option value=0>None</option><option value=1>Microphone</option><option value=2>File</option>";
         aud.addEventListener("change", function (e) {
             switch (this.value) {
-                case "0": wewwApp.StopMicrophone(); break;
-                case "1": wewwApp.RequestMicrophone(); break;
+                case "0": wewwApp.stopAudioInterval(); break;
+                case "1": wewwApp.requestMicrophone(); break;
                 case "2": break;
             }
         });
@@ -419,43 +403,31 @@ wewwApp.hexToRgb = (hex) => {
 }
 
 // start microphone
-wewwApp.RequestMicrophone = () => {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then((stream) => {
-            //Audio stops listening in FF without // window.persistAudioStream = stream;
-            //https://bugzilla.mozilla.org/show_bug.cgi?id=965483
-            //https://support.mozilla.org/en-US/questions/984179
-            window.persistAudioStream = stream;
-            wewwApp.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            wewwApp.source = wewwApp.ctx.createMediaStreamSource(stream);
-            wewwApp.analyser = wewwApp.ctx.createAnalyser();
-            wewwApp.analyser.fftSize = 256;
-            wewwApp.source.connect(wewwApp.analyser);
-            // set audio callback interval
-            var data = new Uint8Array(128);
-            wewwApp.audioInterval = setInterval(() => {
-                if (!wewwApp.audioCallback) return;
-                wewwApp.analyser.getByteFrequencyData(data);
-                var stereo = wewwApp.convertAudio(data);
-                wewwApp.audioCallback(stereo);
-            }, 33); // wallpaper engine gives audio data back at about 30fps, so 33ms it is
-        })
-        .catch((error) => {
-            console.log(error);
-            if (location.protocol != 'https:') {
-                var r = confirm('The Browser might require the site to be loaded using HTTPS for this feature to work! Press "ok"/"yes" to get redirected to HTTPS."');
-                if (r) window.location.href = window.location.href.replace('http', 'https');
-            }
-        });
-}
+wewwApp.requestMicrophone = () => {
 
-// stops microphone input
-wewwApp.StopMicrophone = () => {
+    navigator.getUserMedia({
+        audio: true
+    }, (stream) => {
+        wewwApp.stopAudioInterval();
 
-    if (wewwApp.audioInterval) {
-        clearInterval(wewwApp.audioInterval);
-        wewwApp.audioInterval = null;
-    }
+        window.persistAudioStream = stream;
+
+        wewwApp.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        wewwApp.source = wewwApp.ctx.createMediaStreamSource(stream);
+        wewwApp.analyser = wewwApp.ctx.createAnalyser();
+        wewwApp.analyser.smoothingTimeConstant = 0.35;
+        wewwApp.analyser.fftSize = 256;
+
+        wewwApp.source.connect(wewwApp.analyser);
+        wewwApp.startAudioInterval();
+
+    }, (error) => {
+        console.log(error);
+        if (location.protocol != 'https:') {
+            var r = confirm('The Browser might require the site to be loaded using HTTPS for this feature to work! Press "ok"/"yes" to get redirected to HTTPS."');
+            if (r) window.location.href = window.location.href.replace('http', 'https');
+        }
+    });
 }
 
 // html5 audio analyser gives us mono data from 0(bass) to 128(treble)
@@ -470,6 +442,59 @@ wewwApp.convertAudio = (data) => {
         stereo[64 + i] = data[sIdx++] / 255;
     }
     return stereo;
+}
+
+
+// starts playing & analysing a dropped file
+wewwApp.initiateAudio = (data) => {
+
+    wewwApp.stopAudioInterval();
+
+    wewwApp.audio = document.createElement('audio');
+    wewwApp.audio.src = data.name ? URL.createObjectURL(data) : data;
+    wewwApp.audio.autoplay = true;
+    wewwApp.audio.setAttribute("controls", "true");
+    wewwApp.audio.play = true;
+
+    // TODO APPEND AT RIGHT PLACE
+    $('#visualizerinput').children()[1].prepend(app.audio);
+
+    wewwApp.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    wewwApp.source = wewwApp.ctx.createMediaElementSource(app.audio);
+    wewwApp.analyser = wewwApp.ctx.createAnalyser();
+    wewwApp.analyser.smoothingTimeConstant = 0.35;
+    wewwApp.analyser.fftSize = 256;
+
+    wewwApp.source.connect(wewwApp.ctx.destination);
+    wewwApp.source.connect(wewwApp.analyser);
+    wewwApp.startAudioInterval();
+}
+
+
+// starts audio analyser interval
+wewwApp.startAudioInterval = () => {
+    var data = new Uint8Array(128);
+    wewwApp.audioInterval = setInterval(() => {
+        if (!wewwApp.audioCallback) return;
+        wewwApp.analyser.getByteFrequencyData(data);
+        var stereo = wewwApp.convertAudio(data);
+        wewwApp.audioCallback(stereo);
+    }, 33); // 33ms ~~ 30fps
+}
+
+
+// stops audio analyser interval and playing audio
+wewwApp.stopAudioInterval = () => {
+
+    window.persistAudioStream = null;
+
+    if (wewwApp.audio)
+        wewwApp.audio.remove();
+
+    if (wewwApp.audioInterval) {
+        clearInterval(wewwApp.audioInterval);
+        wewwApp.audioInterval = null;
+    }
 }
 
 
