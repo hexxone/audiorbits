@@ -1,4 +1,6 @@
-## [AudiOrbits](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780) is a web wallpaper designed for [Wallpaper Engine](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
+# [AudiOrbits](https://github.com/Hexxonite/audiorbits)
+
+AudiOrbits is a web wallpaper designed for Wallpaper Engine.
 
 
 ### WEAS (Wallpaper Engine Audio Supplier)
@@ -25,56 +27,21 @@ You can see this running [HERE](https://experiment.hexxon.me/)
 
 
 
-### Features:
+### Changelog:
 
-- optional 3D-Parallax effect
-- dynamic fractal orbit generator
-  - default brightness & saturation settings (when no audio is playing)
-  - zoom speed setting
-  - rotation speed setting
-  - color fade speed setting
-  - system drawing mode
-  - fps lock (avoids stressing your pc)
-- audio processing & mapping
-  - minimum brightness & saturation settings
-  - volume multiplier
-  - audio smoothing
-  - audio zoom multiplier
-  - audio zoom smoothing
-- "tunnel generator" (avoids particles in front of camera)
-- optional overlay and background images
-- customizable algorithm parameters
-- advanced settings
-  - 3 choosable base textures
-  - texture size setting
-  - rendering stats
-  - FOV setting
-  - Scaling factor
-  - orbit level amount
-  - orbit level depth
-  - orbit subset per level amount
-  - orbit point per subset amount
-  - fog thickness setting
-  - level shifting (experimental)
-  - bloom shader (experimental)
-- iCUE Integration
-  - single color mode
-  - projection mode
-- "No Pause" mode
-- smooth fade-in
-- seizure warning
-- debug logging
+Version 1.8:
+- added "fixed" parallax mode
+- added "color"-tab and three new color modes
+- added LUT (LookUpTable)-filter with three modes to "color"-tab
+- moved color-fade-speed to "color"-tab
+- moved bloom-filter to "color"-tab
+- level shifting is now ON by default
+- removed "no_pause"-setting (there is an equivalent option in WE)
+- updated WEWWA.js for browser usage
+- updated https://experiment.hexxon.me/
+- updated preview image to a gif
+- improved rendering performance
 
-
-
-### Support:
-
-If you have issues with the wallpaper on Steam, please make sure you have thoroughly read the description and the Settings Guide on Steam.
-If your problem persists or you found a bug, please leave a message in the "Bugreport Thread" **on Steam - NOT ON GITHUB**.
-
-
-
-### Patchnotes:
 
 Version 1.7:
 - !!! Please reset your config for one last time !!!
