@@ -2,9 +2,9 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
-THREE.RenderPass = function ( scene, camera, overrideMaterial, clearColor, clearAlpha ) {
+THREE.RenderPass = function (scene, camera, overrideMaterial, clearColor, clearAlpha) {
 
-	THREE.Pass.call( this );
+	THREE.Pass.call(this);
 
 	this.scene = scene;
 	this.camera = camera;
@@ -12,7 +12,7 @@ THREE.RenderPass = function ( scene, camera, overrideMaterial, clearColor, clear
 	this.overrideMaterial = overrideMaterial;
 
 	this.clearColor = clearColor;
-	this.clearAlpha = ( clearAlpha !== undefined ) ? clearAlpha : 0;
+	this.clearAlpha = (clearAlpha !== undefined) ? clearAlpha : 0;
 
 	this.clear = true;
 	this.clearDepth = false;
@@ -20,11 +20,11 @@ THREE.RenderPass = function ( scene, camera, overrideMaterial, clearColor, clear
 
 };
 
-THREE.RenderPass.prototype = Object.assign( Object.create( THREE.Pass.prototype ), {
+THREE.RenderPass.prototype = Object.assign(Object.create(THREE.Pass.prototype), {
 
 	constructor: THREE.RenderPass,
 
-	render: function ( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
+	render: function (renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
 
 		var oldAutoClear = renderer.autoClear;
 		renderer.autoClear = false;
@@ -33,30 +33,30 @@ THREE.RenderPass.prototype = Object.assign( Object.create( THREE.Pass.prototype 
 
 		var oldClearColor, oldClearAlpha;
 
-		if ( this.clearColor ) {
+		if (this.clearColor) {
 
 			oldClearColor = renderer.getClearColor().getHex();
 			oldClearAlpha = renderer.getClearAlpha();
 
-			renderer.setClearColor( this.clearColor, this.clearAlpha );
+			renderer.setClearColor(this.clearColor, this.clearAlpha);
 
 		}
 
-		if ( this.clearDepth ) {
+		if (this.clearDepth) {
 
 			renderer.clearDepth();
 
 		}
 
-		renderer.setRenderTarget( this.renderToScreen ? null : readBuffer );
+		renderer.setRenderTarget(this.renderToScreen ? null : readBuffer);
 
 		// TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
-		if ( this.clear ) renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-		renderer.render( this.scene, this.camera );
+		if (this.clear) renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil);
+		renderer.render(this.scene, this.camera);
 
-		if ( this.clearColor ) {
+		if (this.clearColor) {
 
-			renderer.setClearColor( oldClearColor, oldClearAlpha );
+			renderer.setClearColor(oldClearColor, oldClearAlpha);
 
 		}
 
@@ -65,4 +65,4 @@ THREE.RenderPass.prototype = Object.assign( Object.create( THREE.Pass.prototype 
 
 	}
 
-} );
+});

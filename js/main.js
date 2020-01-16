@@ -3,31 +3,26 @@
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.  
  * 
- * AudiOrbits 1.7
- * for Wallpaper Engine
- * by Hexxon
+ * AudiOrbits project	(https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
+ * for Wallpaper Engine (https://steamcommunity.com/app/431960)
+ * by Hexxon 			(https://hexxon.me)
  * 
- * You dont have WE but wanna see this in action?
+ * You don't own Wallper Engine but want to see this in action?
  * Go here:	https://experiment.hexxon.me
  * 
  * If you're reading this you're either pretty interested in the code or just bored :P
  * Either way thanks for using this Wallpaper I guess.
  * Leave me some feedback on the Workshop-Page for this item if you like!
- * https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780
- * 
- * PS.: pls dont blame me for bugs D:
  * 
 */
 
 // custom logging function
 function print(arg, force) {
-	if (!audiOrbits.initialized || audiOrbits.debug || force) console.log("| AudiOrbits |" + JSON.stringify(arg));
+	if (!audiOrbits.initialized || audiOrbits.debug || force) console.log("AudiOrbits: " + JSON.stringify(arg));
 }
 
-/**
- * Provides requestAnimationFrame in a cross browser way.
- * http://paulirish.com/2011/requestanimationframe-for-smart-animating/
- */
+// Provides requestAnimationFrame in a cross browser way.
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 if (!window.requestAnimationFrame) {
 	window.requestAnimationFrame = (() => {
 		return window.webkitRequestAnimationFrame ||
@@ -37,9 +32,7 @@ if (!window.requestAnimationFrame) {
 	})();
 }
 
-/**
- * Provides a custom timed rendering function
- */
+// Provides a custom rendering function
 window.requestCustomAnimationFrame = (callback) => {
 	var sett = audiOrbits.settings;
 	if (!sett.system_drawing)
@@ -48,15 +41,21 @@ window.requestCustomAnimationFrame = (callback) => {
 		audiOrbits.rafID = requestAnimationFrame(callback);
 };
 
-// tests an array for containing NaN values
-// function testNaN(arr, str) { for(var i = 0; i < arr.length; i++) if(arr[i] == null || isNaN(arr[i])) console.log("testNaN match: " + str + " | @ " + i); }
-
 // base object for wallpaper
 var audiOrbits = {
+	// webvr user input data
+	userData: {
+		isSelecting: false,
+		controller1: null,
+		controller2: null
+	},
 	// holds default wallpaper settings
+	// these basically connect 1:1 to wallpaper engine settings.
+	// for more explanation on settings visit the Workshop-Item-Forum (link above)
 	settings: {
-		cam_locked: true,
-		auto_parallax: false,
+		schemecolor: "0 0 0",
+		parallax_option: 0,
+		parallax_angle: 180,
 		parallax_strength: 3,
 		auto_parallax_speed: 2,
 		color_fade_speed: 2,
@@ -98,6 +97,7 @@ var audiOrbits = {
 		level_depth: 600,
 		level_shifting: false,
 		bloom_filter: false,
+		lut_filter: -1,
 		icue_mode: 1,
 		icue_area_xoff: 50,
 		icue_area_yoff: 90,
@@ -106,10 +106,16 @@ var audiOrbits = {
 		icue_area_blur: 5,
 		icue_area_decay: 15,
 		icue_area_preview: false,
-		icue_main_color: "0 255 0",
-		no_pause: false,
+		icue_main_color: "0 0.8 0",
+		color_mode: 0,
+		user_color_a: "1 0.5 0",
+		user_color_b: "0 0.5 1",
 		seizure_warning: true,
 	},
+	// context?
+	isWebContext: false,
+	// vr rendering is only supported in web.
+	vrRendering: false,
 	// started yet?
 	initialized: false,
 	// paused?
@@ -121,9 +127,31 @@ var audiOrbits = {
 	mainCanvas: null,
 	helperCanvas: null,
 	helperContext: null,
+	// use effect commposer if any shader active
+	useComposer: false,
+	// LUT (LookUpTable) Textures
+	lutTextures: [
+		{
+			name: "posterize",
+			url: "./img/lookup/posterize-s8n.png",
+		},
+		{
+			name: "inverse",
+			url: "./img/lookup/inverse-s8.png",
+		},
+		{
+			name: "negative",
+			url: "./img/lookup/color-negative-s8.png",
+		},
+	],
+	// LookUpTable Filter objects
+	effectLUT: null,
+	effectLUTNearest: null,
 	// requestAnimationFrame ID
 	lastFrame: performance.now() / 1000,
 	rafID: null,
+	// current user colorObject
+	colorObject: null,
 	// interval for random numer audio generator
 	wallpaperAudioInterval: null,
 	// interval for reloading the wallpaper
@@ -146,18 +174,20 @@ var audiOrbits = {
 	icueDevices: [],
 	icuePreview: null,
 
+
 	///////////////////////////////////////////////
 	// APPLY SETTINGS
 	///////////////////////////////////////////////
 
+	// Apply settings from the project.json "properties" object and takes certain actions
 	applyCustomProps: function (props) {
-		// applies actual
-		print("apply: " + JSON.stringify(props), true);
+		print("apply: " + JSON.stringify(props));
 
-		var _ignore = ["debugging", "parallax_option", "img_overlay", "img_background", "base_texture"];
+		var _ignore = ["debugging", "audioprocessing", "img_overlay", "img_background", "base_texture"];
 
-		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "scaling_factor", "camera_bound",
-			"num_points_per_subset", "num_subsets_per_level", "num_levels", "level_depth", "level_shifting", "bloom_filter"];
+		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "scaling_factor",
+			"camera_bound", "num_points_per_subset", "num_subsets_per_level", "num_levels", "level_depth",
+			"level_shifting", "bloom_filter", "lut_filter"];
 
 		var self = audiOrbits;
 		var sett = self.settings;
@@ -165,26 +195,32 @@ var audiOrbits = {
 
 		// loop all settings for updated values
 		for (var setting in props) {
+			// ignore this setting or apply it manually
 			if (_ignore.includes(setting) || setting.startsWith("HEADER_")) continue;
+			// get the updated setting
 			var prop = props[setting];
+			// check typing
 			if (!prop || !prop.type || prop.type == "text") continue;
 			if (sett[setting] != null) {
+				// save b4
+				var b4Setting = sett[setting];
 				// apply prop value
 				if (prop.type == "bool")
 					sett[setting] = prop.value == true;
 				else
 					sett[setting] = prop.value;
-				// check field flags
-				reInitFlag = reInitFlag || _reInit.includes(setting);
+
+				// set re-init flag if value changed and included in list
+				reInitFlag = reInitFlag || b4Setting != sett[setting] && _reInit.includes(setting);
 			}
 			else print("Unknown setting: " + setting);
 		}
 
 		weas.audio_smoothing = sett.audio_smoothing;
 
-		// create preview skkrt
+		// create preview
 		if (!self.icuePreview && sett.icue_area_preview) {
-			self.icuePreview = document.createElement('div');
+			self.icuePreview = document.createElement("div");
 			self.icuePreview.classList.add("cuePreview");
 			document.body.appendChild(self.icuePreview);
 		}
@@ -197,36 +233,26 @@ var audiOrbits = {
 			else Object.assign(self.icuePreview.style, self.getICUEArea(true));
 		}
 
-		// Camera swirl / parallax / lock
-		if (props['parallax_option']) {
-			var val = props['parallax_option'].value;
-			sett.cam_locked = (val == 0);
-			sett.auto_parallax = (val == 2);
-		}
-
 		// Custom user images
-		if (props['img_background']) {
-			var val = props['img_background'].value;
-			$("#img_back").fadeOut(1000, () => {
-				if (val && val !== '') {
-					$("#img_back").attr('src', 'file:///' + val);
-					$("#img_back").fadeIn(1000);
+		var setImgSrc = function (imgID, srcVal) {
+			$(imgID).fadeOut(1000, () => {
+				if (srcVal && srcVal !== "") {
+					$(imgID).attr("src", "file:///" + srcVal);
+					$(imgID).fadeIn(1000);
 				}
 			});
-		}
-		if (props['img_overlay']) {
-			var val2 = props['img_overlay'].value;
-			$("#img_over").fadeOut(1000, () => {
-				if (val2 && val2 !== '') {
-					$("#img_over").attr('src', 'file:///' + val2);
-					$("#img_over").fadeIn(1000);
-				}
-			});
-		}
+		};
+		if (props["img_background"])
+			setImgSrc("#img_back", props["img_background"].value);
+		if (props["img_overlay"])
+			setImgSrc("#img_over", props["img_overlay"].value);
+
+		// enable composer rendering if any active shaders
+		self.useComposer = sett.bloom_filter || sett.lut_filter >= 0;
 
 		// intitialize texture splash
-		if (props['base_texture']) {
-			var val = props['base_texture'].value;
+		if (props["base_texture"]) {
+			var val = props["base_texture"].value;
 			switch (val) {
 				default: sett.base_texture_path = "./img/galaxy.png"; break;
 				case 1: sett.base_texture_path = "./img/cuboid.png"; break;
@@ -235,18 +261,26 @@ var audiOrbits = {
 			reInitFlag = true;
 		}
 
+		// re-initialize colors if mode or user value changed
+		if (props["color_mode"] || props["user_color_a"] || props["user_color_b"]) {
+			self.initHueValues();
+		}
+
 		// debug logging
-		if (props['debugging']) self.debug = props['debugging'].value == true;
-		if (self.debugTimeout) {
+		if (props["debugging"]) self.debug = props["debugging"].value == true;
+		if (!self.debug && self.debugTimeout) {
 			clearTimeout(self.debugTimeout);
 			self.debugTimeout = null;
 		}
-		if (self.debug) self.debugTimeout = setTimeout(() => self.applyCustomProps({ 'debugging': { value: false } }), 1000 * 60);
+		if (self.debug && !self.debugTimeout) self.debugTimeout = setTimeout(() => self.applyCustomProps({ "debugging": { value: false } }), 1000 * 60);
 		$("#debugwnd").css("visibility", self.debug ? "visible" : "hidden");
 
 		// fix for centered camera on Parallax "none"
-		if (sett.cam_locked) self.mouseX = self.mouseY = 0;
+		if (sett.parallax_option == 0) self.mouseX = self.mouseY = 0;
+		// set Cursor for "fixed" parallax mode
+		if (sett.parallax_option == 3) self.positionMouseAngle(sett.parallax_angle);
 
+		// have render-relevant settings been changed?
 		return reInitFlag;
 	},
 
@@ -257,31 +291,31 @@ var audiOrbits = {
 
 	initFirst: function () {
 		// Setup button, slider & window listeners only ever once!
-		document.addEventListener('mousemove', (event) => {
+		document.addEventListener("mousemove", (event) => {
 			var sett = this.settings;
-			if (sett.cam_locked || sett.auto_parallax) return;
+			if (sett.parallax_option != 1) return;
 			this.mouseX = event.clientX - this.windowHalfX;
 			this.mouseY = event.clientY - this.windowHalfY;
 		}, false);
-		document.addEventListener('touchstart', (event) => {
+		document.addEventListener("touchstart", (event) => {
 			var sett = this.settings;
-			if (sett.cam_locked || sett.auto_parallax) return;
+			if (sett.parallax_option != 1) return;
 			if (event.touches.length == 1) {
 				event.preventDefault();
 				this.mouseX = event.touches[0].pageX - this.windowHalfX;
 				this.mouseY = event.touches[0].pageY - this.windowHalfY;
 			}
 		}, false);
-		document.addEventListener('touchmove', (event) => {
+		document.addEventListener("touchmove", (event) => {
 			var sett = this.settings;
-			if (sett.cam_locked || sett.auto_parallax) return;
+			if (sett.parallax_option != 1) return;
 			if (event.touches.length == 1) {
 				event.preventDefault();
 				this.mouseX = event.touches[0].pageX - this.windowHalfX;
 				this.mouseY = event.touches[0].pageY - this.windowHalfY;
 			}
 		}, false);
-		window.addEventListener('resize', (event) => {
+		window.addEventListener("resize", (event) => {
 			this.windowHalfX = window.innerWidth / 2;
 			this.windowHalfY = window.innerHeight / 2;
 			if (!this.initialized) return;
@@ -290,14 +324,90 @@ var audiOrbits = {
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 		}, false);
 
+		const makeIdentityLutTexture = function () {
+			const identityLUT = new Uint8Array([
+				0, 0, 0, 255, // black
+				255, 0, 0, 255, // red
+				0, 0, 255, 255, // blue
+				255, 0, 255, 255, // magenta
+				0, 255, 0, 255, // green
+				255, 255, 0, 255, // yellow
+				0, 255, 255, 255, // cyan
+				255, 255, 255, 255, // white
+			]);
+			return function (filter) {
+				const texture = new THREE.DataTexture(identityLUT, 4, 2, THREE.RGBAFormat);
+				texture.minFilter = filter;
+				texture.magFilter = filter;
+				texture.needsUpdate = true;
+				texture.flipY = false;
+				return texture;
+			};
+		}();
+
+		const makeLUTTexture = function () {
+			const imgLoader = new THREE.ImageLoader();
+			const ctx = document.createElement("canvas").getContext("2d");
+
+			return function (info) {
+				const texture = makeIdentityLutTexture(
+					info.filter ? THREE.LinearFilter : THREE.NearestFilter);
+
+				if (info.url) {
+					const lutSize = info.size;
+					// set the size to 2 (the identity size). We'll restore it when the
+					// image has loaded. This way the code using the lut doesn't have to
+					// care if the image has loaded or not
+					info.size = 2;
+					imgLoader.load(info.url, function (image) {
+						const width = lutSize * lutSize;
+						const height = lutSize;
+						info.size = lutSize;
+						ctx.canvas.width = width;
+						ctx.canvas.height = height;
+						ctx.drawImage(image, 0, 0);
+						const imageData = ctx.getImageData(0, 0, width, height);
+						texture.image.data = new Uint8Array(imageData.data.buffer);
+						texture.image.width = width;
+						texture.image.height = height;
+						texture.needsUpdate = true;
+					}, null, function (err) {
+						console.log("Error loading LUT: ");
+						throw err;
+					});
+				}
+
+				return texture;
+			};
+		}();
+
+		audiOrbits.lutTextures.forEach((info) => {
+			// if not size set get it from the filename
+			if (!info.size) {
+				// assumes filename ends in '-s<num>[n]'
+				// where <num> is the size of the 3DLUT cube
+				// and [n] means 'no filtering' or 'nearest'
+				//
+				// examples:
+				//    'foo-s16.png' = size:16, filter: true
+				//    'bar-s8n.png' = size:8, filter: false
+				const m = /-s(\d+)(n*)\.[^.]+$/.exec(info.url);
+				if (m) {
+					info.size = parseInt(m[1]);
+					info.filter = info.filter === undefined ? m[2] !== "n" : info.filter;
+				}
+			}
+			info.texture = makeLUTTexture(info);
+		});
+
 		// real initializer
 		var initWrap = () => {
-			$('#triggerwarn').fadeOut(1000, () => this.initSystem());
+			$("#triggerwarn").fadeOut(1000, () => this.initSystem());
 		};
 		// initialize now or after a delay?
 		if (!this.settings.seizure_warning) initWrap();
 		else {
-			$('#triggerwarn').fadeIn(1000);
+			$("#triggerwarn").fadeIn(1000);
 			setTimeout(initWrap, 10000);
 		}
 	},
@@ -329,19 +439,15 @@ var audiOrbits = {
 			document.body.appendChild(self.stats.dom);
 		}
 		// get container
-		self.container = document.getElementById('renderContainer');
-
+		self.container = document.getElementById("renderContainer");
 		// get canvas & context
-		self.mainCanvas = document.getElementById('mainCvs');
-
+		self.mainCanvas = document.getElementById("mainCvs");
 		// get helper canvas & context
-		self.helperCanvas = document.getElementById('helpCvs');
+		self.helperCanvas = document.getElementById("helpCvs");
 		self.helperCanvas.width = self.icueCanvasX;
 		self.helperCanvas.height = self.icueCanvasY;
-		self.helperCanvas.style.display = 'none';
-
-		self.helperContext = self.helperCanvas.getContext('2d');
-
+		self.helperCanvas.style.display = "none";
+		self.helperContext = self.helperCanvas.getContext("2d");
 		// setup geometrics
 		for (var l = 0; l < sett.num_levels; l++) {
 			var sets = [];
@@ -384,9 +490,7 @@ var audiOrbits = {
 				self.scene = new THREE.Scene();
 				self.scene.fog = new THREE.FogExp2(0x000000, sett.fog_thickness / 10000);
 				// generate random hue vals
-				for (var s = 0; s < sett.num_subsets_per_level; s++) {
-					self.hueValues[s] = Math.random();
-				}
+				self.initHueValues();
 				// material properties
 				var matprops = {
 					map: texture,
@@ -439,14 +543,31 @@ var audiOrbits = {
 					});
 				self.renderer.setSize(window.innerWidth, window.innerHeight);
 
-				// intialize Bloom Shader
-				if (sett.bloom_filter) {
+				// enable web-vr context
+				if (self.isWebContext) {
+					self.initWebVR();
+				}
+
+				// initialize Composer for Shaders
+				if (self.useComposer) {
+					// add import Pass from real renderer
 					self.composer = new THREE.EffectComposer(self.renderer);
 					self.composer.addPass(new THREE.RenderPass(self.scene, self.camera, null, 0x000000, 1));
-
-					var urBloomPass = new THREE.UnrealBloomPass(512);
-					urBloomPass.renderToScreen = true;
-					self.composer.addPass(urBloomPass);
+					// bloom
+					if (sett.bloom_filter) {
+						var urBloomPass = new THREE.UnrealBloomPass(512);
+						urBloomPass.renderToScreen = sett.lut_filter < 0;
+						self.composer.addPass(urBloomPass);
+					}
+					// lookuptable filter
+					if (sett.lut_filter >= 0) {
+						self.effectLUT = new THREE.ShaderPass(THREE.LUTShader);
+						self.effectLUT.renderToScreen = false;
+						self.effectLUTNearest = new THREE.ShaderPass(THREE.LUTShaderNearest);
+						self.effectLUTNearest.renderToScreen = false;
+						self.composer.addPass(self.effectLUT);
+						self.composer.addPass(self.effectLUTNearest);
+					}
 				}
 
 				// prepare new orbit levels for the first reset/moveBack when a subset passes the camera
@@ -455,12 +576,14 @@ var audiOrbits = {
 				}
 				// init plugins
 				if (self.icueAvailable) self.initICUE();
+				else self.icueMessage("iCUE: Not available!");
 				// start bg parallax handler
 				swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
 				// start rendering
-				self.renderLoop();
+				if (!self.postRendering) self.renderLoop();
+				else self.renderer.setAnimationLoop(self.renderLoop);
 				$("#renderContainer").fadeIn(5000);
-				self.popupMessage('<h1>AudiOrbits 1.7</h1>', true);
+				self.popupMessage("<h1>" + document.title + "</h1>", true);
 				// print
 				print("startup complete.", true);
 			},
@@ -468,10 +591,76 @@ var audiOrbits = {
 			undefined,
 			// onError callback
 			(err) => {
-				print('texture loading error:', true);
+				print("texture loading error:", true);
 				print(err, true);
 			}
 		);
+	},
+	// initialize hue-values by color mode
+	initHueValues: function () {
+		var self = audiOrbits;
+		if (!self.hueValues) self.hueValues = [];
+		var sett = self.settings;
+		var cobj = self.colorObject = self.getColorObject();
+		print("initHueV: a=" + cobj.hsla + ", b=" + cobj.hslb);
+		for (var s = 0; s < sett.num_subsets_per_level; s++) {
+			var col = Math.random();
+			switch (sett.color_mode) {
+				case 1:
+				case 4: col = cobj.hsla; break;
+				case 2: col = cobj.min + (s / sett.num_subsets_per_level * cobj.range); break;
+				case 3: col = cobj.min + (col * cobj.range); break;
+			}
+			self.hueValues[s] = col;
+		}
+	},
+	// returns the processed user color object
+	getColorObject: function () {
+		var self = audiOrbits;
+		var sett = self.settings;
+		var a = self.rgbToHue(sett.user_color_a.split(" "));
+		var b = self.rgbToHue(sett.user_color_b.split(" "));
+		var mi = Math.min(a, b);
+		var ma = Math.max(a, b);
+		return {
+			hsla: a,
+			hslb: b,
+			min: mi,
+			max: ma,
+			range: ma - mi
+		}
+	},
+	// get HUE val
+	rgbToHue: function (arr) {
+		var r1 = arr[0];
+		var g1 = arr[1];
+		var b1 = arr[2];
+		var maxColor = Math.max(r1, g1, b1);
+		var minColor = Math.min(r1, g1, b1);
+		var L = (maxColor + minColor) / 2;
+		var S = 0;
+		var H = 0;
+		if (maxColor != minColor) {
+			if (L < 0.5) {
+				S = (maxColor - minColor) / (maxColor + minColor);
+			} else {
+				S = (maxColor - minColor) / (2.0 - maxColor - minColor);
+			}
+			if (r1 == maxColor) {
+				H = (g1 - b1) / (maxColor - minColor);
+			} else if (g1 == maxColor) {
+				H = 2.0 + (b1 - r1) / (maxColor - minColor);
+			} else {
+				H = 4.0 + (r1 - g1) / (maxColor - minColor);
+			}
+		}
+		L = L * 100;
+		S = S * 100;
+		H = H * 60;
+		if (H < 0) {
+			H += 360;
+		}
+		return H / 360;
 	},
 	// re-initialies the walpaper some time after an "advanced setting" has been changed
 	reInitSystem: function () {
@@ -495,15 +684,14 @@ var audiOrbits = {
 		this.renderer.forceContextLoss();
 		// recreate webgl canvas
 		this.container.removeChild(this.mainCanvas);
-		var mainCvs = document.createElement('canvas');
+		var mainCvs = document.createElement("canvas");
 		mainCvs.id = "mainCvs";
 		this.container.appendChild(mainCvs);
-		// recreate 2d canvas
+		// recreate icue help canvas
 		this.container.removeChild(this.helperCanvas);
-		var helpCvs = document.createElement('canvas');
+		var helpCvs = document.createElement("canvas");
 		helpCvs.id = "helpCvs";
 		this.container.appendChild(helpCvs);
-
 		// init
 		this.initSystem();
 	},
@@ -519,7 +707,7 @@ var audiOrbits = {
 			var sett = self.settings;
 			// paused - stop render
 			if (self.PAUSED) return;
-			window.requestCustomAnimationFrame(self.renderLoop);
+			if (!self.postRendering) window.requestCustomAnimationFrame(self.renderLoop);
 			// Figure out how much time passed since the last animation
 			var fpsThreshMin = 1 / sett.fps_limit;
 			var fpsRenderMult = 60 / sett.fps_limit;
@@ -547,6 +735,7 @@ var audiOrbits = {
 		if (self.stats) self.stats.begin();
 
 		// local vars are faster
+		var cObj = self.colorObject;
 		var sett = self.settings;
 		var flmult = (15 + sett.audio_multiplier) * 0.02;
 		var spvn = sett.zoom_val;
@@ -565,12 +754,16 @@ var audiOrbits = {
 		if (camera.position.x != newCamX) camera.position.x += (newCamX - camera.position.x) * deltaTime * 0.05;
 		if (camera.position.y != newCamY) camera.position.y += (newCamY - camera.position.y) * deltaTime * 0.05;
 
-		// shift hue values forward
-		for (var s = 0; s < sett.num_subsets_per_level - 1; s++) {
-			hueValues[s] += (sett.color_fade_speed / 4000) * deltaTime;
-			hueValues[s] %= 1;
+		// shift hue values
+		if (sett.color_mode == 0) {
+			var hueAdd = (sett.color_fade_speed / 4000) * deltaTime;
+			for (var s = 0; s < sett.num_subsets_per_level - 1; s++) {
+				hueValues[s] += hueAdd;
+				hueValues[s] %= 1;
+			}
 		}
-		// set camera view-point to scene-center
+
+		// set camera view-target to scene-center
 		camera.lookAt(scene.position);
 
 		// calculate boost strength & step size if data given
@@ -599,7 +792,7 @@ var audiOrbits = {
 		if (hasAudio)
 			rot += rot * boost * 0.01;
 
-		// iterate through all objects
+		// position all objects
 		for (i = 0; i < scenelen; i++) {
 			var child = scene.children[i];
 			// reset if out of bounds
@@ -610,7 +803,6 @@ var audiOrbits = {
 				moveBacks[child.myLevel]++;
 				// update the child visually
 				if (child.needsUpdate) {
-					print("update child vertex data: " + i);
 					child.geometry.verticesNeedUpdate = true;
 					child.needsUpdate = false;
 				}
@@ -624,37 +816,79 @@ var audiOrbits = {
 			// velocity & rotation
 			child.position.z += spvel * deltaTime;
 			child.rotation.z -= rot * deltaTime;
-			// HSL calculation
-			var nhue, nsat, nlight;
-			if (hasAudio) {
+
+		}
+
+		// HSL calculation with audio?
+		if (hasAudio) {
+			// move as many calculations out of loop as possible
+			var minSat = sett.minimum_saturation / 100;
+			var minBri = sett.minimum_brightness / 100;
+			// iterate through all objects
+			for (i = 0; i < scenelen; i++) {
+				var child = scene.children[i];
 				// use obj to camera distance with step to get frequency from data >> do some frequency calculations
 				var freqIndx = Math.round((camera.position.z - child.position.z) / step) + 4;
 				// get & process frequency data
 				var cfreq = parseFloat(lastAudio.data[freqIndx]);
 				var rFreq = (cfreq * flmult / 3) / lastAudio.max;
+				var cHue = hueValues[child.mySubset];
+				// uhoh ugly special case
+				if (sett.color_mode == 4) {
+					var tHue = cObj.hslb;
+					cHue += (tHue - cHue) * cfreq / lastAudio.max;
+				}
+				else if (sett.color_mode == 0)
+					cHue += rFreq;
 				// quick maths
-				nhue = (hueValues[child.mySubset] + rFreq) % 1.0;
-				nsat = Math.abs(sett.minimum_saturation / 100 + rFreq + rFreq * boost * 0.17);
-				nlight = Math.min(0.7, sett.minimum_brightness / 100 + rFreq + rFreq * boost * 0.05);
+				var nhue = cHue % 1.0;
+				var nsat = Math.abs(minSat + rFreq + rFreq * boost * 0.07);
+				var nlight = Math.min(0.7, minBri + rFreq + rFreq * boost * 0.02);
+				// update dat shit
+				//print("setHSL | child: " + i + " | h: " + nhue + " | s: " + nsat + " | l: " + nlight);
+				child.myMaterial.color.setHSL(nhue, nsat, nlight);
 			}
-			else {
+		}
+		else {
+			// no audio, but more pre-calculation optimisation :)
+			var defSat = sett.default_saturation / 100;
+			var defBri = sett.default_brightness / 100;
+			var sixtyDelta = deltaTime * 60;
+			// iterate through all objects
+			for (i = 0; i < scenelen; i++) {
+				var child = scene.children[i];
 				// get current HSL
 				var hsl = child.myMaterial.color.getHSL({});
 				var hue = hueValues[child.mySubset];
-				// Process color fade to new 
-				nhue = hsl.h + (hue - hsl.h) / 60 * deltaTime;
-				nsat = hsl.s + (sett.default_saturation / 100 - hsl.s) / 60 * deltaTime;
-				nlight = hsl.l + (sett.default_brightness / 100 - hsl.l) / 60 * deltaTime;
+				// Calculate smoothing, fps-independant
+				var nhue = hsl.h + (hue - hsl.h) / sixtyDelta;
+				var nsat = hsl.s + (defSat - hsl.s) / sixtyDelta;
+				var nlight = hsl.l + (defBri - hsl.l) / sixtyDelta;
+				// update dat shit
+				//print("setHSL | child: " + i + " | h: " + nhue + " | s: " + nsat + " | l: " + nlight);
+				child.myMaterial.color.setHSL(nhue, nsat, nlight);
 			}
-			// update dat shit
-			print("setHSL | child: " + i + " | h: " + nhue + " | s: " + nsat + " | l: " + nlight);
-			child.myMaterial.color.setHSL(nhue, nsat, nlight);
 		}
-		// render alll dat shit
-		if (self.composer) self.composer.render(ellapsed);
+
+		// effect render
+		if (self.composer) {
+			// setup changed LookupTable effect
+			if (sett.lut_filter >= 0) {
+				var lutInfo = self.lutTextures[sett.lut_filter];
+				var effect = lutInfo.filter ? self.effectLUT : self.effectLUTNearest;
+				self.effectLUT.enabled = lutInfo.filter;
+				self.effectLUTNearest.enabled = !lutInfo.filter;
+				var lutTexture = lutInfo.texture;
+				effect.uniforms.lutMap.value = lutTexture;
+				effect.uniforms.lutMapSize.value = lutInfo.size;
+			}
+			self.composer.render(ellapsed);
+		}
+		// default render
 		else self.renderer.render(scene, camera);
 
 		// ICUE PROCESSING
+		// its better to do this every frame instead of seperately timed
 
 		if (sett.icue_mode == 1) {
 			// get helper vars
@@ -669,6 +903,13 @@ var audiOrbits = {
 			hctx.drawImage(self.mainCanvas, area.left, area.top, area.width, area.height, 0, 0, cueWid, cueHei);
 			// blur the helper projection canvas
 			if (sett.icue_area_blur > 0) self.gBlurCanvas(self.helperCanvas, hctx, sett.icue_area_blur);
+		}
+
+		// WEBVR PROCESSING
+
+		if (self.isWebContext) {
+			self.handleVRController(self.userData.controller1);
+			self.handleVRController(self.userData.controller1);
 		}
 
 		// stats
@@ -708,7 +949,7 @@ var audiOrbits = {
 			y = s / 100 * (0.5 - Math.random());
 			//print({al,bl,cl,dl,el});
 			for (var i = 0; i < num_points_subset_l; i++) {
-				// Iteration formula (generalization of the Barry Martin's original one)
+				// Iteration formula (generalization of Barry Martin's one)
 				if (choice < 0.5) z = (dl + (Math.sqrt(Math.abs(bl * x - cl))));
 				else if (choice < 0.75) z = (dl + Math.sqrt(Math.sqrt(Math.abs(bl * x - cl))));
 				else z = (dl + Math.log(2 + Math.sqrt(Math.abs(bl * x - cl))));
@@ -759,6 +1000,7 @@ var audiOrbits = {
 			}
 		}
 		// loop all scene children and set flag that new vertex data is available
+		// means the shape will update once the subset gets moved back to the end.
 		if (!this.scene || !this.scene.children) return;
 		var children = this.scene.children;
 		var scenelen = children.length;
@@ -780,35 +1022,41 @@ var audiOrbits = {
 	swirlHandler: function () {
 		var self = audiOrbits;
 		var sett = self.settings;
-		if (!sett.auto_parallax) return;
-		self.swirlStep += sett.auto_parallax_speed / 3;
-		if(self.swirlStep > 360) self.swirlStep -= 360;
-		else if(self.swirlStep < 0) self.swirlStep += 360;
-		var ang = self.swirlStep * Math.PI / 180;
+		if (sett.parallax_option != 2) return;
+		self.swirlStep += sett.auto_parallax_speed / 8;
+		if (self.swirlStep > 360) self.swirlStep -= 360;
+		else if (self.swirlStep < 0) self.swirlStep += 360;
+		self.positionMouseAngle(self.swirlStep);
+	},
+	// position Mouse with angle
+	positionMouseAngle: function (degrees) {
+		var self = audiOrbits;
+		var ang = degrees * Math.PI / 180;
 		var w = window.innerHeight;
-		if(window.innerWidth < w) w = window.innerWidth;
-		self.mouseX = w / 2 * Math.sin(ang);
-		self.mouseY = w / 2 * Math.cos(ang);
+		if (window.innerWidth < w) w = window.innerWidth;
+		w /= 2;
+		self.mouseX = w * Math.sin(ang);
+		self.mouseY = w * Math.cos(ang);
 	},
 	// popup message handler
 	popupMessage: function (msg, hideAfter) {
-		$('#txtholder').html(msg);
-		$('#txtholder').fadeIn({ queue: false, duration: 'slow' });
-		$('#txtholder').animate({ bottom: "40px" }, 'slow');
+		$("#txtholder").html(msg);
+		$("#txtholder").fadeIn({ queue: false, duration: "slow" });
+		$("#txtholder").animate({ bottom: "40px" }, "slow");
 		if (hideAfter) setTimeout(() => {
-			$('#txtholder').fadeOut({ queue: false, duration: 'slow' });
-			$('#txtholder').animate({ bottom: "-40px" }, 'slow');
-		}, 10000);
+			$("#txtholder").fadeOut({ queue: false, duration: "slow" });
+			$("#txtholder").animate({ bottom: "-40px" }, "slow");
+		}, 15000);
 	},
 	// show a message by icue
-	icueMessage: function(msg) {
-		$('#icuetext').html(msg);
-		$('#icueholder').fadeIn({ queue: false, duration: 'slow' });
-		$('#icueholder').animate({ top: "0px" }, 'slow');
+	icueMessage: function (msg) {
+		$("#icuetext").html(msg);
+		$("#icueholder").fadeIn({ queue: false, duration: "slow" });
+		$("#icueholder").animate({ top: "0px" }, "slow");
 		setTimeout(() => {
-			$('#icueholder').fadeOut({ queue: false, duration: 'slow' });
-			$('#icueholder').animate({ top: "-120px" }, 'slow');
-		}, 7000);
+			$("#icueholder").fadeOut({ queue: false, duration: "slow" });
+			$("#icueholder").animate({ top: "-120px" }, "slow");
+		}, 12000);
 	},
 
 
@@ -852,14 +1100,14 @@ var audiOrbits = {
 				});
 			}
 		});
-		// start processing after 3 seconds (info should be gathered)
+		// update devices about every 33ms/30fps. iCue doesnt really support higher values 
 		self.icueInterval = setInterval(self.processICUE, 1000 / 30);
 	},
-	// process frame for icue devices
+	// process LEDs for iCUE devices
 	processICUE: function () {
 		var self = audiOrbits;
 		var sett = self.settings;
-		if (self.icueDevices.length < 1 || sett.icue_mode == 0) return;
+		if (self.PAUSED || self.icueDevices.length < 1 || sett.icue_mode == 0) return;
 		// projection mode
 		if (sett.icue_mode == 1) {
 			// get local values
@@ -872,15 +1120,13 @@ var audiOrbits = {
 			var encDat = self.getEncodedCanvasImageData(imgData);
 			// update all devices with data
 			for (var xi = 0; xi < self.icueDevices.length; xi++) {
-				//var info = self.icueDevices[xi];
-				//window.cue.setAllLedsColorsAsync(xi, self.hueValues[0]);
 				window.cue.setLedColorsByImageData(xi, encDat, cueWid, cueHei);
 			}
 		}
 		// color mode
 		if (sett.icue_mode == 2) {
 			// get lol objects
-			var col = sett.icue_main_color.split(' ');
+			var col = sett.icue_main_color.split(" ");
 			var ledColor = {
 				r: col[0] * 255,
 				g: col[1] * 255,
@@ -915,23 +1161,69 @@ var audiOrbits = {
 	},
 	// canvas blur helper function
 	gBlurCanvas: function (canvas, ctx, blur) {
-		let sum = 0;
-		let delta = 5;
-		let alpha_left = 1 / (2 * Math.PI * delta * delta);
-		let step = blur < 3 ? 1 : 2;
-		for (let y = -blur; y <= blur; y += step) {
-			for (let x = -blur; x <= blur; x += step) {
-				let weight = alpha_left * Math.exp(-(x * x + y * y) / (2 * delta * delta));
+		var sum = 0;
+		var delta = 5;
+		var alpha_left = 1 / (2 * Math.PI * delta * delta);
+		var step = blur < 3 ? 1 : 2;
+		for (var y = -blur; y <= blur; y += step) {
+			for (var x = -blur; x <= blur; x += step) {
+				var weight = alpha_left * Math.exp(-(x * x + y * y) / (2 * delta * delta));
 				sum += weight;
 			}
 		}
-		for (let y = -blur; y <= blur; y += step) {
-			for (let x = -blur; x <= blur; x += step) {
+		for (var y = -blur; y <= blur; y += step) {
+			for (var x = -blur; x <= blur; x += step) {
 				ctx.globalAlpha = alpha_left * Math.exp(-(x * x + y * y) / (2 * delta * delta)) / sum * blur * blur;
 				ctx.drawImage(canvas, x, y);
 			}
 		}
 		ctx.globalAlpha = 1;
+	},
+
+
+	///////////////////////////////////////////////
+	// WEB-VR INTEGRATION
+	///////////////////////////////////////////////
+
+	// will initialize webvr components and rendering
+	initWebVR: function () {
+		var scene = audiOrbits.scene;
+		var renderer = audiOrbits.renderer;
+		var userData = audiOrbits.userData;
+
+		self.renderer.vr.enabled = true;
+		document.body.appendChild(VRButton.createButton(self.renderer));
+
+		userData.controller1 = renderer.vr.getController(0);
+		userData.controller1.addEventListener("selectstart", audiOrbits.onVRSelectStart);
+		userData.controller1.addEventListener("selectend", audiOrbits.onVRSelectEnd);
+		scene.add(userData.controller1);
+		userData.controller2 = renderer.vr.getController(1);
+		userData.controller2.addEventListener("selectstart", audiOrbits.onVRSelectStar);
+		userData.controller2.addEventListener("selectend", audiOrbits.onVRSelectEnd);
+		scene.add(userData.controller2);
+	},
+	// controller starts selecting
+	onVRSelectStart: function () {
+		this.userData.isSelecting = true;
+	},
+	// controller stops selecting
+	onVRSelectEnd: function () {
+		this.userData.isSelecting = false;
+	},
+	// use VR controller like mouse & parallax
+	handleVRController: function (controller) {
+		/* TODO
+		if (controller.userData.isSelecting) {
+			var object = room.children[count++];
+			object.position.copy(controller.position);
+			object.userData.velocity.x = (Math.random() - 0.5) * 3;
+			object.userData.velocity.y = (Math.random() - 0.5) * 3;
+			object.userData.velocity.z = (Math.random() - 9);
+			object.userData.velocity.applyQuaternion(controller.quaternion);
+			if (count === room.children.length) count = 0;
+		}
+		*/
 	}
 };
 
@@ -962,9 +1254,12 @@ window.wallpaperPropertyListener = {
 		}
 	},
 	setPaused: (isPaused) => {
-		if (audiOrbits.settings.no_pause && isPaused) return;
+		if (audiOrbits.PAUSED == isPaused) return;
+		console.log("Set pause: " + isPaused);
 		audiOrbits.PAUSED = isPaused;
+		audiOrbits.lastFrame = (performance.now() / 1000) - 1;
 		if (!isPaused) window.requestCustomAnimationFrame(audiOrbits.renderLoop);
+		if (audiOrbits.postRendering) audiOrbits.renderer.setAnimationLoop(isPaused ? null : audiOrbits.renderLoop);
 	}
 };
 
@@ -972,14 +1267,21 @@ window.wallpaperPropertyListener = {
 window.wallpaperPluginListener = {
 	onPluginLoaded: function (name, version) {
 		print("Plugin loaded: " + name + ", Version: " + version);
-		if (name === 'cue') audiOrbits.icueAvailable = true;
+		if (name === "cue") audiOrbits.icueAvailable = true;
+	}
+};
+
+// will be called first when wallpaper is run from web(with wewwa)
+window.wewwaListener = {
+	initWebContext: function () {
+		audiOrbits.isWebContext = true;
 	}
 };
 
 // after the page finished loading: if the wallpaper context is not given => start wallpaper 
 $(() => {
 	if (!window.wallpaperRegisterAudioListener) {
-		print("wallpaperRegisterAudioListener not defined. We are probably out of wallpaper engine. Manual init..");
+		print("wallpaperRegisterAudioListener not defined. We are probably outside of wallpaper engine. Manual init..");
 		audiOrbits.applyCustomProps({});
 		audiOrbits.initialized = true;
 		audiOrbits.initFirst();
