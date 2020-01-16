@@ -14,15 +14,19 @@
 */
 
 var weas = {
-    // has currently valid audio data stored?
-    hasAudio: function() {
-        // @TODO: return false if data is invalid due to time (> 3s old)
-        return weas.lastAudio && !weas.lastAudio.silent;
-    },
-    // last processed audio object
-    lastAudio: null,
-    // time-value smoothing ratio
-    audio_smoothing: 55,
+	// has currently valid audio data stored?
+	hasAudio: function () {
+		// @TODO: return false if data is invalid due to time (> 3s old)
+		return weas.lastAudio && !weas.lastAudio.silent;
+	},
+	// last processed audio object
+	lastAudio: null,
+	// time-value smoothing ratio
+	audio_smoothing: 55,
+	// multipliers
+	treble_multiplier: 0.5,
+	mids_multiplier: 0.75,
+	bass_multiplier: 1,
 	// ignore value leveling for "silent" data
 	silentThreshHold: 0.001,
 	// correction plot for frequency levels
@@ -56,13 +60,13 @@ var weas = {
 		var monoArray = self.stereoToMono(corrected);
 		// smooth and get final data
 		var data = self.smoothArray(monoArray, 2);
-        // set latest data
+		// set latest data
 		var lst, ldata;
-        var hasLast = self.hasAudio();
-        if(hasLast) {
-            lst = self.lastAudio;
-            ldata = lst.data.slice(0);
-        }
+		var hasLast = self.hasAudio();
+		if (hasLast) {
+			lst = self.lastAudio;
+			ldata = lst.data.slice(0);
+		}
 		// process current frequency data and previous if given
 		var sum = 0, min = 1, max = 0, bass = 0, mids = 0, peaks = 0;
 		for (var i = 0; i < 128; i++) {
@@ -70,12 +74,12 @@ var weas = {
 			var idata = parseFloat(data[i]);
 			// fix null values
 			if (idata == null || isNaN(idata)) data[i] = idata = 0.0;
-            
-            // process last value with current
-            if (hasLast) data[i] = idata = self.applyValueLeveling(idata, ldata[i]);
-            
+
+			// process last value with current
+			if (hasLast) data[i] = idata = self.applyValueLeveling(idata, ldata[i]);
+
 			// process min max value
-            if (idata < min) min = idata;
+			if (idata < min) min = idata;
 			if (idata > max) max = idata;
 			// process ranges
 			if (i < 16) bass += idata;
@@ -86,6 +90,7 @@ var weas = {
 		}
 		// calc average with previous entry
 		var average = sum / 128;
+		// I cant really explain.... magic?
 		var intensity = (bass * 6 - mids + peaks) / 6 / average;
 		// update newest entry
 		self.lastAudio = {
@@ -96,12 +101,12 @@ var weas = {
 			bass: bass,
 			mids: mids,
 			peaks: peaks,
-            sum: sum,
+			sum: sum,
 			average: average,
-            intensity: intensity,
+			intensity: intensity,
 			time: performance.now() / 1000,
 			data: data,
-        };
+		};
 	},
 	// function will process the given audio data with the some default noise levels
 	correctPinkNoise: function (data) {
@@ -140,7 +145,9 @@ var weas = {
 
 };
 
-// init audio listener
-if (window.wallpaperRegisterAudioListener) {
-    window.wallpaperRegisterAudioListener(weas.audioListener);
-}
+$(() => {
+	// init audio listener
+	if (window.wallpaperRegisterAudioListener) {
+		window.wallpaperRegisterAudioListener(weas.audioListener);
+	}
+});
