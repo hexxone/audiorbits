@@ -1,6 +1,16 @@
-# [AudiOrbits](https://github.com/Hexxonite/audiorbits)
+## [AudiOrbits](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780) is a web wallpaper designed for [Wallpaper Engine](https://steamcommunity.com/app/431960)
 
-AudiOrbits is a web wallpaper designed for Wallpaper Engine.
+### [THIS](https://github.com/Hexxonite/audiorbits) is the wallpaper's public git repository.
+
+### PLEASE NOTE
+
+The Wallpaper is made for and maintained on the Steam Workshop.
+
+It is however basically a website and can be easily run in any browser.
+
+Since you need to own Wallpaper Engine in order to access it's Workshop Content and this Wallpaper, I published this for some interested people...
+
+*But:* If you encounter any issues of have suggestions please **address them on Steam since I won't be looking at this repo very often.**
 
 
 ### WEAS (Wallpaper Engine Audio Supplier)
@@ -24,6 +34,12 @@ $ <script type="text/javascript" src="js/wewwa.js"></script>
 then upload your folder to a server and/or open it in your browser.
 
 You can see this running [HERE](https://experiment.hexxon.me/)
+
+
+
+### Features:
+
+Please head over to the Workshop-Page for a full list (see title for the link).
 
 
 
