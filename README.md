@@ -45,6 +45,9 @@ Please head over to the Workshop-Page for a full list (see title for the link).
 
 ### Changelog:
 
+Version 1.9:
+- added "minimum volume" setting
+
 Version 1.8:
 - added "fixed" parallax mode
 - added "color"-tab and three new color modes
