@@ -65,6 +65,7 @@ var audiOrbits = {
 		rotation_val: 0,
 		fps_limit: 60,
 		system_drawing: true,
+		minimum_volume: 1,
 		minimum_brightness: 10,
 		minimum_saturation: 10,
 		audio_multiplier: 2,
@@ -217,6 +218,7 @@ var audiOrbits = {
 		}
 
 		weas.audio_smoothing = sett.audio_smoothing;
+		weas.silentThreshHold = sett.minimum_volume / 1000;
 
 		// create preview
 		if (!self.icuePreview && sett.icue_area_preview) {
