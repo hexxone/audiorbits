@@ -45,6 +45,14 @@ Please head over to the Workshop-Page for a full list (see title for the link).
 
 ### Changelog:
 
+Version 2.0:
+- added "filter"-tab
+- added invertable mirror-filter
+- moved bloom-filter to "filter"-tab
+- moved LUT-filter to "filter"-tab
+- internal rendering & initialisation changes
+- removed "system drawing"
+
 Version 1.9:
 - added "minimum volume" setting
 
