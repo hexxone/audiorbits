@@ -21,26 +21,6 @@ function print(arg, force) {
 	if (!audiOrbits.initialized || audiOrbits.debug || force) console.log("AudiOrbits: " + JSON.stringify(arg));
 }
 
-// Provides requestAnimationFrame in a cross browser way.
-// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-if (!window.requestAnimationFrame) {
-	window.requestAnimationFrame = (() => {
-		return window.webkitRequestAnimationFrame ||
-			window.mozRequestAnimationFrame ||
-			window.oRequestAnimationFrame ||
-			window.msRequestAnimationFrame;
-	})();
-}
-
-// Provides a custom rendering function
-window.requestCustomAnimationFrame = (callback) => {
-	var sett = audiOrbits.settings;
-	if (!sett.system_drawing)
-		audiOrbits.rafID = setTimeout(() => callback(), 1000 / sett.fps_limit)
-	else
-		audiOrbits.rafID = requestAnimationFrame(callback);
-};
-
 // base object for wallpaper
 var audiOrbits = {
 	// webvr user input data
@@ -64,7 +44,6 @@ var audiOrbits = {
 		zoom_val: 1,
 		rotation_val: 0,
 		fps_limit: 60,
-		system_drawing: true,
 		minimum_volume: 1,
 		minimum_brightness: 10,
 		minimum_saturation: 10,
@@ -99,6 +78,8 @@ var audiOrbits = {
 		level_shifting: false,
 		bloom_filter: false,
 		lut_filter: -1,
+		mirror_shader: 0,
+		mirror_invert: true,
 		icue_mode: 1,
 		icue_area_xoff: 50,
 		icue_area_yoff: 90,
@@ -128,8 +109,6 @@ var audiOrbits = {
 	mainCanvas: null,
 	helperCanvas: null,
 	helperContext: null,
-	// use effect commposer if any shader active
-	useComposer: false,
 	// LUT (LookUpTable) Textures
 	lutTextures: [
 		{
@@ -145,16 +124,14 @@ var audiOrbits = {
 			url: "./img/lookup/color-negative-s8.png",
 		},
 	],
-	// LookUpTable Filter objects
-	effectLUT: null,
-	effectLUTNearest: null,
-	// requestAnimationFrame ID
+	// Three.js relevant objects
+	renderer: null,
+	composer: null,
+	mirrorPass: null,
+	// last frame time
 	lastFrame: performance.now() / 1000,
-	rafID: null,
 	// current user colorObject
 	colorObject: null,
-	// interval for random numer audio generator
-	wallpaperAudioInterval: null,
 	// interval for reloading the wallpaper
 	resetTimeout: null,
 	// interval for swirlHandler
@@ -182,13 +159,14 @@ var audiOrbits = {
 
 	// Apply settings from the project.json "properties" object and takes certain actions
 	applyCustomProps: function (props) {
-		print("apply: " + JSON.stringify(props));
+		print("applying settings: " + Object.keys(props).length);
 
-		var _ignore = ["debugging", "audioprocessing", "img_overlay", "img_background", "base_texture"];
+		var _ignore = ["debugging", "audioprocessing", "img_overlay",
+			"img_background", "base_texture", "mirror_invalid_val"];
 
 		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "scaling_factor",
 			"camera_bound", "num_points_per_subset", "num_subsets_per_level", "num_levels", "level_depth",
-			"level_shifting", "bloom_filter", "lut_filter"];
+			"level_shifting", "bloom_filter", "lut_filter", "mirror_shader", "mirror_invert"];
 
 		var self = audiOrbits;
 		var sett = self.settings;
@@ -217,6 +195,7 @@ var audiOrbits = {
 			else print("Unknown setting: " + setting);
 		}
 
+		// apply audio analyzer-relevant settings
 		weas.audio_smoothing = sett.audio_smoothing;
 		weas.silentThreshHold = sett.minimum_volume / 1000;
 
@@ -248,9 +227,6 @@ var audiOrbits = {
 			setImgSrc("#img_back", props["img_background"].value);
 		if (props["img_overlay"])
 			setImgSrc("#img_over", props["img_overlay"].value);
-
-		// enable composer rendering if any active shaders
-		self.useComposer = sett.bloom_filter || sett.lut_filter >= 0;
 
 		// intitialize texture splash
 		if (props["base_texture"]) {
@@ -423,16 +399,19 @@ var audiOrbits = {
 			Detector.addGetWebGLMessage();
 			return;
 		}
+
+		// Lifetime variables
 		var self = this;
 		var sett = self.settings;
-		// Lifetime variables
 		self.fpsThreshold = 0;
 		self.speedVelocity = 0;
 		self.swirlStep = 0;
+
 		// Orbit data
 		self.hueValues = [];
 		self.levels = [];
 		self.moveBacks = [];
+
 		// statistics
 		if (sett.stats_option >= 0) {
 			print("Init stats: " + sett.stats_option);
@@ -440,6 +419,7 @@ var audiOrbits = {
 			self.stats.showPanel(sett.stats_option); // 0: fps, 1: ms, 2: mb, 3+: custom
 			document.body.appendChild(self.stats.dom);
 		}
+
 		// get container
 		self.container = document.getElementById("renderContainer");
 		// get canvas & context
@@ -450,6 +430,7 @@ var audiOrbits = {
 		self.helperCanvas.height = self.icueCanvasY;
 		self.helperCanvas.style.display = "none";
 		self.helperContext = self.helperCanvas.getContext("2d");
+
 		// setup geometrics
 		for (var l = 0; l < sett.num_levels; l++) {
 			var sets = [];
@@ -535,14 +516,13 @@ var audiOrbits = {
 					}
 				}
 				// Setup renderer and effects
-				self.renderer = new THREE.WebGLRenderer(
-					{
-						canvas: self.mainCanvas,
-						clearColor: 0x000000,
-						clearAlpha: 1,
-						alpha: true,
-						antialias: true
-					});
+				self.renderer = new THREE.WebGLRenderer({
+					canvas: self.mainCanvas,
+					clearColor: 0x000000,
+					clearAlpha: 1,
+					alpha: true,
+					antialias: true
+				});
 				self.renderer.setSize(window.innerWidth, window.innerHeight);
 
 				// enable web-vr context
@@ -551,26 +531,48 @@ var audiOrbits = {
 				}
 
 				// initialize Composer for Shaders
-				if (self.useComposer) {
-					// add import Pass from real renderer
-					self.composer = new THREE.EffectComposer(self.renderer);
-					self.composer.addPass(new THREE.RenderPass(self.scene, self.camera, null, 0x000000, 1));
-					// bloom
-					if (sett.bloom_filter) {
-						var urBloomPass = new THREE.UnrealBloomPass(512);
-						urBloomPass.renderToScreen = sett.lut_filter < 0;
-						self.composer.addPass(urBloomPass);
-					}
-					// lookuptable filter
-					if (sett.lut_filter >= 0) {
-						self.effectLUT = new THREE.ShaderPass(THREE.LUTShader);
-						self.effectLUT.renderToScreen = false;
-						self.effectLUTNearest = new THREE.ShaderPass(THREE.LUTShaderNearest);
-						self.effectLUTNearest.renderToScreen = false;
-						self.composer.addPass(self.effectLUT);
-						self.composer.addPass(self.effectLUTNearest);
-					}
+
+				// add import Pass from real renderer
+				self.composer = new THREE.EffectComposer(self.renderer);
+				self.composer.addPass(new THREE.RenderPass(self.scene, self.camera, null, 0x000000, 1));
+				// last added filter
+				var lastEffect = null;
+				// bloom
+				if (sett.bloom_filter) {
+					var urBloomPass = new THREE.UnrealBloomPass(512);
+					lastEffect = urBloomPass;
+					urBloomPass.renderToScreen = false;
+					self.composer.addPass(urBloomPass);
 				}
+				// lookuptable filter
+				if (sett.lut_filter >= 0) {
+					// add normal or filtered LUT shader
+					var lutInfo = self.lutTextures[sett.lut_filter];
+					// get normal or filtered LUT shader
+					var lutPass = new THREE.ShaderPass(lutInfo.filter ?
+						THREE.LUTShader : THREE.LUTShaderNearest);
+					// prepare render queue
+					lastEffect = lutPass;
+					lutPass.renderToScreen = false;
+					self.composer.addPass(lutPass);
+					// set shader uniform values
+					lutPass.uniforms.lutMap.value = lutInfo.texture;
+					lutPass.uniforms.lutMapSize.value = lutInfo.size;
+				}
+				// fractal mirror shader
+				if (sett.mirror_shader > 1) {
+					var mirrorPass = new THREE.ShaderPass(THREE.FractalMirrorShader);
+					lastEffect = mirrorPass;
+					mirrorPass.renderToScreen = false;
+					self.composer.addPass(mirrorPass);
+					// set shader uniform values
+					mirrorPass.uniforms.invert.value = sett.mirror_invert;
+					mirrorPass.uniforms.numSides.value = sett.mirror_shader;
+					mirrorPass.uniforms.iResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
+				}
+				// render last effect
+				if (lastEffect)
+					lastEffect.renderToScreen = true;
 
 				// prepare new orbit levels for the first reset/moveBack when a subset passes the camera
 				for (var l = 0; l < sett.num_levels; l++) {
@@ -582,8 +584,7 @@ var audiOrbits = {
 				// start bg parallax handler
 				swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
 				// start rendering
-				if (!self.postRendering) self.renderLoop();
-				else self.renderer.setAnimationLoop(self.renderLoop);
+				self.renderer.setAnimationLoop(self.renderLoop);
 				$("#renderContainer").fadeIn(5000);
 				self.popupMessage("<h1>" + document.title + "</h1>", true);
 				// print
@@ -604,7 +605,7 @@ var audiOrbits = {
 		if (!self.hueValues) self.hueValues = [];
 		var sett = self.settings;
 		var cobj = self.colorObject = self.getColorObject();
-		print("initHueV: a=" + cobj.hsla + ", b=" + cobj.hslb);
+		//print("initHueV: a=" + cobj.hsla + ", b=" + cobj.hslb);
 		for (var s = 0; s < sett.num_subsets_per_level; s++) {
 			var col = Math.random();
 			switch (sett.color_mode) {
@@ -668,10 +669,6 @@ var audiOrbits = {
 	reInitSystem: function () {
 		print("reInitSystem()");
 
-		if (this.rafID) {
-			if (!this.settings.system_drawing) clearTimeout(this.rafID);
-			else cancelAnimationFrame(this.rafID);
-		}
 		clearInterval(this.swirlInterval);
 		clearInterval(this.icueInterval);
 
@@ -709,13 +706,12 @@ var audiOrbits = {
 			var sett = self.settings;
 			// paused - stop render
 			if (self.PAUSED) return;
-			if (!self.postRendering) window.requestCustomAnimationFrame(self.renderLoop);
 			// Figure out how much time passed since the last animation
 			var fpsThreshMin = 1 / sett.fps_limit;
-			var fpsRenderMult = 60 / sett.fps_limit;
 			var now = performance.now() / 1000;
 			var ellapsed = Math.min(now - self.lastFrame, 1);
-			var delta = ellapsed / fpsThreshMin * fpsRenderMult;
+			var delta = ellapsed / fpsThreshMin * 60 / sett.fps_limit;
+			// set lastFrame for 
 			self.lastFrame = now;
 			// skip rendering the frame if we reached the desired FPS
 			self.fpsThreshold += ellapsed;
@@ -741,7 +737,7 @@ var audiOrbits = {
 		var sett = self.settings;
 		var flmult = (15 + sett.audio_multiplier) * 0.02;
 		var spvn = sett.zoom_val;
-		var rot = sett.rotation_val / 10000;
+		var rot = sett.rotation_val / 5000;
 		var camera = self.camera;
 		var scene = self.scene;
 		var scenelen = scene.children.length;
@@ -772,7 +768,7 @@ var audiOrbits = {
 		var hasAudio = weas.hasAudio();
 		var lastAudio, boost, step;
 		if (hasAudio) {
-			spvn = spvn + sett.audiozoom_val / 2;
+			spvn = spvn + sett.audiozoom_val / 1.5;
 			// get 
 			lastAudio = weas.lastAudio;
 			// calc audio boost
@@ -852,7 +848,7 @@ var audiOrbits = {
 			}
 		}
 		else {
-			// no audio, but more pre-calculation optimisation :)
+			// get targeted saturation & brightness
 			var defSat = sett.default_saturation / 100;
 			var defBri = sett.default_brightness / 100;
 			var sixtyDelta = deltaTime * 60;
@@ -861,37 +857,29 @@ var audiOrbits = {
 				var child = scene.children[i];
 				// get current HSL
 				var hsl = child.myMaterial.color.getHSL({});
+				var cHue = hsl.h, cSat = hsl.s, cLight = hsl.l;
+				// targeted HUE
 				var hue = hueValues[child.mySubset];
-				// Calculate smoothing, fps-independant
-				var nhue = hsl.h + (hue - hsl.h) / sixtyDelta;
-				var nsat = hsl.s + (defSat - hsl.s) / sixtyDelta;
-				var nlight = hsl.l + (defBri - hsl.l) / sixtyDelta;
+				if(Math.abs(hue - cHue) > 0.01)
+					cHue += (hue - cHue) / sixtyDelta;
+				// targeted saturation
+				if(Math.abs(defSat - cSat) > 0.01)
+					cSat += (defSat - cSat) / sixtyDelta;
+				// targeted brightness
+				if(Math.abs(defBri - cLight) > 0.01)
+					cLight += (defBri - cLight) / sixtyDelta;
 				// update dat shit
-				//print("setHSL | child: " + i + " | h: " + nhue + " | s: " + nsat + " | l: " + nlight);
-				child.myMaterial.color.setHSL(nhue, nsat, nlight);
+				child.myMaterial.color.setHSL(cHue, cSat, cLight);
 			}
 		}
 
 		// effect render
-		if (self.composer) {
-			// setup changed LookupTable effect
-			if (sett.lut_filter >= 0) {
-				var lutInfo = self.lutTextures[sett.lut_filter];
-				var effect = lutInfo.filter ? self.effectLUT : self.effectLUTNearest;
-				self.effectLUT.enabled = lutInfo.filter;
-				self.effectLUTNearest.enabled = !lutInfo.filter;
-				var lutTexture = lutInfo.texture;
-				effect.uniforms.lutMap.value = lutTexture;
-				effect.uniforms.lutMapSize.value = lutInfo.size;
-			}
-			self.composer.render(ellapsed);
-		}
+		if (self.composer) self.composer.render(ellapsed);
 		// default render
 		else self.renderer.render(scene, camera);
 
 		// ICUE PROCESSING
 		// its better to do this every frame instead of seperately timed
-
 		if (sett.icue_mode == 1) {
 			// get helper vars
 			var cueWid = self.icueCanvasX;
@@ -907,8 +895,7 @@ var audiOrbits = {
 			if (sett.icue_area_blur > 0) self.gBlurCanvas(self.helperCanvas, hctx, sett.icue_area_blur);
 		}
 
-		// WEBVR PROCESSING
-
+		// TODO: WEBVR PROCESSING
 		if (self.isWebContext) {
 			self.handleVRController(self.userData.controller1);
 			self.handleVRController(self.userData.controller1);
@@ -1216,15 +1203,9 @@ var audiOrbits = {
 	// use VR controller like mouse & parallax
 	handleVRController: function (controller) {
 		/* TODO
-		if (controller.userData.isSelecting) {
-			var object = room.children[count++];
-			object.position.copy(controller.position);
-			object.userData.velocity.x = (Math.random() - 0.5) * 3;
-			object.userData.velocity.y = (Math.random() - 0.5) * 3;
-			object.userData.velocity.z = (Math.random() - 9);
-			object.userData.velocity.applyQuaternion(controller.quaternion);
-			if (count === room.children.length) count = 0;
-		}
+		controller.userData.isSelecting
+		controller.position
+		controller.quaternion
 		*/
 	}
 };
@@ -1260,8 +1241,7 @@ window.wallpaperPropertyListener = {
 		console.log("Set pause: " + isPaused);
 		audiOrbits.PAUSED = isPaused;
 		audiOrbits.lastFrame = (performance.now() / 1000) - 1;
-		if (!isPaused) window.requestCustomAnimationFrame(audiOrbits.renderLoop);
-		if (audiOrbits.postRendering) audiOrbits.renderer.setAnimationLoop(isPaused ? null : audiOrbits.renderLoop);
+		audiOrbits.renderer.setAnimationLoop(isPaused ? null : audiOrbits.renderLoop);
 	}
 };
 
@@ -1280,7 +1260,8 @@ window.wewwaListener = {
 	}
 };
 
-// after the page finished loading: if the wallpaper context is not given => start wallpaper 
+// after the page finished loading: if the wallpaper context is not given
+// AND wewwa fails for some reason => start wallpaper manually
 $(() => {
 	if (!window.wallpaperRegisterAudioListener) {
 		print("wallpaperRegisterAudioListener not defined. We are probably outside of wallpaper engine. Manual init..");
