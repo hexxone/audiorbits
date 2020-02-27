@@ -12,6 +12,12 @@ Since you need to own Wallpaper Engine in order to access it's Workshop Content 
 
 *But:* If you encounter any issues of have suggestions please **address them on Steam since I won't be looking at this repo very often.**
 
+### Dependencies
+- [jQuery](https://jquery.com/)
+- [moment.js](https://momentjs.com/)
+- [three.js](https://threejs.org/)
+- [HTML5 Environment](https://html5test.com/)
+
 
 ### WEAS (Wallpaper Engine Audio Supplier)
 
