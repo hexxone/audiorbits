@@ -757,7 +757,8 @@ var audiOrbits = {
 			var hueAdd = (sett.color_fade_speed / 4000) * deltaTime;
 			for (var s = 0; s < sett.num_subsets_per_level - 1; s++) {
 				hueValues[s] += hueAdd;
-				hueValues[s] %= 1;
+				if(hueValues[s] >= 1)
+					hueValues[s] -= 2;
 			}
 		}
 
@@ -788,7 +789,7 @@ var audiOrbits = {
 
 		// rotation calculation
 		if (hasAudio)
-			rot += rot * boost * 0.01;
+			rot *= boost * 0.02;
 
 		// position all objects
 		for (i = 0; i < scenelen; i++) {
@@ -830,7 +831,7 @@ var audiOrbits = {
 				// get & process frequency data
 				var cfreq = parseFloat(lastAudio.data[freqIndx]);
 				var rFreq = (cfreq * flmult / 3) / lastAudio.max;
-				var cHue = hueValues[child.mySubset];
+				var cHue = Math.abs(hueValues[child.mySubset]);
 				// uhoh ugly special case
 				if (sett.color_mode == 4) {
 					var tHue = cObj.hslb;
@@ -859,7 +860,7 @@ var audiOrbits = {
 				var hsl = child.myMaterial.color.getHSL({});
 				var cHue = hsl.h, cSat = hsl.s, cLight = hsl.l;
 				// targeted HUE
-				var hue = hueValues[child.mySubset];
+				var hue = Math.abs(hueValues[child.mySubset]);
 				if(Math.abs(hue - cHue) > 0.01)
 					cHue += (hue - cHue) / sixtyDelta;
 				// targeted saturation
