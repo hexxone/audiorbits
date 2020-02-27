@@ -38,13 +38,14 @@ THREE.FractalMirrorShader = {
       const float PI = 3.14159265359;
 
       void main() {
-        vec2 center = vec2(1.0, 1.0) / 2.0;
+        vec2 center = vec2(0.5, 0.5);
+        float zoom = max(iResolution.x, iResolution.y) / min(iResolution.x, iResolution.y);
         vec2 uv = center - vUv;
+        uv.y /= zoom;
         float KA = PI / numSides;
-        float angle = abs (mod (atan (uv.y, uv.x), 2.0 * KA) - KA) + angleOffset;
+        float angle = abs(mod(atan(uv.y, uv.x), 2.0 * KA) - KA) + angleOffset;
         vec2 transformed = length(uv) * vec2(cos(angle), sin(angle));
-        float zoom = iResolution.x / iResolution.y * 0.85;
-        if(!invert) transformed = transformed / zoom + center;
+        if(!invert) transformed = transformed / zoom * 0.85 + center;
         gl_FragColor = texture2D(tDiffuse, transformed);
       }
     `,
