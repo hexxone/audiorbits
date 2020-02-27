@@ -583,7 +583,7 @@
 			"audiozoom_val" : {
 				"condition": "HEADER_AUDIO.value",
 				"editable": true,
-				"max": 20,
+				"max": 15,
 				"min": 0,
 				"order": 138,
 				"text": "ui_audiozoom_val",
