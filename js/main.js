@@ -87,15 +87,6 @@ var audiOrbits = {
 		lut_filter: -1,
 		mirror_shader: 0,
 		mirror_invert: true,
-		icue_mode: 1,
-		icue_area_xoff: 50,
-		icue_area_yoff: 90,
-		icue_area_width: 75,
-		icue_area_height: 30,
-		icue_area_blur: 5,
-		icue_area_decay: 15,
-		icue_area_preview: false,
-		icue_main_color: "0 0.8 0",
 		color_mode: 0,
 		user_color_a: "1 0.5 0",
 		user_color_b: "0 0.5 1",
@@ -114,23 +105,7 @@ var audiOrbits = {
 	debugTimeout: null,
 	// canvas
 	mainCanvas: null,
-	helperCanvas: null,
 	helperContext: null,
-	// LUT (LookUpTable) Textures
-	lutTextures: [
-		{
-			name: "posterize",
-			url: "./img/lookup/posterize-s8n.png",
-		},
-		{
-			name: "inverse",
-			url: "./img/lookup/inverse-s8.png",
-		},
-		{
-			name: "negative",
-			url: "./img/lookup/color-negative-s8.png",
-		},
-	],
 	// Three.js relevant objects
 	renderer: null,
 	composer: null,
@@ -156,12 +131,6 @@ var audiOrbits = {
 	levelWorker: null,
 	levelWorkersRunning: 0,
 	levelWorkerCall: null,
-	// iCue Stuff
-	icueAvailable: false,
-	icueCanvasX: 23,
-	icueCanvasY: 7,
-	icueDevices: [],
-	icuePreview: null,
 
 
 	///////////////////////////////////////////////
@@ -183,6 +152,9 @@ var audiOrbits = {
 		var sett = self.settings;
 		var reInitFlag = false;
 
+		// possible apply-targets
+		var settStorage = [sett, weas.settings, weicue.settings];
+
 		// loop all settings for updated values
 		for (var setting in props) {
 			// ignore this setting or apply it manually
@@ -191,39 +163,32 @@ var audiOrbits = {
 			var prop = props[setting];
 			// check typing
 			if (!prop || !prop.type || prop.type == "text") continue;
-			if (sett[setting] != null) {
-				// save b4
-				var b4Setting = sett[setting];
-				// apply prop value
-				if (prop.type == "bool")
-					sett[setting] = prop.value == true;
-				else
-					sett[setting] = prop.value;
 
-				// set re-init flag if value changed and included in list
-				reInitFlag = reInitFlag || b4Setting != sett[setting] && _reInit.includes(setting);
+			var found = false;
+			// process all storages
+			for (var sid in settStorage) {
+				// storage has setting?
+				var storage = settStorage[sid];
+				if (storage[setting] != null) {
+					// save b4
+					found = true;
+					var b4Setting = storage[setting];
+					// apply prop value
+					if (prop.type == "bool")
+						storage[setting] = prop.value == true;
+					else
+						storage[setting] = prop.value;
+
+					// set re-init flag if value changed and included in list
+					reInitFlag = reInitFlag || b4Setting != storage[setting] && _reInit.includes(setting);
+				}
 			}
-			else print("Unknown setting: " + setting);
+			// invalid?
+			if (!found) print("Unknown setting: " + setting);
 		}
 
-		// apply audio analyzer-relevant settings
-		weas.settings.audio_smoothing = sett.audio_smoothing;
-		weas.settings.silentThreshHold = sett.minimum_volume / 1000;
-
-		// create preview
-		if (!self.icuePreview && sett.icue_area_preview) {
-			self.icuePreview = document.createElement("div");
-			self.icuePreview.classList.add("cuePreview");
-			document.body.appendChild(self.icuePreview);
-		}
-		// update settings or destroy
-		if (self.icuePreview) {
-			if (!sett.icue_area_preview) {
-				document.body.removeChild(self.icuePreview);
-				self.icuePreview = null;
-			}
-			else Object.assign(self.icuePreview.style, self.getICUEArea(true));
-		}
+		// update preview visbility after setting possibly changed
+		weicue.updatePreview();
 
 		// Custom user images
 		var setImgSrc = function (imgID, srcVal) {
@@ -284,32 +249,25 @@ var audiOrbits = {
 			Detector.addGetWebGLMessage();
 			return;
 		}
+		// Mouse listener
+		var mouseUpdate = (event) => {
+			var sett = this.settings;
+			if (sett.parallax_option != 1) return;
+			if (event.touches.length == 1) {
+				event.preventDefault();
+				this.mouseX = event.touches[0].pageX - this.windowHalfX;
+				this.mouseY = event.touches[0].pageY - this.windowHalfY;
+			}
+			else if(event.clientX) {
+				this.mouseX = event.clientX - this.windowHalfX;
+				this.mouseY = event.clientY - this.windowHalfY;
+			}
+		}
+		document.addEventListener("touchstart", mouseUpdate, false);
+		document.addEventListener("touchmove", mouseUpdate, false);
+		document.addEventListener("mousemove", mouseUpdate, false);
 
-		// Setup button, slider & window listeners only ever once!
-		document.addEventListener("mousemove", (event) => {
-			var sett = this.settings;
-			if (sett.parallax_option != 1) return;
-			this.mouseX = event.clientX - this.windowHalfX;
-			this.mouseY = event.clientY - this.windowHalfY;
-		}, false);
-		document.addEventListener("touchstart", (event) => {
-			var sett = this.settings;
-			if (sett.parallax_option != 1) return;
-			if (event.touches.length == 1) {
-				event.preventDefault();
-				this.mouseX = event.touches[0].pageX - this.windowHalfX;
-				this.mouseY = event.touches[0].pageY - this.windowHalfY;
-			}
-		}, false);
-		document.addEventListener("touchmove", (event) => {
-			var sett = this.settings;
-			if (sett.parallax_option != 1) return;
-			if (event.touches.length == 1) {
-				event.preventDefault();
-				this.mouseX = event.touches[0].pageX - this.windowHalfX;
-				this.mouseY = event.touches[0].pageY - this.windowHalfY;
-			}
-		}, false);
+		// Scaling
 		window.addEventListener("resize", (event) => {
 			this.windowHalfX = window.innerWidth / 2;
 			this.windowHalfY = window.innerHeight / 2;
@@ -319,86 +277,14 @@ var audiOrbits = {
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 		}, false);
 
-		const makeIdentityLutTexture = function () {
-			const identityLUT = new Uint8Array([
-				0, 0, 0, 255, // black
-				255, 0, 0, 255, // red
-				0, 0, 255, 255, // blue
-				255, 0, 255, 255, // magenta
-				0, 255, 0, 255, // green
-				255, 255, 0, 255, // yellow
-				0, 255, 255, 255, // cyan
-				255, 255, 255, 255, // white
-			]);
-			return function (filter) {
-				const texture = new THREE.DataTexture(identityLUT, 4, 2, THREE.RGBAFormat);
-				texture.minFilter = filter;
-				texture.magFilter = filter;
-				texture.needsUpdate = true;
-				texture.flipY = false;
-				return texture;
-			};
-		}();
-
-		const makeLUTTexture = function () {
-			const imgLoader = new THREE.ImageLoader();
-			const ctx = document.createElement("canvas").getContext("2d");
-
-			return function (info) {
-				const texture = makeIdentityLutTexture(
-					info.filter ? THREE.LinearFilter : THREE.NearestFilter);
-
-				if (info.url) {
-					const lutSize = info.size;
-					// set the size to 2 (the identity size). We'll restore it when the
-					// image has loaded. This way the code using the lut doesn't have to
-					// care if the image has loaded or not
-					info.size = 2;
-					imgLoader.load(info.url, function (image) {
-						const width = lutSize * lutSize;
-						const height = lutSize;
-						info.size = lutSize;
-						ctx.canvas.width = width;
-						ctx.canvas.height = height;
-						ctx.drawImage(image, 0, 0);
-						const imageData = ctx.getImageData(0, 0, width, height);
-						texture.image.data = new Uint8Array(imageData.data.buffer);
-						texture.image.width = width;
-						texture.image.height = height;
-						texture.needsUpdate = true;
-					}, null, function (err) {
-						console.log("Error loading LUT: ");
-						throw err;
-					});
-				}
-
-				return texture;
-			};
-		}();
-
-		audiOrbits.lutTextures.forEach((info) => {
-			// if not size set get it from the filename
-			if (!info.size) {
-				// assumes filename ends in '-s<num>[n]'
-				// where <num> is the size of the 3DLUT cube
-				// and [n] means 'no filtering' or 'nearest'
-				//
-				// examples:
-				//    'foo-s16.png' = size:16, filter: true
-				//    'bar-s8n.png' = size:8, filter: false
-				const m = /-s(\d+)(n*)\.[^.]+$/.exec(info.url);
-				if (m) {
-					info.size = parseInt(m[1]);
-					info.filter = info.filter === undefined ? m[2] !== "n" : info.filter;
-				}
-			}
-			info.texture = makeLUTTexture(info);
-		});
+		// setup lookuptable textures once
+		lutSetup.run();
 
 		// real initializer
 		var initWrap = () => {
 			$("#triggerwarn").fadeOut(1000, () => this.initSystem());
 		};
+
 		// initialize now or after a delay?
 		if (!this.settings.seizure_warning) initWrap();
 		else {
@@ -440,12 +326,6 @@ var audiOrbits = {
 		self.mainCanvas = document.getElementById("mainCvs");
 		self.mainCanvas.width = window.innerWidth;
 		self.mainCanvas.height = window.innerHeight;
-		// helper
-		self.helperCanvas = document.getElementById("helpCvs");
-		self.helperCanvas.width = self.icueCanvasX;
-		self.helperCanvas.height = self.icueCanvasY;
-		self.helperCanvas.style.display = "none";
-		self.helperContext = self.helperCanvas.getContext("2d");
 
 		// setup level generator
 		self.levelWorker = new Worker('./js/worker/levelWorker.js');
@@ -456,7 +336,7 @@ var audiOrbits = {
 		self.levelWorkerCall = () => {
 			print("loading Texture: " + sett.base_texture_path);
 			// load main texture
-			// patth, onLoad, onProgress, onError
+			// path, onLoad, onProgress, onError
 			new THREE.TextureLoader().load(sett.base_texture_path,
 				self.textureInit, undefined, self.textureError
 			);
@@ -569,7 +449,7 @@ var audiOrbits = {
 		// lookuptable filter
 		if (sett.lut_filter >= 0) {
 			// add normal or filtered LUT shader
-			var lutInfo = self.lutTextures[sett.lut_filter];
+			var lutInfo = lutSetup.lutTextures[sett.lut_filter];
 			// get normal or filtered LUT shader
 			var lutPass = new THREE.ShaderPass(lutInfo.filter ?
 				THREE.LUTShader : THREE.LUTShaderNearest);
@@ -601,8 +481,7 @@ var audiOrbits = {
 			self.generateLevel(l);
 		}
 		// init plugins
-		if (self.icueAvailable) self.initICUE();
-		else self.icueMessage("iCUE: Not available!");
+		weicue.init(self.mainCanvas);
 		// start bg parallax handler
 		swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
 		// start rendering
@@ -687,14 +566,11 @@ var audiOrbits = {
 	// re-initialies the walpaper some time after an "advanced setting" has been changed
 	reInitSystem: function () {
 		print("reInitSystem()");
-
+		// kill intervals
 		clearInterval(this.swirlInterval);
-		clearInterval(this.icueInterval);
-
 		// kill stats
 		if (this.stats) this.stats.dispose();
 		this.stats = null;
-
 		// kill shader processor
 		if (this.composer) this.composer.reset();
 		this.composer = null;
@@ -705,11 +581,6 @@ var audiOrbits = {
 		var mainCvs = document.createElement("canvas");
 		mainCvs.id = "mainCvs";
 		this.container.appendChild(mainCvs);
-		// recreate icue help canvas
-		this.container.removeChild(this.helperCanvas);
-		var helpCvs = document.createElement("canvas");
-		helpCvs.id = "helpCvs";
-		this.container.appendChild(helpCvs);
 		// init
 		this.initSystem();
 	},
@@ -728,10 +599,11 @@ var audiOrbits = {
 			// Figure out how much time passed since the last animation
 			var fpsThreshMin = 1 / sett.fps_limit;
 			var now = performance.now();
-			var ellapsed = (now - self.lastFrame) / 1000;
-			var delta = ellapsed / fpsThreshMin * 60 / sett.fps_limit;
-			// set lastFrame for 
+			var ellapsed = Math.max(1, Math.min(10000, now - self.lastFrame)) / 1000;
+			// set lastFrame time
 			self.lastFrame = now;
+			// calc delta
+			var delta = Math.max(0.001, Math.min(20, ellapsed / fpsThreshMin * 60 / sett.fps_limit));
 			// skip rendering the frame if we reached the desired FPS
 			self.fpsThreshold += ellapsed;
 			// over FPS limit? cancel animation..
@@ -899,20 +771,7 @@ var audiOrbits = {
 
 		// ICUE PROCESSING
 		// its better to do this every frame instead of seperately timed
-		if (sett.icue_mode == 1) {
-			// get helper vars
-			var cueWid = self.icueCanvasX;
-			var cueHei = self.icueCanvasY;
-			var area = self.getICUEArea();
-			var hctx = self.helperContext;
-			// overlay "decay"
-			hctx.fillStyle = "rgba(0, 0, 0, " + sett.icue_area_decay / 100 + ")";
-			hctx.fillRect(0, 0, cueWid, cueHei);
-			// scale down and copy the image to the helper canvas
-			hctx.drawImage(self.mainCanvas, area.left, area.top, area.width, area.height, 0, 0, cueWid, cueHei);
-			// blur the helper projection canvas
-			if (sett.icue_area_blur > 0) self.gBlurCanvas(self.helperCanvas, hctx, sett.icue_area_blur);
-		}
+		weicue.updateCanvas();
 
 		// TODO: WEBVR PROCESSING
 		if (self.isWebContext) {
@@ -940,32 +799,37 @@ var audiOrbits = {
 		let lxBuf = new Float64Array(ldata.xBuff);
 		let lyBuf = new Float64Array(ldata.yBuff);
 		for (let s = 0; s < sett.num_subsets_per_level; s++) {
-			for (let i = 0; i < sett.num_points_per_subset; i++) {
-				let idx = s * sett.num_points_per_subset + i;
-				llevel.subsets[s][i].x = lxBuf[idx];
-				llevel.subsets[s][i].y = lyBuf[idx];
-			}
+			// spread over time for less thread blocking
+			setTimeout(() => {
+				for (let i = 0; i < sett.num_points_per_subset; i++) {
+					let idx = s * sett.num_points_per_subset + i;
+					llevel.subsets[s][i].x = lxBuf[idx];
+					llevel.subsets[s][i].y = lyBuf[idx];
+				}
+			}, 10 + s * 30);
 		}
-
-		// loop all scene children and set flag that new vertex data is available
-		// means the shape will update once the subset gets moved back to the end.
-		if (self.scene && self.scene.children) {
-			var children = self.scene.children;
-			var scenelen = children.length;
-			for (var i = 0; i < scenelen; i++) {
-				var child = children[i];
-				if (child.myLevel == ldata.id) {
-					child.needsUpdate = true;
+		// ensure this happens affter all subsets are updated
+		setTimeout(() => {
+			// loop all scene children and set flag that new vertex data is available
+			// means the shape will update once the subset gets moved back to the end.
+			if (self.scene && self.scene.children) {
+				var children = self.scene.children;
+				var scenelen = children.length;
+				for (var i = 0; i < scenelen; i++) {
+					var child = children[i];
+					if (child.myLevel == ldata.id) {
+						child.needsUpdate = true;
+					}
 				}
 			}
-		}
 
-		// if all workers finished and we have a queued event, trigger it
-		// this is used as "finished"-trigger for initial level generation...
-		if(self.levelWorkersRunning == 0 && self.levelWorkerCall) {
-			self.levelWorkerCall();
-			self.levelWorkerCall = null;
-		}
+			// if all workers finished and we have a queued event, trigger it
+			// this is used as "finished"-trigger for initial level generation...
+			if (self.levelWorkersRunning == 0 && self.levelWorkerCall) {
+				self.levelWorkerCall();
+				self.levelWorkerCall = null;
+			}
+		}, 30 + sett.num_subsets_per_level * 30);
 	},
 	// uh oh
 	levelError: function (e) {
@@ -1021,137 +885,6 @@ var audiOrbits = {
 			$("#txtholder").fadeOut({ queue: false, duration: "slow" });
 			$("#txtholder").animate({ bottom: "-40px" }, "slow");
 		}, 15000);
-	},
-	// show a message by icue
-	icueMessage: function (msg) {
-		$("#icuetext").html(msg);
-		$("#icueholder").fadeIn({ queue: false, duration: "slow" });
-		$("#icueholder").animate({ top: "0px" }, "slow");
-		setTimeout(() => {
-			$("#icueholder").fadeOut({ queue: false, duration: "slow" });
-			$("#icueholder").animate({ top: "-120px" }, "slow");
-		}, 12000);
-	},
-
-
-	///////////////////////////////////////////////
-	// ICUE INTEGRATION
-	///////////////////////////////////////////////
-
-	// will return a rectangle object represnting the icue area in pixels
-	// choosable as integer or string with "px" suffix (for css styling)
-	getICUEArea: function (inPx) {
-		var sett = audiOrbits.settings;
-		var wwid = window.innerWidth;
-		var whei = window.innerHeight;
-		var w = wwid * sett.icue_area_width / 100;
-		var h = whei * sett.icue_area_height / 100;
-		var l = ((wwid - w) * sett.icue_area_xoff / 100);
-		var t = ((whei - h) * sett.icue_area_yoff / 100);
-		return {
-			width: w + (inPx ? "px" : ""),
-			height: h + (inPx ? "px" : ""),
-			left: l + (inPx ? "px" : ""),
-			top: t + (inPx ? "px" : ""),
-		};
-	},
-	// will initialize ICUE api & usage
-	initICUE: function () {
-		print("iCUE: async initialization...")
-		var self = audiOrbits;
-		self.icueDevices = [];
-		window.cue.getDeviceCount((deviceCount) => {
-			self.icueMessage("iCUE: " + deviceCount + " devices found.");
-			for (var xi = 0; xi < deviceCount; xi++) {
-				var xl = xi;
-				window.cue.getDeviceInfo(xl, (info) => {
-					info.id = xl;
-					window.cue.getLedPositionsByDeviceIndex(xl, function (leds) {
-						info.leds = leds;
-						print("iCUE: Device " + JSON.stringify(info));
-						self.icueDevices[xl] = info;
-					});
-				});
-			}
-		});
-		// update devices about every 33ms/30fps. iCue doesnt really support higher values 
-		self.icueInterval = setInterval(self.processICUE, 1000 / 30);
-	},
-	// process LEDs for iCUE devices
-	processICUE: function () {
-		var self = audiOrbits;
-		var sett = self.settings;
-		if (self.PAUSED || self.icueDevices.length < 1 || sett.icue_mode == 0) return;
-		// projection mode
-		if (sett.icue_mode == 1) {
-			// get local values
-			var cueWid = self.icueCanvasX;
-			var cueHei = self.icueCanvasY;
-			var ctx = self.helperContext;
-			// get scaled down image data
-			var imgData = ctx.getImageData(0, 0, cueWid, cueHei);
-			// encode data for icue
-			var encDat = self.getEncodedCanvasImageData(imgData);
-			// update all devices with data
-			for (var xi = 0; xi < self.icueDevices.length; xi++) {
-				window.cue.setLedColorsByImageData(xi, encDat, cueWid, cueHei);
-			}
-		}
-		// color mode
-		if (sett.icue_mode == 2) {
-			// get lol objects
-			var col = sett.icue_main_color.split(" ");
-			var ledColor = {
-				r: col[0] * 255,
-				g: col[1] * 255,
-				b: col[2] * 255
-			};;
-			// try audio multiplier processing
-			if (weas.hasAudio()) {
-				var aud = weas.lastAudio;
-				var mlt = 255 * aud.average / aud.range / aud.intensity * 10;
-				ledColor = {
-					r: Math.min(255, Math.max(0, col[0] * mlt)),
-					g: Math.min(255, Math.max(0, col[1] * mlt)),
-					b: Math.min(255, Math.max(0, col[2] * mlt))
-				};
-			}
-			// update all devices with data
-			for (var xi = 0; xi < self.icueDevices.length; xi++) {
-				window.cue.setAllLedsColorsAsync(xi, ledColor);
-			}
-		}
-	},
-	// get data for icue
-	getEncodedCanvasImageData: function (imageData) {
-		var colorArray = [];
-		for (var d = 0; d < imageData.data.length; d += 4) {
-			var write = d / 4 * 3;
-			colorArray[write] = imageData.data[d];
-			colorArray[write + 1] = imageData.data[d + 1];
-			colorArray[write + 2] = imageData.data[d + 2];
-		}
-		return String.fromCharCode.apply(null, colorArray);
-	},
-	// canvas blur helper function
-	gBlurCanvas: function (canvas, ctx, blur) {
-		var sum = 0;
-		var delta = 5;
-		var alpha_left = 1 / (2 * Math.PI * delta * delta);
-		var step = blur < 3 ? 1 : 2;
-		for (var y = -blur; y <= blur; y += step) {
-			for (var x = -blur; x <= blur; x += step) {
-				var weight = alpha_left * Math.exp(-(x * x + y * y) / (2 * delta * delta));
-				sum += weight;
-			}
-		}
-		for (var y = -blur; y <= blur; y += step) {
-			for (var x = -blur; x <= blur; x += step) {
-				ctx.globalAlpha = alpha_left * Math.exp(-(x * x + y * y) / (2 * delta * delta)) / sum * blur * blur;
-				ctx.drawImage(canvas, x, y);
-			}
-		}
-		ctx.globalAlpha = 1;
 	},
 
 
@@ -1227,14 +960,6 @@ window.wallpaperPropertyListener = {
 		audiOrbits.PAUSED = isPaused;
 		audiOrbits.lastFrame = performance.now();
 		audiOrbits.renderer.setAnimationLoop(isPaused ? null : audiOrbits.renderLoop);
-	}
-};
-
-// will initialize icue functionality if available
-window.wallpaperPluginListener = {
-	onPluginLoaded: function (name, version) {
-		print("Plugin loaded: " + name + ", Version: " + version);
-		if (name === "cue") audiOrbits.icueAvailable = true;
 	}
 };
 

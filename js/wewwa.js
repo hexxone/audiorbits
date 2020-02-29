@@ -34,7 +34,7 @@
  * - save changes made in the ui to localStorage
  * 
  * @todo
- * - check for correct  audio data
+ * - check for correct audio data
  * - show number behind slider / respect editable val
 */
 
