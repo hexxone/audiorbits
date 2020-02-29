@@ -1,19 +1,24 @@
-/*
- * Copyright (c) 2019 D.Thiele All rights reserved.  
+/**
+ * @author D.Thiele @https://hexxon.me
+ * 
+ * @license
+ * Copyright (c) 2020 D.Thiele All rights reserved.  
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.  
  * 
- * WEWWA
- * Wallpaper Engine Web Wallpaper Adapter
- * 
- * This is an aditional JS file to be included in any Wallpaper Engine
- * Web-Wallpaper project so you can test, run & configure it from a normal web browser.
- * 
+ * @see
  * REQUIREMENTS:
  * - JQUERY >= 3.3.1
  * - HTML5 supported Browser (for webAudio processing)
  * - this file needs to be in the same (root) folder as your "project.json"
  * - this file needs to be included/loaded in your "index.html"
+ * 
+ * @description
+ * WEWWA
+ * Wallpaper Engine Web Wallpaper Adapter
+ * 
+ * This is an aditional JS file to be included in any Wallpaper Engine
+ * Web-Wallpaper project so you can test, run & configure it from a normal web browser.
  * 
  * FEATURES:
  * - automatically detecting if the web wallpaper is opened by wallpaper engine or browser
@@ -28,7 +33,7 @@
  * - react to changes made in the ui and update them in the wallpaper
  * - save changes made in the ui to localStorage
  * 
- * TODO:
+ * @todo
  * - check for correct  audio data
  * - show number behind slider / respect editable val
 */
