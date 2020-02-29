@@ -26,8 +26,9 @@
 var weas = {
 	// has currently valid audio data stored?
 	hasAudio: function () {
-		// @TODO: return false if data is invalid due to time (> 3s old)
-		return weas.lastAudio && !weas.lastAudio.silent;
+		// return false if there is no data or its invalid due to time (> 3s old)
+		return weas.lastAudio && !weas.lastAudio.silent &&
+			(performance.now() / 1000 - weas.lastAudio.time < 3);
 	},
 	// audio processing worker
 	weasWorker: null,
@@ -42,7 +43,7 @@ var weas = {
 		mids_multiplier: 0.75,
 		bass_multiplier: 1,
 		// ignore value leveling for "silent" data
-		silentThreshHold: 0.001,
+		minimum_volume: 0.001,
 	},
 	// function will get called with the audio data as array, containing L & R channels
 	audioListener: function (audioArray) {
@@ -58,8 +59,7 @@ var weas = {
 			settings: weas.settings,
 			last: weas.lastAudio,
 			audio: audBuff.buffer
-		},
-		[audBuff.buffer]);
+		}, [audBuff.buffer]);
 	},
 	// task completed
 	processed: function (e) {

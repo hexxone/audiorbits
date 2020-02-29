@@ -99,7 +99,7 @@ onmessage = function (e) {
     var intensity = (bass * 6 - mids + peaks) / 6 / average;
     // done
     self.postMessage({
-        silent: (max < settings.silentThreshHold),
+        silent: (max < settings.minimum_volume / 1000),
         min: min,
         max: max,
         range: max - min,
