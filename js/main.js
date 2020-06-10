@@ -50,7 +50,8 @@ var audiOrbits = {
 		default_saturation: 10,
 		zoom_val: 1,
 		rotation_val: 0,
-		fps_limit: 60,
+		custom_fps: false,
+		fps_value: 60,
 		minimum_volume: 1,
 		minimum_brightness: 10,
 		minimum_saturation: 10,
@@ -94,8 +95,6 @@ var audiOrbits = {
 	},
 	// context?
 	isWebContext: false,
-	// vr rendering is only supported in web.
-	vrRendering: false,
 	// started yet?
 	initialized: false,
 	// paused?
@@ -114,7 +113,10 @@ var audiOrbits = {
 	lastFrame: performance.now(),
 	// current user colorObject
 	colorObject: null,
-	// interval for reloading the wallpaper
+	// interval for custom rendering
+	renderTimeout: null,
+	// Seconds & interval for reloading the wallpaper
+	resetTimespan: 3,
 	resetTimeout: null,
 	// interval for swirlHandler
 	swirlInterval: null,
@@ -132,6 +134,8 @@ var audiOrbits = {
 	levelWorkersRunning: 0,
 	levelWorkerCall: null,
 
+	// actions to perform after render
+	afterRenderQueue: [],
 
 	///////////////////////////////////////////////
 	// APPLY SETTINGS
@@ -166,9 +170,7 @@ var audiOrbits = {
 
 			var found = false;
 			// process all storages
-			for (var sid in settStorage) {
-				// storage has setting?
-				var storage = settStorage[sid];
+			for (var storage of settStorage) {
 				if (storage[setting] != null) {
 					// save b4
 					found = true;
@@ -189,6 +191,11 @@ var audiOrbits = {
 
 		// update preview visbility after setting possibly changed
 		weicue.updatePreview();
+
+		// Custom render timing (re-set with new setting)
+		if (props['custom_fps']) {
+			self.setRenderer(self.renderLoop);
+		}
 
 		// Custom user images
 		var setImgSrc = function (imgID, srcVal) {
@@ -245,10 +252,13 @@ var audiOrbits = {
 
 	initFirst: function () {
 		// No WebGL ? o.O
-		if (!Detector.webgl) {
+		if (!THREE || !Detector.webgl) {
 			Detector.addGetWebGLMessage();
 			return;
 		}
+		// set global caching
+		THREE.Cache.enabled = true;
+
 		// Mouse listener
 		var mouseUpdate = (event) => {
 			var sett = this.settings;
@@ -258,7 +268,7 @@ var audiOrbits = {
 				this.mouseX = event.touches[0].pageX - this.windowHalfX;
 				this.mouseY = event.touches[0].pageY - this.windowHalfY;
 			}
-			else if(event.clientX) {
+			else if (event.clientX) {
 				this.mouseX = event.clientX - this.windowHalfX;
 				this.mouseY = event.clientY - this.windowHalfY;
 			}
@@ -282,7 +292,7 @@ var audiOrbits = {
 
 		// real initializer
 		var initWrap = () => {
-			$("#triggerwarn").fadeOut(1000, () => this.initSystem());
+			$("#triggerwarn").fadeOut(1000, this.initSystem);
 		};
 
 		// initialize now or after a delay?
@@ -334,6 +344,11 @@ var audiOrbits = {
 
 		// when all levels are generated, continue init
 		self.levelWorkerCall = () => {
+			// apply data
+			while (self.afterRenderQueue.length > 0) {
+				self.afterRenderQueue.shift()();
+			}
+
 			print("loading Texture: " + sett.base_texture_path);
 			// load main texture
 			// path, onLoad, onProgress, onError
@@ -449,7 +464,7 @@ var audiOrbits = {
 		// lookuptable filter
 		if (sett.lut_filter >= 0) {
 			// add normal or filtered LUT shader
-			var lutInfo = lutSetup.lutTextures[sett.lut_filter];
+			var lutInfo = lutSetup.Textures[sett.lut_filter];
 			// get normal or filtered LUT shader
 			var lutPass = new THREE.ShaderPass(lutInfo.filter ?
 				THREE.LUTShader : THREE.LUTShaderNearest);
@@ -480,16 +495,20 @@ var audiOrbits = {
 		for (var l = 0; l < sett.num_levels; l++) {
 			self.generateLevel(l);
 		}
+
 		// init plugins
 		weicue.init(self.mainCanvas);
+
 		// start bg parallax handler
 		swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
+
 		// start rendering
-		self.renderer.setAnimationLoop(self.renderLoop);
+		self.setRenderer(self.renderLoop);
+
 		$("#renderContainer").fadeIn(5000);
 		self.popupMessage("<h1>" + document.title + "</h1>", true);
 		// print
-		print("startup complete.", true);
+		print("init complete.", true);
 	},
 
 	textureError: function (err) {
@@ -574,7 +593,8 @@ var audiOrbits = {
 		// kill shader processor
 		if (this.composer) this.composer.reset();
 		this.composer = null;
-		// kill webgl soos
+		// kill frame animation and webgl
+		this.setRenderer(null);
 		this.renderer.forceContextLoss();
 		// recreate webgl canvas
 		this.container.removeChild(this.mainCanvas);
@@ -590,38 +610,80 @@ var audiOrbits = {
 	// RENDERING
 	///////////////////////////////////////////////
 
+	// Start or Stop rendering
+	setRenderer: function (renderFunc) {
+		var self = audiOrbits;
+		var sett = self.settings;
+		// clear all old renderers
+		if (self.renderer) {
+			self.renderer.setAnimationLoop(null);
+		}
+		if (self.renderTimeout) {
+			clearTimeout(self.renderTimeout);
+			self.renderTimeout = null;
+		}
+		// call new renderer ?
+		if (renderFunc != null) {
+			if (sett.custom_fps) {
+				self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
+			}
+			else if (self.renderer) {
+				self.renderer.setAnimationLoop(renderFunc);
+			}
+		}
+	},
+	// root render frame call
 	renderLoop: function () {
 		try {
 			var self = audiOrbits;
 			var sett = self.settings;
 			// paused - stop render
 			if (self.PAUSED) return;
+			// custom rendering needs manual re-call
+			if (self.renderTimeout)
+				self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
+
+			// track FPS, mem etc.
+			if (self.stats) self.stats.begin();
+
 			// Figure out how much time passed since the last animation
-			var fpsThreshMin = 1 / sett.fps_limit;
 			var now = performance.now();
-			var ellapsed = Math.max(1, Math.min(10000, now - self.lastFrame)) / 1000;
+			var ellapsed = Math.max(1, Math.min(10000, now - self.lastFrame));
 			// set lastFrame time
 			self.lastFrame = now;
 			// calc delta
-			var delta = Math.max(0.001, Math.min(20, ellapsed / fpsThreshMin * 60 / sett.fps_limit));
-			// skip rendering the frame if we reached the desired FPS
-			self.fpsThreshold += ellapsed;
-			// over FPS limit? cancel animation..
-			if (self.fpsThreshold < fpsThreshMin) return;
-			self.fpsThreshold -= fpsThreshMin;
+			var delta = Math.max(0.001, Math.min(10, ellapsed / 16.6667));
+
 			// render canvas
-			self.renderFrame(ellapsed, delta);
+			self.renderFrame(ellapsed / 1000, delta);
+
+			// ICUE PROCESSING
+			// its better to do this every frame instead of seperately timed
+			weicue.updateCanvas();
+
+			// TODO: WEBVR PROCESSING
+			if (self.isWebContext) {
+				self.handleVRController(self.userData.controller1);
+				self.handleVRController(self.userData.controller1);
+			}
+
+			// randomly do one after-render-aqction
+			// yes this is intended: "()()"
+			if (self.afterRenderQueue.length > 0 && Math.random() > 0.69)
+				self.afterRenderQueue.shift()();
+
+			// stats
+			if (self.stats) self.stats.end();
+
 		} catch (ex) {
-			console.log("renderLoop exception: ", true);
-			console.log(ex, true);
+			console.log("renderLoop exception: " + ex, true);
 		}
 	},
 	// render a single frame with the given delta Multiplicator
 	renderFrame: function (ellapsed, deltaTime) {
-		print("render with delta: " + deltaTime);
+		print("| render | ellapsed: " + ellapsed + ", delta: " + deltaTime);
 		// stats
 		var self = audiOrbits;
-		if (self.stats) self.stats.begin();
 
 		// local vars are faster
 		var cObj = self.colorObject;
@@ -705,7 +767,6 @@ var audiOrbits = {
 			// velocity & rotation
 			child.position.z += spvel * deltaTime;
 			child.rotation.z -= rot * deltaTime;
-
 		}
 
 		// HSL calculation with audio?
@@ -768,21 +829,7 @@ var audiOrbits = {
 		if (self.composer) self.composer.render(ellapsed);
 		// default render
 		else self.renderer.render(scene, camera);
-
-		// ICUE PROCESSING
-		// its better to do this every frame instead of seperately timed
-		weicue.updateCanvas();
-
-		// TODO: WEBVR PROCESSING
-		if (self.isWebContext) {
-			self.handleVRController(self.userData.controller1);
-			self.handleVRController(self.userData.controller1);
-		}
-
-		// stats
-		if (self.stats) self.stats.end();
 	},
-
 
 	///////////////////////////////////////////////
 	// FRACTAL GENERATOR
@@ -798,38 +845,40 @@ var audiOrbits = {
 		let llevel = self.levels[ldata.id];
 		let lxBuf = new Float64Array(ldata.xBuff);
 		let lyBuf = new Float64Array(ldata.yBuff);
+
+		// spread over time for less thread blocking
 		for (let s = 0; s < sett.num_subsets_per_level; s++) {
-			// spread over time for less thread blocking
-			setTimeout(() => {
+			self.afterRenderQueue.push(() => {
 				for (let i = 0; i < sett.num_points_per_subset; i++) {
 					let idx = s * sett.num_points_per_subset + i;
 					llevel.subsets[s][i].x = lxBuf[idx];
 					llevel.subsets[s][i].y = lyBuf[idx];
 				}
-			}, 10 + s * 30);
+			});
 		}
-		// ensure this happens affter all subsets are updated
-		setTimeout(() => {
-			// loop all scene children and set flag that new vertex data is available
-			// means the shape will update once the subset gets moved back to the end.
-			if (self.scene && self.scene.children) {
-				var children = self.scene.children;
-				var scenelen = children.length;
+
+		if (self.scene && self.scene.children) {
+			var children = self.scene.children;
+			var scenelen = children.length;
+			// ensure this happens affter all subsets are updated
+			self.afterRenderQueue.push(() => {
+				// loop all scene children and set flag that new vertex data is available
+				// means the shape will update once the subset gets moved back to the end.
 				for (var i = 0; i < scenelen; i++) {
 					var child = children[i];
 					if (child.myLevel == ldata.id) {
 						child.needsUpdate = true;
 					}
 				}
-			}
+			});
+		}
 
-			// if all workers finished and we have a queued event, trigger it
-			// this is used as "finished"-trigger for initial level generation...
-			if (self.levelWorkersRunning == 0 && self.levelWorkerCall) {
-				self.levelWorkerCall();
-				self.levelWorkerCall = null;
-			}
-		}, 30 + sett.num_subsets_per_level * 30);
+		// if all workers finished and we have a queued event, trigger it
+		// this is used as "finished"-trigger for initial level generation...
+		if (self.levelWorkersRunning == 0 && self.levelWorkerCall) {
+			self.levelWorkerCall();
+			self.levelWorkerCall = null;
+		}
 	},
 	// uh oh
 	levelError: function (e) {
@@ -847,15 +896,88 @@ var audiOrbits = {
 
 
 	///////////////////////////////////////////////
+	// 3D TEXT GENERATOR
+	///////////////////////////////////////////////
+
+	// create new 3D Text Object in Center and return
+	createText: function (text, callback) {
+
+		var loader = new THREE.FontLoader();
+		loader.load('css/hexagon_cup-webfont.json', function (response) {
+
+			var bevel = false;
+			var height = 20;
+			var size = 70;
+
+			var textGeo = new THREE.TextGeometry(text, {
+				font: response,
+				size: size,
+				height: height,
+				curveSegments: 8,
+				bevelThickness: 2,
+				bevelSize: 1.5,
+				bevelEnabled: bevel
+			});
+
+			textGeo.computeBoundingBox();
+			textGeo.computeVertexNormals();
+
+			var triangle = new THREE.Triangle();
+
+			// "fix" side normals by removing z-component of normals for side faces
+			// (this doesn't work well for beveled geometry as then we lose nice curvature around z-axis)
+			if (!bevel) {
+				var triangleAreaHeuristics = 0.1 * (height * size);
+				for (var i = 0; i < textGeo.faces.length; i++) {
+					var face = textGeo.faces[i];
+					if (face.materialIndex == 1) {
+						for (var j = 0; j < face.vertexNormals.length; j++) {
+							face.vertexNormals[j].z = 0;
+							face.vertexNormals[j].normalize();
+						}
+						var va = textGeo.vertices[face.a];
+						var vb = textGeo.vertices[face.b];
+						var vc = textGeo.vertices[face.c];
+						var s = triangle.set(va, vb, vc).getArea();
+						if (s > triangleAreaHeuristics) {
+							for (var j = 0; j < face.vertexNormals.length; j++) {
+								face.vertexNormals[j].copy(face.normal);
+							}
+						}
+					}
+				}
+			}
+
+			var centerOffset = - 0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x);
+
+			// create buffered geometry
+			textGeo = new THREE.BufferGeometry().fromGeometry(textGeo);
+
+			var materials = [
+				new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true }), // front
+				new THREE.MeshPhongMaterial({ color: 0xffffff }) // side
+			];
+
+			var textMesh1 = new THREE.Mesh(textGeo, materials);
+			// pos
+			textMesh1.position.x = centerOffset;
+			textMesh1.position.y = 30;
+			textMesh1.position.z = 0;
+			// rot
+			textMesh1.rotation.x = 0;
+			textMesh1.rotation.y = Math.PI * 2;
+			// Done
+			callback(textMesh1);
+		});
+	},
+
+
+
+
+	///////////////////////////////////////////////
 	// EVENT HANDLER & TIMERS
 	///////////////////////////////////////////////
 
-	// calculates the distance between 2 2D coordinates
-	getPointDistance: function (x1, y1, x2, y2) {
-		var a = x1 - x2;
-		var b = y1 - y2;
-		return Math.sqrt(a * a + b * b);
-	},
 	// Auto Parallax handler
 	swirlHandler: function () {
 		var self = audiOrbits;
@@ -933,14 +1055,12 @@ var audiOrbits = {
 // Actual Initialisation
 ///////////////////////////////////////////////
 
-print("Begin Startup...")
+print("Begin init...");
 
 // will apply settings edited in Wallpaper Engine
 // this will also cause initialization for the first time
 window.wallpaperPropertyListener = {
-	applyGeneralProperties: (props) => {
-		// nothing to do here
-	},
+	applyGeneralProperties: (props) => { },
 	applyUserProperties: (props) => {
 		var initFlag = audiOrbits.applyCustomProps(props);
 		// very first initialization
@@ -951,7 +1071,7 @@ window.wallpaperPropertyListener = {
 		else if (initFlag) {
 			print("got reInit-flag after apply!");
 			if (audiOrbits.resetTimeout) clearTimeout(audiOrbits.resetTimeout);
-			audiOrbits.resetTimeout = setTimeout(() => audiOrbits.reInitSystem(), 3000);
+			audiOrbits.resetTimeout = setTimeout(() => audiOrbits.reInitSystem(), audiOrbits.resetTimespan * 1000);
 		}
 	},
 	setPaused: (isPaused) => {
@@ -959,7 +1079,7 @@ window.wallpaperPropertyListener = {
 		console.log("Set pause: " + isPaused);
 		audiOrbits.PAUSED = isPaused;
 		audiOrbits.lastFrame = performance.now();
-		audiOrbits.renderer.setAnimationLoop(isPaused ? null : audiOrbits.renderLoop);
+		audiOrbits.setRenderer(isPaused ? null : audiOrbits.renderLoop);
 	}
 };
 
