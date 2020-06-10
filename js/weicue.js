@@ -106,18 +106,18 @@ var weicue = {
     },
 
     // show or hide preview
-    updatePreview: function (showTrue) {
+    updatePreview: function () {
         var self = weicue;
-
-        if (!self.preview && showTrue) {
+        var sett = self.settings;
+        // create preview?
+        if (!self.preview && sett.icue_area_preview) {
             self.preview = document.createElement("div");
             self.preview.classList.add("cuePreview");
             document.body.appendChild(self.preview);
         }
-
         // update settings or destroy
         if (self.preview) {
-            if (!showTrue) {
+            if (!sett.icue_area_preview) {
                 document.body.removeChild(self.preview);
                 self.preview = null;
             }
@@ -128,17 +128,17 @@ var weicue = {
     // will initialize ICUE api & usage
     init: function (originCanvas) {
         var self = weicue;
-        if (!self.icueAvailable) {
+        if (!self.available) {
             self.icueMessage("iCUE: Not available!");
             return;
         }
         // start
         self.mainCanvas = originCanvas;
-        print("iCUE: async initialization...");
+        console.log("weiCUE: async initialization...");
 
         // recreate if reinit
         if (self.icueInterval) clearInterval(self.icueInterval);
-        if (self.helperCanvas) document.removeChild(self.helperCanvas);
+        if (self.helperCanvas) document.body.removeChild(self.helperCanvas);
         // setup canvas
         self.helperCanvas = document.createElement("canvas");
         self.helperCanvas.id = "helpCvs";
@@ -158,7 +158,6 @@ var weicue = {
                     info.id = xl;
                     window.cue.getLedPositionsByDeviceIndex(xl, function (leds) {
                         info.leds = leds;
-                        print("iCUE: Device " + JSON.stringify(info));
                         self.devices[xl] = info;
                     });
                 });
@@ -237,9 +236,22 @@ var weicue = {
 };
 
 // will initialize icue functionality if available
-window.wallpaperPluginListener = {
-    onPluginLoaded: function (name, version) {
-        print("Plugin loaded: " + name + ", Version: " + version);
-        if (name === "cue") weicue.icueAvailable = true;
-    }
+if (!window.wallpaperPluginListener)
+    window.wallpaperPluginListener = {};
+
+// actual plugin handler
+var pluginLoad = function (name, version) {
+    console.log("weiCUE plugin: " + name + ", Version: " + version);
+    if (name === "cue") weicue.available = true;
 };
+
+// register event handler or wrap it, if it exists
+if (!window.wallpaperPluginListener.onPluginLoaded)
+    window.wallpaperPluginListener.onPluginLoaded = pluginLoad;
+else {
+    var passCall = window.wallpaperPluginListener.onPluginLoaded;
+    window.wallpaperPluginListener.onPluginLoaded = (n, v) => {
+        pluginLoad(n, v);
+        passCall(n, v);
+    }
+}
