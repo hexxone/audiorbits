@@ -14,7 +14,6 @@ Since you need to own Wallpaper Engine in order to access it's Workshop Content 
 
 ### Dependencies
 - [jQuery](https://jquery.com/)
-- [moment.js](https://momentjs.com/)
 - [three.js](https://threejs.org/)
 - [HTML5 Environment](https://html5test.com/)
 
@@ -50,6 +49,13 @@ Please head over to the Workshop-Page for a full list (see title for the link).
 
 
 ### Changelog:
+
+Version 2.1:
+- added "reload" indicator
+- added custom timed rendering
+- changed the way how level data is applied
+- updated three.js and jquery
+- removed moment.js
 
 Version 2.0:
 - added "filter"-tab

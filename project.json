@@ -95,7 +95,7 @@
 				"ui_rotation_val": "Rotations-geschw.",
 				"ui_scaling_factor": "Scale Factor",
 				"ui_seizure_warning": "Epilepsiewarnung",
-				"ui_spacer": "=============================",
+				"ui_spacer": "=======================",
 				"ui_stats_option": "Statistiken",
 				"ui_stats_option_0": "Keine",
 				"ui_stats_option_1": "FPS",
@@ -198,7 +198,7 @@
 				"ui_rotation_val": "Rotation Speed",
 				"ui_scaling_factor": "Scale Factor",
 				"ui_seizure_warning": "Seizure Warning",
-				"ui_spacer": "=============================",
+				"ui_spacer": "=======================",
 				"ui_stats_option": "Show Stats",
 				"ui_stats_option_0": "None",
 				"ui_stats_option_1": "FPS",
@@ -1113,7 +1113,7 @@
 	"tags": [
 		"Abstract"
 	],
-	"title": "AudiOrbits 2.0",
+	"title": "AudiOrbits 2.1",
 	"type": "web",
 	"visibility": "public",
 	"workshopid": "1396475780"
