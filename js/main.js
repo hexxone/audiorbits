@@ -95,47 +95,61 @@ var audiOrbits = {
 	},
 	// context?
 	isWebContext: false,
+
 	// started yet?
 	initialized: false,
+
 	// paused?
 	PAUSED: false,
+
 	// debugging
 	debug: false,
 	debugTimeout: null,
-	// canvas
+
+	// relevant html elements
+	container: null,
 	mainCanvas: null,
 	helperContext: null,
-	// Three.js relevant objects
-	renderer: null,
-	composer: null,
-	mirrorPass: null,
-	// last frame time
-	lastFrame: performance.now(),
-	// current user colorObject
-	colorObject: null,
-	// interval for custom rendering
-	renderTimeout: null,
+	// these are set once 
+	resetBar: null,
+	resetText: null,
+
 	// Seconds & interval for reloading the wallpaper
-	resetTimespan: 3,
+	resetTimespan: 5,
 	resetTimeout: null,
+
+	// render relevant stuff
+	lastFrame: performance.now(),
+	renderTimeout: null,
+
 	// interval for swirlHandler
 	swirlInterval: null,
-	// mouse over canvas position
+
+	// extended  user settings
+	colorObject: null,
+	// mouse over canvas
 	mouseX: 0,
 	mouseY: 0,
 	// window half size
 	windowHalfX: window.innerWidth / 2,
 	windowHalfY: window.innerHeight / 2,
+
+	// Three.js relevant objects
+	renderer: null,
+	composer: null,
+	camera: null,
+	scene: null,
 	// main orbit data
 	levels: [],
 	moveBacks: [],
+	hueValues: [],
+	// actions to perform after render
+	afterRenderQueue: [],
+
 	// generator holder
 	levelWorker: null,
 	levelWorkersRunning: 0,
 	levelWorkerCall: null,
-
-	// actions to perform after render
-	afterRenderQueue: [],
 
 	///////////////////////////////////////////////
 	// APPLY SETTINGS
@@ -150,7 +164,7 @@ var audiOrbits = {
 
 		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "scaling_factor",
 			"camera_bound", "num_points_per_subset", "num_subsets_per_level", "num_levels", "level_depth",
-			"level_shifting", "bloom_filter", "lut_filter", "mirror_shader", "mirror_invert"];
+			"level_shifting", "bloom_filter", "lut_filter", "mirror_shader", "mirror_invert", "custom_fps"];
 
 		var self = audiOrbits;
 		var sett = self.settings;
@@ -191,11 +205,6 @@ var audiOrbits = {
 
 		// update preview visbility after setting possibly changed
 		weicue.updatePreview();
-
-		// Custom render timing (re-set with new setting)
-		if (props['custom_fps']) {
-			self.setRenderer(self.renderLoop);
-		}
 
 		// Custom user images
 		var setImgSrc = function (imgID, srcVal) {
@@ -250,7 +259,11 @@ var audiOrbits = {
 	// INITIALIZE
 	///////////////////////////////////////////////
 
-	initFirst: function () {
+	initOnce: function () {
+		print("initializing...", true);
+		var self = audiOrbits;
+		var sett = self.settings;
+
 		// No WebGL ? o.O
 		if (!THREE || !Detector.webgl) {
 			Detector.addGetWebGLMessage();
@@ -259,68 +272,111 @@ var audiOrbits = {
 		// set global caching
 		THREE.Cache.enabled = true;
 
-		// Mouse listener
+		// get static elements
+		self.resetBar = document.getElementById("reload-bar");
+		self.resetText = document.getElementById("reload-text");
+		self.container = document.getElementById("renderContainer");
+
+		// add global mouse (parallax) listener
 		var mouseUpdate = (event) => {
-			var sett = this.settings;
 			if (sett.parallax_option != 1) return;
 			if (event.touches.length == 1) {
 				event.preventDefault();
-				this.mouseX = event.touches[0].pageX - this.windowHalfX;
-				this.mouseY = event.touches[0].pageY - this.windowHalfY;
+				self.mouseX = event.touches[0].pageX - self.windowHalfX;
+				self.mouseY = event.touches[0].pageY - self.windowHalfY;
 			}
 			else if (event.clientX) {
-				this.mouseX = event.clientX - this.windowHalfX;
-				this.mouseY = event.clientY - this.windowHalfY;
+				self.mouseX = event.clientX - self.windowHalfX;
+				self.mouseY = event.clientY - self.windowHalfY;
 			}
 		}
 		document.addEventListener("touchstart", mouseUpdate, false);
 		document.addEventListener("touchmove", mouseUpdate, false);
 		document.addEventListener("mousemove", mouseUpdate, false);
 
-		// Scaling
+		// scaling listener
 		window.addEventListener("resize", (event) => {
-			this.windowHalfX = window.innerWidth / 2;
-			this.windowHalfY = window.innerHeight / 2;
-			if (!this.camera || !this.renderer) return;
-			this.camera.aspect = window.innerWidth / window.innerHeight;
-			this.camera.updateProjectionMatrix();
-			this.renderer.setSize(window.innerWidth, window.innerHeight);
+			self.windowHalfX = window.innerWidth / 2;
+			self.windowHalfY = window.innerHeight / 2;
+			if (!self.camera || !self.renderer) return;
+			self.camera.aspect = window.innerWidth / window.innerHeight;
+			self.camera.updateProjectionMatrix();
+			self.renderer.setSize(window.innerWidth, window.innerHeight);
 		}, false);
 
 		// setup lookuptable textures once
 		lutSetup.run();
-
+		
 		// real initializer
+		self.initSystem();
+
+		//
 		var initWrap = () => {
-			$("#triggerwarn").fadeOut(1000, this.initSystem);
+			$("#triggerwarn").fadeOut(1000, () => {
+				$("#renderContainer").fadeIn(5000);
+				self.popupMessage("<h1>" + document.title + "</h1>", true);
+			});
 		};
 
 		// initialize now or after a delay?
-		if (!this.settings.seizure_warning) initWrap();
+		if (!sett.seizure_warning) initWrap();
 		else {
 			$("#triggerwarn").fadeIn(1000);
 			setTimeout(initWrap, 10000);
 		}
 	},
 
+	// re-initialies the walpaper after some time
+	reInitSystem: function () {
+		print("re-initializing...");
+		// Lifetime variables
+		var self = audiOrbits;
+
+		// hide reload indicator
+		$("#reload-bar, #reload-text").removeClass("show").addClass("done");
+		// kill intervals
+		clearInterval(self.swirlInterval);
+		// kill stats
+		if (self.stats) self.stats.dispose();
+		self.stats = null;
+		// kill shader processor
+		if (self.composer) self.composer.reset();
+		self.composer = null;
+		// kill frame animation and webgl
+		self.setRenderer(null);
+		self.renderer.forceContextLoss();
+		// recreate webgl canvas
+		self.container.removeChild(self.mainCanvas);
+		var mainCvs = document.createElement("canvas");
+		mainCvs.id = "mainCvs";
+		self.container.appendChild(mainCvs);
+
+		// actual re-init
+		self.initSystem();
+	},
+
 	// initialize the geometric & grpahics system
 	// => starts rendering loop afterwards
 	initSystem: function () {
-		print("initializing...");
-
 		// Lifetime variables
 		var self = audiOrbits;
 		var sett = self.settings;
-		self.fpsThreshold = 0;
+
+		// reset rendering
 		self.speedVelocity = 0;
 		self.swirlStep = 0;
-
-		// Orbit data
-		self.hueValues = [];
+		// reset Orbit data
 		self.levels = [];
 		self.moveBacks = [];
+		self.hueValues = [];
+		self.afterRenderQueue = [];
 
-		// statistics
+		// setup level generator
+		self.levelWorker = new Worker('./js/worker/levelWorker.js');
+		self.levelWorker.addEventListener('message', self.levelGenerated, false);
+		self.levelWorker.addEventListener('error', self.levelError, false);
+
+		// init stats
 		if (sett.stats_option >= 0) {
 			print("Init stats: " + sett.stats_option);
 			self.stats = new Stats();
@@ -328,8 +384,6 @@ var audiOrbits = {
 			document.body.appendChild(self.stats.dom);
 		}
 
-		// get container
-		self.container = document.getElementById("renderContainer");
 		// get canvases & contexts
 		// ensure the canvas sizes are set !!!
 		// these are independent from the style sizes
@@ -337,12 +391,8 @@ var audiOrbits = {
 		self.mainCanvas.width = window.innerWidth;
 		self.mainCanvas.height = window.innerHeight;
 
-		// setup level generator
-		self.levelWorker = new Worker('./js/worker/levelWorker.js');
-		self.levelWorker.addEventListener('message', self.levelGenerated, false);
-		self.levelWorker.addEventListener('error', self.levelError, false);
-
-		// when all levels are generated, continue init
+		// set function to be called when all levels are generated
+		// will trigger to load the texture
 		self.levelWorkerCall = () => {
 			// apply data
 			while (self.afterRenderQueue.length > 0) {
@@ -357,7 +407,7 @@ var audiOrbits = {
 			);
 		};
 
-		// setup geometrics
+		// setup vertexdata-array objects
 		for (var l = 0; l < sett.num_levels; l++) {
 			var sets = [];
 			for (var i = 0; i < sett.num_subsets_per_level; i++) {
@@ -400,7 +450,8 @@ var audiOrbits = {
 			transparent: true
 		};
 		var subsetDist = sett.level_depth / sett.num_subsets_per_level;
-		// Create particle systems
+
+		// Create WEBGL objects for each level and subset
 		for (var k = 0; k < sett.num_levels; k++) {
 			for (var s = 0; s < sett.num_subsets_per_level; s++) {
 				// create particle geometry from orbit vertex data
@@ -432,6 +483,7 @@ var audiOrbits = {
 				self.scene.add(particles);
 			}
 		}
+
 		// Setup renderer and effects
 		self.renderer = new THREE.WebGLRenderer({
 			canvas: self.mainCanvas,
@@ -487,9 +539,9 @@ var audiOrbits = {
 			mirrorPass.uniforms.numSides.value = sett.mirror_shader;
 			mirrorPass.uniforms.iResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
 		}
+
 		// render last effect
-		if (lastEffect)
-			lastEffect.renderToScreen = true;
+		if (lastEffect) lastEffect.renderToScreen = true;
 
 		// prepare new orbit levels for the first reset/moveBack when a subset passes the camera
 		for (var l = 0; l < sett.num_levels; l++) {
@@ -499,18 +551,16 @@ var audiOrbits = {
 		// init plugins
 		weicue.init(self.mainCanvas);
 
-		// start bg parallax handler
+		// start auto parallax handler
 		swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
 
 		// start rendering
 		self.setRenderer(self.renderLoop);
 
-		$("#renderContainer").fadeIn(5000);
-		self.popupMessage("<h1>" + document.title + "</h1>", true);
 		// print
 		print("init complete.", true);
 	},
-
+	// failed to load texture
 	textureError: function (err) {
 		print("texture loading error:", true);
 		print(err, true);
@@ -518,8 +568,8 @@ var audiOrbits = {
 
 	// initialize hue-values by color mode
 	initHueValues: function () {
+		print("init hues", true);
 		var self = audiOrbits;
-		if (!self.hueValues) self.hueValues = [];
 		var sett = self.settings;
 		var cobj = self.colorObject = self.getColorObject();
 		//print("initHueV: a=" + cobj.hsla + ", b=" + cobj.hslb);
@@ -582,35 +632,13 @@ var audiOrbits = {
 		}
 		return H / 360;
 	},
-	// re-initialies the walpaper some time after an "advanced setting" has been changed
-	reInitSystem: function () {
-		print("reInitSystem()");
-		// kill intervals
-		clearInterval(this.swirlInterval);
-		// kill stats
-		if (this.stats) this.stats.dispose();
-		this.stats = null;
-		// kill shader processor
-		if (this.composer) this.composer.reset();
-		this.composer = null;
-		// kill frame animation and webgl
-		this.setRenderer(null);
-		this.renderer.forceContextLoss();
-		// recreate webgl canvas
-		this.container.removeChild(this.mainCanvas);
-		var mainCvs = document.createElement("canvas");
-		mainCvs.id = "mainCvs";
-		this.container.appendChild(mainCvs);
-		// init
-		this.initSystem();
-	},
 
 
 	///////////////////////////////////////////////
 	// RENDERING
 	///////////////////////////////////////////////
 
-	// Start or Stop rendering
+	// start or stop rendering
 	setRenderer: function (renderFunc) {
 		var self = audiOrbits;
 		var sett = self.settings;
@@ -632,9 +660,11 @@ var audiOrbits = {
 			}
 		}
 	},
+
 	// root render frame call
 	renderLoop: function () {
-		try {
+
+		//try {
 			var self = audiOrbits;
 			var sett = self.settings;
 			// paused - stop render
@@ -649,13 +679,15 @@ var audiOrbits = {
 			// Figure out how much time passed since the last animation
 			var now = performance.now();
 			var ellapsed = Math.max(1, Math.min(10000, now - self.lastFrame));
-			// set lastFrame time
-			self.lastFrame = now;
+
 			// calc delta
 			var delta = Math.max(0.001, Math.min(10, ellapsed / 16.6667));
 
 			// render canvas
 			self.renderFrame(ellapsed / 1000, delta);
+
+			// set lastFrame time
+			self.lastFrame = performance.now();
 
 			// ICUE PROCESSING
 			// its better to do this every frame instead of seperately timed
@@ -675,19 +707,22 @@ var audiOrbits = {
 			// stats
 			if (self.stats) self.stats.end();
 
+		/*
 		} catch (ex) {
 			console.log("renderLoop exception: " + ex, true);
 		}
+		*/
+
 	},
-	// render a single frame with the given delta Multiplicator
+
+	// render a single frame with the given delta
 	renderFrame: function (ellapsed, deltaTime) {
-		print("| render | ellapsed: " + ellapsed + ", delta: " + deltaTime);
+		//print("| render | ellapsed: " + ellapsed + ", delta: " + deltaTime);
 		// stats
 		var self = audiOrbits;
-
-		// local vars are faster
-		var cObj = self.colorObject;
 		var sett = self.settings;
+		var cObj = self.colorObject;
+		// local vars are faster
 		var flmult = (15 + sett.audio_multiplier) * 0.02;
 		var spvn = sett.zoom_val;
 		var rot = sett.rotation_val / 5000;
@@ -826,9 +861,7 @@ var audiOrbits = {
 		}
 
 		// effect render
-		if (self.composer) self.composer.render(ellapsed);
-		// default render
-		else self.renderer.render(scene, camera);
+		self.composer.render(ellapsed);
 	},
 
 	///////////////////////////////////////////////
@@ -838,6 +871,8 @@ var audiOrbits = {
 	// web worker has finished generating the level
 	levelGenerated: function (e) {
 		let ldata = e.data;
+		print("generated level: " + ldata.id);
+
 		let self = audiOrbits;
 		let sett = self.settings;
 		self.levelWorkersRunning--;
@@ -896,85 +931,6 @@ var audiOrbits = {
 
 
 	///////////////////////////////////////////////
-	// 3D TEXT GENERATOR
-	///////////////////////////////////////////////
-
-	// create new 3D Text Object in Center and return
-	createText: function (text, callback) {
-
-		var loader = new THREE.FontLoader();
-		loader.load('css/hexagon_cup-webfont.json', function (response) {
-
-			var bevel = false;
-			var height = 20;
-			var size = 70;
-
-			var textGeo = new THREE.TextGeometry(text, {
-				font: response,
-				size: size,
-				height: height,
-				curveSegments: 8,
-				bevelThickness: 2,
-				bevelSize: 1.5,
-				bevelEnabled: bevel
-			});
-
-			textGeo.computeBoundingBox();
-			textGeo.computeVertexNormals();
-
-			var triangle = new THREE.Triangle();
-
-			// "fix" side normals by removing z-component of normals for side faces
-			// (this doesn't work well for beveled geometry as then we lose nice curvature around z-axis)
-			if (!bevel) {
-				var triangleAreaHeuristics = 0.1 * (height * size);
-				for (var i = 0; i < textGeo.faces.length; i++) {
-					var face = textGeo.faces[i];
-					if (face.materialIndex == 1) {
-						for (var j = 0; j < face.vertexNormals.length; j++) {
-							face.vertexNormals[j].z = 0;
-							face.vertexNormals[j].normalize();
-						}
-						var va = textGeo.vertices[face.a];
-						var vb = textGeo.vertices[face.b];
-						var vc = textGeo.vertices[face.c];
-						var s = triangle.set(va, vb, vc).getArea();
-						if (s > triangleAreaHeuristics) {
-							for (var j = 0; j < face.vertexNormals.length; j++) {
-								face.vertexNormals[j].copy(face.normal);
-							}
-						}
-					}
-				}
-			}
-
-			var centerOffset = - 0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x);
-
-			// create buffered geometry
-			textGeo = new THREE.BufferGeometry().fromGeometry(textGeo);
-
-			var materials = [
-				new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true }), // front
-				new THREE.MeshPhongMaterial({ color: 0xffffff }) // side
-			];
-
-			var textMesh1 = new THREE.Mesh(textGeo, materials);
-			// pos
-			textMesh1.position.x = centerOffset;
-			textMesh1.position.y = 30;
-			textMesh1.position.z = 0;
-			// rot
-			textMesh1.rotation.x = 0;
-			textMesh1.rotation.y = Math.PI * 2;
-			// Done
-			callback(textMesh1);
-		});
-	},
-
-
-
-
-	///////////////////////////////////////////////
 	// EVENT HANDLER & TIMERS
 	///////////////////////////////////////////////
 
@@ -1016,20 +972,21 @@ var audiOrbits = {
 
 	// will initialize webvr components and rendering
 	initWebVR: function () {
-		var scene = audiOrbits.scene;
-		var renderer = audiOrbits.renderer;
-		var userData = audiOrbits.userData;
+		var self = audiOrbits;
+		var scene = self.scene;
+		var renderer = self.renderer;
+		var userData = self.userData;
 
 		self.renderer.vr.enabled = true;
 		document.body.appendChild(VRButton.createButton(self.renderer));
 
 		userData.controller1 = renderer.vr.getController(0);
-		userData.controller1.addEventListener("selectstart", audiOrbits.onVRSelectStart);
-		userData.controller1.addEventListener("selectend", audiOrbits.onVRSelectEnd);
+		userData.controller1.addEventListener("selectstart", self.onVRSelectStart);
+		userData.controller1.addEventListener("selectend", self.onVRSelectEnd);
 		scene.add(userData.controller1);
 		userData.controller2 = renderer.vr.getController(1);
-		userData.controller2.addEventListener("selectstart", audiOrbits.onVRSelectStar);
-		userData.controller2.addEventListener("selectend", audiOrbits.onVRSelectEnd);
+		userData.controller2.addEventListener("selectstart", self.onVRSelectStart);
+		userData.controller2.addEventListener("selectend", self.onVRSelectEnd);
 		scene.add(userData.controller2);
 	},
 	// controller starts selecting
@@ -1066,12 +1023,13 @@ window.wallpaperPropertyListener = {
 		// very first initialization
 		if (!audiOrbits.initialized) {
 			audiOrbits.initialized = true;
-			$(() => audiOrbits.initFirst());
+			$(() => audiOrbits.initOnce());
 		}
 		else if (initFlag) {
-			print("got reInit-flag after apply!");
+			print("got reInit-flag from applying settings!");
 			if (audiOrbits.resetTimeout) clearTimeout(audiOrbits.resetTimeout);
-			audiOrbits.resetTimeout = setTimeout(() => audiOrbits.reInitSystem(), audiOrbits.resetTimespan * 1000);
+			audiOrbits.resetTimeout = setTimeout(audiOrbits.reInitSystem, audiOrbits.resetTimespan * 1000);
+			$("#reload-bar, #reload-text").removeClass("done").addClass("show");
 		}
 	},
 	setPaused: (isPaused) => {
@@ -1097,6 +1055,6 @@ $(() => {
 		print("wallpaperRegisterAudioListener not defined. We are probably outside of wallpaper engine. Manual init..");
 		audiOrbits.applyCustomProps({});
 		audiOrbits.initialized = true;
-		audiOrbits.initFirst();
+		audiOrbits.initOnce();
 	}
 });

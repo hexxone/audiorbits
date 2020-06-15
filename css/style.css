@@ -53,6 +53,7 @@ body {
     height: auto;
     margin: 10px;
     padding: 10px;
+    display: none;
 }
 
 #icuelogo {
@@ -90,11 +91,11 @@ body {
     bottom: -40px;
     font-family: 'hexagon_cup_fontbold', sans-serif;
     font-size: 125%;
+    display: none;
 }
 
-#icueholder, #txtholder {
+#icueholder, #txtholder, #reload-text {
     text-shadow: 0 0 20px rgba(255, 255, 255, .5), 0 0 15px rgba(255, 255, 255, .5);
-    display: none;
 }
 
 .cuePreview {
@@ -104,33 +105,38 @@ body {
 
 /* Reload indicator */
 
-.reload-bar {
+#reload-bar {
     position: absolute;
-    top: 0px;
-    height: 5px;
-    background: #121212aa;
-}
-
-.reload-bar .done {
-    top: 0;
     opacity: 0;
-    height: 100%;
+    top: 0px;
+    height: 10px;
+    width: 0%;
+    background-color: #989a;
+    transition: all 5s ease, opacity 0.33s ease;
+}
+#reload-bar.show {
+    opacity: 1;
     width: 100%;
-    transition: all .33s ease;
+    background-color: #e11a;
+}
+#reload-bar.done {
+    transition: opacity 0.33s ease;
 }
 
-.count {
+#reload-text {
     position: absolute;
-    top: 20%;
+    top: -6em;
     width: 100%;
     text-align: center;
     font-weight: 100;
     font-size: 3em;
-    margin-top: -1.33em;
-    color: #121212aa;
+    color: #fffa;
+    transition: all .33s ease, color 5s ease;
 }
-
-.count .done {
-    top: -20%;
-    transition: all .33s ease;
+#reload-text.show {
+    top: 10px;
+    color: #e11a;
+}
+#reload-text.done {
+    transition: position 0.33s linear;
 }
