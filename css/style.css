@@ -9,7 +9,7 @@
 
 @font-face {
     font-family: 'hexagon_cup_fontbold';
-    src: url(hexagon_cup-webfont.woff2) format("woff2"), url(hexagon_cup-webfont.woff) format("woff");
+    src: url(hexagon_cup-webfont.woff) format("woff");
     font-weight: 400;
     font-style: normal;
 }
@@ -42,7 +42,8 @@ body {
 
 #triggerwarn {
     object-fit: contain;
-    max-height: 500px;
+    max-height: 30vmax;
+    top: 25vmin;
 }
 
 #icueholder {
