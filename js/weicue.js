@@ -171,7 +171,7 @@ var weicue = {
     updateFrame: function () {
         var self = weicue;
         var sett = self.settings;
-        if (self.PAUSED || self.devices.length < 1 || sett.icue_mode == 0) return;
+        if (!self.available || self.PAUSED || sett.icue_mode == 0 || self.devices.length < 1) return;
         // projection mode
         if (sett.icue_mode == 1) {
             // get local values
@@ -217,6 +217,7 @@ var weicue = {
     updateCanvas: function () {
         var self = weicue;
         var sett = self.settings;
+        if (!self.available || self.PAUSED || sett.icue_mode == 0 || self.devices.length < 1) return;
 
         if (sett.icue_mode == 1) {
             // get helper vars

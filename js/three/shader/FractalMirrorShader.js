@@ -30,8 +30,12 @@ THREE.FractalMirrorShader = {
     `,
 
   fragmentShader: `
+      #ifdef GL_FRAGMENT_PRECISION_HIGH
+      precision highp float;
+      #else
       precision mediump float;
-
+      #endif
+      
       uniform sampler2D tDiffuse;
       uniform vec2 iResolution;
       uniform float numSides;
@@ -39,7 +43,7 @@ THREE.FractalMirrorShader = {
 
       varying vec2 vUv;
 
-      const float PI = 3.14159265359;
+      const float PI = 3.14159265358979323846;
 
       void main() {
         vec2 center = vec2(0.5, 0.5);
