@@ -280,7 +280,7 @@ var audiOrbits = {
 		// add global mouse (parallax) listener
 		var mouseUpdate = (event) => {
 			if (sett.parallax_option != 1) return;
-			if (event.touches.length == 1) {
+			if (event.touches && event.touches.length == 1) {
 				event.preventDefault();
 				self.mouseX = event.touches[0].pageX - self.windowHalfX;
 				self.mouseY = event.touches[0].pageY - self.windowHalfY;
@@ -306,7 +306,7 @@ var audiOrbits = {
 
 		// setup lookuptable textures once
 		lutSetup.run();
-		
+
 		// real initializer
 		self.initSystem();
 
@@ -665,47 +665,47 @@ var audiOrbits = {
 	renderLoop: function () {
 
 		//try {
-			var self = audiOrbits;
-			var sett = self.settings;
-			// paused - stop render
-			if (self.PAUSED) return;
-			// custom rendering needs manual re-call
-			if (self.renderTimeout)
-				self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
+		var self = audiOrbits;
+		var sett = self.settings;
+		// paused - stop render
+		if (self.PAUSED) return;
+		// custom rendering needs manual re-call
+		if (self.renderTimeout)
+			self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
 
-			// track FPS, mem etc.
-			if (self.stats) self.stats.begin();
+		// track FPS, mem etc.
+		if (self.stats) self.stats.begin();
 
-			// Figure out how much time passed since the last animation
-			var now = performance.now();
-			var ellapsed = Math.max(1, Math.min(10000, now - self.lastFrame));
+		// Figure out how much time passed since the last animation
+		var now = performance.now();
+		var ellapsed = Math.max(1, Math.min(10000, now - self.lastFrame));
 
-			// calc delta
-			var delta = Math.max(0.001, Math.min(10, ellapsed / 16.6667));
+		// calc delta
+		var delta = Math.max(0.001, Math.min(10, ellapsed / 16.6667));
 
-			// render canvas
-			self.renderFrame(ellapsed / 1000, delta);
+		// render canvas
+		self.renderFrame(ellapsed / 1000, delta);
 
-			// set lastFrame time
-			self.lastFrame = performance.now();
+		// set lastFrame time
+		self.lastFrame = performance.now();
 
-			// ICUE PROCESSING
-			// its better to do this every frame instead of seperately timed
-			weicue.updateCanvas();
+		// ICUE PROCESSING
+		// its better to do this every frame instead of seperately timed
+		weicue.updateCanvas();
 
-			// TODO: WEBVR PROCESSING
-			if (self.isWebContext) {
-				self.handleVRController(self.userData.controller1);
-				self.handleVRController(self.userData.controller1);
-			}
+		// TODO: WEBVR PROCESSING
+		if (self.isWebContext) {
+			self.handleVRController(self.userData.controller1);
+			self.handleVRController(self.userData.controller1);
+		}
 
-			// randomly do one after-render-aqction
-			// yes this is intended: "()()"
-			if (self.afterRenderQueue.length > 0 && Math.random() > 0.69)
-				self.afterRenderQueue.shift()();
+		// randomly do one after-render-aqction
+		// yes this is intended: "()()"
+		if (self.afterRenderQueue.length > 0 && Math.random() > 0.69)
+			self.afterRenderQueue.shift()();
 
-			// stats
-			if (self.stats) self.stats.end();
+		// stats
+		if (self.stats) self.stats.end();
 
 		/*
 		} catch (ex) {
@@ -718,42 +718,35 @@ var audiOrbits = {
 	// render a single frame with the given delta
 	renderFrame: function (ellapsed, deltaTime) {
 		//print("| render | ellapsed: " + ellapsed + ", delta: " + deltaTime);
-		// stats
 		var self = audiOrbits;
 		var sett = self.settings;
-		var cObj = self.colorObject;
-		// local vars are faster
-		var flmult = (15 + sett.audio_multiplier) * 0.02;
-		var spvn = sett.zoom_val;
-		var rot = sett.rotation_val / 5000;
-		var camera = self.camera;
-		var scene = self.scene;
-		var scenelen = scene.children.length;
-		var hueValues = self.hueValues;
-		var spvel = self.speedVelocity;
-		var moveBacks = self.moveBacks;
 
 		// calculate camera parallax with smoothing
 		var clampCam = (axis) => Math.min(sett.camera_bound, Math.max(-sett.camera_bound, axis));
 		var newCamX = clampCam(self.mouseX * sett.parallax_strength / 50);
 		var newCamY = clampCam(self.mouseY * sett.parallax_strength / -50);
-		if (camera.position.x != newCamX) camera.position.x += (newCamX - camera.position.x) * deltaTime * 0.05;
-		if (camera.position.y != newCamY) camera.position.y += (newCamY - camera.position.y) * deltaTime * 0.05;
+		if (self.camera.position.x != newCamX)
+			self.camera.position.x += (newCamX - self.camera.position.x) * deltaTime * 0.05;
+		if (self.camera.position.y != newCamY)
+			self.camera.position.y += (newCamY - self.camera.position.y) * deltaTime * 0.05;
 
 		// shift hue values
 		if (sett.color_mode == 0) {
 			var hueAdd = (sett.color_fade_speed / 4000) * deltaTime;
 			for (var s = 0; s < sett.num_subsets_per_level - 1; s++) {
-				hueValues[s] += hueAdd;
-				if (hueValues[s] >= 1)
-					hueValues[s] -= 2;
+				self.hueValues[s] += hueAdd;
+				if (self.hueValues[s] >= 1)
+					self.hueValues[s] -= 2;
 			}
 		}
 
 		// set camera view-target to scene-center
-		camera.lookAt(scene.position);
+		self.camera.lookAt(self.scene.position);
 
 		// calculate boost strength & step size if data given
+		var flmult = (15 + sett.audio_multiplier) * 0.02;
+		var spvn = sett.zoom_val;
+
 		var hasAudio = weas.hasAudio();
 		var lastAudio, boost, step;
 		if (hasAudio) {
@@ -771,56 +764,59 @@ var audiOrbits = {
 
 		// apply smoothing or direct value
 		if (!hasAudio || sett.audiozoom_smooth) {
-			self.speedVelocity += ((spvn - spvel) * sett.audio_smoothing / 1000);
+			self.speedVelocity += ((spvn - self.speedVelocity) * sett.audio_smoothing / 1000);
 		}
 		else self.speedVelocity = spvn;
 
 		// rotation calculation
+		var rot = sett.rotation_val / 5000;
 		if (hasAudio)
 			rot *= spvn * 0.1;
 
+		// move as many calculations out of loop as possible
+		var minSat = sett.minimum_saturation / 100;
+		var minBri = sett.minimum_brightness / 100;
+		// get targeted saturation & brightness
+		var defSat = sett.default_saturation / 100;
+		var defBri = sett.default_brightness / 100;
+		var sixtyDelta = deltaTime * 300;
+
 		// position all objects
-		for (i = 0; i < scenelen; i++) {
-			var child = scene.children[i];
+		for (i = 0; i < self.scene.children.length; i++) {
+			var child = self.scene.children[i];
+
 			// reset if out of bounds
-			if (child.position.z > camera.position.z) {
+			if (child.position.z > self.camera.position.z) {
 				// offset to back
-				print("moved back child: " + i);
+				//print("moved back child: " + i);
 				child.position.z -= sett.num_levels * sett.level_depth;
-				moveBacks[child.myLevel]++;
+				self.moveBacks[child.myLevel]++;
 				// update the child visually
 				if (child.needsUpdate) {
 					child.geometry.verticesNeedUpdate = true;
 					child.needsUpdate = false;
 				}
 				// process subset generation
-				if (moveBacks[child.myLevel] == sett.num_subsets_per_level) {
-					moveBacks[child.myLevel] = 0;
+				if (self.moveBacks[child.myLevel] == sett.num_subsets_per_level) {
+					self.moveBacks[child.myLevel] = 0;
 					self.generateLevel(child.myLevel);
 				}
 			}
-			// velocity & rotation
-			child.position.z += spvel * deltaTime;
-			child.rotation.z -= rot * deltaTime;
-		}
 
-		// HSL calculation with audio?
-		if (hasAudio) {
-			// move as many calculations out of loop as possible
-			var minSat = sett.minimum_saturation / 100;
-			var minBri = sett.minimum_brightness / 100;
-			// iterate through all objects
-			for (i = 0; i < scenelen; i++) {
-				var child = scene.children[i];
+			// velocity & rotation
+			child.position.z += self.speedVelocity * deltaTime;
+			child.rotation.z -= rot * deltaTime;
+
+			// HSL calculation with audio?
+			if (hasAudio) {
 				// use obj to camera distance with step to get frequency from data >> do some frequency calculations
-				var freqIndx = Math.round((camera.position.z - child.position.z) / step) + 4;
+				var freqIndx = Math.round((self.camera.position.z - child.position.z) / step) + 4;
 				// get & process frequency data
 				var cfreq = parseFloat(lastAudio.data[freqIndx]);
 				var rFreq = (cfreq * flmult / 3) / lastAudio.max;
-				var cHue = Math.abs(hueValues[child.mySubset]);
-				// uhoh ugly special case
+				var cHue = Math.abs(self.hueValues[child.mySubset]);				// uhoh ugly special case
 				if (sett.color_mode == 4) {
-					var tHue = cObj.hslb;
+					var tHue = self.colorObject.hslb;
 					cHue += (tHue - cHue) * cfreq / lastAudio.max;
 				}
 				else if (sett.color_mode == 0)
@@ -833,20 +829,12 @@ var audiOrbits = {
 				//print("setHSL | child: " + i + " | h: " + nhue + " | s: " + nsat + " | l: " + nlight);
 				child.myMaterial.color.setHSL(nhue, nsat, nlight);
 			}
-		}
-		else {
-			// get targeted saturation & brightness
-			var defSat = sett.default_saturation / 100;
-			var defBri = sett.default_brightness / 100;
-			var sixtyDelta = deltaTime * 300;
-			// iterate through all objects
-			for (i = 0; i < scenelen; i++) {
-				var child = scene.children[i];
+			else {
 				// get current HSL
 				var hsl = child.myMaterial.color.getHSL({});
 				var cHue = hsl.h, cSat = hsl.s, cLight = hsl.l;
 				// targeted HUE
-				var hue = Math.abs(hueValues[child.mySubset]);
+				var hue = Math.abs(self.hueValues[child.mySubset]);
 				if (Math.abs(hue - cHue) > 0.01)
 					cHue += (hue - cHue) / sixtyDelta;
 				// targeted saturation
@@ -893,14 +881,12 @@ var audiOrbits = {
 		}
 
 		if (self.scene && self.scene.children) {
-			var children = self.scene.children;
-			var scenelen = children.length;
 			// ensure this happens affter all subsets are updated
 			self.afterRenderQueue.push(() => {
 				// loop all scene children and set flag that new vertex data is available
 				// means the shape will update once the subset gets moved back to the end.
-				for (var i = 0; i < scenelen; i++) {
-					var child = children[i];
+				for (var i = 0; i < self.scene.children.length; i++) {
+					var child = self.scene.children[i];
 					if (child.myLevel == ldata.id) {
 						child.needsUpdate = true;
 					}
@@ -977,13 +963,14 @@ var audiOrbits = {
 		var renderer = self.renderer;
 		var userData = self.userData;
 
-		self.renderer.vr.enabled = true;
+		self.renderer.xr.enabled = true;
 		document.body.appendChild(VRButton.createButton(self.renderer));
 
 		userData.controller1 = renderer.vr.getController(0);
 		userData.controller1.addEventListener("selectstart", self.onVRSelectStart);
 		userData.controller1.addEventListener("selectend", self.onVRSelectEnd);
 		scene.add(userData.controller1);
+
 		userData.controller2 = renderer.vr.getController(1);
 		userData.controller2.addEventListener("selectstart", self.onVRSelectStart);
 		userData.controller2.addEventListener("selectend", self.onVRSelectEnd);
