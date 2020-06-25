@@ -128,5 +128,3 @@ var VRButton = {
 		}
 	}
 };
-
-export { VRButton };
