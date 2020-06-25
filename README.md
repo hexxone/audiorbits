@@ -12,6 +12,16 @@ Since you need to own Wallpaper Engine in order to access it's Workshop Content 
 
 *But:* If you encounter any issues of have suggestions please **address them on Steam since I won't be looking at this repo very often.**
 
+
+When experiencing low FPS in Wallpaper Engine, try the following:
+
+1. Open Wallpaper Engine, Select a Window to change
+1. klick the "Settings Wheel" at the top right, then 2nd Tab "Common" 
+2. Scroll down to "Comanndline for CEF"
+3. Enter "--disable-gpu-vsync"
+4. Press "OK"
+
+
 ### Dependencies
 - [jQuery](https://jquery.com/)
 - [three.js](https://threejs.org/)
@@ -52,8 +62,8 @@ Please head over to the Workshop-Page for a full list (see title for the link).
 
 Version 2.1:
 - added "reload" indicator
-- added custom timed rendering
-- changed the way how level data is applied
+- added custom timed rendering (see further notes in Settings Guide)
+- many many internal changes to improve performance
 - updated three.js and jquery
 - removed moment.js
 
