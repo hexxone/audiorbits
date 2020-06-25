@@ -90,14 +90,16 @@ var weicue = {
         var delta = 5;
         var alpha_left = 1 / (2 * Math.PI * delta * delta);
         var step = blur < 3 ? 1 : 2;
+
+        var x, weight;
         for (var y = -blur; y <= blur; y += step) {
-            for (var x = -blur; x <= blur; x += step) {
-                var weight = alpha_left * Math.exp(-(x * x + y * y) / (2 * delta * delta));
+            for (x = -blur; x <= blur; x += step) {
+                weight = alpha_left * Math.exp(-(x * x + y * y) / (2 * delta * delta));
                 sum += weight;
             }
         }
         for (var y = -blur; y <= blur; y += step) {
-            for (var x = -blur; x <= blur; x += step) {
+            for (x = -blur; x <= blur; x += step) {
                 ctx.globalAlpha = alpha_left * Math.exp(-(x * x + y * y) / (2 * delta * delta)) / sum * blur * blur;
                 ctx.drawImage(canvas, x, y);
             }
@@ -134,7 +136,7 @@ var weicue = {
         }
         // start
         self.mainCanvas = originCanvas;
-        console.log("weiCUE: async initialization...");
+        print("weiCUE: init...");
 
         // recreate if reinit
         if (self.icueInterval) clearInterval(self.icueInterval);
@@ -171,20 +173,14 @@ var weicue = {
     updateFrame: function () {
         var self = weicue;
         var sett = self.settings;
-        if (!self.available || self.PAUSED || sett.icue_mode == 0 || self.devices.length < 1) return;
+        if (!self.available || sett.icue_mode == 0 || self.devices.length < 1) return;
         // projection mode
         if (sett.icue_mode == 1) {
-            // get local values
-            var cueWid = self.canvasX;
-            var cueHei = self.canvasY;
-            var ctx = self.helperContext;
-            // get scaled down image data
-            var imgData = ctx.getImageData(0, 0, cueWid, cueHei);
-            // encode data for icue
-            var encDat = self.getEncodedCanvasImageData(imgData);
+            // get scaled down image data and encode it for icue
+            var encDat = self.getEncodedCanvasImageData(self.helperContext.getImageData(0, 0, self.canvasX, self.canvasY));
             // update all devices with data
             for (var xi = 0; xi < self.devices.length; xi++) {
-                window.cue.setLedColorsByImageData(xi, encDat, cueWid, cueHei);
+                window.cue.setLedColorsByImageData(xi, encDat, self.canvasX, self.canvasY);
             }
         }
         // color mode
@@ -217,7 +213,7 @@ var weicue = {
     updateCanvas: function () {
         var self = weicue;
         var sett = self.settings;
-        if (!self.available || self.PAUSED || sett.icue_mode == 0 || self.devices.length < 1) return;
+        if (!self.available || sett.icue_mode == 0 || self.devices.length < 1) return;
 
         if (sett.icue_mode == 1) {
             // get helper vars
@@ -242,7 +238,7 @@ if (!window.wallpaperPluginListener)
 
 // actual plugin handler
 var pluginLoad = function (name, version) {
-    console.log("weiCUE plugin: " + name + ", Version: " + version);
+    print("weiCUE plugin: " + name + ", Version: " + version);
     if (name === "cue") weicue.available = true;
 };
 
