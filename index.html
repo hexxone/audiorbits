@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html>
 <!-- AudiOrbits main html file - One is everything and everything is one -->
-
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1">
 
-  <title>AudiOrbits 2.0</title>
+  <title>AudiOrbits 2.1</title>
   <link rel="stylesheet" type="text/css" href="css/style.css">
 
-  <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
-  <script type="text/javascript" src="js/moment.min.js"></script>
+  <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
   <script type="text/javascript" src="js/stats.js"></script>
-
+  
+  <script type="text/javascript" src="js/threePatcher.js"></script>
   <script type="text/javascript" src="js/three.min.js"></script>
   <script type="text/javascript" src="js/three/shader/CopyShader.js"></script>
   <script type="text/javascript" src="js/three/shader/FractalMirrorShader.js"></script>
   <script type="text/javascript" src="js/three/shader/LUTShader.js"></script>
   <script type="text/javascript" src="js/three/shader/LuminosityHighPassShader.js"></script>
+  <script type="text/javascript" src="js/three/shader/FXAAShader.js"></script>
+  <script type="text/javascript" src="js/three/shader/BlurShader.js"></script>
   <script type="text/javascript" src="js/three/postprocessing/EffectComposer.js"></script>
   <script type="text/javascript" src="js/three/postprocessing/RenderPass.js"></script>
   <script type="text/javascript" src="js/three/postprocessing/ShaderPass.js"></script>
   <script type="text/javascript" src="js/three/postprocessing/UnrealBloomPass.js"></script>
-
+  
+  <script type="text/javascript" src="js/VRButton.js"></script>
   <script type="text/javascript" src="js/detector.js"></script>
   <script type="text/javascript" src="js/weas.js"></script>
   <script type="text/javascript" src="js/weicue.js"></script>
@@ -39,6 +41,10 @@
   <img id="img_over" />
   <div id="debugwnd">
     <h2>Debug logging active for 1 minute!</h2>
+  </div>
+  <div id="reloader">
+    <div id="reload-bar"></div>
+    <h1 id="reload-text">Reload</h1>
   </div>
   <div id="txtholder"></div>
   <div id="icueholder">
