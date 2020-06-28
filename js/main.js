@@ -728,58 +728,52 @@ var audiOrbits = {
 
 	// root render frame call
 	renderLoop: function (time, frame) {
-
-		// @TODO try to utilize given time?
-
-		//try {
 		var self = audiOrbits;
 		var sett = self.settings;
 		// paused - stop render
 		if (self.PAUSED) return;
-		// custom rendering needs manual re-call
-		if (self.renderTimeout)
-			self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
+		try {
+			// custom rendering needs manual re-call
+			if (self.renderTimeout)
+				self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
 
-		// track FPS, mem etc.
-		if (self.stats) self.stats.begin();
+			// track FPS, mem etc.
+			if (self.stats) self.stats.begin();
 
-		// Figure out how much time passed since the last animation and calc delta
-		var ellapsed = Math.min(10, self.clock.getDelta());
+			// Figure out how much time passed since the last animation and calc delta
+			var ellapsed = Math.min(10, self.clock.getDelta());
 
-		// effect render first, then update
-		self.composer.render();
+			// effect render first, then update
+			self.composer.render();
 
-		// calculate average delta for better smoothness
-		// this has to be done due to JS time data being rounded to mitigate Spectre Exploit.
-		var delta = ellapsed / 0.01666666667;
+			// calculate average delta for better smoothness
+			// this has to be done due to JS time data being rounded to mitigate Spectre Exploit.
+			var delta = ellapsed / 0.01666666667;
 
-		// update objects
-		self.animateFrame(ellapsed, delta);
+			// update objects
+			self.animateFrame(ellapsed, delta);
 
-		// ICUE PROCESSING
-		// its better to do this every frame instead of seperately timed
-		weicue.updateCanvas();
+			// ICUE PROCESSING
+			// its better to do this every frame instead of seperately timed
+			weicue.updateCanvas();
 
-		// TODO: WEBVR PROCESSING
-		if (self.isWebContext) {
-			self.handleVRController(self.userData.controller1);
-			self.handleVRController(self.userData.controller1);
-		}
+			// TODO: WEBVR PROCESSING
+			if (self.isWebContext) {
+				self.handleVRController(self.userData.controller1);
+				self.handleVRController(self.userData.controller1);
+			}
 
-		// randomly do one after-render-aqction
-		// yes this is intended: "()()"
-		if (self.afterRenderQueue.length > 0 && Math.random() > 0.8)
-			self.afterRenderQueue.shift()();
+			// randomly do one after-render-aqction
+			// yes this is intended: "()()"
+			if (self.afterRenderQueue.length > 0 && Math.random() > 0.8)
+				self.afterRenderQueue.shift()();
 
-		// stats
-		if (self.stats) self.stats.end();
+			// stats
+			if (self.stats) self.stats.end();
 
-		/*
 		} catch (ex) {
 			console.log("renderLoop exception: " + ex, true);
 		}
-		*/
-
 	},
 
 	// render a single frame with the given delta
