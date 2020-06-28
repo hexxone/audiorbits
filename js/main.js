@@ -21,6 +21,11 @@
  * Either way thanks for using this Wallpaper I guess.
  * Leave me some feedback on the Workshop-Page for this item if you like!
  * 
+ * @todo
+ * - finish implementing Web-XR
+ * - replace remaining jQuery animations with CSS3
+ * - fix smooth fade in when playing music?
+ * 
 */
 
 // custom logging function
@@ -448,9 +453,9 @@ var audiOrbits = {
 		});
 		self.renderer.setSize(window.innerWidth, window.innerHeight);
 
-		// TODO enable web-vr context
+		// enable web-vr context
 		if (self.isWebContext) {
-			self.initWebVR();
+			self.initWebXR();
 		}
 
 		// initialize Shader Composer
@@ -596,7 +601,7 @@ var audiOrbits = {
 
 		// TWO-PASS Blur using the same directional shader
 		if (sett.blur_strength > 0) {
-			var bs = sett.blur_strength / 3;
+			var bs = sett.blur_strength / 5;
 			// X
 			var blurPassX = new THREE.ShaderPass(THREE.BlurShader);
 			blurPassX.renderToScreen = false;
@@ -1006,24 +1011,22 @@ var audiOrbits = {
 	///////////////////////////////////////////////
 
 	// will initialize webvr components and rendering
-	initWebVR: function () {
+	initWebXR: function () {
 		var self = audiOrbits;
-		var scene = self.scene;
-		var renderer = self.renderer;
 		var userData = self.userData;
 
 		self.renderer.xr.enabled = true;
 		document.body.appendChild(VRButton.createButton(self.renderer));
 
-		userData.controller1 = renderer.vr.getController(0);
+		userData.controller1 = self.renderer.vr.getController(0);
 		userData.controller1.addEventListener("selectstart", self.onVRSelectStart);
 		userData.controller1.addEventListener("selectend", self.onVRSelectEnd);
-		scene.add(userData.controller1);
+		self.scene.add(userData.controller1);
 
-		userData.controller2 = renderer.vr.getController(1);
+		userData.controller2 = self.renderer.vr.getController(1);
 		userData.controller2.addEventListener("selectstart", self.onVRSelectStart);
 		userData.controller2.addEventListener("selectend", self.onVRSelectEnd);
-		scene.add(userData.controller2);
+		self.scene.add(userData.controller2);
 	},
 	// controller starts selecting
 	onVRSelectStart: function () {

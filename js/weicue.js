@@ -173,7 +173,7 @@ var weicue = {
     updateFrame: function () {
         var self = weicue;
         var sett = self.settings;
-        if (!self.available || sett.icue_mode == 0 || self.devices.length < 1) return;
+        if (audiOrbits.PAUSED || !self.available || sett.icue_mode == 0 || self.devices.length < 1) return;
         // projection mode
         if (sett.icue_mode == 1) {
             // get scaled down image data and encode it for icue
