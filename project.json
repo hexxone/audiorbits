@@ -952,7 +952,7 @@
 				"order": 179,
 				"text": "ui_num_levels",
 				"type": "slider",
-				"value": 4
+				"value": 6
 			},
 			"level_depth" : {
 				"condition": "HEADER_ADVANCED.value",
@@ -962,7 +962,7 @@
 				"order": 180,
 				"text": "ui_level_depth",
 				"type": "slider",
-				"value": 2000
+				"value": 1200
 			},
 			"num_subsets_per_level" : {
 				"condition": "HEADER_ADVANCED.value",
@@ -972,17 +972,17 @@
 				"order": 181,
 				"text": "ui_num_subsets_per_level",
 				"type": "slider",
-				"value": 16
+				"value": 12
 			},
 			"num_points_per_subset" : {
 				"condition": "HEADER_ADVANCED.value",
 				"editable": true,
-				"max": 16000,
-				"min": 64,
+				"max": 32000,
+				"min": 1024,
 				"order": 182,
 				"text": "ui_num_points_per_subset",
 				"type": "slider",
-				"value": 4000
+				"value": 4096
 			},
 			"fog_thickness" : {
 				"condition": "HEADER_ADVANCED.value",
