@@ -77,6 +77,15 @@ body {
     height: 100%;
 }
 
+#mainCvs {
+    opacity: 0;
+    transition: opacity 5s ease;
+}
+#mainCvs.show {
+    opacity: 1;
+    transition: opacity 10s ease;
+}
+
 #debugwnd {
     position: absolute;
     right: 0;

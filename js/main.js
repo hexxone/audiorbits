@@ -24,14 +24,21 @@
  * @todo
  * - finish implementing Web-XR
  * - replace remaining jQuery animations with CSS3
- * - fix smooth fade in when playing music?
  * 
 */
 
 // custom logging function
 function print(arg, force) {
-	if (!audiOrbits.initialized || audiOrbits.debug || force) console.log("AudiOrbits: " + JSON.stringify(arg));
+	if (audiOrbits.debug || force) console.log("AudiOrbits: " + JSON.stringify(arg));
 }
+
+var RunState = {
+	None: 0,
+	Initializing: 1,
+	Running: 2,
+	Paused: 3,
+	ReInitializing: 4
+};
 
 // base object for wallpaper
 var audiOrbits = {
@@ -103,11 +110,8 @@ var audiOrbits = {
 	// context?
 	isWebContext: false,
 
-	// started yet?
-	initialized: false,
-
-	// paused?
-	PAUSED: false,
+	// state of the Wallpaper
+	state: 0,
 
 	// debugging
 	debug: false,
@@ -324,6 +328,7 @@ var audiOrbits = {
 		//
 		var initWrap = () => {
 			$("#triggerwarn").fadeOut(1000, () => {
+				$("#mainCvs").addClass("show");
 				self.popupMessage("<h1>" + document.title + "</h1>", true);
 			});
 		};
@@ -346,6 +351,7 @@ var audiOrbits = {
 		$("#reload-bar, #reload-text").removeClass("show").addClass("done");
 		// kill intervals
 		clearInterval(self.swirlInterval);
+		self.levelWorker.terminate();
 		// kill stats
 		if (self.stats) self.stats.dispose();
 		self.stats = null;
@@ -363,6 +369,9 @@ var audiOrbits = {
 
 		// actual re-init
 		self.initSystem();
+
+		// start fade-in afterwards
+		$("#mainCvs").addClass("show");
 	},
 
 	// initialize the geometric & grpahics system
@@ -481,6 +490,9 @@ var audiOrbits = {
 
 			// start auto parallax handler
 			self.swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
+
+			// initialize the delta counter
+			self.clock = new THREE.Clock();
 
 			// start rendering
 			self.setRenderer(self.renderLoop);
@@ -630,7 +642,6 @@ var audiOrbits = {
 
 	// initialize hue-values by color mode
 	initHueValues: function () {
-		print("init hues");
 		var self = audiOrbits;
 		var sett = self.settings;
 		var cobj = self.colorObject = self.getColorObject();
@@ -714,8 +725,8 @@ var audiOrbits = {
 		}
 		// call new renderer ?
 		if (renderFunc != null) {
-			// initialize the delta counter
-			self.clock = new THREE.Clock();
+			// set state to running
+			self.state = RunState.Running;
 			// initialize rendering
 			if (sett.custom_fps) {
 				self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
@@ -723,57 +734,54 @@ var audiOrbits = {
 			else if (self.renderer) {
 				self.renderer.setAnimationLoop(renderFunc);
 			}
+			else print("no renderer!", true);
 		}
 	},
 
 	// root render frame call
-	renderLoop: function (time, frame) {
+	renderLoop: function () {
 		var self = audiOrbits;
 		var sett = self.settings;
 		// paused - stop render
-		if (self.PAUSED) return;
-		try {
-			// custom rendering needs manual re-call
-			if (self.renderTimeout)
-				self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
+		if (self.state == RunState.Paused) return;
 
-			// track FPS, mem etc.
-			if (self.stats) self.stats.begin();
+		// custom rendering needs manual re-call
+		if (self.renderTimeout)
+			self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
 
-			// Figure out how much time passed since the last animation and calc delta
-			var ellapsed = Math.min(10, self.clock.getDelta());
+		// track FPS, mem etc.
+		if (self.stats) self.stats.begin();
 
-			// effect render first, then update
-			self.composer.render();
+		// Figure out how much time passed since the last animation and calc delta
+		var ellapsed = Math.min(10, self.clock.getDelta());
 
-			// calculate average delta for better smoothness
-			// this has to be done due to JS time data being rounded to mitigate Spectre Exploit.
-			var delta = ellapsed / 0.01666666667;
+		// effect render first, then update
+		self.composer.render();
 
-			// update objects
-			self.animateFrame(ellapsed, delta);
+		// calculate average delta for better smoothness
+		// this has to be done due to JS time data being rounded to mitigate Spectre Exploit.
+		var delta = ellapsed / 0.01666666667;
 
-			// ICUE PROCESSING
-			// its better to do this every frame instead of seperately timed
-			weicue.updateCanvas();
+		// update objects
+		self.animateFrame(ellapsed, delta);
 
-			// TODO: WEBVR PROCESSING
-			if (self.isWebContext) {
-				self.handleVRController(self.userData.controller1);
-				self.handleVRController(self.userData.controller1);
-			}
+		// ICUE PROCESSING
+		// its better to do this every frame instead of seperately timed
+		weicue.updateCanvas();
 
-			// randomly do one after-render-aqction
-			// yes this is intended: "()()"
-			if (self.afterRenderQueue.length > 0 && Math.random() > 0.8)
-				self.afterRenderQueue.shift()();
-
-			// stats
-			if (self.stats) self.stats.end();
-
-		} catch (ex) {
-			console.log("renderLoop exception: " + ex, true);
+		// TODO: WEBVR PROCESSING
+		if (self.isWebContext) {
+			self.handleVRController(self.userData.controller1);
+			self.handleVRController(self.userData.controller1);
 		}
+
+		// randomly do one after-render-aqction
+		// yes this is intended: "()()"
+		if (self.afterRenderQueue.length > 0 && Math.random() > 0.8)
+			self.afterRenderQueue.shift()();
+
+		// stats
+		if (self.stats) self.stats.end();
 	},
 
 	// render a single frame with the given delta
@@ -834,6 +842,10 @@ var audiOrbits = {
 		if (hasAudio)
 			rot *= spvn * 0.1;
 
+		// Calc deltatime outside loop
+		self.speedVelocity *= deltaTime;
+		rot *= deltaTime;
+
 		// move as many calculations out of loop as possible
 		var minSat = sett.minimum_saturation / 100;
 		var minBri = sett.minimum_brightness / 100;
@@ -869,8 +881,8 @@ var audiOrbits = {
 			}
 
 			// velocity & rotation
-			child.position.z += self.speedVelocity * deltaTime;
-			child.rotation.z -= rot * deltaTime;
+			child.position.z += self.speedVelocity;
+			child.rotation.z -= rot;
 
 			// HSL calculation with audio?
 			if (hasAudio) {
@@ -935,7 +947,7 @@ var audiOrbits = {
 				// copy start index
 				var from = (s * sett.num_points_per_subset) * 2;
 				// copy end index
-				var tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset - 1) * 2;
+				var tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset) * 2;
 				// slice & set xyzBuffer data, then update child
 				subbs[s].child.geometry.attributes.position.set(xyzBuf.slice(from, tooo), 0);
 				subbs[s].child.geometry.attributes.position.needsUpdate = true;
@@ -1052,21 +1064,29 @@ window.wallpaperPropertyListener = {
 	applyUserProperties: (props) => {
 		var initFlag = audiOrbits.applyCustomProps(props);
 		// very first initialization
-		if (!audiOrbits.initialized) {
-			audiOrbits.initialized = true;
+		if (audiOrbits.state == RunState.None) {
+			audiOrbits.state = RunState.Initializing;
 			$(() => audiOrbits.initOnce());
 		}
 		else if (initFlag) {
+			audiOrbits.state = RunState.ReInitializing;
 			print("got reInit-flag from applying settings!");
 			if (audiOrbits.resetTimeout) clearTimeout(audiOrbits.resetTimeout);
 			audiOrbits.resetTimeout = setTimeout(audiOrbits.reInitSystem, audiOrbits.resetTimespan * 1000);
 			$("#reload-bar, #reload-text").removeClass("done").addClass("show");
+			$("#mainCvs").removeClass("show");
 		}
 	},
 	setPaused: (isPaused) => {
-		if (audiOrbits.PAUSED == isPaused) return;
+		if (audiOrbits.state == RunState.Paused) {
+			if (isPaused) return;
+			audiOrbits.state = RunState.Paused;
+		}
+		if (audiOrbits.state == RunState.Running) {
+			if (!isPaused) return;
+			audiOrbits.state = RunState.Running;
+		}
 		console.log("Set pause: " + isPaused);
-		audiOrbits.PAUSED = isPaused;
 		audiOrbits.setRenderer(isPaused ? null : audiOrbits.renderLoop);
 	}
 };
@@ -1084,7 +1104,6 @@ $(() => {
 	if (!window.wallpaperRegisterAudioListener) {
 		print("wallpaperRegisterAudioListener not defined. We are probably outside of wallpaper engine. Manual init..");
 		audiOrbits.applyCustomProps({});
-		audiOrbits.initialized = true;
 		audiOrbits.initOnce();
 	}
 });
