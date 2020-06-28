@@ -13,18 +13,21 @@ Since you need to own Wallpaper Engine in order to access it's Workshop Content 
 *But:* If you encounter any issues of have suggestions please **address them on Steam since I won't be looking at this repo very often.**
 
 
-When experiencing low FPS in Wallpaper Engine, try the following:
+## Bad FPS?
 
-1. Open Wallpaper Engine, Select a Window to change
-1. klick the "Settings Wheel" at the top right, then 2nd Tab "Common" 
-2. Scroll down to "Comanndline for CEF"
-3. Enter "--disable-gpu-vsync"
-4. Press "OK"
+When experiencing low "v-synced" FPS in Wallpaper Engine (not matching your monitor refresh-rate), try the following:
+
+1. Open Wallpaper Engine Window
+2. klick the "Settings Gear" at the top right, then navigate to the 2nd Tab "Common" 
+3. Scroll down to "Comanndline for CEF"
+4. Enter or append " --disable-gpu-vsync" (without quotes)
+5. Click in the text field again to apply the changes
+6. Press "OK" - and you should be done :)
 
 
-### Dependencies
+### Dependencies / Libraries
 - [jQuery](https://jquery.com/)
-- [three.js](https://threejs.org/)
+- [three.js](https://threejs.org/) & Examples
 - [HTML5 Environment](https://html5test.com/)
 
 
@@ -34,6 +37,7 @@ When reworking the audio processing of the Wallpaper, I encapsulated it and made
 
 To see how it works exactly take a look at the code in "js/weas.js".
 
+And don't forget it depends on the web worker "js/worker/weasWorker.js".
 
 
 ### WEWWA (Wallpaper Engine Web Wallpaper Adapter)
@@ -51,19 +55,22 @@ then upload your folder to a server and/or open it in your browser.
 You can see this running [HERE](https://experiment.hexxon.me/)
 
 
-
 ### Features:
 
 Please head over to the Workshop-Page for a full list (see title for the link).
 
 
-
 ### Changelog:
 
 Version 2.1:
+- added blur-filter
+- added FXAA-filter
 - added "reload" indicator
 - added custom timed rendering (see further notes in Settings Guide)
-- many many internal changes to improve performance
+- added audio peak filter
+- added audio (neighbour) "value smoothing"
+- renamed "audio smoothing" to "time smoothing"
+- many many internal changes and fixes to improve performance
 - updated three.js and jquery
 - removed moment.js
 
