@@ -744,7 +744,7 @@ var audiOrbits = {
 		if (self.stats) self.stats.begin();
 
 		// Figure out how much time passed since the last animation and calc delta
-		var ellapsed = self.clock.getDelta();
+		var ellapsed = Math.min(10, self.clock.getDelta());
 
 		// effect render first, then update
 		self.composer.render();
