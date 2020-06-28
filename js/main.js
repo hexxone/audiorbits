@@ -1080,11 +1080,11 @@ window.wallpaperPropertyListener = {
 	setPaused: (isPaused) => {
 		if (audiOrbits.state == RunState.Paused) {
 			if (isPaused) return;
-			audiOrbits.state = RunState.Paused;
-		}
-		if (audiOrbits.state == RunState.Running) {
-			if (!isPaused) return;
 			audiOrbits.state = RunState.Running;
+		}
+		else if (audiOrbits.state == RunState.Running) {
+			if (!isPaused) return;
+			audiOrbits.state = RunState.Paused;
 		}
 		console.log("Set pause: " + isPaused);
 		audiOrbits.setRenderer(isPaused ? null : audiOrbits.renderLoop);
