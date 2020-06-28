@@ -21,6 +21,11 @@
  * Either way thanks for using this Wallpaper I guess.
  * Leave me some feedback on the Workshop-Page for this item if you like!
  * 
+ * @todo
+ * - finish implementing Web-XR
+ * - replace remaining jQuery animations with CSS3
+ * - fix smooth fade in when playing music?
+ * 
 */
 
 // custom logging function
@@ -50,7 +55,8 @@ var audiOrbits = {
 		default_saturation: 10,
 		zoom_val: 1,
 		rotation_val: 0,
-		fps_limit: 60,
+		custom_fps: false,
+		fps_value: 60,
 		minimum_volume: 1,
 		minimum_brightness: 10,
 		minimum_saturation: 10,
@@ -86,7 +92,9 @@ var audiOrbits = {
 		bloom_filter: false,
 		lut_filter: -1,
 		mirror_shader: 0,
-		mirror_invert: true,
+		mirror_invert: false,
+		fx_antialiasing: true,
+		blur_strength: 0,
 		color_mode: 0,
 		user_color_a: "1 0.5 0",
 		user_color_b: "0 0.5 1",
@@ -94,44 +102,61 @@ var audiOrbits = {
 	},
 	// context?
 	isWebContext: false,
-	// vr rendering is only supported in web.
-	vrRendering: false,
+
 	// started yet?
 	initialized: false,
+
 	// paused?
 	PAUSED: false,
+
 	// debugging
 	debug: false,
 	debugTimeout: null,
-	// canvas
+
+	// relevant html elements
+	container: null,
 	mainCanvas: null,
 	helperContext: null,
-	// Three.js relevant objects
-	renderer: null,
-	composer: null,
-	mirrorPass: null,
-	// last frame time
-	lastFrame: performance.now(),
-	// current user colorObject
-	colorObject: null,
-	// interval for reloading the wallpaper
+	// these are set once 
+	resetBar: null,
+	resetText: null,
+
+	// Seconds & interval for reloading the wallpaper
+	resetTimespan: 5,
 	resetTimeout: null,
+
+	// render relevant stuff
+	clock: null,
+	renderTimeout: null,
+
 	// interval for swirlHandler
 	swirlInterval: null,
-	// mouse over canvas position
+
+	// extended  user settings
+	colorObject: null,
+	// mouse over canvas
 	mouseX: 0,
 	mouseY: 0,
 	// window half size
 	windowHalfX: window.innerWidth / 2,
 	windowHalfY: window.innerHeight / 2,
+
+	// Three.js relevant objects
+	renderer: null,
+	composer: null,
+	camera: null,
+	scene: null,
 	// main orbit data
 	levels: [],
 	moveBacks: [],
+	hueValues: [],
+	// actions to perform after render
+	afterRenderQueue: [],
+
 	// generator holder
 	levelWorker: null,
 	levelWorkersRunning: 0,
 	levelWorkerCall: null,
-
 
 	///////////////////////////////////////////////
 	// APPLY SETTINGS
@@ -144,9 +169,10 @@ var audiOrbits = {
 		var _ignore = ["debugging", "audioprocessing", "img_overlay",
 			"img_background", "base_texture", "mirror_invalid_val"];
 
-		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "scaling_factor",
-			"camera_bound", "num_points_per_subset", "num_subsets_per_level", "num_levels", "level_depth",
-			"level_shifting", "bloom_filter", "lut_filter", "mirror_shader", "mirror_invert"];
+		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness",
+			"scaling_factor", "camera_bound", "num_points_per_subset", "num_subsets_per_level",
+			"num_levels", "level_depth", "level_shifting", "bloom_filter", "lut_filter",
+			"mirror_shader", "mirror_invert", "fx_antialiasing", "blur_strength", "custom_fps"];
 
 		var self = audiOrbits;
 		var sett = self.settings;
@@ -166,9 +192,7 @@ var audiOrbits = {
 
 			var found = false;
 			// process all storages
-			for (var sid in settStorage) {
-				// storage has setting?
-				var storage = settStorage[sid];
+			for (var storage of settStorage) {
 				if (storage[setting] != null) {
 					// save b4
 					found = true;
@@ -199,14 +223,14 @@ var audiOrbits = {
 				}
 			});
 		};
-		if (props["img_background"])
-			setImgSrc("#img_back", props["img_background"].value);
-		if (props["img_overlay"])
-			setImgSrc("#img_over", props["img_overlay"].value);
+		if (props.img_background)
+			setImgSrc("#img_back", props.img_background.value);
+		if (props.img_overlay)
+			setImgSrc("#img_over", props.img_overlay.value);
 
 		// intitialize texture splash
-		if (props["base_texture"]) {
-			var val = props["base_texture"].value;
+		if (props.base_texture) {
+			var val = props.base_texture.value;
 			switch (val) {
 				default: sett.base_texture_path = "./img/galaxy.png"; break;
 				case 1: sett.base_texture_path = "./img/cuboid.png"; break;
@@ -216,17 +240,17 @@ var audiOrbits = {
 		}
 
 		// re-initialize colors if mode or user value changed
-		if (props["color_mode"] || props["user_color_a"] || props["user_color_b"]) {
+		if (props.color_mode || props.user_color_a || props.user_color_b) {
 			self.initHueValues();
 		}
 
 		// debug logging
-		if (props["debugging"]) self.debug = props["debugging"].value == true;
+		if (props.debugging) self.debug = props.debugging.value == true;
 		if (!self.debug && self.debugTimeout) {
 			clearTimeout(self.debugTimeout);
 			self.debugTimeout = null;
 		}
-		if (self.debug && !self.debugTimeout) self.debugTimeout = setTimeout(() => self.applyCustomProps({ "debugging": { value: false } }), 1000 * 60);
+		if (self.debug && !self.debugTimeout) self.debugTimeout = setTimeout(() => self.applyCustomProps({ debugging: { value: false } }), 1000 * 60);
 		$("#debugwnd").css("visibility", self.debug ? "visible" : "hidden");
 
 		// fix for centered camera on Parallax "none"
@@ -243,74 +267,126 @@ var audiOrbits = {
 	// INITIALIZE
 	///////////////////////////////////////////////
 
-	initFirst: function () {
+	initOnce: function () {
+		print("initializing...");
+		var self = audiOrbits;
+		var sett = self.settings;
+
 		// No WebGL ? o.O
-		if (!Detector.webgl) {
+		if (!THREE || !Detector.webgl) {
 			Detector.addGetWebGLMessage();
 			return;
 		}
-		// Mouse listener
+
+		// bruh...
+		ThreePatcher.patch();
+		// set global caching
+		THREE.Cache.enabled = true;
+
+		// get static elements
+		self.resetBar = document.getElementById("reload-bar");
+		self.resetText = document.getElementById("reload-text");
+		self.container = document.getElementById("renderContainer");
+
+		// add global mouse (parallax) listener
 		var mouseUpdate = (event) => {
-			var sett = this.settings;
 			if (sett.parallax_option != 1) return;
-			if (event.touches.length == 1) {
+			if (event.touches && event.touches.length == 1) {
 				event.preventDefault();
-				this.mouseX = event.touches[0].pageX - this.windowHalfX;
-				this.mouseY = event.touches[0].pageY - this.windowHalfY;
+				self.mouseX = event.touches[0].pageX - self.windowHalfX;
+				self.mouseY = event.touches[0].pageY - self.windowHalfY;
 			}
-			else if(event.clientX) {
-				this.mouseX = event.clientX - this.windowHalfX;
-				this.mouseY = event.clientY - this.windowHalfY;
+			else if (event.clientX) {
+				self.mouseX = event.clientX - self.windowHalfX;
+				self.mouseY = event.clientY - self.windowHalfY;
 			}
 		}
 		document.addEventListener("touchstart", mouseUpdate, false);
 		document.addEventListener("touchmove", mouseUpdate, false);
 		document.addEventListener("mousemove", mouseUpdate, false);
 
-		// Scaling
+		// scaling listener
 		window.addEventListener("resize", (event) => {
-			this.windowHalfX = window.innerWidth / 2;
-			this.windowHalfY = window.innerHeight / 2;
-			if (!this.camera || !this.renderer) return;
-			this.camera.aspect = window.innerWidth / window.innerHeight;
-			this.camera.updateProjectionMatrix();
-			this.renderer.setSize(window.innerWidth, window.innerHeight);
+			self.windowHalfX = window.innerWidth / 2;
+			self.windowHalfY = window.innerHeight / 2;
+			if (!self.camera || !self.renderer) return;
+			self.camera.aspect = window.innerWidth / window.innerHeight;
+			self.camera.updateProjectionMatrix();
+			self.renderer.setSize(window.innerWidth, window.innerHeight);
 		}, false);
 
 		// setup lookuptable textures once
 		lutSetup.run();
 
 		// real initializer
+		self.initSystem();
+
+		//
 		var initWrap = () => {
-			$("#triggerwarn").fadeOut(1000, () => this.initSystem());
+			$("#triggerwarn").fadeOut(1000, () => {
+				self.popupMessage("<h1>" + document.title + "</h1>", true);
+			});
 		};
 
 		// initialize now or after a delay?
-		if (!this.settings.seizure_warning) initWrap();
+		if (!sett.seizure_warning) initWrap();
 		else {
 			$("#triggerwarn").fadeIn(1000);
 			setTimeout(initWrap, 10000);
 		}
 	},
 
+	// re-initialies the walpaper after some time
+	reInitSystem: function () {
+		print("re-initializing...");
+		// Lifetime variables
+		var self = audiOrbits;
+
+		// hide reload indicator
+		$("#reload-bar, #reload-text").removeClass("show").addClass("done");
+		// kill intervals
+		clearInterval(self.swirlInterval);
+		// kill stats
+		if (self.stats) self.stats.dispose();
+		self.stats = null;
+		// kill shader processor
+		if (self.composer) self.composer.reset();
+		self.composer = null;
+		// kill frame animation and webgl
+		self.setRenderer(null);
+		self.renderer.forceContextLoss();
+		// recreate webgl canvas
+		self.container.removeChild(self.mainCanvas);
+		var mainCvs = document.createElement("canvas");
+		mainCvs.id = "mainCvs";
+		self.container.appendChild(mainCvs);
+
+		// actual re-init
+		self.initSystem();
+	},
+
 	// initialize the geometric & grpahics system
 	// => starts rendering loop afterwards
 	initSystem: function () {
-		print("initializing...");
-
 		// Lifetime variables
 		var self = audiOrbits;
 		var sett = self.settings;
-		self.fpsThreshold = 0;
+
+		// reset rendering
 		self.speedVelocity = 0;
 		self.swirlStep = 0;
-
-		// Orbit data
-		self.hueValues = [];
+		// reset Orbit data
 		self.levels = [];
 		self.moveBacks = [];
+		self.hueValues = [];
+		self.afterRenderQueue = [];
 
-		// statistics
+		// setup level generator
+		self.levelWorker = new Worker('./js/worker/levelWorker.js');
+		self.levelWorker.addEventListener('message', self.levelGenerated, false);
+		self.levelWorker.addEventListener('error', self.levelError, false);
+
+		// init stats
 		if (sett.stats_option >= 0) {
 			print("Init stats: " + sett.stats_option);
 			self.stats = new Stats();
@@ -318,8 +394,6 @@ var audiOrbits = {
 			document.body.appendChild(self.stats.dom);
 		}
 
-		// get container
-		self.container = document.getElementById("renderContainer");
 		// get canvases & contexts
 		// ensure the canvas sizes are set !!!
 		// these are independent from the style sizes
@@ -327,29 +401,13 @@ var audiOrbits = {
 		self.mainCanvas.width = window.innerWidth;
 		self.mainCanvas.height = window.innerHeight;
 
-		// setup level generator
-		self.levelWorker = new Worker('./js/worker/levelWorker.js');
-		self.levelWorker.addEventListener('message', self.levelGenerated, false);
-		self.levelWorker.addEventListener('error', self.levelError, false);
-
-		// when all levels are generated, continue init
-		self.levelWorkerCall = () => {
-			print("loading Texture: " + sett.base_texture_path);
-			// load main texture
-			// path, onLoad, onProgress, onError
-			new THREE.TextureLoader().load(sett.base_texture_path,
-				self.textureInit, undefined, self.textureError
-			);
-		};
-
-		// setup geometrics
+		// setup basic objects
 		for (var l = 0; l < sett.num_levels; l++) {
 			var sets = [];
 			for (var i = 0; i < sett.num_subsets_per_level; i++) {
-				sets[i] = [];
-				for (var j = 0; j < sett.num_points_per_subset; j++) {
-					sets[i][j] = new THREE.Vector3(0, 0, 0);
-				}
+				sets[i] = {
+					child: null,
+				};
 			}
 			// set subset moveback counter
 			self.moveBacks[l] = 0;
@@ -358,13 +416,18 @@ var audiOrbits = {
 				myLevel: l,
 				subsets: sets
 			};
-			// generate subset data for the first time
-			self.generateLevel(l);
 		}
+
+		print("loading Texture: " + sett.base_texture_path);
+		// load main texture
+		// path, onLoad, onProgress, onError
+		new THREE.TextureLoader().load(sett.base_texture_path,
+			self.initWithTexture, undefined, self.textureError
+		);
 	},
 
 	/// continue intialisation affter texture was loaded
-	textureInit: function (texture) {
+	initWithTexture: function (texture) {
 		var self = audiOrbits;
 		var sett = self.settings;
 
@@ -376,6 +439,66 @@ var audiOrbits = {
 		self.scene.fog = new THREE.FogExp2(0x000000, sett.fog_thickness / 10000);
 		// generate random hue vals
 		self.initHueValues();
+
+		// generate level object structure
+		self.initGeometries(texture);
+
+		self.renderer = new THREE.WebGLRenderer({
+			canvas: self.mainCanvas,
+			clearColor: 0x000000,
+			clearAlpha: 1,
+			alpha: true,
+			antialias: false,
+			logarithmicDepthBuffer: true
+		});
+		self.renderer.setSize(window.innerWidth, window.innerHeight);
+
+		// enable web-vr context
+		if (self.isWebContext) {
+			self.initWebXR();
+		}
+
+		// initialize Shader Composer
+		self.composer = new THREE.EffectComposer(self.renderer);
+		self.initShaders();
+
+		// set function to be called when all levels are generated
+		// will apply data and trigger to start rendering
+		self.levelWorkerCall = () => {
+
+			// apply data manually
+			while (self.afterRenderQueue.length > 0) {
+				self.afterRenderQueue.shift()();
+			}
+
+			// prepare new orbit levels for the first reset/moveBack already
+			for (var l = 0; l < sett.num_levels; l++) {
+				self.generateLevel(l);
+			}
+
+			// init plugins
+			weicue.init(self.mainCanvas);
+
+			// start auto parallax handler
+			self.swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
+
+			// start rendering
+			self.setRenderer(self.renderLoop);
+
+			// print
+			print("initializing complete.", true);
+		};
+
+		// generate the levels
+		for (var l = 0; l < sett.num_levels; l++) {
+			self.generateLevel(l);
+		}
+	},
+
+	// create WEBGL objects for each level and subset
+	initGeometries: function (texture) {
+		var self = audiOrbits;
+		var sett = self.settings;
 		// material properties
 		var matprops = {
 			map: texture,
@@ -384,20 +507,22 @@ var audiOrbits = {
 			depthTest: false,
 			transparent: true
 		};
+
 		var subsetDist = sett.level_depth / sett.num_subsets_per_level;
-		// Create particle systems
+		// build all levels
 		for (var k = 0; k < sett.num_levels; k++) {
+			// build all subsets
 			for (var s = 0; s < sett.num_subsets_per_level; s++) {
 				// create particle geometry from orbit vertex data
-				var geometry = new THREE.Geometry();
-				for (var i = 0; i < sett.num_points_per_subset; i++) {
-					geometry.vertices.push(self.levels[k].subsets[s][i]);
-				}
-				geometry.dynamic = true;
+				var geometry = new THREE.BufferGeometry();
+
+				// position attribute (2 vertices per point, thats pretty illegal)
+				geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2));
+
 				// create particle material with map & size
 				var material = new THREE.PointsMaterial(matprops);
 				// set material defaults
-				material.color.setHSL(self.hueValues[s], sett.default_saturation, sett.default_brightness / 100);
+				material.color.setHSL(self.hueValues[s], 0, 0);
 				// create particle system from geometry and material
 				var particles = new THREE.Points(geometry, material);
 				particles.myMaterial = material;
@@ -415,83 +540,89 @@ var audiOrbits = {
 				particles.needsUpdate = false;
 				// add to scene
 				self.scene.add(particles);
+				self.levels[k].subsets[s].child = particles;
 			}
 		}
-		// Setup renderer and effects
-		self.renderer = new THREE.WebGLRenderer({
-			canvas: self.mainCanvas,
-			clearColor: 0x000000,
-			clearAlpha: 1,
-			alpha: true,
-			antialias: true
-		});
-		self.renderer.setSize(window.innerWidth, window.innerHeight);
+	},
 
-		// TODO enable web-vr context
-		if (self.isWebContext) {
-			self.initWebVR();
-		}
-
-		// initialize Shaders
-
-		// add import Pass from real renderer
-		self.composer = new THREE.EffectComposer(self.renderer);
-		self.composer.addPass(new THREE.RenderPass(self.scene, self.camera, null, 0x000000, 1));
+	// initialize shaders after composer
+	initShaders: function () {
+		var self = audiOrbits;
+		var sett = self.settings;
 		// last added filter
 		var lastEffect = null;
+
+		self.composer.addPass(new THREE.RenderPass(self.scene, self.camera, null, 0x000000, 1));
 		// bloom
 		if (sett.bloom_filter) {
 			var urBloomPass = new THREE.UnrealBloomPass(512);
-			lastEffect = urBloomPass;
 			urBloomPass.renderToScreen = false;
 			self.composer.addPass(urBloomPass);
+			lastEffect = urBloomPass;
 		}
+
 		// lookuptable filter
 		if (sett.lut_filter >= 0) {
 			// add normal or filtered LUT shader
-			var lutInfo = lutSetup.lutTextures[sett.lut_filter];
+			var lutInfo = lutSetup.Textures[sett.lut_filter];
 			// get normal or filtered LUT shader
 			var lutPass = new THREE.ShaderPass(lutInfo.filter ?
 				THREE.LUTShader : THREE.LUTShaderNearest);
 			// prepare render queue
-			lastEffect = lutPass;
 			lutPass.renderToScreen = false;
 			self.composer.addPass(lutPass);
+			lastEffect = lutPass;
 			// set shader uniform values
 			lutPass.uniforms.lutMap.value = lutInfo.texture;
 			lutPass.uniforms.lutMapSize.value = lutInfo.size;
 		}
+
 		// fractal mirror shader
 		if (sett.mirror_shader > 1) {
 			var mirrorPass = new THREE.ShaderPass(THREE.FractalMirrorShader);
-			lastEffect = mirrorPass;
 			mirrorPass.renderToScreen = false;
 			self.composer.addPass(mirrorPass);
+			lastEffect = mirrorPass;
 			// set shader uniform values
 			mirrorPass.uniforms.invert.value = sett.mirror_invert;
 			mirrorPass.uniforms.numSides.value = sett.mirror_shader;
 			mirrorPass.uniforms.iResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
 		}
-		// render last effect
-		if (lastEffect)
-			lastEffect.renderToScreen = true;
 
-		// prepare new orbit levels for the first reset/moveBack when a subset passes the camera
-		for (var l = 0; l < sett.num_levels; l++) {
-			self.generateLevel(l);
+		// Nvidia FX antialiasing
+		if (sett.ufx_antialiasing) {
+			var fxaaPass = new THREE.ShaderPass(THREE.FXAAShader);
+			fxaaPass.renderToScreen = false;
+			self.composer.addPass(fxaaPass);
+			lastEffect = fxaaPass;
+			// set uniform
+			fxaaPass.uniforms.resolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
 		}
-		// init plugins
-		weicue.init(self.mainCanvas);
-		// start bg parallax handler
-		swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
-		// start rendering
-		self.renderer.setAnimationLoop(self.renderLoop);
-		$("#renderContainer").fadeIn(5000);
-		self.popupMessage("<h1>" + document.title + "</h1>", true);
-		// print
-		print("startup complete.", true);
+
+		// TWO-PASS Blur using the same directional shader
+		if (sett.blur_strength > 0) {
+			var bs = sett.blur_strength / 5;
+			// X
+			var blurPassX = new THREE.ShaderPass(THREE.BlurShader);
+			blurPassX.renderToScreen = false;
+			blurPassX.uniforms.u_dir.value = new THREE.Vector2(bs, 0);
+			blurPassX.uniforms.iResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
+			self.composer.addPass(blurPassX);
+			// Y
+			var blurPassY = new THREE.ShaderPass(THREE.BlurShader);
+			blurPassY.renderToScreen = false;
+			blurPassY.uniforms.u_dir.value = new THREE.Vector2(0, bs);
+			blurPassY.uniforms.iResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
+			self.composer.addPass(blurPassY);
+			// chaining
+			lastEffect = blurPassY;
+		}
+
+		// render last effect
+		if (lastEffect) lastEffect.renderToScreen = true;
 	},
 
+	// failed to load texture
 	textureError: function (err) {
 		print("texture loading error:", true);
 		print(err, true);
@@ -499,8 +630,8 @@ var audiOrbits = {
 
 	// initialize hue-values by color mode
 	initHueValues: function () {
+		print("init hues");
 		var self = audiOrbits;
-		if (!self.hueValues) self.hueValues = [];
 		var sett = self.settings;
 		var cobj = self.colorObject = self.getColorObject();
 		//print("initHueV: a=" + cobj.hsla + ", b=" + cobj.hslb);
@@ -529,7 +660,7 @@ var audiOrbits = {
 			min: mi,
 			max: ma,
 			range: ma - mi
-		}
+		};
 	},
 	// get HUE val
 	rgbToHue: function (arr) {
@@ -563,100 +694,126 @@ var audiOrbits = {
 		}
 		return H / 360;
 	},
-	// re-initialies the walpaper some time after an "advanced setting" has been changed
-	reInitSystem: function () {
-		print("reInitSystem()");
-		// kill intervals
-		clearInterval(this.swirlInterval);
-		// kill stats
-		if (this.stats) this.stats.dispose();
-		this.stats = null;
-		// kill shader processor
-		if (this.composer) this.composer.reset();
-		this.composer = null;
-		// kill webgl soos
-		this.renderer.forceContextLoss();
-		// recreate webgl canvas
-		this.container.removeChild(this.mainCanvas);
-		var mainCvs = document.createElement("canvas");
-		mainCvs.id = "mainCvs";
-		this.container.appendChild(mainCvs);
-		// init
-		this.initSystem();
-	},
 
 
 	///////////////////////////////////////////////
 	// RENDERING
 	///////////////////////////////////////////////
 
-	renderLoop: function () {
-		try {
-			var self = audiOrbits;
-			var sett = self.settings;
-			// paused - stop render
-			if (self.PAUSED) return;
-			// Figure out how much time passed since the last animation
-			var fpsThreshMin = 1 / sett.fps_limit;
-			var now = performance.now();
-			var ellapsed = Math.max(1, Math.min(10000, now - self.lastFrame)) / 1000;
-			// set lastFrame time
-			self.lastFrame = now;
-			// calc delta
-			var delta = Math.max(0.001, Math.min(20, ellapsed / fpsThreshMin * 60 / sett.fps_limit));
-			// skip rendering the frame if we reached the desired FPS
-			self.fpsThreshold += ellapsed;
-			// over FPS limit? cancel animation..
-			if (self.fpsThreshold < fpsThreshMin) return;
-			self.fpsThreshold -= fpsThreshMin;
-			// render canvas
-			self.renderFrame(ellapsed, delta);
-		} catch (ex) {
-			console.log("renderLoop exception: ", true);
-			console.log(ex, true);
+	// start or stop rendering
+	setRenderer: function (renderFunc) {
+		var self = audiOrbits;
+		var sett = self.settings;
+		// clear all old renderers
+		if (self.renderer) {
+			self.renderer.setAnimationLoop(null);
+		}
+		if (self.renderTimeout) {
+			clearTimeout(self.renderTimeout);
+			self.renderTimeout = null;
+		}
+		// call new renderer ?
+		if (renderFunc != null) {
+			// initialize the delta counter
+			self.clock = new THREE.Clock();
+			// initialize rendering
+			if (sett.custom_fps) {
+				self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
+			}
+			else if (self.renderer) {
+				self.renderer.setAnimationLoop(renderFunc);
+			}
 		}
 	},
-	// render a single frame with the given delta Multiplicator
-	renderFrame: function (ellapsed, deltaTime) {
-		print("render with delta: " + deltaTime);
-		// stats
+
+	// root render frame call
+	renderLoop: function (time, frame) {
+
+		// @TODO try to utilize given time?
+
+		//try {
 		var self = audiOrbits;
+		var sett = self.settings;
+		// paused - stop render
+		if (self.PAUSED) return;
+		// custom rendering needs manual re-call
+		if (self.renderTimeout)
+			self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
+
+		// track FPS, mem etc.
 		if (self.stats) self.stats.begin();
 
-		// local vars are faster
-		var cObj = self.colorObject;
+		// Figure out how much time passed since the last animation and calc delta
+		var ellapsed = self.clock.getDelta();
+
+		// effect render first, then update
+		self.composer.render();
+
+		// calculate average delta for better smoothness
+		// this has to be done due to JS time data being rounded to mitigate Spectre Exploit.
+		var delta = ellapsed / 0.01666666667;
+
+		// update objects
+		self.animateFrame(ellapsed, delta);
+
+		// ICUE PROCESSING
+		// its better to do this every frame instead of seperately timed
+		weicue.updateCanvas();
+
+		// TODO: WEBVR PROCESSING
+		if (self.isWebContext) {
+			self.handleVRController(self.userData.controller1);
+			self.handleVRController(self.userData.controller1);
+		}
+
+		// randomly do one after-render-aqction
+		// yes this is intended: "()()"
+		if (self.afterRenderQueue.length > 0 && Math.random() > 0.8)
+			self.afterRenderQueue.shift()();
+
+		// stats
+		if (self.stats) self.stats.end();
+
+		/*
+		} catch (ex) {
+			console.log("renderLoop exception: " + ex, true);
+		}
+		*/
+
+	},
+
+	// render a single frame with the given delta
+	animateFrame: function (ellapsed, deltaTime) {
+		//print("| render | ellapsed: " + ellapsed + ", delta: " + deltaTime);
+		var self = audiOrbits;
 		var sett = self.settings;
-		var flmult = (15 + sett.audio_multiplier) * 0.02;
-		var spvn = sett.zoom_val;
-		var rot = sett.rotation_val / 5000;
-		var camera = self.camera;
-		var scene = self.scene;
-		var scenelen = scene.children.length;
-		var hueValues = self.hueValues;
-		var spvel = self.speedVelocity;
-		var moveBacks = self.moveBacks;
 
 		// calculate camera parallax with smoothing
 		var clampCam = (axis) => Math.min(sett.camera_bound, Math.max(-sett.camera_bound, axis));
 		var newCamX = clampCam(self.mouseX * sett.parallax_strength / 50);
 		var newCamY = clampCam(self.mouseY * sett.parallax_strength / -50);
-		if (camera.position.x != newCamX) camera.position.x += (newCamX - camera.position.x) * deltaTime * 0.05;
-		if (camera.position.y != newCamY) camera.position.y += (newCamY - camera.position.y) * deltaTime * 0.05;
+		if (self.camera.position.x != newCamX)
+			self.camera.position.x += (newCamX - self.camera.position.x) * deltaTime * 0.05;
+		if (self.camera.position.y != newCamY)
+			self.camera.position.y += (newCamY - self.camera.position.y) * deltaTime * 0.05;
 
 		// shift hue values
 		if (sett.color_mode == 0) {
 			var hueAdd = (sett.color_fade_speed / 4000) * deltaTime;
 			for (var s = 0; s < sett.num_subsets_per_level - 1; s++) {
-				hueValues[s] += hueAdd;
-				if (hueValues[s] >= 1)
-					hueValues[s] -= 2;
+				self.hueValues[s] += hueAdd;
+				if (self.hueValues[s] >= 1)
+					self.hueValues[s] -= 2;
 			}
 		}
 
 		// set camera view-target to scene-center
-		camera.lookAt(scene.position);
+		self.camera.lookAt(self.scene.position);
 
 		// calculate boost strength & step size if data given
+		var flmult = (15 + sett.audio_multiplier) * 0.02;
+		var spvn = sett.zoom_val;
+
 		var hasAudio = weas.hasAudio();
 		var lastAudio, boost, step;
 		if (hasAudio) {
@@ -674,115 +831,93 @@ var audiOrbits = {
 
 		// apply smoothing or direct value
 		if (!hasAudio || sett.audiozoom_smooth) {
-			self.speedVelocity += ((spvn - spvel) * sett.audio_smoothing / 1000);
+			self.speedVelocity += ((spvn - self.speedVelocity) * sett.audio_smoothing / 1000);
 		}
 		else self.speedVelocity = spvn;
 
 		// rotation calculation
+		var rot = sett.rotation_val / 5000;
 		if (hasAudio)
 			rot *= spvn * 0.1;
 
+		// move as many calculations out of loop as possible
+		var minSat = sett.minimum_saturation / 100;
+		var minBri = sett.minimum_brightness / 100;
+		// get targeted saturation & brightness
+		var defSat = sett.default_saturation / 100;
+		var defBri = sett.default_brightness / 100;
+		var sixtyDelta = deltaTime * 500;
+
+		var i, child, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
 		// position all objects
-		for (i = 0; i < scenelen; i++) {
-			var child = scene.children[i];
+		for (i = 0; i < self.scene.children.length; i++) {
+			child = self.scene.children[i];
+
 			// reset if out of bounds
-			if (child.position.z > camera.position.z) {
+			if (child.position.z > self.camera.position.z) {
 				// offset to back
-				print("moved back child: " + i);
+				//print("moved back child: " + i);
 				child.position.z -= sett.num_levels * sett.level_depth;
-				moveBacks[child.myLevel]++;
+				self.moveBacks[child.myLevel]++;
+
 				// update the child visually
 				if (child.needsUpdate) {
-					child.geometry.verticesNeedUpdate = true;
+					//child.geometry.verticesNeedUpdate = true;
+					child.geometry.attributes.position.needsUpdate = true;
+
 					child.needsUpdate = false;
 				}
 				// process subset generation
-				if (moveBacks[child.myLevel] == sett.num_subsets_per_level) {
-					moveBacks[child.myLevel] = 0;
+				if (self.moveBacks[child.myLevel] == sett.num_subsets_per_level) {
+					self.moveBacks[child.myLevel] = 0;
 					self.generateLevel(child.myLevel);
 				}
 			}
+
 			// velocity & rotation
-			child.position.z += spvel * deltaTime;
+			child.position.z += self.speedVelocity * deltaTime;
 			child.rotation.z -= rot * deltaTime;
 
-		}
-
-		// HSL calculation with audio?
-		if (hasAudio) {
-			// move as many calculations out of loop as possible
-			var minSat = sett.minimum_saturation / 100;
-			var minBri = sett.minimum_brightness / 100;
-			// iterate through all objects
-			for (i = 0; i < scenelen; i++) {
-				var child = scene.children[i];
+			// HSL calculation with audio?
+			if (hasAudio) {
 				// use obj to camera distance with step to get frequency from data >> do some frequency calculations
-				var freqIndx = Math.round((camera.position.z - child.position.z) / step) + 4;
 				// get & process frequency data
-				var cfreq = parseFloat(lastAudio.data[freqIndx]);
-				var rFreq = (cfreq * flmult / 3) / lastAudio.max;
-				var cHue = Math.abs(hueValues[child.mySubset]);
-				// uhoh ugly special case
-				if (sett.color_mode == 4) {
-					var tHue = cObj.hslb;
-					cHue += (tHue - cHue) * cfreq / lastAudio.max;
-				}
-				else if (sett.color_mode == 0)
-					cHue += rFreq;
-				// quick maths
-				var nhue = cHue % 1.0;
-				var nsat = Math.abs(minSat + rFreq + rFreq * boost * 0.07);
-				var nlight = Math.min(0.7, minBri + rFreq + rFreq * boost * 0.01);
-				// update dat shit
-				//print("setHSL | child: " + i + " | h: " + nhue + " | s: " + nsat + " | l: " + nlight);
-				child.myMaterial.color.setHSL(nhue, nsat, nlight);
-			}
-		}
-		else {
-			// get targeted saturation & brightness
-			var defSat = sett.default_saturation / 100;
-			var defBri = sett.default_brightness / 100;
-			var sixtyDelta = deltaTime * 300;
-			// iterate through all objects
-			for (i = 0; i < scenelen; i++) {
-				var child = scene.children[i];
-				// get current HSL
-				var hsl = child.myMaterial.color.getHSL({});
-				var cHue = hsl.h, cSat = hsl.s, cLight = hsl.l;
+				freqData = parseFloat(lastAudio.data[Math.round((self.camera.position.z - child.position.z) / step) + 4]);
+				freqLvl = (freqData * flmult / 3) / lastAudio.max;
 				// targeted HUE
-				var hue = Math.abs(hueValues[child.mySubset]);
-				if (Math.abs(hue - cHue) > 0.01)
-					cHue += (hue - cHue) / sixtyDelta;
-				// targeted saturation
-				if (Math.abs(defSat - cSat) > 0.01)
-					cSat += (defSat - cSat) / sixtyDelta;
-				// targeted brightness
-				if (Math.abs(defBri - cLight) > 0.01)
-					cLight += (defBri - cLight) / sixtyDelta;
-				// update dat shit
-				child.myMaterial.color.setHSL(cHue, cSat, cLight);
+				tmpHue = Math.abs(self.hueValues[child.mySubset]);
+				// uhoh ugly special case
+				if (sett.color_mode == 4)
+					tmpHue += (self.colorObject.hslb - tmpHue) * freqData / lastAudio.max;
+				else if (sett.color_mode == 0)
+					tmpHue += freqLvl;
+				// quick maths
+				setHue = tmpHue % 1.0;
+				setSat = Math.abs(minSat + freqLvl + freqLvl * boost * 0.07);
+				setLight = Math.min(0.7, minBri + freqLvl + freqLvl * boost * 0.01);
 			}
+			else {
+				// get current HSL
+				hsl = child.myMaterial.color.getHSL({});
+				setHue = hsl.h;
+				setSat = hsl.s;
+				setLight = hsl.l;
+				// targeted HUE
+				tmpHue = Math.abs(self.hueValues[child.mySubset]);
+				if (Math.abs(tmpHue - setHue) > 0.001)
+					setHue += (tmpHue - setHue) / sixtyDelta;
+				// targeted saturation
+				if (Math.abs(defSat - setSat) > 0.001)
+					setSat += (defSat - setSat) / sixtyDelta;
+				// targeted brightness
+				if (Math.abs(defBri - setLight) > 0.001)
+					setLight += (defBri - setLight) / sixtyDelta;
+			}
+			// update dat shit
+			//print("setHSL | child: " + i + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
+			child.myMaterial.color.setHSL(setHue, setSat, setLight);
 		}
-
-		// effect render
-		if (self.composer) self.composer.render(ellapsed);
-		// default render
-		else self.renderer.render(scene, camera);
-
-		// ICUE PROCESSING
-		// its better to do this every frame instead of seperately timed
-		weicue.updateCanvas();
-
-		// TODO: WEBVR PROCESSING
-		if (self.isWebContext) {
-			self.handleVRController(self.userData.controller1);
-			self.handleVRController(self.userData.controller1);
-		}
-
-		// stats
-		if (self.stats) self.stats.end();
 	},
-
 
 	///////////////////////////////////////////////
 	// FRACTAL GENERATOR
@@ -791,45 +926,34 @@ var audiOrbits = {
 	// web worker has finished generating the level
 	levelGenerated: function (e) {
 		let ldata = e.data;
-		let self = audiOrbits;
-		let sett = self.settings;
-		self.levelWorkersRunning--;
-		// update calculated objects
-		let llevel = self.levels[ldata.id];
-		let lxBuf = new Float64Array(ldata.xBuff);
-		let lyBuf = new Float64Array(ldata.yBuff);
-		for (let s = 0; s < sett.num_subsets_per_level; s++) {
-			// spread over time for less thread blocking
-			setTimeout(() => {
-				for (let i = 0; i < sett.num_points_per_subset; i++) {
-					let idx = s * sett.num_points_per_subset + i;
-					llevel.subsets[s][i].x = lxBuf[idx];
-					llevel.subsets[s][i].y = lyBuf[idx];
-				}
-			}, 10 + s * 30);
-		}
-		// ensure this happens affter all subsets are updated
-		setTimeout(() => {
-			// loop all scene children and set flag that new vertex data is available
-			// means the shape will update once the subset gets moved back to the end.
-			if (self.scene && self.scene.children) {
-				var children = self.scene.children;
-				var scenelen = children.length;
-				for (var i = 0; i < scenelen; i++) {
-					var child = children[i];
-					if (child.myLevel == ldata.id) {
-						child.needsUpdate = true;
-					}
-				}
-			}
+		print("generated level: " + ldata.id);
 
-			// if all workers finished and we have a queued event, trigger it
-			// this is used as "finished"-trigger for initial level generation...
-			if (self.levelWorkersRunning == 0 && self.levelWorkerCall) {
-				self.levelWorkerCall();
-				self.levelWorkerCall = null;
-			}
-		}, 30 + sett.num_subsets_per_level * 30);
+		var self = audiOrbits;
+		var sett = self.settings;
+		self.levelWorkersRunning--;
+
+		let xyzBuf = new Float32Array(ldata.xyzBuff);
+		var subbs = self.levels[ldata.id].subsets;
+
+		// spread over time for less thread blocking
+		for (let s = 0; s < sett.num_subsets_per_level; s++) {
+			self.afterRenderQueue.push(() => {
+				// copy start index
+				var from = (s * sett.num_points_per_subset) * 2;
+				// copy end index
+				var tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset - 1) * 2;
+				// slice & set xyzBuffer data, then update child
+				subbs[s].child.geometry.attributes.position.set(xyzBuf.slice(from, tooo), 0);
+				subbs[s].child.geometry.attributes.position.needsUpdate = true;
+			});
+		}
+
+		// if all workers finished and we have a queued event, trigger it
+		// this is used as "finished"-trigger for initial level generation...
+		if (self.levelWorkersRunning == 0 && self.levelWorkerCall) {
+			self.levelWorkerCall();
+			self.levelWorkerCall = null;
+		}
 	},
 	// uh oh
 	levelError: function (e) {
@@ -850,12 +974,6 @@ var audiOrbits = {
 	// EVENT HANDLER & TIMERS
 	///////////////////////////////////////////////
 
-	// calculates the distance between 2 2D coordinates
-	getPointDistance: function (x1, y1, x2, y2) {
-		var a = x1 - x2;
-		var b = y1 - y2;
-		return Math.sqrt(a * a + b * b);
-	},
 	// Auto Parallax handler
 	swirlHandler: function () {
 		var self = audiOrbits;
@@ -893,22 +1011,22 @@ var audiOrbits = {
 	///////////////////////////////////////////////
 
 	// will initialize webvr components and rendering
-	initWebVR: function () {
-		var scene = audiOrbits.scene;
-		var renderer = audiOrbits.renderer;
-		var userData = audiOrbits.userData;
+	initWebXR: function () {
+		var self = audiOrbits;
+		var userData = self.userData;
 
-		self.renderer.vr.enabled = true;
+		self.renderer.xr.enabled = true;
 		document.body.appendChild(VRButton.createButton(self.renderer));
 
-		userData.controller1 = renderer.vr.getController(0);
-		userData.controller1.addEventListener("selectstart", audiOrbits.onVRSelectStart);
-		userData.controller1.addEventListener("selectend", audiOrbits.onVRSelectEnd);
-		scene.add(userData.controller1);
-		userData.controller2 = renderer.vr.getController(1);
-		userData.controller2.addEventListener("selectstart", audiOrbits.onVRSelectStar);
-		userData.controller2.addEventListener("selectend", audiOrbits.onVRSelectEnd);
-		scene.add(userData.controller2);
+		userData.controller1 = self.renderer.vr.getController(0);
+		userData.controller1.addEventListener("selectstart", self.onVRSelectStart);
+		userData.controller1.addEventListener("selectend", self.onVRSelectEnd);
+		self.scene.add(userData.controller1);
+
+		userData.controller2 = self.renderer.vr.getController(1);
+		userData.controller2.addEventListener("selectstart", self.onVRSelectStart);
+		userData.controller2.addEventListener("selectend", self.onVRSelectEnd);
+		self.scene.add(userData.controller2);
 	},
 	// controller starts selecting
 	onVRSelectStart: function () {
@@ -933,33 +1051,29 @@ var audiOrbits = {
 // Actual Initialisation
 ///////////////////////////////////////////////
 
-print("Begin Startup...")
-
 // will apply settings edited in Wallpaper Engine
 // this will also cause initialization for the first time
 window.wallpaperPropertyListener = {
-	applyGeneralProperties: (props) => {
-		// nothing to do here
-	},
+	applyGeneralProperties: (props) => { },
 	applyUserProperties: (props) => {
 		var initFlag = audiOrbits.applyCustomProps(props);
 		// very first initialization
 		if (!audiOrbits.initialized) {
 			audiOrbits.initialized = true;
-			$(() => audiOrbits.initFirst());
+			$(() => audiOrbits.initOnce());
 		}
 		else if (initFlag) {
-			print("got reInit-flag after apply!");
+			print("got reInit-flag from applying settings!");
 			if (audiOrbits.resetTimeout) clearTimeout(audiOrbits.resetTimeout);
-			audiOrbits.resetTimeout = setTimeout(() => audiOrbits.reInitSystem(), 3000);
+			audiOrbits.resetTimeout = setTimeout(audiOrbits.reInitSystem, audiOrbits.resetTimespan * 1000);
+			$("#reload-bar, #reload-text").removeClass("done").addClass("show");
 		}
 	},
 	setPaused: (isPaused) => {
 		if (audiOrbits.PAUSED == isPaused) return;
 		console.log("Set pause: " + isPaused);
 		audiOrbits.PAUSED = isPaused;
-		audiOrbits.lastFrame = performance.now();
-		audiOrbits.renderer.setAnimationLoop(isPaused ? null : audiOrbits.renderLoop);
+		audiOrbits.setRenderer(isPaused ? null : audiOrbits.renderLoop);
 	}
 };
 
@@ -977,6 +1091,6 @@ $(() => {
 		print("wallpaperRegisterAudioListener not defined. We are probably outside of wallpaper engine. Manual init..");
 		audiOrbits.applyCustomProps({});
 		audiOrbits.initialized = true;
-		audiOrbits.initFirst();
+		audiOrbits.initOnce();
 	}
 });
