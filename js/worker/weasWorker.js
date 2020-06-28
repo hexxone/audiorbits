@@ -10,7 +10,7 @@
  * Wallaper Engine Audio Supplier worker.
  */
 
-var pinkNoise = [1.1760367470305, 0.85207379418243, 0.68842437227852, 0.63767902570829,
+var pinkNoise = [1.1360367470305, 0.95207379418243, 0.68842437227852, 0.63767902570829,
     0.5452348949654, 0.50723325864167, 0.4677726234682, 0.44204182748767, 0.41956517802157,
     0.41517375040002, 0.41312118577934, 0.40618363960446, 0.39913707474975, 0.38207008614508,
     0.38329789106488, 0.37472136606245, 0.36586428412968, 0.37603017335105, 0.39762590761573,
@@ -44,12 +44,28 @@ var stereoToMono = function (data) {
 };
 
 var smoothArray = function (array, smoothing) {
-    var newArray = new Float64Array(array.length);
+    var newArray = new Float32Array(array.length);
     for (var i = 0; i < array.length; i++) {
         var sum = 0;
         for (var index = i - smoothing; index <= i + smoothing; index++)
             sum += array[index < 0 ? index + array.length : index % array.length];
         newArray[i] = sum / ((smoothing * 2) + 1);
+    }
+    return newArray;
+};
+
+var peakFilter = function (array, amount) {
+    var oldMax = 0;
+    var newMax = 0;
+    var newArray = new Float32Array(array.length);
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] > oldMax) oldMax = array[i];
+        newArray[i] = Math.pow(array[i], amount);
+        if (newArray[i] > newMax) newMax = newArray[i];
+    }
+    var divide = newMax / oldMax;
+    for (var i = 0; i < array.length; i++) {
+        newArray[i] /= divide;
     }
     return newArray;
 };
@@ -62,15 +78,22 @@ var applyValueLeveling = function (curr, prev, s) {
 onmessage = function (e) {
     let eventData = e.data;
     // can be null
-    let audioArray = new Float64Array(eventData.audio);
+    let audioArray = new Float32Array(eventData.audio);
     let lastData = eventData.last;
     let settings = eventData.settings;
     // fix pink noise for both channels
     var corrected = correctPinkNoise(audioArray);
     // write botch channels to mono
-    var monoArray = stereoToMono(corrected);
-    // smooth and get final data
-    var data = smoothArray(monoArray, 2);
+    var data = stereoToMono(corrected);
+
+    // peak-process data
+    if (settings.peak_filter > 0)
+        data = peakFilter(data, settings.peak_filter + 1);
+
+    // smooth and get final "data"
+    if (settings.value_smoothing > 0)
+        data = smoothArray(data, settings.value_smoothing);
+
     // set latest data
     var ldata;
     if (lastData) ldata = lastData.data.slice(0);
@@ -109,8 +132,6 @@ onmessage = function (e) {
         sum: sum,
         average: average,
         intensity: intensity,
-        time: performance.now() / 1000,
         data: data.buffer,
-    },
-    [data.buffer]);
+    }, [data.buffer]);
 };

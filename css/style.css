@@ -9,7 +9,7 @@
 
 @font-face {
     font-family: 'hexagon_cup_fontbold';
-    src: url(hexagon_cup-webfont.woff2) format("woff2"), url(hexagon_cup-webfont.woff) format("woff");
+    src: url(hexagon_cup-webfont.woff) format("woff");
     font-weight: 400;
     font-style: normal;
 }
@@ -42,7 +42,8 @@ body {
 
 #triggerwarn {
     object-fit: contain;
-    max-height: 500px;
+    max-height: 30vmax;
+    top: 25vmin;
 }
 
 #icueholder {
@@ -53,6 +54,7 @@ body {
     height: auto;
     margin: 10px;
     padding: 10px;
+    display: none;
 }
 
 #icuelogo {
@@ -73,7 +75,6 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    display: none;
 }
 
 #debugwnd {
@@ -90,14 +91,53 @@ body {
     bottom: -40px;
     font-family: 'hexagon_cup_fontbold', sans-serif;
     font-size: 125%;
+    display: none;
 }
 
-#icueholder, #txtholder {
+#icueholder, #txtholder, #reload-text {
     text-shadow: 0 0 20px rgba(255, 255, 255, .5), 0 0 15px rgba(255, 255, 255, .5);
-    display: none;
 }
 
 .cuePreview {
     position: absolute;
     background: rgba(255, 0, 0, .3);
+}
+
+/* Reload indicator */
+
+#reload-bar {
+    position: absolute;
+    opacity: 0;
+    top: 0px;
+    height: 10px;
+    width: 0%;
+    background-color: #989a;
+    transition: all 5s ease, opacity 0.33s ease;
+}
+#reload-bar.show {
+    opacity: 1;
+    width: 100%;
+    background-color: #e11a;
+}
+#reload-bar.done {
+    transition: opacity 0.33s ease;
+}
+
+#reload-text {
+    position: absolute;
+    top: -6em;
+    width: 100%;
+    text-align: center;
+    font-weight: 100;
+    font-size: 3em;
+    color: #fffa;
+    transition: all .33s ease, color 5s ease, text-shadow 5s ease;
+}
+#reload-text.show {
+    top: 10px;
+    color: #e11a;
+    text-shadow: 0 0 20px rgba(255, 50, 50, .5), 0 0 15px rgba(255, 50, 50, .5);
+}
+#reload-text.done {
+    transition: position 0.33s linear;
 }
