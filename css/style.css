@@ -131,11 +131,12 @@ body {
     font-weight: 100;
     font-size: 3em;
     color: #fffa;
-    transition: all .33s ease, color 5s ease;
+    transition: all .33s ease, color 5s ease, text-shadow 5s ease;
 }
 #reload-text.show {
     top: 10px;
     color: #e11a;
+    text-shadow: 0 0 20px rgba(255, 50, 50, .5), 0 0 15px rgba(255, 50, 50, .5);
 }
 #reload-text.done {
     transition: position 0.33s linear;
