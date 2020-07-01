@@ -170,8 +170,7 @@ var audiOrbits = {
 	applyCustomProps: function (props) {
 		print("applying settings: " + Object.keys(props).length);
 
-		var _ignore = ["debugging", "audioprocessing", "img_overlay",
-			"img_background", "base_texture", "mirror_invalid_val"];
+		var _ignore = ["debugging", "img_overlay", "img_background", "base_texture", "mirror_invalid_val"];
 
 		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness",
 			"scaling_factor", "camera_bound", "num_points_per_subset", "num_subsets_per_level",
@@ -219,18 +218,10 @@ var audiOrbits = {
 		weicue.updatePreview();
 
 		// Custom user images
-		var setImgSrc = function (imgID, srcVal) {
-			$(imgID).fadeOut(1000, () => {
-				if (srcVal && srcVal !== "") {
-					$(imgID).attr("src", "file:///" + srcVal);
-					$(imgID).fadeIn(1000);
-				}
-			});
-		};
 		if (props.img_background)
-			setImgSrc("#img_back", props.img_background.value);
+			self.setImgSrc("#img_back", props.img_background.value);
 		if (props.img_overlay)
-			setImgSrc("#img_over", props.img_overlay.value);
+			self.setImgSrc("#img_over", props.img_overlay.value);
 
 		// intitialize texture splash
 		if (props.base_texture) {
@@ -254,7 +245,8 @@ var audiOrbits = {
 			clearTimeout(self.debugTimeout);
 			self.debugTimeout = null;
 		}
-		if (self.debug && !self.debugTimeout) self.debugTimeout = setTimeout(() => self.applyCustomProps({ debugging: { value: false } }), 1000 * 60);
+		if (self.debug && !self.debugTimeout)
+			self.debugTimeout = setTimeout(() => self.applyCustomProps({ debugging: { value: false } }), 1000 * 60);
 		$("#debugwnd").css("visibility", self.debug ? "visible" : "hidden");
 
 		// fix for centered camera on Parallax "none"
@@ -264,6 +256,15 @@ var audiOrbits = {
 
 		// have render-relevant settings been changed?
 		return reInitFlag;
+	},
+	// Set Image
+	setImgSrc: function (imgID, srcVal) {
+		$(imgID).fadeOut(1000, () => {
+			if (srcVal && srcVal !== "") {
+				$(imgID).attr("src", "file:///" + srcVal);
+				$(imgID).fadeIn(1000);
+			}
+		});
 	},
 
 
@@ -281,7 +282,7 @@ var audiOrbits = {
 			Detector.addGetWebGLMessage();
 			return;
 		}
-
+		
 		// bruh...
 		ThreePatcher.patch();
 		// set global caching
@@ -322,10 +323,11 @@ var audiOrbits = {
 		// setup lookuptable textures once
 		lutSetup.run();
 
-		// real initializer
+		// initialize
+		self.clock = new THREE.Clock();
 		self.initSystem();
 
-		//
+		// initialize wrapper
 		var initWrap = () => {
 			$("#triggerwarn").fadeOut(1000, () => {
 				$("#mainCvs").addClass("show");
@@ -352,6 +354,7 @@ var audiOrbits = {
 		// kill intervals
 		clearInterval(self.swirlInterval);
 		self.levelWorker.terminate();
+		self.levelWorkersRunning = 0;
 		// kill stats
 		if (self.stats) self.stats.dispose();
 		self.stats = null;
@@ -439,6 +442,7 @@ var audiOrbits = {
 	initWithTexture: function (texture) {
 		var self = audiOrbits;
 		var sett = self.settings;
+		print("texture loaded.")
 
 		// create camera
 		self.camera = new THREE.PerspectiveCamera(sett.field_of_view, window.innerWidth / window.innerHeight, 1, 3 * sett.scaling_factor);
@@ -491,9 +495,6 @@ var audiOrbits = {
 			// start auto parallax handler
 			self.swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
 
-			// initialize the delta counter
-			self.clock = new THREE.Clock();
-
 			// start rendering
 			self.setRenderer(self.renderLoop);
 
@@ -511,6 +512,7 @@ var audiOrbits = {
 	initGeometries: function (texture) {
 		var self = audiOrbits;
 		var sett = self.settings;
+		print("building geometries.");
 		// material properties
 		var matprops = {
 			map: texture,
@@ -563,7 +565,7 @@ var audiOrbits = {
 		var sett = self.settings;
 		// last added filter
 		var lastEffect = null;
-
+		print("adding shaders to render chain.");
 		self.composer.addPass(new THREE.RenderPass(self.scene, self.camera, null, 0x000000, 1));
 		// bloom
 		if (sett.bloom_filter) {
@@ -645,7 +647,7 @@ var audiOrbits = {
 		var self = audiOrbits;
 		var sett = self.settings;
 		var cobj = self.colorObject = self.getColorObject();
-		//print("initHueV: a=" + cobj.hsla + ", b=" + cobj.hslb);
+		print("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb);
 		for (var s = 0; s < sett.num_subsets_per_level; s++) {
 			var col = Math.random();
 			switch (sett.color_mode) {
@@ -713,6 +715,7 @@ var audiOrbits = {
 
 	// start or stop rendering
 	setRenderer: function (renderFunc) {
+		print("setRenderer: " + (renderFunc != null));
 		var self = audiOrbits;
 		var sett = self.settings;
 		// clear all old renderers
@@ -734,7 +737,7 @@ var audiOrbits = {
 			else if (self.renderer) {
 				self.renderer.setAnimationLoop(renderFunc);
 			}
-			else print("no renderer!", true);
+			else print("not initialized!", true);
 		}
 	},
 
@@ -743,7 +746,7 @@ var audiOrbits = {
 		var self = audiOrbits;
 		var sett = self.settings;
 		// paused - stop render
-		if (self.state == RunState.Paused) return;
+		if (self.state != RunState.Running) return;
 
 		// custom rendering needs manual re-call
 		if (self.renderTimeout)
@@ -753,7 +756,8 @@ var audiOrbits = {
 		if (self.stats) self.stats.begin();
 
 		// Figure out how much time passed since the last animation and calc delta
-		var ellapsed = Math.min(10, self.clock.getDelta());
+		// Minimum we should reach is 0.5 FPS
+		var ellapsed = Math.min(2, Math.max(0.001, self.clock.getDelta()));
 
 		// effect render first, then update
 		self.composer.render();
@@ -777,8 +781,10 @@ var audiOrbits = {
 
 		// randomly do one after-render-aqction
 		// yes this is intended: "()()"
-		if (self.afterRenderQueue.length > 0 && Math.random() > 0.8)
-			self.afterRenderQueue.shift()();
+		if (self.afterRenderQueue.length > 0) {
+			if (self.speedVelocity > 5 || Math.random() > 0.4)
+				self.afterRenderQueue.shift()();
+		}
 
 		// stats
 		if (self.stats) self.stats.end();
@@ -814,12 +820,12 @@ var audiOrbits = {
 
 		// calculate boost strength & step size if data given
 		var flmult = (15 + sett.audio_multiplier) * 0.02;
-		var spvn = sett.zoom_val;
+		var spvn = sett.zoom_val / 1.5;
 
 		var hasAudio = weas.hasAudio();
 		var lastAudio, boost, step;
 		if (hasAudio) {
-			spvn = spvn + sett.audiozoom_val / 1.5;
+			spvn = spvn + sett.audiozoom_val / 3;
 			// get 
 			lastAudio = weas.lastAudio;
 			// calc audio boost
@@ -828,7 +834,7 @@ var audiOrbits = {
 			step = (sett.num_levels * sett.level_depth * 1.2) / 128;
 			// speed velocity calculation
 			if (sett.audiozoom_val > 0)
-				spvn += sett.zoom_val * boost * 0.02 + boost * sett.audiozoom_val * 0.05;
+				spvn += sett.zoom_val * boost * 0.02 + boost * sett.audiozoom_val * 0.035;
 		}
 
 		// apply smoothing or direct value
@@ -842,8 +848,8 @@ var audiOrbits = {
 		if (hasAudio)
 			rot *= spvn * 0.1;
 
-		// Calc deltatime outside loop
-		self.speedVelocity *= deltaTime;
+		// Calculate final speed, 30 should be enough...
+		self.speedVelocity = Math.min(self.speedVelocity, 30) * deltaTime;
 		rot *= deltaTime;
 
 		// move as many calculations out of loop as possible
@@ -868,9 +874,7 @@ var audiOrbits = {
 
 				// update the child visually
 				if (child.needsUpdate) {
-					//child.geometry.verticesNeedUpdate = true;
 					child.geometry.attributes.position.needsUpdate = true;
-
 					child.needsUpdate = false;
 				}
 				// process subset generation
@@ -950,7 +954,7 @@ var audiOrbits = {
 				var tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset) * 2;
 				// slice & set xyzBuffer data, then update child
 				subbs[s].child.geometry.attributes.position.set(xyzBuf.slice(from, tooo), 0);
-				subbs[s].child.geometry.attributes.position.needsUpdate = true;
+				subbs[s].child.needsUpdate = true;
 			});
 		}
 
@@ -1070,7 +1074,7 @@ window.wallpaperPropertyListener = {
 		}
 		else if (initFlag) {
 			audiOrbits.state = RunState.ReInitializing;
-			print("got reInit-flag from applying settings!");
+			print("got reInit-flag from applying settings!", true);
 			if (audiOrbits.resetTimeout) clearTimeout(audiOrbits.resetTimeout);
 			audiOrbits.resetTimeout = setTimeout(audiOrbits.reInitSystem, audiOrbits.resetTimespan * 1000);
 			$("#reload-bar, #reload-text").removeClass("done").addClass("show");
@@ -1101,9 +1105,10 @@ window.wewwaListener = {
 // after the page finished loading: if the wallpaper context is not given
 // AND wewwa fails for some reason => start wallpaper manually
 $(() => {
-	if (!window.wallpaperRegisterAudioListener) {
-		print("wallpaperRegisterAudioListener not defined. We are probably outside of wallpaper engine. Manual init..");
+	if (!window.wallpaperRegisterAudioListener && audiOrbits.state == RunState.None) {
+		print("wallpaperRegisterAudioListener not defined. We are probably outside of wallpaper engine. Manual init..", true);
 		audiOrbits.applyCustomProps({});
+		audiOrbits.state = RunState.Initializing;
 		audiOrbits.initOnce();
 	}
 });

@@ -29,7 +29,7 @@ var weas = {
 		var timeOut = 5;
 		var now = performance.now() / 1000;
 		// return false if there is no data or its invalid due to time (> 3s old)
-		return weas.lastAudio &&
+		return weas.settings.audioprocessing && weas.lastAudio &&
 			(!weas.lastAudio.silent || now - weas.lastAudio.silent < timeOut) &&
 			(now - weas.lastAudio.time < timeOut);
 	},
@@ -39,6 +39,7 @@ var weas = {
 	lastAudio: null,
 	// settings object
 	settings: {
+		audioprocessing: false,
 		// time-value smoothing ratio
 		audio_smoothing: 65,
 		// NEIGHBOUR value smoothing
@@ -50,18 +51,19 @@ var weas = {
 		// ignore value leveling for "silent" data
 		minimum_volume: 0.001,
 		// peak processing
-		peak_filter: 1,
+		peak_filter: 1
 	},
 	// function will get called with the audio data as array, containing L & R channels
 	audioListener: function (audioArray) {
 		// check proof
-		if (!audioArray) return;
+		if (!audioArray || !weas.settings.audioprocessing) return;
 		if (audioArray.length != 128) {
 			print("audioListener: received invalid audio data array. Length: " + audioArray.length);
 			return;
 		}
 		let audBuff = new Float32Array(audioArray);
 		// post web worker task
+		//print("WEAS: post audio data..");
 		weas.weasWorker.postMessage({
 			settings: weas.settings,
 			last: weas.lastAudio,
@@ -83,6 +85,7 @@ var weas = {
 		}
 		// apply the new data
 		weas.lastAudio = e.data;
+		//print("WEAS: processed audio data "/* + JSON.stringify(e.data)*/);
 	},
 	// task error
 	errror: function (e) {

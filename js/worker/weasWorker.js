@@ -60,7 +60,7 @@ var peakFilter = function (array, amount) {
     var newArray = new Float32Array(array.length);
     for (var i = 0; i < array.length; i++) {
         if (array[i] > oldMax) oldMax = array[i];
-        newArray[i] = Math.pow(array[i], amount);
+        newArray[i] = Math.pow(array[i] * amount, amount);
         if (newArray[i] > newMax) newMax = newArray[i];
     }
     var divide = newMax / oldMax;
