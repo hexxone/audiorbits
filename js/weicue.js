@@ -22,10 +22,10 @@
 
 var weicue = {
     // runtime values
-    available: false,
+    isAvailable: false,
     canvasX: 23,
     canvasY: 7,
-    devices: [],
+    icueDevices: [],
     preview: null,
     icueInterval: null,
     mainCanvas: null,
@@ -42,17 +42,20 @@ var weicue = {
         icue_area_decay: 15,
         icue_area_preview: false,
         icue_main_color: "0 0.8 0",
+        // AudiOrbits bg Color, used as "decay"-color
+        main_color: "0 0 0",
     },
 
     // show a message by icue
     icueMessage: function (msg) {
+        $("#icueholder").css('opacity', 1);
         $("#icuetext").html(msg);
         $("#icueholder").fadeIn({ queue: false, duration: "slow" });
         $("#icueholder").animate({ top: "0px" }, "slow");
         setTimeout(() => {
             $("#icueholder").fadeOut({ queue: false, duration: "slow" });
             $("#icueholder").animate({ top: "-120px" }, "slow");
-        }, 12000);
+        }, 10000);
     },
 
     // helper
@@ -127,15 +130,20 @@ var weicue = {
         }
     },
 
-    // will initialize ICUE api & usage
-    init: function (originCanvas) {
+    init: function () {
         var self = weicue;
-        if (!self.available) {
-            self.icueMessage("iCUE: Not available!");
-            return;
-        }
-        // start
-        self.mainCanvas = originCanvas;
+        var sett = self.settings;
+
+        // dont initialize if disabled
+        if (sett.icue_mode == 0) return;
+
+        self.showWaiting();
+        setTimeout(() => {
+            self.hideWaiting();
+        }, 30000);
+
+        this.initCUE(0);
+
         print("weiCUE: init...");
 
         // recreate if reinit
@@ -150,36 +158,50 @@ var weicue = {
         self.helperContext = self.helperCanvas.getContext("2d");
         document.body.appendChild(self.helperCanvas);
 
+        // update devices about every 33ms/30fps. iCue doesnt really support higher values 
+        self.icueInterval = setInterval(self.updateFrame, 1000 / 30);
+    },
+
+    // will initialize ICUE api & usage
+    initCUE: function (count) {
+        var self = weicue;
+        // wait for plugins
+        if (!self.isAvailable) {
+            if (count < 100) {
+                $("#icueholder").animate({ 'opacity': 0.1 + (100 - count) / 115 }, 250);
+                setTimeout(() => this.initCUE(count + 1), 300);
+            }
+            else self.icueMessage("LED: Plugin not found!");
+            return;
+        }
         // setup devices
-        self.devices = [];
+        self.icueDevices = [];
         window.cue.getDeviceCount((deviceCount) => {
-            self.icueMessage("iCUE: " + deviceCount + " devices found.");
+            self.icueMessage("LED: Found " + deviceCount + " devices.");
             for (var xi = 0; xi < deviceCount; xi++) {
                 var xl = xi;
                 window.cue.getDeviceInfo(xl, (info) => {
                     info.id = xl;
                     window.cue.getLedPositionsByDeviceIndex(xl, function (leds) {
                         info.leds = leds;
-                        self.devices[xl] = info;
+                        self.icueDevices[xl] = info;
                     });
                 });
             }
         });
-        // update devices about every 33ms/30fps. iCue doesnt really support higher values 
-        self.icueInterval = setInterval(self.updateFrame, 1000 / 30);
     },
 
     // do the thing...
     updateFrame: function () {
         var self = weicue;
         var sett = self.settings;
-        if (audiOrbits.state == RunState.Paused || !self.available || sett.icue_mode == 0 || self.devices.length < 1) return;
+        if (audiOrbits.state == RunState.Paused || !self.isAvailable || sett.icue_mode == 0 || self.icueDevices.length < 1) return;
         // projection mode
         if (sett.icue_mode == 1) {
             // get scaled down image data and encode it for icue
             var encDat = self.getEncodedCanvasImageData(self.helperContext.getImageData(0, 0, self.canvasX, self.canvasY));
-            // update all devices with data
-            for (var xi = 0; xi < self.devices.length; xi++) {
+            // update all icueDevices with data
+            for (var xi = 0; xi < self.icueDevices.length; xi++) {
                 window.cue.setLedColorsByImageData(xi, encDat, self.canvasX, self.canvasY);
             }
         }
@@ -202,8 +224,8 @@ var weicue = {
                     b: Math.min(255, Math.max(0, col[2] * mlt))
                 };
             }
-            // update all devices with data
-            for (var xi = 0; xi < self.devices.length; xi++) {
+            // update all icueDevices with data
+            for (var xi = 0; xi < self.icueDevices.length; xi++) {
                 window.cue.setAllLedsColorsAsync(xi, ledColor);
             }
         }
@@ -213,7 +235,7 @@ var weicue = {
     updateCanvas: function () {
         var self = weicue;
         var sett = self.settings;
-        if (!self.available || sett.icue_mode == 0 || self.devices.length < 1) return;
+        if (!self.isAvailable || !self.mainCanvas || sett.icue_mode == 0 || self.icueDevices.length < 1) return;
 
         if (sett.icue_mode == 1) {
             // get helper vars
@@ -221,34 +243,36 @@ var weicue = {
             var cueHei = self.canvasY;
             var area = self.getArea();
             var hctx = self.helperContext;
-            // overlay "decay"
-            hctx.fillStyle = "rgba(0, 0, 0, " + sett.icue_area_decay / 100 + ")";
+            // get real rgb values
+			var spl = sett.main_color.split(' ');
+			for(var i = 0; i < spl.length; i++) spl[i] *= 255;
+            // overlay "decay" style
+            hctx.fillStyle = "rgba(" + spl.join(", ") + ", " + sett.icue_area_decay / 100 + ")";
             hctx.fillRect(0, 0, cueWid, cueHei);
             // scale down and copy the image to the helper canvas
             hctx.drawImage(self.mainCanvas, area.left, area.top, area.width, area.height, 0, 0, cueWid, cueHei);
             // blur the helper projection canvas
             if (sett.icue_area_blur > 0) self.gBlurCanvas(self.helperCanvas, hctx, sett.icue_area_blur);
         }
-    }
+    },
+
+    showWaiting: function () {
+        $("#icuetext").html("LED: waiting for plugin.");
+        $("#icueholder").fadeIn({ queue: false, duration: "fast" });
+        $("#icueholder").animate({ top: "0px" }, "fast");
+    },
+
+    hideWaiting: function () {
+        $("#icueholder").fadeOut({ queue: false, duration: "fast" });
+        $("#icueholder").animate({ top: "-120px" }, "fast");
+    },
 };
 
-// will initialize icue functionality if available
-if (!window.wallpaperPluginListener)
-    window.wallpaperPluginListener = {};
-
-// actual plugin handler
-var pluginLoad = function (name, version) {
-    print("weiCUE plugin: " + name + ", Version: " + version);
-    if (name === "cue") weicue.available = true;
-};
-
-// register event handler or wrap it, if it exists
-if (!window.wallpaperPluginListener.onPluginLoaded)
-    window.wallpaperPluginListener.onPluginLoaded = pluginLoad;
-else {
-    var passCall = window.wallpaperPluginListener.onPluginLoaded;
-    window.wallpaperPluginListener.onPluginLoaded = (n, v) => {
-        pluginLoad(n, v);
-        passCall(n, v);
+// Plugin handler
+window.wallpaperPluginListener = {
+    onPluginLoaded: function (name, version) {
+        print("Plugin: " + name + ", Version: " + version);
+        if (name === 'cue') weicue.isAvailable = true;
+        if (name === 'led') weicue.isAvailable = true;
     }
-}
+};

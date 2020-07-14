@@ -29,14 +29,26 @@ var weas = {
 		var timeOut = 5;
 		var now = performance.now() / 1000;
 		// return false if there is no data or its invalid due to time (> 3s old)
-		return weas.settings.audioprocessing && weas.lastAudio &&
+		return weas.settings.audioprocessing &&
 			(!weas.lastAudio.silent || now - weas.lastAudio.silent < timeOut) &&
 			(now - weas.lastAudio.time < timeOut);
 	},
 	// audio processing worker
 	weasWorker: null,
 	// last processed audio object
-	lastAudio: null,
+	lastAudio: {
+		silent: (performance.now() / 1000) - 10,
+		min: 0,
+		max: 0,
+		range: 0,
+		bass: 0,
+		mids: 0,
+		peaks: 0,
+		sum: 0,
+		average: 0,
+		intensity: 0,
+		data: new Float32Array(128),
+	},
 	// settings object
 	settings: {
 		audioprocessing: false,
@@ -93,14 +105,12 @@ var weas = {
 	}
 };
 
-$(() => {
-	// if wallpaper engine context given, listen
-	if (window.wallpaperRegisterAudioListener) {
-		// initialize web worker
-		weas.weasWorker = new Worker('./js/worker/weasWorker.js');
-		weas.weasWorker.addEventListener("message", weas.processed, true);
-		weas.weasWorker.addEventListener("error", weas.error, true);
-		// intialize wallpaper engine audio listener
-		window.wallpaperRegisterAudioListener(weas.audioListener);
-	}
-});
+// if wallpaper engine context given, listen
+if (window.wallpaperRegisterAudioListener) {
+	// initialize web worker
+	weas.weasWorker = new Worker('./js/worker/weasWorker.js');
+	weas.weasWorker.addEventListener("message", weas.processed, true);
+	weas.weasWorker.addEventListener("error", weas.error, true);
+	// intialize wallpaper engine audio listener
+	window.wallpaperRegisterAudioListener(weas.audioListener);
+}

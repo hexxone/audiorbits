@@ -24,7 +24,7 @@
  * @todo
  * - finish implementing Web-XR
  * - replace remaining jQuery animations with CSS3
- * 
+ * - record "how to debug"-video?
 */
 
 // custom logging function
@@ -32,6 +32,7 @@ function print(arg, force) {
 	if (audiOrbits.debug || force) console.log("AudiOrbits: " + JSON.stringify(arg));
 }
 
+// what's the wallpaper currently doing?
 var RunState = {
 	None: 0,
 	Initializing: 1,
@@ -70,6 +71,7 @@ var audiOrbits = {
 		audio_multiplier: 2,
 		audio_smoothing: 75,
 		audiozoom_val: 2,
+		only_forward: false,
 		audiozoom_smooth: false,
 		alg_a_min: -25,
 		alg_a_max: 25,
@@ -107,9 +109,11 @@ var audiOrbits = {
 		user_color_b: "0 0.5 1",
 		seizure_warning: true,
 	},
-	// context?
-	isWebContext: false,
+	/* Have you ever wondered,
+	how many settings are too many settings?
+	No? Me neither */
 
+	isWebContext: false,
 	// state of the Wallpaper
 	state: 0,
 
@@ -126,7 +130,7 @@ var audiOrbits = {
 	resetText: null,
 
 	// Seconds & interval for reloading the wallpaper
-	resetTimespan: 5,
+	resetTimespan: 3,
 	resetTimeout: null,
 
 	// render relevant stuff
@@ -172,7 +176,7 @@ var audiOrbits = {
 
 		var _ignore = ["debugging", "img_overlay", "img_background", "base_texture", "mirror_invalid_val"];
 
-		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness",
+		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "icue_mode",
 			"scaling_factor", "camera_bound", "num_points_per_subset", "num_subsets_per_level",
 			"num_levels", "level_depth", "level_shifting", "bloom_filter", "lut_filter",
 			"mirror_shader", "mirror_invert", "fx_antialiasing", "blur_strength", "custom_fps"];
@@ -211,11 +215,18 @@ var audiOrbits = {
 				}
 			}
 			// invalid?
-			if (!found) print("Unknown setting: " + setting);
+			if (!found) print("Unknown setting: " + setting + ". Are you using an old preset?", true);
 		}
 
 		// update preview visbility after setting possibly changed
 		weicue.updatePreview();
+
+		// Custom bg color
+		if(props.main_color) {
+			var spl = props.main_color.value.split(' ');
+			for(var i = 0; i < spl.length; i++) spl[i] *= 255;
+			document.body.style.backgroundColor = "rgb(" + spl.join(", ") + ")";
+		}
 
 		// Custom user images
 		if (props.img_background)
@@ -282,7 +293,7 @@ var audiOrbits = {
 			Detector.addGetWebGLMessage();
 			return;
 		}
-		
+
 		// bruh...
 		ThreePatcher.patch();
 		// set global caching
@@ -320,8 +331,9 @@ var audiOrbits = {
 			self.renderer.setSize(window.innerWidth, window.innerHeight);
 		}, false);
 
-		// setup lookuptable textures once
+		// init plugins
 		lutSetup.run();
+		weicue.init();
 
 		// initialize
 		self.clock = new THREE.Clock();
@@ -413,6 +425,9 @@ var audiOrbits = {
 		self.mainCanvas.width = window.innerWidth;
 		self.mainCanvas.height = window.innerHeight;
 
+		// set origin Canvas to copy from
+		weicue.mainCanvas = self.mainCanvas;
+
 		// setup basic objects
 		for (var l = 0; l < sett.num_levels; l++) {
 			var sets = [];
@@ -488,9 +503,6 @@ var audiOrbits = {
 			for (var l = 0; l < sett.num_levels; l++) {
 				self.generateLevel(l);
 			}
-
-			// init plugins
-			weicue.init(self.mainCanvas);
 
 			// start auto parallax handler
 			self.swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
@@ -569,7 +581,7 @@ var audiOrbits = {
 		self.composer.addPass(new THREE.RenderPass(self.scene, self.camera, null, 0x000000, 1));
 		// bloom
 		if (sett.bloom_filter) {
-			var urBloomPass = new THREE.UnrealBloomPass(512);
+			var urBloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(512, 512), 3, 0, 0.1);
 			urBloomPass.renderToScreen = false;
 			self.composer.addPass(urBloomPass);
 			lastEffect = urBloomPass;
@@ -584,6 +596,7 @@ var audiOrbits = {
 				THREE.LUTShader : THREE.LUTShaderNearest);
 			// prepare render queue
 			lutPass.renderToScreen = false;
+			lutPass.material.transparent = true;
 			self.composer.addPass(lutPass);
 			lastEffect = lutPass;
 			// set shader uniform values
@@ -595,6 +608,7 @@ var audiOrbits = {
 		if (sett.mirror_shader > 1) {
 			var mirrorPass = new THREE.ShaderPass(THREE.FractalMirrorShader);
 			mirrorPass.renderToScreen = false;
+			mirrorPass.material.transparent = true;
 			self.composer.addPass(mirrorPass);
 			lastEffect = mirrorPass;
 			// set shader uniform values
@@ -607,6 +621,7 @@ var audiOrbits = {
 		if (sett.ufx_antialiasing) {
 			var fxaaPass = new THREE.ShaderPass(THREE.FXAAShader);
 			fxaaPass.renderToScreen = false;
+			fxaaPass.material.transparent = true;
 			self.composer.addPass(fxaaPass);
 			lastEffect = fxaaPass;
 			// set uniform
@@ -619,12 +634,14 @@ var audiOrbits = {
 			// X
 			var blurPassX = new THREE.ShaderPass(THREE.BlurShader);
 			blurPassX.renderToScreen = false;
+			blurPassX.material.transparent = true;
 			blurPassX.uniforms.u_dir.value = new THREE.Vector2(bs, 0);
 			blurPassX.uniforms.iResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
 			self.composer.addPass(blurPassX);
 			// Y
 			var blurPassY = new THREE.ShaderPass(THREE.BlurShader);
 			blurPassY.renderToScreen = false;
+			blurPassY.material.transparent = true;
 			blurPassY.uniforms.u_dir.value = new THREE.Vector2(0, bs);
 			blurPassY.uniforms.iResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
 			self.composer.addPass(blurPassY);
@@ -663,8 +680,8 @@ var audiOrbits = {
 	getColorObject: function () {
 		var self = audiOrbits;
 		var sett = self.settings;
-		var a = self.rgbToHue(sett.user_color_a.split(" "));
-		var b = self.rgbToHue(sett.user_color_b.split(" "));
+		var a = self.rgbToHue(sett.user_color_a.split(" ")).h;
+		var b = self.rgbToHue(sett.user_color_b.split(" ")).h;
 		var mi = Math.min(a, b);
 		var ma = Math.max(a, b);
 		return {
@@ -677,35 +694,40 @@ var audiOrbits = {
 	},
 	// get HUE val
 	rgbToHue: function (arr) {
-		var r1 = arr[0];
-		var g1 = arr[1];
-		var b1 = arr[2];
-		var maxColor = Math.max(r1, g1, b1);
-		var minColor = Math.min(r1, g1, b1);
-		var L = (maxColor + minColor) / 2;
-		var S = 0;
-		var H = 0;
-		if (maxColor != minColor) {
-			if (L < 0.5) {
-				S = (maxColor - minColor) / (maxColor + minColor);
-			} else {
-				S = (maxColor - minColor) / (2.0 - maxColor - minColor);
+		let rabs, gabs, babs, rr, gg, bb, h, s, v, diff, diffc, percentRoundFn;
+		rabs = arr[0] / 255;
+		gabs = arr[1] / 255;
+		babs = arr[2] / 255;
+		v = Math.max(rabs, gabs, babs),
+		diff = v - Math.min(rabs, gabs, babs);
+		diffc = c => (v - c) / 6 / diff + 1 / 2;
+		percentRoundFn = num => Math.round(num * 100) / 100;
+		if (diff == 0) {
+			h = s = 0;
+		} else {
+			s = diff / v;
+			rr = diffc(rabs);
+			gg = diffc(gabs);
+			bb = diffc(babs);
+
+			if (rabs === v) {
+				h = bb - gg;
+			} else if (gabs === v) {
+				h = (1 / 3) + rr - bb;
+			} else if (babs === v) {
+				h = (2 / 3) + gg - rr;
 			}
-			if (r1 == maxColor) {
-				H = (g1 - b1) / (maxColor - minColor);
-			} else if (g1 == maxColor) {
-				H = 2.0 + (b1 - r1) / (maxColor - minColor);
-			} else {
-				H = 4.0 + (r1 - g1) / (maxColor - minColor);
+			if (h < 0) {
+				h += 1;
+			} else if (h > 1) {
+				h -= 1;
 			}
 		}
-		L = L * 100;
-		S = S * 100;
-		H = H * 60;
-		if (H < 0) {
-			H += 360;
-		}
-		return H / 360;
+		return {
+			h: Math.round(h * 360),
+			s: percentRoundFn(s * 100),
+			v: percentRoundFn(v * 100)
+		};
 	},
 
 
@@ -756,15 +778,15 @@ var audiOrbits = {
 		if (self.stats) self.stats.begin();
 
 		// Figure out how much time passed since the last animation and calc delta
-		// Minimum we should reach is 0.5 FPS
-		var ellapsed = Math.min(2, Math.max(0.001, self.clock.getDelta()));
+		// Minimum we should reach is 1 FPS
+		var ellapsed = Math.min(1, Math.max(0.001, self.clock.getDelta()));
 
 		// effect render first, then update
 		self.composer.render();
 
 		// calculate average delta for better smoothness
 		// this has to be done due to JS time data being rounded to mitigate Spectre Exploit.
-		var delta = ellapsed / 0.01666666667;
+		var delta = ellapsed * 60;
 
 		// update objects
 		self.animateFrame(ellapsed, delta);
@@ -820,12 +842,12 @@ var audiOrbits = {
 
 		// calculate boost strength & step size if data given
 		var flmult = (15 + sett.audio_multiplier) * 0.02;
-		var spvn = sett.zoom_val / 1.5;
+		var spvn = sett.zoom_val / 1.5 * deltaTime;
 
 		var hasAudio = weas.hasAudio();
 		var lastAudio, boost, step;
 		if (hasAudio) {
-			spvn = spvn + sett.audiozoom_val / 3;
+			spvn = (spvn + sett.audiozoom_val / 3) * deltaTime;
 			// get 
 			lastAudio = weas.lastAudio;
 			// calc audio boost
@@ -834,22 +856,22 @@ var audiOrbits = {
 			step = (sett.num_levels * sett.level_depth * 1.2) / 128;
 			// speed velocity calculation
 			if (sett.audiozoom_val > 0)
-				spvn += sett.zoom_val * boost * 0.02 + boost * sett.audiozoom_val * 0.035;
+				spvn += sett.zoom_val * boost * 0.02 + boost * sett.audiozoom_val * 0.035 * deltaTime;
 		}
 
-		// apply smoothing or direct value
+		// speed / zoom smoothing
 		if (!hasAudio || sett.audiozoom_smooth) {
-			self.speedVelocity += ((spvn - self.speedVelocity) * sett.audio_smoothing / 1000);
+			spvn -= ((spvn - self.speedVelocity) * sett.audio_smoothing / 1000);
 		}
-		else self.speedVelocity = spvn;
+		// no negative zoom?
+		if(sett.only_forward && spvn < 0) {
+			spvn = 0;
+		}
+		self.speedVelocity = spvn;
 
 		// rotation calculation
 		var rot = sett.rotation_val / 5000;
-		if (hasAudio)
-			rot *= spvn * 0.1;
-
-		// Calculate final speed, 30 should be enough...
-		self.speedVelocity = Math.min(self.speedVelocity, 30) * deltaTime;
+		if (hasAudio) rot *= boost * 0.02;
 		rot *= deltaTime;
 
 		// move as many calculations out of loop as possible
@@ -858,7 +880,7 @@ var audiOrbits = {
 		// get targeted saturation & brightness
 		var defSat = sett.default_saturation / 100;
 		var defBri = sett.default_brightness / 100;
-		var sixtyDelta = deltaTime * 500;
+		var sixtyDelta = deltaTime * 250;
 
 		var i, child, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
 		// position all objects
@@ -885,7 +907,7 @@ var audiOrbits = {
 			}
 
 			// velocity & rotation
-			child.position.z += self.speedVelocity;
+			child.position.z += spvn;
 			child.rotation.z -= rot;
 
 			// HSL calculation with audio?
@@ -1012,7 +1034,7 @@ var audiOrbits = {
 		if (hideAfter) setTimeout(() => {
 			$("#txtholder").fadeOut({ queue: false, duration: "slow" });
 			$("#txtholder").animate({ bottom: "-40px" }, "slow");
-		}, 15000);
+		}, 7000);
 	},
 
 

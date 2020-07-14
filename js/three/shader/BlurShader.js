@@ -49,6 +49,7 @@ THREE.BlurShader = {
             vec2 texC = vUv;
             vec4 texCol = texture2D( tDiffuse, texC );
             vec4 gaussCol = vec4( texCol.rgb, 1.0 );
+            float alphaV = texCol.a;
             vec2 step = u_dir / iResolution;
             for (int i = 1; i <= 32; ++ i)
             {
@@ -56,11 +57,14 @@ THREE.BlurShader = {
                 if (weight < 1.0/255.0) break;
                 texCol = texture2D(tDiffuse, texC + step * float(i));
                 gaussCol += vec4(texCol.rgb * weight, weight);
+                alphaV += texCol.a * weight;
                 texCol = texture2D(tDiffuse, texC - step * float(i));
                 gaussCol += vec4(texCol.rgb * weight, weight);
+                alphaV += texCol.a * weight;
             }
+            alphaV = clamp(alphaV / gaussCol.w, 0.0, 1.0);
             gaussCol.rgb = clamp(gaussCol.rgb / gaussCol.w, 0.0, 1.0);
-            gl_FragColor = vec4(gaussCol.rgb, 1.0);
+            gl_FragColor = vec4(gaussCol.rgb, alphaV);
         }
     `,
 };

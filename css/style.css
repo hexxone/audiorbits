@@ -53,7 +53,6 @@ body {
     width: auto;
     height: auto;
     margin: 10px;
-    padding: 10px;
     display: none;
 }
 
@@ -79,7 +78,7 @@ body {
 
 #mainCvs {
     opacity: 0;
-    transition: opacity 5s ease;
+    transition: opacity 3s ease;
 }
 #mainCvs.show {
     opacity: 1;
@@ -95,8 +94,8 @@ body {
 
 #txtholder {
     position: absolute;
-    left: 25%;
-    width: 50%;
+    left: 33%;
+    width: 34%;
     bottom: -40px;
     font-family: 'hexagon_cup_fontbold', sans-serif;
     font-size: 125%;
@@ -112,6 +111,13 @@ body {
     background: rgba(255, 0, 0, .3);
 }
 
+.polygon {
+    padding: 30px;
+    background: radial-gradient( #66666633,  #22222202);
+    -webkit-clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+    clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+}
+
 /* Reload indicator */
 
 #reload-bar {
@@ -121,7 +127,7 @@ body {
     height: 10px;
     width: 0%;
     background-color: #989a;
-    transition: all 5s ease, opacity 0.33s ease;
+    transition: all 3s ease, opacity 0.33s ease;
 }
 #reload-bar.show {
     opacity: 1;
@@ -140,7 +146,7 @@ body {
     font-weight: 100;
     font-size: 3em;
     color: #fffa;
-    transition: all .33s ease, color 5s ease, text-shadow 5s ease;
+    transition: all .33s ease, color 3s ease, text-shadow 3s ease;
 }
 #reload-text.show {
     top: 10px;

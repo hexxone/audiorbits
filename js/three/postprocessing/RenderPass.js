@@ -3,7 +3,6 @@
  */
 
 THREE.RenderPass = function (scene, camera, overrideMaterial, clearColor, clearAlpha) {
-
 	THREE.Pass.call(this);
 
 	this.scene = scene;
@@ -17,7 +16,6 @@ THREE.RenderPass = function (scene, camera, overrideMaterial, clearColor, clearA
 	this.clear = true;
 	this.clearDepth = false;
 	this.needsSwap = false;
-
 };
 
 THREE.RenderPass.prototype = Object.assign(Object.create(THREE.Pass.prototype), {
@@ -25,7 +23,6 @@ THREE.RenderPass.prototype = Object.assign(Object.create(THREE.Pass.prototype), 
 	constructor: THREE.RenderPass,
 
 	render: function (renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
-
 		var oldAutoClear = renderer.autoClear;
 		renderer.autoClear = false;
 
@@ -34,18 +31,13 @@ THREE.RenderPass.prototype = Object.assign(Object.create(THREE.Pass.prototype), 
 		var oldClearColor, oldClearAlpha;
 
 		if (this.clearColor) {
-
 			oldClearColor = renderer.getClearColor().getHex();
 			oldClearAlpha = renderer.getClearAlpha();
-
 			renderer.setClearColor(this.clearColor, this.clearAlpha);
-
 		}
 
 		if (this.clearDepth) {
-
 			renderer.clearDepth();
-
 		}
 
 		renderer.setRenderTarget(this.renderToScreen ? null : readBuffer);
@@ -55,14 +47,10 @@ THREE.RenderPass.prototype = Object.assign(Object.create(THREE.Pass.prototype), 
 		renderer.render(this.scene, this.camera);
 
 		if (this.clearColor) {
-
 			renderer.setClearColor(oldClearColor, oldClearAlpha);
-
 		}
 
 		this.scene.overrideMaterial = null;
 		renderer.autoClear = oldAutoClear;
-
 	}
-
 });
