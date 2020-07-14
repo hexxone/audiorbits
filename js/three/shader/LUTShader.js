@@ -56,7 +56,9 @@ THREE.LUTShader = {
 
       void main() {
         vec4 originalColor = texture2D(tDiffuse, vUv);
-        gl_FragColor = sampleAs3DTexture(lutMap, originalColor.xyz, lutMapSize);
+        vec4 tempColor = sampleAs3DTexture(lutMap, originalColor.xyz, lutMapSize);
+        tempColor.a = originalColor.a;
+        gl_FragColor = tempColor;
       }
     `,
 };

@@ -74,7 +74,7 @@ For new feature suggestions, visit [u]"Planning to implement"[/u].
 Can be viewed in the "Changes"-tab above.
 
 
-[spoiler]Thanks for almost 80k users O:[/spoiler]
+[spoiler]Thanks for over 80k users O:[/spoiler]
 
 
 [h1]WARNINGS[/h1]
