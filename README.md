@@ -62,6 +62,15 @@ Please head over to the Workshop-Page for a full list (see title for the link).
 
 ### Changelog:
 
+Version 2.2:
+- fixed "no audio = screen black" issue
+- fixed rendering/zoom speed issue
+- fixed transparency for all shaders 
+- fixed some LED / iCUE issues
+- added Custom Color option for Background 
+- added "Only Forward Zoom" option
+- shortened animations & reload-time
+
 Version 2.1:
 - added blur-filter
 - added FXAA-filter
