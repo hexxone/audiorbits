@@ -13,6 +13,7 @@ You can however tweak it to perfectly fit your preference with over 50 settings.
 ║╠══ color fade speed setting
 ║╚══ custom render timing (See Guide for more Details)
 ╠╦═ color-settings
+║╠══ Main background color
 ║╠══ 5 different color modes
 ║╠══ customizable fade speed
 ║╚══ customizable main & secondary color
@@ -63,11 +64,11 @@ The source-code can be found [url=https://github.com/Hexxonite/audiorbits]here[/
 
 
 [h1]Need help?[/h1]
-If your PC or applications are lagging, please take a look at the [u]"Settings Guide"[/u] forum.
+If your PC or applications are lagging, please take a look at the [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Settings Guide forum[/url].
 
-For bugs and other issues please take a look at the [u]"Bugreport Thread"[/u].
+For bugs and other issues please take a look at the [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Bugreport Thread[/url].
 
-For new feature suggestions, visit [u]"Planning to implement"[/u].
+For new feature suggestions, please visit [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Planning to implement[/url].
 
 
 [h1]Patchnotes[/h1]
