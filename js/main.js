@@ -65,7 +65,6 @@ var audiOrbits = {
 		rotation_val: 0,
 		custom_fps: false,
 		fps_value: 60,
-		minimum_volume: 1,
 		minimum_brightness: 10,
 		minimum_saturation: 10,
 		audio_multiplier: 2,
@@ -222,9 +221,9 @@ var audiOrbits = {
 		weicue.updatePreview();
 
 		// Custom bg color
-		if(props.main_color) {
+		if (props.main_color) {
 			var spl = props.main_color.value.split(' ');
-			for(var i = 0; i < spl.length; i++) spl[i] *= 255;
+			for (var i = 0; i < spl.length; i++) spl[i] *= 255;
 			document.body.style.backgroundColor = "rgb(" + spl.join(", ") + ")";
 		}
 
@@ -664,14 +663,14 @@ var audiOrbits = {
 		var self = audiOrbits;
 		var sett = self.settings;
 		var cobj = self.colorObject = self.getColorObject();
-		print("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb);
+		print("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb, true);
 		for (var s = 0; s < sett.num_subsets_per_level; s++) {
 			var col = Math.random();
 			switch (sett.color_mode) {
 				case 1:
 				case 4: col = cobj.hsla; break;
-				case 2: col = cobj.min + (s / sett.num_subsets_per_level * cobj.range); break;
-				case 3: col = cobj.min + (col * cobj.range); break;
+				case 2: col = cobj.hsla + (s / sett.num_subsets_per_level * cobj.range); break;
+				case 3: col = cobj.hsla + (col * cobj.range); break;
 			}
 			self.hueValues[s] = col;
 		}
@@ -689,7 +688,7 @@ var audiOrbits = {
 			hslb: b,
 			min: mi,
 			max: ma,
-			range: ma - mi
+			range: b - a
 		};
 	},
 	// get HUE val
@@ -699,7 +698,7 @@ var audiOrbits = {
 		gabs = arr[1] / 255;
 		babs = arr[2] / 255;
 		v = Math.max(rabs, gabs, babs),
-		diff = v - Math.min(rabs, gabs, babs);
+			diff = v - Math.min(rabs, gabs, babs);
 		diffc = c => (v - c) / 6 / diff + 1 / 2;
 		percentRoundFn = num => Math.round(num * 100) / 100;
 		if (diff == 0) {
@@ -724,9 +723,9 @@ var audiOrbits = {
 			}
 		}
 		return {
-			h: Math.round(h * 360),
-			s: percentRoundFn(s * 100),
-			v: percentRoundFn(v * 100)
+			h: h,
+			s: s,
+			v: v
 		};
 	},
 
@@ -780,13 +779,10 @@ var audiOrbits = {
 		// Figure out how much time passed since the last animation and calc delta
 		// Minimum we should reach is 1 FPS
 		var ellapsed = Math.min(1, Math.max(0.001, self.clock.getDelta()));
+		var delta = ellapsed * 60;
 
 		// effect render first, then update
 		self.composer.render();
-
-		// calculate average delta for better smoothness
-		// this has to be done due to JS time data being rounded to mitigate Spectre Exploit.
-		var delta = ellapsed * 60;
 
 		// update objects
 		self.animateFrame(ellapsed, delta);
@@ -814,7 +810,7 @@ var audiOrbits = {
 
 	// render a single frame with the given delta
 	animateFrame: function (ellapsed, deltaTime) {
-		//print("| render | ellapsed: " + ellapsed + ", delta: " + deltaTime);
+		print("| animate | ellapsed: " + ellapsed + ", delta: " + deltaTime);
 		var self = audiOrbits;
 		var sett = self.settings;
 
@@ -833,7 +829,7 @@ var audiOrbits = {
 			for (var s = 0; s < sett.num_subsets_per_level - 1; s++) {
 				self.hueValues[s] += hueAdd;
 				if (self.hueValues[s] >= 1)
-					self.hueValues[s] -= 2;
+					self.hueValues[s] -= 1;
 			}
 		}
 
@@ -856,7 +852,7 @@ var audiOrbits = {
 			step = (sett.num_levels * sett.level_depth * 1.2) / 128;
 			// speed velocity calculation
 			if (sett.audiozoom_val > 0)
-				spvn += sett.zoom_val * boost * 0.02 + boost * sett.audiozoom_val * 0.035 * deltaTime;
+				spvn += sett.zoom_val * boost * 0.01 + boost * sett.audiozoom_val * 0.03 * deltaTime;
 		}
 
 		// speed / zoom smoothing
@@ -864,7 +860,7 @@ var audiOrbits = {
 			spvn -= ((spvn - self.speedVelocity) * sett.audio_smoothing / 1000);
 		}
 		// no negative zoom?
-		if(sett.only_forward && spvn < 0) {
+		if (sett.only_forward && spvn < 0) {
 			spvn = 0;
 		}
 		self.speedVelocity = spvn;
@@ -880,7 +876,7 @@ var audiOrbits = {
 		// get targeted saturation & brightness
 		var defSat = sett.default_saturation / 100;
 		var defBri = sett.default_brightness / 100;
-		var sixtyDelta = deltaTime * 250;
+		var sixtyDelta = deltaTime * 2000;
 
 		var i, child, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
 		// position all objects
@@ -910,14 +906,15 @@ var audiOrbits = {
 			child.position.z += spvn;
 			child.rotation.z -= rot;
 
+			// targeted HUE
+			tmpHue = Math.abs(self.hueValues[child.mySubset]);
+
 			// HSL calculation with audio?
 			if (hasAudio) {
 				// use obj to camera distance with step to get frequency from data >> do some frequency calculations
 				// get & process frequency data
 				freqData = parseFloat(lastAudio.data[Math.round((self.camera.position.z - child.position.z) / step) + 4]);
 				freqLvl = (freqData * flmult / 3) / lastAudio.max;
-				// targeted HUE
-				tmpHue = Math.abs(self.hueValues[child.mySubset]);
 				// uhoh ugly special case
 				if (sett.color_mode == 4)
 					tmpHue += (self.colorObject.hslb - tmpHue) * freqData / lastAudio.max;
@@ -935,19 +932,28 @@ var audiOrbits = {
 				setSat = hsl.s;
 				setLight = hsl.l;
 				// targeted HUE
-				tmpHue = Math.abs(self.hueValues[child.mySubset]);
-				if (Math.abs(tmpHue - setHue) > 0.001)
+				if (Math.abs(tmpHue - setHue) > 0.01)
 					setHue += (tmpHue - setHue) / sixtyDelta;
 				// targeted saturation
-				if (Math.abs(defSat - setSat) > 0.001)
+				if (Math.abs(defSat - setSat) > 0.01)
 					setSat += (defSat - setSat) / sixtyDelta;
 				// targeted brightness
-				if (Math.abs(defBri - setLight) > 0.001)
+				if (Math.abs(defBri - setLight) > 0.01)
 					setLight += (defBri - setLight) / sixtyDelta;
 			}
 			// update dat shit
-			//print("setHSL | child: " + i + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
-			child.myMaterial.color.setHSL(setHue, setSat, setLight);
+			print("setHSL | child: " + i + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
+			child.myMaterial.color.setHSL(self.clamp(setHue, 0, 1, true), self.clamp(setSat, 0, 1), self.clamp(setLight, 0, 1));
+		}
+	},
+	// correct dem colors to be safe
+	clamp: function (val, min, max, goround) {
+		if(goround) {
+			if(val < min) return max - val;
+			return val % max;
+		}
+		else {
+			return Math.max(Math.min(val, max), min);
 		}
 	},
 
