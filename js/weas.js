@@ -29,7 +29,7 @@ var weas = {
 		var timeOut = 5;
 		var now = performance.now() / 1000;
 		// return false if there is no data or its invalid due to time (> 3s old)
-		return weas.settings.audioprocessing &&
+		return weas.settings.audioprocessing && weas.lastAudio.range > 0.001 &&
 			(!weas.lastAudio.silent || now - weas.lastAudio.silent < timeOut) &&
 			(now - weas.lastAudio.time < timeOut);
 	},
@@ -61,7 +61,7 @@ var weas = {
 		mids_multiplier: 0.75,
 		bass_multiplier: 1,
 		// ignore value leveling for "silent" data
-		minimum_volume: 0.001,
+		minimum_volume: 1,
 		// peak processing
 		peak_filter: 1
 	},
@@ -75,7 +75,7 @@ var weas = {
 		}
 		let audBuff = new Float32Array(audioArray);
 		// post web worker task
-		//print("WEAS: post audio data..");
+		// print("WEAS post audio data: " + JSON.stringify(weas.lastAudio));
 		weas.weasWorker.postMessage({
 			settings: weas.settings,
 			last: weas.lastAudio,
@@ -97,11 +97,11 @@ var weas = {
 		}
 		// apply the new data
 		weas.lastAudio = e.data;
-		//print("WEAS: processed audio data "/* + JSON.stringify(e.data)*/);
+		//print("WEAS processed audio data: " + JSON.stringify(e.data));
 	},
 	// task error
 	errror: function (e) {
-		console.log("weas error: [" + e.filename + ", Line: " + e.lineno + "] " + e.message);
+		console.log("WEAS error: [" + e.filename + ", Line: " + e.lineno + "] " + e.message);
 	}
 };
 
