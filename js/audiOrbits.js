@@ -1,5 +1,5 @@
 /**
- * @author D.Thiele @https://hexxon.me
+ * @author D.Thiele @https://hexx.one
  * 
  * @license
  * Copyright (c) 2020 D.Thiele All rights reserved.  
@@ -9,10 +9,10 @@
  * @see
  * AudiOrbits project	(https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
  * for Wallpaper Engine (https://steamcommunity.com/app/431960)
- * by Hexxon 			(https://hexxon.me)
+ * by Hexxon 			(https://hexx.one)
  * 
  * You don't own Wallper Engine but want to see this in action?
- * Go here:	https://experiment.hexxon.me
+ * Go here:	https://orbits.hexx.one
  * 
  * @description
  * Audiorbits for Wallpaper Engine
@@ -22,9 +22,14 @@
  * Leave me some feedback on the Workshop-Page for this item if you like!
  * 
  * @todo
+ * - Add Shader precision extra setting
  * - finish implementing Web-XR
- * - replace remaining jQuery animations with CSS3
  * - record "how to debug"-video?
+ * - highlight seizure text on white BG
+ * 
+ * - split Color, Saturation, Brightness
+ * - move audio min saturation & brightness
+ * - add audio max saturation & brightness
 */
 
 // custom logging function
@@ -88,6 +93,7 @@ var audiOrbits = {
 		base_texture_path: "./img/galaxy.png",
 		texture_size: 7,
 		stats_option: -1,
+		shader_quality: "low",
 		field_of_view: 90,
 		fog_thickness: 3,
 		scaling_factor: 1800,
@@ -177,8 +183,8 @@ var audiOrbits = {
 
 		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "icue_mode",
 			"scaling_factor", "camera_bound", "num_points_per_subset", "num_subsets_per_level",
-			"num_levels", "level_depth", "level_shifting", "bloom_filter", "lut_filter",
-			"mirror_shader", "mirror_invert", "fx_antialiasing", "blur_strength", "custom_fps"];
+			"num_levels", "level_depth", "level_shifting", "bloom_filter", "lut_filter", "mirror_shader",
+			"mirror_invert", "fx_antialiasing", "blur_strength", "custom_fps", "shader_quality"];
 
 		var self = audiOrbits;
 		var sett = self.settings;
@@ -340,18 +346,13 @@ var audiOrbits = {
 
 		// initialize wrapper
 		var initWrap = () => {
-			$("#triggerwarn").fadeOut(1000, () => {
-				$("#mainCvs").addClass("show");
-				self.popupMessage("<h1>" + document.title + "</h1>", true);
-			});
+			$("#mainCvs").addClass("show");
+			self.popupMessage("<h1>" + document.title + "</h1>", true);
 		};
 
-		// initialize now or after a delay?
+		// show seizure warning before initializing?
 		if (!sett.seizure_warning) initWrap();
-		else {
-			$("#triggerwarn").fadeIn(1000);
-			setTimeout(initWrap, 10000);
-		}
+		else WarnHelper.Show(initWrap);
 	},
 
 	// re-initialies the walpaper after some time
@@ -360,8 +361,8 @@ var audiOrbits = {
 		// Lifetime variables
 		var self = audiOrbits;
 
-		// hide reload indicator
-		$("#reload-bar, #reload-text").removeClass("show").addClass("done");
+		// hide reloader
+		ReloadHelper.Hide();
 		// kill intervals
 		clearInterval(self.swirlInterval);
 		self.levelWorker.terminate();
@@ -380,11 +381,9 @@ var audiOrbits = {
 		var mainCvs = document.createElement("canvas");
 		mainCvs.id = "mainCvs";
 		self.container.appendChild(mainCvs);
-
 		// actual re-init
 		self.initSystem();
-
-		// start fade-in afterwards
+		// show again
 		$("#mainCvs").addClass("show");
 	},
 
@@ -580,7 +579,7 @@ var audiOrbits = {
 		self.composer.addPass(new THREE.RenderPass(self.scene, self.camera, null, 0x000000, 1));
 		// bloom
 		if (sett.bloom_filter) {
-			var urBloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(512, 512), 3, 0, 0.1);
+			var urBloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), 3, 0, 0.1);
 			urBloomPass.renderToScreen = false;
 			self.composer.addPass(urBloomPass);
 			lastEffect = urBloomPass;
@@ -948,8 +947,8 @@ var audiOrbits = {
 	},
 	// correct dem colors to be safe
 	clamp: function (val, min, max, goround) {
-		if(goround) {
-			if(val < min) return max - val;
+		if (goround) {
+			if (val < min) return max - val;
 			return val % max;
 		}
 		else {
@@ -1105,7 +1104,8 @@ window.wallpaperPropertyListener = {
 			print("got reInit-flag from applying settings!", true);
 			if (audiOrbits.resetTimeout) clearTimeout(audiOrbits.resetTimeout);
 			audiOrbits.resetTimeout = setTimeout(audiOrbits.reInitSystem, audiOrbits.resetTimespan * 1000);
-			$("#reload-bar, #reload-text").removeClass("done").addClass("show");
+			// show reloader
+			ReloadHelper.Show();
 			$("#mainCvs").removeClass("show");
 		}
 	},

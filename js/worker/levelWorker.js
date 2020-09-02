@@ -1,5 +1,5 @@
 /**
- * @author D.Thiele @https://hexxon.me
+ * @author D.Thiele @https://hexx.one
  * 
  * @license
  * Copyright (c) 2020 D.Thiele All rights reserved.  

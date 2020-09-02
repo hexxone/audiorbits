@@ -1,15 +1,15 @@
 /**
- * @author D.Thiele @https://hexxon.me
+ * @author D.Thiele @https://hexx.one
  */
 
 THREE.LUTShader = {
-    uniforms: {
-        tDiffuse: { value: null },
-        lutMap: { value: null },
-        lutMapSize: { value: 1, },
-    },
+  uniforms: {
+    tDiffuse: { value: null },
+    lutMap: { value: null },
+    lutMapSize: { value: 1, },
+  },
 
-    vertexShader: `
+  vertexShader: `
       varying vec2 vUv;
       void main() {
         vUv = uv;
@@ -17,7 +17,7 @@ THREE.LUTShader = {
       }
     `,
 
-    fragmentShader: `
+  fragmentShader: `
       #include <common>
 
       #define FILTER_LUT true
@@ -64,7 +64,7 @@ THREE.LUTShader = {
 };
 
 THREE.LUTShaderNearest = {
-    uniforms: Object.assign({}, THREE.LUTShader.uniforms),
-    vertexShader: THREE.LUTShader.vertexShader,
-    fragmentShader: THREE.LUTShader.fragmentShader.replace('#define FILTER_LUT', '//'),
+  uniforms: Object.assign({}, THREE.LUTShader.uniforms),
+  vertexShader: THREE.LUTShader.vertexShader,
+  fragmentShader: THREE.LUTShader.fragmentShader.replace('#define FILTER_LUT', '//'),
 };
