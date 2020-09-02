@@ -1,5 +1,5 @@
 /**
- * @author D.Thiele @https://hexxon.me
+ * @author D.Thiele @https://hexx.one
  *
  * @license
  * Copyright (c) 2020 D.Thiele All rights reserved.  
@@ -14,19 +14,19 @@
 
 var lutSetup = {
     Textures: [
-		{
-			name: "posterize",
-			url: "./img/lookup/posterize-s8n.png",
-		},
-		{
-			name: "inverse",
-			url: "./img/lookup/inverse-s8.png",
-		},
-		{
-			name: "negative",
-			url: "./img/lookup/color-negative-s8.png",
-		},
-	],
+        {
+            name: "posterize",
+            url: "./img/lookup/posterize-s8n.png",
+        },
+        {
+            name: "inverse",
+            url: "./img/lookup/inverse-s8.png",
+        },
+        {
+            name: "negative",
+            url: "./img/lookup/color-negative-s8.png",
+        },
+    ],
     run: function () {
         const makeIdentityLutTexture = function () {
             const identityLUT = new Uint8Array([
