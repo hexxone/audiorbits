@@ -52,7 +52,7 @@ $ <script type="text/javascript" src="js/wewwa.js"></script>
 
 then upload your folder to a server and/or open it in your browser.
 
-You can see this running [HERE](https://experiment.hexxon.me/)
+You can see this running [HERE](https://orbits.hexx.one/)
 
 
 ### Features:
@@ -103,7 +103,7 @@ Version 1.8:
 - level shifting is now ON by default
 - removed "no_pause"-setting (there is an equivalent option in WE)
 - updated WEWWA.js for browser usage
-- updated https://experiment.hexxon.me/
+- updated https://orbits.hexx.one/
 - updated preview image to a gif
 - improved rendering performance
 
