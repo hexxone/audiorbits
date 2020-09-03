@@ -40,6 +40,7 @@ You can however tweak it to perfectly fit your preference with over 50 settings.
 ║╠══ 3 choosable base textures
 ║╠══ texture size setting
 ║╠══ rendering stats
+║╠══ shader quality
 ║╠══ FOV setting
 ║╠══ Scaling factor
 ║╠══ orbit level amount
