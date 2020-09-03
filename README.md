@@ -13,6 +13,10 @@ Since you need to own Wallpaper Engine in order to access it's Workshop Content 
 *But:* If you encounter any issues of have suggestions **please address them on Steam.**
 
 
+P.S.: Feel free to use this "wallpaper" at your favourite party, event, video, stream, etc.
+Just remember to give credit where due :)
+
+
 ### Dependencies / Libraries
 - [we_utils](https://github.com/Hexxonite/we_utils) diverse utilities
 - [we_project_helper](https://github.com/Hexxonite/we_project_helper) translating & editing .json
