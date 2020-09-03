@@ -10,49 +10,15 @@ It is however basically a website and can be easily run in any browser.
 
 Since you need to own Wallpaper Engine in order to access it's Workshop Content and this Wallpaper, I published this for some interested people...
 
-*But:* If you encounter any issues of have suggestions please **address them on Steam since I won't be looking at this repo very often.**
-
-
-## Bad FPS?
-
-When experiencing low "v-synced" FPS in Wallpaper Engine (not matching your monitor refresh-rate), try the following:
-
-1. Open Wallpaper Engine Window
-2. klick the "Settings Gear" at the top right, then navigate to the 2nd Tab "Common" 
-3. Scroll down to "Comanndline for CEF"
-4. Enter or append " --disable-gpu-vsync" (without quotes)
-5. Click in the text field again to apply the changes
-6. Press "OK" - and you should be done :)
+*But:* If you encounter any issues of have suggestions **please address them on Steam.**
 
 
 ### Dependencies / Libraries
-- [jQuery](https://jquery.com/)
-- [three.js](https://threejs.org/) & Examples
-- [HTML5 Environment](https://html5test.com/)
-
-
-### WEAS (Wallpaper Engine Audio Supplier)
-
-When reworking the audio processing of the Wallpaper, I encapsulated it and made it reusable.
-
-To see how it works exactly take a look at the code in "js/weas.js".
-
-And don't forget it depends on the web worker "js/worker/weasWorker.js".
-
-
-### WEWWA (Wallpaper Engine Web Wallpaper Adapter)
-
-I started working on a possibility to use any Web Wallpaper as "website" including working audio and customizable settings.
-
-To use it, simply copy the "js/wewwa.js" file from this repostiroy into your desired web wallpaper folder and include it in your "index.html" file like so:
-
-```html
-$ <script type="text/javascript" src="js/wewwa.js"></script>
-```
-
-then upload your folder to a server and/or open it in your browser.
-
-You can see this running [HERE](https://orbits.hexx.one/)
+- [we_utils](https://github.com/Hexxonite/we_utils) diverse utilities
+- [we_project_helper](https://github.com/Hexxonite/we_project_helper) translating & editing .json
+- [jQuery](https://jquery.com/) gui editing
+- [three.js](https://threejs.org/) & Examples for webgl rendering
+- [HTML5 Environment](https://html5test.com/) for webGL & audio features
 
 
 ### Features:
@@ -61,6 +27,11 @@ Please head over to the Workshop-Page for a full list (see title for the link).
 
 
 ### Changelog:
+
+Version 2.3:
+- added "shader_quality"-setting (Advanced)
+- outsourced and restructured most libraries
+- added lots of languages (see we_project_helper)
 
 Version 2.2:
 - fixed "no audio = screen black" issue
