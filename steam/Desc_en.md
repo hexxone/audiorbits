@@ -59,9 +59,9 @@ You can however tweak it to perfectly fit your preference with over 50 settings.
 [h1]About[/h1]
 For me this is a fun side-project with a lot to learn and I'm willing to keep it up-to-date in my freetime. 
 
-This was once a [url=https://experiment.hexxon.me/]web-only version[/url] and is my first Wallpaper-Engine Wallpaper, so things might not be perfect.
+This was once a [url=https://orbits.hexx.one/]web-only version[/url] and is my first Wallpaper-Engine Wallpaper, so things might not be perfect.
 
-The source-code can be found [url=https://github.com/Hexxonite/audiorbits]here[/url]. Please remember to respect the License and give credit where due.
+The source-code can be found [url=https://github.com/hexxone/audiorbits]here[/url]. Please remember to respect the License and give credit where due.
 
 
 [h1]Need help?[/h1]
