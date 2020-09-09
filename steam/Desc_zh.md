@@ -1,10 +1,10 @@
 这款壁纸使用WebGL、WebAudio和分形算法来生成 "轨道"。它通过将音频频谱以颜色、饱和度和亮度的形式投射到Orbit上，对音乐做出反应。
 
-h1]用途[/h1]
+[h1]用途[/h1]
 目前，壁纸可能最好看的是有一些低音的音乐（大多数EDM）。
 不过，你可以根据自己的喜好进行50多项设置。
 
-h1]功能[/h1]
+[h1]功能[/h1]
 ╠═ 3种视差模式，可调节效果强度。
 ╠═动态分形轨道发生器
 ║╦═ 亮度和饱和度的默认设置（无音频播放时）。
@@ -59,9 +59,9 @@ h1]功能[/h1]
 [h1]关于[/h1]
 对我来说，这是一个有趣的副业，有很多需要学习的地方，我愿意在空闲时间保持它的更新。
 
-这曾经是一个[url=https://experiment.hexxon.me/]网络版[/url]，也是我的第一个Wallpaper-Engine Wallpaper，所以事情可能并不完美。
+这曾经是一个[url=https://orbits.hexx.one/]网络版[/url]，也是我的第一个Wallpaper-Engine Wallpaper，所以事情可能并不完美。
 
-源代码可以在这里找到[url=https://github.com/Hexxonite/audiorbits][/url]。请记得尊重许可证，并给予应有的荣誉。
+源代码可以在找到[url=https://github.com/hexxone/audiorbits]这里[/url]。请记住，请尊重许可证，并给予应有的荣誉。
 
 
 [h1]需要帮助吗[/h1]
