@@ -65,7 +65,7 @@ Den Quellcode findet man [url=https://github.com/hexxone/audiorbits]hier[/url]. 
 
 
 [h1] Hilfe & Anmerkungen [/h1]
-Wenn Ihr PC oder Ihre Anwendungen laggen, werfen Sie einen Blick auf die [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Einstellungsanleitung [/url]
+Wenn PC oder Anwendungen laggen, wirf einen Blick auf die [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Einstellungsanleitung [/url]
 
 Bei Bugs und andere Problemen, erstelle bitte einen [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Fehlerbericht [/url]
 
