@@ -12,7 +12,7 @@
  * will locally preload the given textures and set metadata infos
  */
 
-var lutSetup = {
+var LUTSetup = {
     Textures: [
         {
             name: "posterize",
@@ -83,7 +83,7 @@ var lutSetup = {
                 return texture;
             };
         }();
-        lutSetup.Textures.forEach((info) => {
+        LUTSetup.Textures.forEach((info) => {
             // if not size set get it from the filename
             if (!info.size) {
                 // assumes filename ends in '-s<num>[n]'
