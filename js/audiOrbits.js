@@ -337,7 +337,7 @@ var audiOrbits = {
 		}, false);
 
 		// init plugins
-		lutSetup.run();
+		LUTSetup.run();
 		weicue.init();
 
 		// initialize
@@ -588,7 +588,7 @@ var audiOrbits = {
 		// lookuptable filter
 		if (sett.lut_filter >= 0) {
 			// add normal or filtered LUT shader
-			var lutInfo = lutSetup.Textures[sett.lut_filter];
+			var lutInfo = LUTSetup.Textures[sett.lut_filter];
 			// get normal or filtered LUT shader
 			var lutPass = new THREE.ShaderPass(lutInfo.filter ?
 				THREE.LUTShader : THREE.LUTShaderNearest);
