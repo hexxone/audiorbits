@@ -72,7 +72,7 @@ Voor bugs en andere problemen kunt u een kijkje nemen op de [url=https://steamco
 Voor suggesties voor nieuwe functies, bezoek [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Plannen om te implementeren [/url].
 
 
-[h1] Patchnotes [/h1].
+[h1] Bericht van wijziging [/h1].
 Kan worden bekeken in het "Veranderingen"-tabblad hierboven.
 
 

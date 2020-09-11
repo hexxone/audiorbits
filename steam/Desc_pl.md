@@ -72,7 +72,7 @@ W przypadku błędów i innych problemów, proszę spojrzeć na [url=https://ste
 Więcej informacji na temat nowych funkcji można znaleźć w [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Planowanie wdrożenia[/url].
 
 
-[h1]Patchnote[/h1]
+[h1]Zawiadomienie o modyfikacji[/h1]
 Można je zobaczyć w zakładce "Zmiany" powyżej.
 
 

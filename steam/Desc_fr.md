@@ -72,7 +72,7 @@ Pour les bogues et autres problèmes, veuillez consulter le [url=https://steamco
 Pour des suggestions de nouvelles fonctionnalités, veuillez consulter le site [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Planning to implement[/url].
 
 
-[h1]Patchnotes[/h1]
+[h1]notes de patch[/h1]
 Peut être consulté dans l'onglet "Changements" ci-dessus.
 
 
