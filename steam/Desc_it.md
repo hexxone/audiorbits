@@ -72,7 +72,7 @@ Per bug e altre questioni si prega di dare un'occhiata al [url=https://steamcomm
 Per nuovi suggerimenti di funzionalità, si prega di visitare [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Pianificazione di implementare[/url].
 
 
-[h1]Patchnotes[/h1]
+[h1]Avviso di modifica[/h1]
 Può essere visualizzato nella scheda "Modifiche" qui sopra.
 
 

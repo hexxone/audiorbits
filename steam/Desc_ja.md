@@ -72,7 +72,7 @@
 新機能の提案については、[url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]実施計画[/url]をご覧ください。
 
 
-[h1]Patchnotes[/h1]
+[h1]変更のお知らせ[/h1]
 上の「変更点」タブで確認できます。
 
 
