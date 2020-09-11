@@ -73,7 +73,7 @@ Vorschläge für neue Funktionen [url=https://steamcommunity.com/workshop/filede
 
 
 [h1]Updates[/h1]
-Können in der Registerkarte "Änderungen" ganz oben eingesehen werden.
+Können in der Registerkarte "Änderungen" oben eingesehen werden.
 
 
 [spoiler] Vielen Dank für über 100k Benutzer O:[/spoiler]

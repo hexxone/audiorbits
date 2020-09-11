@@ -72,7 +72,7 @@ Para errores y otras cuestiones, por favor, echa un vistazo al [url=https://stea
 Para sugerencias de nuevas características, por favor visite [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Planeando implementar[/url].
 
 
-[h1]Notas de parche[/h1]
+[h1]Aviso de modificación[/h1]
 Se puede ver en la pestaña "Cambios" de arriba.
 
 
