@@ -56,7 +56,7 @@ U kunt het echter aanpassen aan uw voorkeur met meer dan 50 instellingen.
 ╠═ waarschuwing voor inbeslagname
 ╚═ debuggenregistratie
 
-Over...
+[h1]Over...[/h1]
 Voor mij is dit een leuk nevenproject met veel te leren en ik ben bereid om het up-to-date te houden in mijn vrije tijd. 
 
 Dit was ooit een [url=https://orbits.hexx.one/] web-only versie [/url] en is mijn eerste Wallpaper-Engine Wallpaper, dus dingen zijn misschien niet perfect.

@@ -56,7 +56,7 @@ No entanto, pode afiná-lo para se adaptar perfeitamente à sua preferência com
 ╠═ aviso de apreensão
 ╚═ debug logging
 
-Sobre [h1]Sobre[/h1]
+[h1]Sobre[/h1]
 Para mim este é um projecto lateral divertido com muito para aprender e estou disposto a mantê-lo actualizado no meu tempo livre. 
 
 Esta foi em tempos uma versão [url=https://orbits.hexx.one/]só na web[/url] e é a minha primeira versão de Wallpaper-Engine Wallpaper, por isso as coisas podem não ser perfeitas.

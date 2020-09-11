@@ -1110,6 +1110,7 @@ window.wallpaperPropertyListener = {
 		}
 	},
 	setPaused: (isPaused) => {
+		weicue.PAUSED = isPaused;
 		if (audiOrbits.state == RunState.Paused) {
 			if (isPaused) return;
 			audiOrbits.state = RunState.Running;
