@@ -22,7 +22,6 @@
  * Leave me some feedback on the Workshop-Page for this item if you like!
  * 
  * @todo
- * - Add Shader precision extra setting
  * - finish implementing Web-XR
  * - record "how to debug"-video?
  * - highlight seizure text on white BG
@@ -59,24 +58,46 @@ var audiOrbits = {
 	// for more explanation on settings visit the Workshop-Item-Forum (link above)
 	settings: {
 		schemecolor: "0 0 0",
+		// Parallax category
 		parallax_option: 0,
 		parallax_angle: 180,
 		parallax_strength: 3,
 		auto_parallax_speed: 2,
-		color_fade_speed: 2,
-		default_brightness: 60,
-		default_saturation: 10,
+		// Movement category
+		movement_mode: 0,
 		zoom_val: 1,
 		rotation_val: 0,
-		custom_fps: false,
-		fps_value: 60,
+		// Color category
+		color_mode: 0,
+		user_color_a: "1 0.5 0",
+		user_color_b: "0 0.5 1",
+		color_fade_speed: 2,
+		// Brightness category
+		default_brightness: 60,
 		minimum_brightness: 10,
+		maximum_brightness: 90,
+		// Saturation category
+		default_saturation: 10,
 		minimum_saturation: 10,
+		maximum_saturation: 90,
+		// Audio category
 		audio_multiplier: 2,
 		audio_smoothing: 75,
 		audiozoom_val: 2,
 		only_forward: false,
 		audiozoom_smooth: false,
+		// Filter / Shader category
+		bloom_filter: false,
+		lut_filter: -1,
+		mirror_shader: 0,
+		mirror_invert: false,
+		fx_antialiasing: true,
+		blur_strength: 0,
+		// Tunnel generator
+		generate_tunnel: false,
+		tunnel_inner_radius: 5,
+		tunnel_outer_radius: 5,
+		// Algorithm params
 		alg_a_min: -25,
 		alg_a_max: 25,
 		alg_b_min: 0.3,
@@ -87,31 +108,23 @@ var audiOrbits = {
 		alg_d_max: 9,
 		alg_e_min: 1,
 		alg_e_max: 10,
-		generate_tunnel: false,
-		tunnel_inner_radius: 5,
-		tunnel_outer_radius: 5,
-		base_texture_path: "./img/galaxy.png",
-		texture_size: 7,
+		// Advanced
 		stats_option: -1,
 		shader_quality: "low",
+		base_texture_path: "./img/galaxy.png",
+		texture_size: 7,
 		field_of_view: 90,
-		fog_thickness: 3,
 		scaling_factor: 1800,
 		camera_bound: 1000,
-		num_points_per_subset: 4096,
-		num_subsets_per_level: 12,
 		num_levels: 6,
 		level_depth: 1200,
+		num_subsets_per_level: 12,
+		num_points_per_subset: 4096,
+		fog_thickness: 3,
 		level_shifting: false,
-		bloom_filter: false,
-		lut_filter: -1,
-		mirror_shader: 0,
-		mirror_invert: false,
-		fx_antialiasing: true,
-		blur_strength: 0,
-		color_mode: 0,
-		user_color_a: "1 0.5 0",
-		user_color_b: "0 0.5 1",
+		custom_fps: false,
+		fps_value: 60,
+		// Misc category
 		seizure_warning: true,
 	},
 	/* Have you ever wondered,
@@ -130,9 +143,6 @@ var audiOrbits = {
 	container: null,
 	mainCanvas: null,
 	helperContext: null,
-	// these are set once 
-	resetBar: null,
-	resetText: null,
 
 	// Seconds & interval for reloading the wallpaper
 	resetTimespan: 3,
@@ -305,8 +315,6 @@ var audiOrbits = {
 		THREE.Cache.enabled = true;
 
 		// get static elements
-		self.resetBar = document.getElementById("reload-bar");
-		self.resetText = document.getElementById("reload-text");
 		self.container = document.getElementById("renderContainer");
 
 		// add global mouse (parallax) listener
@@ -1123,20 +1131,9 @@ window.wallpaperPropertyListener = {
 	}
 };
 
-// will be called first when wallpaper is run from web(with wewwa)
+// will be called first when wallpaper is run from web(wewwa)
 window.wewwaListener = {
 	initWebContext: function () {
 		audiOrbits.isWebContext = true;
 	}
 };
-
-// after the page finished loading: if the wallpaper context is not given
-// AND wewwa fails for some reason => start wallpaper manually
-$(() => {
-	if (!window.wallpaperRegisterAudioListener && audiOrbits.state == RunState.None) {
-		print("wallpaperRegisterAudioListener not defined. We are probably outside of wallpaper engine. Manual init..", true);
-		audiOrbits.applyCustomProps({});
-		audiOrbits.state = RunState.Initializing;
-		audiOrbits.initOnce();
-	}
-});
