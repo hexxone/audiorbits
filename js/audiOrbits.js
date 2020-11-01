@@ -131,44 +131,41 @@ var audiOrbits = {
 	how many settings are too many settings?
 	No? Me neither */
 
-	isWebContext: false,
+	// user colors converted from RGB to HSL
+	colorObject: null,
+
+	// window half size
+	windowHalfX: window.innerWidth / 2,
+	windowHalfY: window.innerHeight / 2,
+
 	// state of the Wallpaper
+	isWebContext: false,
 	state: 0,
 
 	// debugging
 	debug: false,
 	debugTimeout: null,
-
-	// relevant html elements
-	container: null,
-	mainCanvas: null,
-	helperContext: null,
-
 	// Seconds & interval for reloading the wallpaper
 	resetTimespan: 3,
 	resetTimeout: null,
 
-	// render relevant stuff
+	// html elements
+	container: null,
+	mainCanvas: null,
+	helperContext: null,
+
+	// Three.js objects
 	clock: null,
-	renderTimeout: null,
-
-	// interval for swirlHandler
-	swirlInterval: null,
-
-	// extended  user settings
-	colorObject: null,
-	// mouse over canvas
-	mouseX: 0,
-	mouseY: 0,
-	// window half size
-	windowHalfX: window.innerWidth / 2,
-	windowHalfY: window.innerHeight / 2,
-
-	// Three.js relevant objects
 	renderer: null,
 	composer: null,
 	camera: null,
 	scene: null,
+	// custom render timing
+	renderTimeout: null,
+
+	// mouse over canvas
+	mouseX: 0,
+	mouseY: 0,
 	// main orbit data
 	levels: [],
 	moveBacks: [],
@@ -180,6 +177,8 @@ var audiOrbits = {
 	levelWorker: null,
 	levelWorkersRunning: 0,
 	levelWorkerCall: null,
+	// interval for swirlHandler
+	swirlInterval: null,
 
 	///////////////////////////////////////////////
 	// APPLY SETTINGS
@@ -878,12 +877,15 @@ var audiOrbits = {
 		rot *= deltaTime;
 
 		// move as many calculations out of loop as possible
-		var minSat = sett.minimum_saturation / 100;
-		var minBri = sett.minimum_brightness / 100;
-		// get targeted saturation & brightness
-		var defSat = sett.default_saturation / 100;
-		var defBri = sett.default_brightness / 100;
 		var sixtyDelta = deltaTime * 2000;
+		// get targeted saturations
+		var defSat = sett.default_saturation / 100;
+		var minSat = sett.minimum_saturation / 100;
+		var maxSat = sett.maximum_saturation / 100;
+		// get targeted brightness's
+		var defBri = sett.default_brightness / 100;
+		var minBri = sett.minimum_brightness / 100;
+		var maxBri = sett.maximum_brightness / 100;
 
 		var i, child, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
 		// position all objects
