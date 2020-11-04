@@ -6,11 +6,18 @@
   "general": {
     "localization": {
       "de-de": {
+        "ui_HEADER_GEOMETRY": "<u><h4>Geometrie</h4></u>",
+        "ui_geometry_type": "Geometrie-Typ",
+        "ui_geometry_type_0": "Standard",
+        "ui_geometry_type_1": "Partikel",
+        "ui_geometry_type_2": "PS4",
+        "ui_geometry_type_3": "Experimental",
+
         "ui_HEADER_ADVANCED": "<u><h4>Erweitert</h4></u>",
         "ui_HEADER_AUDIO": "<u><h4>Audio</h4></u>",
         "ui_HEADER_COLOR": "<u><h4>Farben</h4></u>",
         "ui_HEADER_FILTER": "<u><h4>Filter</h4></u>",
-        "ui_HEADER_GENERAL": "<u><h4>Allgemein</h4></u>",
+        "ui_HEADER_MOVEMENT": "<u><h4>Allgemein</h4></u>",
         "ui_HEADER_ICUE": "<u><h4>LED / iCUE Optionen</h4></u>",
         "ui_HEADER_IMGS": "<u><h4>Vorder & Hintergrund</h4></u>",
         "ui_HEADER_MISC": "<u><h4>Verschiedenes</h4></u>",
@@ -123,7 +130,7 @@
         "ui_HEADER_AUDIO": "<u><h4>Audio Settings</h4></u>",
         "ui_HEADER_COLOR": "<u><h4>Color Settings</h4></u>",
         "ui_HEADER_FILTER": "<u><h4>Filter Settings</h4></u>",
-        "ui_HEADER_GENERAL": "<u><h4>General Settings</h4></u>",
+        "ui_HEADER_MOVEMENT": "<u><h4>General Settings</h4></u>",
         "ui_HEADER_ICUE": "<u><h4>LED / iCUE Settings</h4></u>",
         "ui_HEADER_IMGS": "<u><h4>Overlay & Background</h4></u>",
         "ui_HEADER_MISC": "<u><h4>Miscellaneous</h4></u>",
@@ -236,7 +243,7 @@
         "ui_HEADER_AUDIO": "<u><h4>audio</h4></u>",
         "ui_HEADER_COLOR": "<u><h4>colores</h4></u>",
         "ui_HEADER_FILTER": "<u><h4>filtro</h4></u>",
-        "ui_HEADER_GENERAL": "<u><h4>general</h4></u>",
+        "ui_HEADER_MOVEMENT": "<u><h4>general</h4></u>",
         "ui_HEADER_ICUE": "<u><h4>LED / iCUE Opciones</h4></u>",
         "ui_HEADER_IMGS": "<u><h4>frente y fondo</h4></u>",
         "ui_HEADER_MISC": "<u><h4>misceláneo</h4></u>",
@@ -349,7 +356,7 @@
         "ui_HEADER_AUDIO": "<u><h4>audio</h4></u>",
         "ui_HEADER_COLOR": "<u><h4>couleurs</h4></u>",
         "ui_HEADER_FILTER": "<u><h4>filtre</h4></u>",
-        "ui_HEADER_GENERAL": "<u><h4>général</h4></u>",
+        "ui_HEADER_MOVEMENT": "<u><h4>général</h4></u>",
         "ui_HEADER_ICUE": "<u><h4>LED / iCUE Options</h4></u>",
         "ui_HEADER_IMGS": "<u><h4> façade et arrière-plan</h4></u>",
         "ui_HEADER_MISC": "<u><h4>divers</h4></u>",
@@ -462,7 +469,7 @@
         "ui_HEADER_AUDIO": "<u><h4>audio</h4></u></u>",
         "ui_HEADER_COLOR": "<u><h4>colori</h4></u></u>",
         "ui_HEADER_FILTER": "<u><h4>filtro</h4></u></u>",
-        "ui_HEADER_GENERAL": "<u><h4></h4></u></u>",
+        "ui_HEADER_MOVEMENT": "<u><h4></h4></u></u>",
         "ui_HEADER_ICUE": "<u><h4><h4>LED / iCUE Opzioni</h4></u>",
         "ui_HEADER_IMGS": "<u><h4></h4></u></u>",
         "ui_HEADER_MISC": "<u><h4>varie</h4></u></u>",
@@ -657,7 +664,7 @@
         "ui_shader_quality_1": "低",
         "ui_shader_quality_2": "リソース",
         "ui_HEADER_FILTER": "<u><h4>フィルタ設定</h4></u>",
-        "ui_HEADER_GENERAL": "<u><h4>一般的な設定</h4></u>。",
+        "ui_HEADER_MOVEMENT": "<u><h4>一般的な設定</h4></u>。",
         "ui_HEADER_TUNNEL": "<u><h4>「トンネル」ジェネレータ</h4></u>。",
         "ui_alg_d_min": "パラムD 最小値",
         "ui_base_texture_1": "キューボイド",
@@ -688,7 +695,7 @@
         "ui_HEADER_AUDIO": "<u><h4>audio</h4></u>",
         "ui_HEADER_COLOR": "<u><h4>kleuren</h4></u>",
         "ui_HEADER_FILTER": "<u><h4>filter</h4></u>",
-        "ui_HEADER_GENERAL": "<u><h4>algemeen</h4></u>",
+        "ui_HEADER_MOVEMENT": "<u><h4>algemeen</h4></u>",
         "ui_HEADER_ICUE": "<u><h4>LED / iCUE-opties</h4></u>",
         "ui_HEADER_IMGS": "<u><h4>voorzijde & achtergrond</h4></u>",
         "ui_HEADER_PARAMS": "<u><h4>algoritme</h4></u>",
@@ -844,7 +851,7 @@
         "ui_user_color_b": "Drugi kolor",
         "ui_value_smoothing": "Wygładzanie wartości",
         "ui_zoom_val": "Prędkość",
-        "ui_HEADER_GENERAL": "<u><h4>ogólne</h4></u>",
+        "ui_HEADER_MOVEMENT": "<u><h4>ogólne</h4></u>",
         "ui_HEADER_ICUE": "<u><h4>LED / iCUE Opcje</h4></u>",
         "ui_HEADER_IMGS": "<u><h4> przód i tło</h4></u>",
         "ui_HEADER_MISC": "<u><h4>różne</h4></u>",
@@ -914,7 +921,7 @@
         "ui_HEADER_AUDIO": "<u><h4>аудио</h4></u>",
         "ui_HEADER_COLOR": "<u><h4>цвета</h4></u>",
         "ui_HEADER_FILTER": "<u><h4>фильтр</h4></u>",
-        "ui_HEADER_GENERAL": "<u><h4>Общее</h4></u>",
+        "ui_HEADER_MOVEMENT": "<u><h4>Общее</h4></u>",
         "ui_HEADER_ICUE": "<u><h4>LED / iCUE настройки</h4></u></u>",
         "ui_HEADER_IMGS": "<u><h4>перед и в фоновом режиме</h4></u>.",
         "ui_HEADER_MISC": "<u><h4>разное</h4></u></u>",
@@ -1133,7 +1140,7 @@
         "ui_HEADER_AUDIO": "<u><h4>音频</h4></u>",
         "ui_HEADER_COLOR": "<u><h4>项圈</h4></u>。",
         "ui_HEADER_FILTER": "<u><h4>滤镜</h4></u>。",
-        "ui_HEADER_GENERAL": "<u><h4>一般性</h4></u>。"
+        "ui_HEADER_MOVEMENT": "<u><h4>一般性</h4></u>。"
       }
     },
     "properties": {
@@ -1143,15 +1150,312 @@
         "type": "color",
         "value": "0 0 0"
       },
-      "HEADER_PRLX": {
+      "HEADER_GEOMETRY": {
+        "order": 10,
+        "text": "ui_HEADER_GEOMETRY",
+        "type": "bool",
+        "value": false
+      },
+      "spacer_00": {
+        "condition": "HEADER_GEOMETRY.value",
+        "order": 20,
+        "text": "ui_spacer",
+        "type": "text",
+        "value": false
+      },
+      "geometry_type": {
+        "condition": "HEADER_GEOMETRY.value",
+        "options": [
+          {
+            "label": "ui_geometry_type_0",
+            "value": 0
+          },
+          {
+            "label": "ui_geometry_type_1",
+            "value": 1
+          },
+          {
+            "label": "ui_geometry_type_2",
+            "value": 2
+          },
+          {
+            "label": "ui_geometry_type_3",
+            "value": 3
+          }
+        ],
+        "order": 30,
+        "text": "ui_geometry_type",
+        "type": "combo",
+        "value": 0
+      },
+      "spacer_01": {
+        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+        "order": 40,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "HEADER_PARAMS": {
+        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+        "order": 50,
+        "text": "ui_HEADER_PARAMS",
+        "type": "bool",
+        "value": false
+      },
+      "spacer_02": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "order": 60,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "alg_a_min": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 80,
+        "min": -80,
+        "order": 70,
+        "text": "ui_alg_a_min",
+        "type": "slider",
+        "value": -25
+      },
+      "alg_a_max": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 80,
+        "min": -80,
+        "order": 80,
+        "text": "ui_alg_a_max",
+        "type": "slider",
+        "value": 25
+      },
+      "alg_b_min": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 80,
+        "min": -80,
+        "order": 90,
+        "text": "ui_alg_b_min",
+        "type": "slider",
+        "value": 0.25
+      },
+      "alg_b_max": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 80,
+        "min": -80,
         "order": 100,
+        "text": "ui_alg_b_max",
+        "type": "slider",
+        "value": 1.7
+      },
+      "alg_c_min": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 80,
+        "min": -80,
+        "order": 110,
+        "text": "ui_alg_c_min",
+        "type": "slider",
+        "value": 5
+      },
+      "alg_c_max": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 80,
+        "min": -80,
+        "order": 120,
+        "text": "ui_alg_c_max",
+        "type": "slider",
+        "value": 16
+      },
+      "alg_d_min": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 80,
+        "min": -80,
+        "order": 130,
+        "text": "ui_alg_d_min",
+        "type": "slider",
+        "value": 1
+      },
+      "alg_d_max": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 80,
+        "min": -80,
+        "order": 140,
+        "text": "ui_alg_d_max",
+        "type": "slider",
+        "value": 9
+      },
+      "alg_e_min": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 80,
+        "min": -80,
+        "order": 150,
+        "text": "ui_alg_e_min",
+        "type": "slider",
+        "value": 1
+      },
+      "alg_e_max": {
+        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 80,
+        "min": -80,
+        "order": 160,
+        "text": "ui_alg_e_max",
+        "type": "slider",
+        "value": 10
+      },
+      "spacer_03": {
+        "condition": "HEADER_GEOMETRY.value",
+        "order": 170,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "generate_tunnel": {
+        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+        "order": 180,
+        "text": "ui_generate_tunnel",
+        "type": "bool",
+        "value": true
+      },
+      "tunnel_inner_radius": {
+        "condition": "HEADER_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
+        "editable": false,
+        "max": 25,
+        "min": 1,
+        "order": 190,
+        "text": "ui_tunnel_inner_radius",
+        "type": "slider",
+        "value": 2
+      },
+      "tunnel_outer_radius": {
+        "condition": "HEADER_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
+        "editable": false,
+        "max": 25,
+        "min": 1,
+        "order": 200,
+        "text": "ui_tunnel_outer_radius",
+        "type": "slider",
+        "value": 2
+      },
+      "spacer_04": {
+        "condition": "HEADER_GEOMETRY.value",
+        "order": 210,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "base_texture": {
+        "condition": "HEADER_GEOMETRY.value && geometry_type.value == 0",
+        "options": [
+          {
+            "label": "ui_base_texture_0",
+            "value": 0
+          },
+          {
+            "label": "ui_base_texture_1",
+            "value": 1
+          },
+          {
+            "label": "ui_base_texture_2",
+            "value": 2
+          }
+        ],
+        "order": 220,
+        "text": "ui_base_texture",
+        "type": "combo",
+        "value": 0
+      },
+      "texture_size": {
+        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+        "editable": false,
+        "max": 25,
+        "min": 2,
+        "order": 230,
+        "text": "ui_texture_size",
+        "type": "slider",
+        "value": 6
+      },
+      "spacer_05": {
+        "condition": "HEADER_GEOMETRY.value",
+        "order": 240,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "scaling_factor": {
+        "condition": "HEADER_GEOMETRY.value",
+        "editable": true,
+        "max": 3000,
+        "min": 100,
+        "order": 250,
+        "text": "ui_scaling_factor",
+        "type": "slider",
+        "value": 1800
+      },
+      "num_levels": {
+        "condition": "HEADER_GEOMETRY.value",
+        "editable": true,
+        "max": 32,
+        "min": 1,
+        "order": 260,
+        "text": "ui_num_levels",
+        "type": "slider",
+        "value": 6
+      },
+      "level_depth": {
+        "condition": "HEADER_GEOMETRY.value",
+        "editable": true,
+        "max": 10000,
+        "min": 100,
+        "order": 270,
+        "text": "ui_level_depth",
+        "type": "slider",
+        "value": 1200
+      },
+      "level_shifting": {
+        "condition": "HEADER_ADVANCED.value",
+        "order": 280,
+        "text": "ui_level_shifting",
+        "type": "bool",
+        "value": true
+      },
+      "num_subsets_per_level": {
+        "condition": "HEADER_GEOMETRY.value",
+        "editable": true,
+        "max": 32,
+        "min": 1,
+        "order": 290,
+        "text": "ui_num_subsets_per_level",
+        "type": "slider",
+        "value": 12
+      },
+      "num_points_per_subset": {
+        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+        "editable": true,
+        "max": 32000,
+        "min": 1024,
+        "order": 300,
+        "text": "ui_num_points_per_subset",
+        "type": "slider",
+        "value": 4096
+      },
+      "spacer_06": {
+        "condition": "HEADER_GEOMETRY.value",
+        "order": 310,
+        "text": "ui_spacer",
+        "type": "text",
+        "value": false
+      },
+      "HEADER_PRLX": {
+        "order": 320,
         "text": "ui_HEADER_PRLX",
         "type": "bool",
         "value": false
       },
-      "spacer_01": {
+      "spacer_07": {
         "condition": "HEADER_PRLX.value",
-        "order": 101,
+        "order": 330,
         "text": "ui_spacer",
         "type": "text",
         "value": false
@@ -1176,7 +1480,7 @@
             "value": 3
           }
         ],
-        "order": 102,
+        "order": 340,
         "text": "ui_parallax_option",
         "type": "combo",
         "value": 0
@@ -1186,7 +1490,7 @@
         "editable": false,
         "max": 20,
         "min": 1,
-        "order": 103,
+        "order": 350,
         "text": "ui_parallax_strength",
         "type": "slider",
         "value": 3
@@ -1196,7 +1500,7 @@
         "editable": false,
         "max": 360,
         "min": 0,
-        "order": 104,
+        "order": 360,
         "text": "ui_parallax_angle",
         "type": "slider",
         "value": 0
@@ -1206,106 +1510,103 @@
         "editable": true,
         "max": 10,
         "min": -10,
-        "order": 105,
+        "order": 370,
         "text": "ui_auto_parallax_speed",
         "type": "slider",
         "value": 2
       },
-      "spacer_02": {
+      "spacer_08": {
         "condition": "HEADER_PRLX.value",
-        "order": 106,
+        "order": 380,
         "text": "ui_spacer",
         "type": "text"
       },
-      "HEADER_GENERAL": {
-        "order": 107,
-        "text": "ui_HEADER_GENERAL",
+      "HEADER_MOVEMENT": {
+        "order": 390,
+        "text": "ui_HEADER_MOVEMENT",
         "type": "bool",
         "value": false
       },
-      "spacer_03": {
-        "condition": "HEADER_GENERAL.value",
-        "order": 108,
+      "spacer_09": {
+        "condition": "HEADER_MOVEMENT.value",
+        "order": 400,
         "text": "ui_spacer",
         "type": "text"
       },
-      "default_brightness": {
-        "condition": "HEADER_GENERAL.value",
-        "editable": false,
-        "max": 100,
-        "min": 1,
-        "order": 109,
-        "text": "ui_default_brightness",
-        "type": "slider",
-        "value": 60
-      },
-      "default_saturation": {
-        "condition": "HEADER_GENERAL.value",
-        "editable": false,
-        "max": 100,
-        "min": 1,
-        "order": 110,
-        "text": "ui_default_saturation",
-        "type": "slider",
-        "value": 90
+      "movement_type": {
+        "condition": "HEADER_MOVEMENT.value",
+        "options": [
+          {
+            "label": "ui_movement_type_0",
+            "value": 0
+          },
+          {
+            "label": "ui_movement_type_1",
+            "value": 1
+          }
+        ],
+        "order": 410,
+        "text": "ui_movement_type",
+        "type": "combo",
+        "value": 0
       },
       "zoom_val": {
-        "condition": "HEADER_GENERAL.value",
+        "condition": "HEADER_MOVEMENT.value",
         "editable": true,
         "max": 20,
         "min": 0,
-        "order": 111,
+        "order": 420,
         "text": "ui_zoom_val",
         "type": "slider",
         "value": 1
       },
       "rotation_val": {
-        "condition": "HEADER_GENERAL.value",
+        "condition": "HEADER_MOVEMENT.value",
         "editable": true,
         "max": 10,
         "min": -10,
-        "order": 112,
+        "order": 430,
         "text": "ui_rotation_val",
         "type": "slider",
         "value": 0
       },
       "custom_fps": {
-        "condition": "HEADER_GENERAL.value",
-        "order": 113,
+        "condition": "HEADER_MOVEMENT.value",
+        "order": 440,
         "text": "ui_custom_fps",
         "type": "bool",
         "value": false
       },
       "fps_value": {
-        "condition": "HEADER_GENERAL.value && custom_fps.value",
+        "condition": "HEADER_MOVEMENT.value && custom_fps.value",
         "max": 240,
         "min": 1,
-        "order": 114,
+        "order": 450,
         "text": "ui_fps_value",
         "type": "slider",
         "value": 60
       },
-      "spacer_04": {
-        "condition": "HEADER_GENERAL.value",
-        "order": 115,
+      "spacer_10": {
+        "condition": "HEADER_MOVEMENT.value",
+        "order": 460,
         "text": "ui_spacer",
         "type": "text"
       },
       "HEADER_COLOR": {
-        "order": 116,
+        "order": 470,
         "text": "ui_HEADER_COLOR",
         "type": "bool",
         "value": false
       },
-      "spacer_05": {
+      "spacer_11": {
         "condition": "HEADER_COLOR.value",
-        "order": 117,
+        "order": 480,
         "text": "ui_spacer",
         "type": "text"
       },
       "main_color": {
         "condition": "HEADER_COLOR.value",
-        "order": 118,
+        "order": 490,
         "text": "ui_main_color",
         "type": "color",
         "value": "0 0 0"
@@ -1334,7 +1635,7 @@
             "value": 4
           }
         ],
-        "order": 119,
+        "order": 500,
         "text": "ui_color_mode",
         "type": "combo",
         "value": 0
@@ -1344,52 +1645,148 @@
         "editable": true,
         "max": 10,
         "min": 0,
-        "order": 120,
+        "order": 510,
         "text": "ui_color_fade_speed",
         "type": "slider",
         "value": 2
       },
       "user_color_a": {
         "condition": "HEADER_COLOR.value && color_mode.value >0",
-        "order": 121,
+        "order": 520,
         "text": "ui_user_color_a",
         "type": "color",
         "value": "1 0.5 0"
       },
       "user_color_b": {
         "condition": "HEADER_COLOR.value && color_mode.value >1",
-        "order": 122,
+        "order": 530,
         "text": "ui_user_color_b",
         "type": "color",
         "value": "0 0.5 1"
       },
-      "spacer_06": {
+      "spacer_12": {
         "condition": "HEADER_COLOR.value",
-        "order": 123,
+        "order": 540,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "HEADER_BRIGHTNESS": {
+        "order": 550,
+        "text": "ui_HEADER_BRIGHTNESS",
+        "type": "bool",
+        "value": false
+      },
+      "spacer_13": {
+        "condition": "HEADER_BRIGHTNESS.value",
+        "order": 560,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "default_brightness": {
+        "condition": "HEADER_BRIGHTNESS.value",
+        "editable": false,
+        "max": 100,
+        "min": 1,
+        "order": 570,
+        "text": "ui_default_brightness",
+        "type": "slider",
+        "value": 60
+      },
+      "minimum_brightness": {
+        "condition": "HEADER_BRIGHTNESS.value",
+        "editable": false,
+        "max": 100,
+        "min": 1,
+        "order": 580,
+        "text": "ui_minimum_brightness",
+        "type": "slider",
+        "value": 10
+      },
+      "maximum_brightness": {
+        "condition": "HEADER_BRIGHTNESS.value",
+        "editable": false,
+        "max": 100,
+        "min": 1,
+        "order": 590,
+        "text": "ui_maximum_brightness",
+        "type": "slider",
+        "value": 80
+      },
+      "spacer_14": {
+        "condition": "HEADER_BRIGHTNESS.value",
+        "order": 600,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "HEADER_SATURATION": {
+        "order": 610,
+        "text": "ui_HEADER_BRIGHTNESS",
+        "type": "bool",
+        "value": false
+      },
+      "spacer_15": {
+        "condition": "HEADER_SATURATION.value",
+        "order": 620,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "default_saturation": {
+        "condition": "HEADER_SATURATION.value",
+        "editable": false,
+        "max": 100,
+        "min": 1,
+        "order": 630,
+        "text": "ui_default_brightness",
+        "type": "slider",
+        "value": 630
+      },
+      "minimum_saturation": {
+        "condition": "HEADER_SATURATION.value",
+        "editable": false,
+        "max": 100,
+        "min": 1,
+        "order": 640,
+        "text": "ui_minimum_brightness",
+        "type": "slider",
+        "value": 10
+      },
+      "maximum_saturation": {
+        "condition": "HEADER_SATURATION.value",
+        "editable": false,
+        "max": 100,
+        "min": 1,
+        "order": 650,
+        "text": "ui_maximum_brightness",
+        "type": "slider",
+        "value": 80
+      },
+      "spacer_16": {
+        "condition": "HEADER_SATURATION.value",
+        "order": 660,
         "text": "ui_spacer",
         "type": "text"
       },
       "HEADER_FILTER": {
-        "order": 124,
+        "order": 670,
         "text": "ui_HEADER_FILTER",
         "type": "bool",
         "value": false
       },
-      "spacer_07": {
+      "spacer_17": {
         "condition": "HEADER_FILTER.value",
-        "order": 125,
+        "order": 680,
         "text": "ui_spacer",
         "type": "text"
       },
       "filter_reload": {
         "condition": "HEADER_FILTER.value",
-        "order": 126,
+        "order": 690,
         "text": "ui_RELOAD_INFO",
         "type": "text"
       },
       "bloom_filter": {
         "condition": "HEADER_FILTER.value",
-        "order": 127,
+        "order": 700,
         "text": "ui_bloom_filter",
         "type": "bool",
         "value": false
@@ -1414,7 +1811,7 @@
             "value": 2
           }
         ],
-        "order": 128,
+        "order": 710,
         "text": "ui_lut_filter",
         "type": "combo",
         "value": -1
@@ -1424,27 +1821,27 @@
         "editable": false,
         "max": 16,
         "min": 0,
-        "order": 129,
+        "order": 720,
         "text": "ui_mirror_shader",
         "type": "slider",
         "value": 0
       },
       "mirror_invalid_val": {
         "condition": "mirror_shader.value == 1",
-        "order": 130,
+        "order": 730,
         "text": "ui_mirror_invalid_val",
         "type": "text"
       },
       "mirror_invert": {
         "condition": "HEADER_FILTER.value && mirror_shader.value>1",
-        "order": 131,
+        "order": 740,
         "text": "ui_mirror_invert",
         "type": "bool",
         "value": false
       },
       "fx_antialiasing": {
         "condition": "HEADER_FILTER.value",
-        "order": 132,
+        "order": 750,
         "text": "ui_fx_antialiasing",
         "type": "bool",
         "value": false
@@ -1454,26 +1851,56 @@
         "editable": false,
         "max": 20,
         "min": 0,
-        "order": 133,
+        "order": 760,
         "text": "ui_blur_strength",
         "type": "slider",
         "value": 0
       },
-      "spacer_08": {
+      "spacer_18": {
         "condition": "HEADER_FILTER.value",
-        "order": 134,
+        "order": 770,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "HEADER_IMGS": {
+        "order": 780,
+        "text": "ui_HEADER_IMGS",
+        "type": "bool",
+        "value": false
+      },
+      "spacer_19": {
+        "condition": "HEADER_IMGS.value",
+        "order": 790,
+        "text": "ui_spacer",
+        "type": "text"
+      },
+      "img_overlay": {
+        "condition": "HEADER_IMGS.value",
+        "order": 800,
+        "text": "ui_img_overlay",
+        "type": "file"
+      },
+      "img_background": {
+        "condition": "HEADER_IMGS.value",
+        "order": 810,
+        "text": "ui_img_background",
+        "type": "file"
+      },
+      "spacer_20": {
+        "condition": "HEADER_IMGS.value",
+        "order": 820,
         "text": "ui_spacer",
         "type": "text"
       },
       "HEADER_AUDIO": {
-        "order": 135,
+        "order": 830,
         "text": "ui_HEADER_AUDIO",
         "type": "bool",
         "value": false
       },
-      "spacer_09": {
+      "spacer_21": {
         "condition": "HEADER_AUDIO.value",
-        "order": 136,
+        "order": 840,
         "text": "ui_spacer",
         "type": "text"
       },
@@ -1482,37 +1909,17 @@
         "editable": false,
         "max": 20,
         "min": 1,
-        "order": 137,
+        "order": 850,
         "text": "ui_minimum_volume",
         "type": "slider",
         "value": 1
-      },
-      "minimum_brightness": {
-        "condition": "HEADER_AUDIO.value",
-        "editable": false,
-        "max": 100,
-        "min": 1,
-        "order": 138,
-        "text": "ui_minimum_brightness",
-        "type": "slider",
-        "value": 10
-      },
-      "minimum_saturation": {
-        "condition": "HEADER_AUDIO.value",
-        "editable": false,
-        "max": 100,
-        "min": 1,
-        "order": 139,
-        "text": "ui_minimum_saturation",
-        "type": "slider",
-        "value": 5
       },
       "audio_multiplier": {
         "condition": "HEADER_AUDIO.value",
         "editable": true,
         "max": 100,
         "min": 1,
-        "order": 140,
+        "order": 860,
         "text": "ui_audio_multiplier",
         "type": "slider",
         "value": 35
@@ -1522,7 +1929,7 @@
         "editable": false,
         "max": 5,
         "min": 0,
-        "order": 141,
+        "order": 870,
         "text": "ui_peak_filter",
         "type": "slider",
         "value": 1
@@ -1532,7 +1939,7 @@
         "editable": false,
         "max": 95,
         "min": 5,
-        "order": 142,
+        "order": 880,
         "text": "ui_audio_smoothing",
         "type": "slider",
         "value": 65
@@ -1542,7 +1949,7 @@
         "editable": false,
         "max": 5,
         "min": 0,
-        "order": 143,
+        "order": 890,
         "text": "ui_value_smoothing",
         "type": "slider",
         "value": 2
@@ -1552,239 +1959,159 @@
         "editable": true,
         "max": 15,
         "min": 0,
-        "order": 144,
+        "order": 900,
         "text": "ui_audiozoom_val",
         "type": "slider",
         "value": 2
       },
       "only_forward": {
         "condition": "HEADER_AUDIO.value",
-        "order": 145,
+        "order": 910,
         "text": "ui_only_forward",
         "type": "bool",
         "value": false
       },
       "audiozoom_smooth": {
         "condition": "HEADER_AUDIO.value",
-        "order": 146,
+        "order": 920,
         "text": "ui_audiozoom_smooth",
         "type": "bool",
         "value": false
       },
-      "spacer_10": {
+      "spacer_22": {
         "condition": "HEADER_AUDIO.value",
-        "order": 147,
+        "order": 930,
         "text": "ui_spacer",
         "type": "text"
       },
-      "HEADER_TUNNEL": {
-        "order": 148,
-        "text": "ui_HEADER_TUNNEL",
+      "HEADER_ICUE": {
+        "order": 940,
+        "text": "ui_HEADER_ICUE",
         "type": "bool",
         "value": false
       },
-      "spacer_11": {
-        "condition": "HEADER_TUNNEL.value",
-        "order": 149,
+      "spacer_23": {
+        "condition": "HEADER_ICUE.value",
+        "order": 950,
         "text": "ui_spacer",
         "type": "text"
       },
-      "generate_tunnel": {
-        "condition": "HEADER_TUNNEL.value",
-        "order": 150,
-        "text": "ui_generate_tunnel",
-        "type": "bool",
-        "value": true
+      "icue_mode": {
+        "condition": "HEADER_ICUE.value",
+        "options": [
+          {
+            "label": "ui_icue_mode_0",
+            "value": 0
+          },
+          {
+            "label": "ui_icue_mode_1",
+            "value": 1
+          },
+          {
+            "label": "ui_icue_mode_2",
+            "value": 2
+          }
+        ],
+        "order": 960,
+        "text": "ui_icue_mode",
+        "type": "combo",
+        "value": 1
       },
-      "tunnel_inner_radius": {
-        "condition": "HEADER_TUNNEL.value && generate_tunnel.value",
+      "icue_area_xoff": {
+        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
         "editable": false,
-        "max": 25,
-        "min": 1,
-        "order": 151,
-        "text": "ui_tunnel_inner_radius",
+        "max": 100,
+        "min": 5,
+        "order": 970,
+        "text": "ui_icue_area_xoff",
         "type": "slider",
-        "value": 2
+        "value": 50
       },
-      "tunnel_outer_radius": {
-        "condition": "HEADER_TUNNEL.value && generate_tunnel.value",
+      "icue_area_yoff": {
+        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
         "editable": false,
-        "max": 25,
-        "min": 1,
-        "order": 152,
-        "text": "ui_tunnel_outer_radius",
+        "max": 100,
+        "min": 5,
+        "order": 980,
+        "text": "ui_icue_area_yoff",
         "type": "slider",
-        "value": 2
+        "value": 90
       },
-      "spacer_12": {
-        "condition": "HEADER_TUNNEL.value",
-        "order": 153,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_IMGS": {
-        "order": 154,
-        "text": "ui_HEADER_IMGS",
-        "type": "bool",
-        "value": false
-      },
-      "spacer_13": {
-        "condition": "HEADER_IMGS.value",
-        "order": 155,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "img_overlay": {
-        "condition": "HEADER_IMGS.value",
-        "order": 156,
-        "text": "ui_img_overlay",
-        "type": "file"
-      },
-      "img_background": {
-        "condition": "HEADER_IMGS.value",
-        "order": 157,
-        "text": "ui_img_background",
-        "type": "file"
-      },
-      "spacer_14": {
-        "condition": "HEADER_IMGS.value",
-        "order": 158,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_PARAMS": {
-        "order": 159,
-        "text": "ui_HEADER_PARAMS",
-        "type": "bool",
-        "value": false
-      },
-      "spacer_15": {
-        "condition": "HEADER_PARAMS.value",
-        "order": 160,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "alg_a_min": {
-        "condition": "HEADER_PARAMS.value",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 161,
-        "text": "ui_alg_a_min",
+      "icue_area_width": {
+        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "editable": false,
+        "max": 100,
+        "min": 5,
+        "order": 990,
+        "text": "ui_icue_area_width",
         "type": "slider",
-        "value": -25
+        "value": 75
       },
-      "alg_a_max": {
-        "condition": "HEADER_PARAMS.value",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 162,
-        "text": "ui_alg_a_max",
+      "icue_area_height": {
+        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "editable": false,
+        "max": 100,
+        "min": 5,
+        "order": 1000,
+        "text": "ui_icue_area_height",
         "type": "slider",
-        "value": 25
+        "value": 30
       },
-      "alg_b_min": {
-        "condition": "HEADER_PARAMS.value",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 163,
-        "text": "ui_alg_b_min",
-        "type": "slider",
-        "value": 0.25
-      },
-      "alg_b_max": {
-        "condition": "HEADER_PARAMS.value",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 164,
-        "text": "ui_alg_b_max",
-        "type": "slider",
-        "value": 1.7
-      },
-      "alg_c_min": {
-        "condition": "HEADER_PARAMS.value",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 165,
-        "text": "ui_alg_c_min",
-        "type": "slider",
-        "value": 5
-      },
-      "alg_c_max": {
-        "condition": "HEADER_PARAMS.value",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 166,
-        "text": "ui_alg_c_max",
-        "type": "slider",
-        "value": 16
-      },
-      "alg_d_min": {
-        "condition": "HEADER_PARAMS.value",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 167,
-        "text": "ui_alg_d_min",
+      "icue_area_blur": {
+        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "editable": false,
+        "max": 5,
+        "min": 0,
+        "order": 1010,
+        "text": "ui_icue_area_blur",
         "type": "slider",
         "value": 1
       },
-      "alg_d_max": {
-        "condition": "HEADER_PARAMS.value",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 168,
-        "text": "ui_alg_d_max",
+      "icue_area_decay": {
+        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "editable": false,
+        "max": 100,
+        "min": 0,
+        "order": 1020,
+        "text": "ui_icue_area_decay",
         "type": "slider",
-        "value": 9
+        "value": 20
       },
-      "alg_e_min": {
-        "condition": "HEADER_PARAMS.value",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 169,
-        "text": "ui_alg_e_min",
-        "type": "slider",
-        "value": 1
+      "icue_area_preview": {
+        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "order": 1030,
+        "text": "ui_icue_area_preview",
+        "type": "bool",
+        "value": false
       },
-      "alg_e_max": {
-        "condition": "HEADER_PARAMS.value",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 170,
-        "text": "ui_alg_e_max",
-        "type": "slider",
-        "value": 10
+      "icue_main_color": {
+        "condition": "HEADER_ICUE.value && icue_mode.value == 2",
+        "order": 1040,
+        "text": "ui_icue_main_color",
+        "type": "color",
+        "value": "0 0.8 0"
       },
-      "spacer_16": {
-        "condition": "HEADER_PARAMS.value",
-        "order": 171,
+      "spacer_24": {
+        "condition": "HEADER_ICUE.value",
+        "order": 1050,
         "text": "ui_spacer",
         "type": "text"
       },
       "HEADER_ADVANCED": {
-        "order": 172,
+        "order": 1060,
         "text": "ui_HEADER_ADVANCED",
         "type": "bool",
         "value": false
       },
-      "spacer_17": {
+      "spacer_25": {
         "condition": "HEADER_ADVANCED.value",
-        "order": 173,
+        "order": 1070,
         "text": "ui_spacer",
         "type": "text"
       },
       "ADVANCED_INFO": {
         "condition": "HEADER_ADVANCED.value",
-        "order": 174,
+        "order": 1080,
         "text": "ui_RELOAD_INFO",
         "type": "text"
       },
@@ -1808,7 +2135,7 @@
             "value": 2
           }
         ],
-        "order": 175,
+        "order": 1090,
         "text": "ui_stats_option",
         "type": "combo",
         "value": -1
@@ -1829,276 +2156,75 @@
             "value": "low"
           }
         ],
-        "order": 176,
+        "order": 1100,
         "text": "ui_shader_quality",
         "type": "combo",
         "value": "low"
-      },
-      "base_texture": {
-        "condition": "HEADER_ADVANCED.value",
-        "options": [
-          {
-            "label": "ui_base_texture_0",
-            "value": 0
-          },
-          {
-            "label": "ui_base_texture_1",
-            "value": 1
-          },
-          {
-            "label": "ui_base_texture_2",
-            "value": 2
-          }
-        ],
-        "order": 177,
-        "text": "ui_base_texture",
-        "type": "combo",
-        "value": 0
-      },
-      "texture_size": {
-        "condition": "HEADER_ADVANCED.value",
-        "editable": false,
-        "max": 25,
-        "min": 2,
-        "order": 178,
-        "text": "ui_texture_size",
-        "type": "slider",
-        "value": 6
       },
       "field_of_view": {
         "condition": "HEADER_ADVANCED.value",
         "editable": true,
         "max": 130,
         "min": 50,
-        "order": 179,
+        "order": 1110,
         "text": "ui_field_of_view",
         "type": "slider",
         "value": 70
-      },
-      "scaling_factor": {
-        "condition": "HEADER_ADVANCED.value",
-        "editable": true,
-        "max": 3000,
-        "min": 100,
-        "order": 180,
-        "text": "ui_scaling_factor",
-        "type": "slider",
-        "value": 1800
       },
       "camera_bound": {
         "condition": "HEADER_ADVANCED.value",
         "editable": true,
         "max": 4000,
         "min": 0,
-        "order": 181,
+        "order": 1120,
         "text": "ui_camera_bound",
         "type": "slider",
         "value": 1000
-      },
-      "num_levels": {
-        "condition": "HEADER_ADVANCED.value",
-        "editable": true,
-        "max": 32,
-        "min": 1,
-        "order": 182,
-        "text": "ui_num_levels",
-        "type": "slider",
-        "value": 6
-      },
-      "level_depth": {
-        "condition": "HEADER_ADVANCED.value",
-        "editable": true,
-        "max": 10000,
-        "min": 100,
-        "order": 183,
-        "text": "ui_level_depth",
-        "type": "slider",
-        "value": 1200
-      },
-      "num_subsets_per_level": {
-        "condition": "HEADER_ADVANCED.value",
-        "editable": true,
-        "max": 32,
-        "min": 1,
-        "order": 184,
-        "text": "ui_num_subsets_per_level",
-        "type": "slider",
-        "value": 12
-      },
-      "num_points_per_subset": {
-        "condition": "HEADER_ADVANCED.value",
-        "editable": true,
-        "max": 32000,
-        "min": 1024,
-        "order": 185,
-        "text": "ui_num_points_per_subset",
-        "type": "slider",
-        "value": 4096
       },
       "fog_thickness": {
         "condition": "HEADER_ADVANCED.value",
         "editable": true,
         "max": 10,
         "min": 1,
-        "order": 186,
+        "order": 1130,
         "text": "ui_fog_thickness",
         "type": "slider",
         "value": 3
       },
-      "level_shifting": {
+      "spacer_26": {
         "condition": "HEADER_ADVANCED.value",
-        "order": 187,
-        "text": "ui_level_shifting",
-        "type": "bool",
-        "value": true
-      },
-      "spacer_18": {
-        "condition": "HEADER_ADVANCED.value",
-        "order": 190,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_ICUE": {
-        "order": 191,
-        "text": "ui_HEADER_ICUE",
-        "type": "bool",
-        "value": false
-      },
-      "spacer_19": {
-        "condition": "HEADER_ICUE.value",
-        "order": 192,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "icue_mode": {
-        "condition": "HEADER_ICUE.value",
-        "options": [
-          {
-            "label": "ui_icue_mode_0",
-            "value": 0
-          },
-          {
-            "label": "ui_icue_mode_1",
-            "value": 1
-          },
-          {
-            "label": "ui_icue_mode_2",
-            "value": 2
-          }
-        ],
-        "order": 193,
-        "text": "ui_icue_mode",
-        "type": "combo",
-        "value": 1
-      },
-      "icue_area_xoff": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 100,
-        "min": 5,
-        "order": 194,
-        "text": "ui_icue_area_xoff",
-        "type": "slider",
-        "value": 50
-      },
-      "icue_area_yoff": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 100,
-        "min": 5,
-        "order": 195,
-        "text": "ui_icue_area_yoff",
-        "type": "slider",
-        "value": 90
-      },
-      "icue_area_width": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 100,
-        "min": 5,
-        "order": 196,
-        "text": "ui_icue_area_width",
-        "type": "slider",
-        "value": 75
-      },
-      "icue_area_height": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 100,
-        "min": 5,
-        "order": 197,
-        "text": "ui_icue_area_height",
-        "type": "slider",
-        "value": 30
-      },
-      "icue_area_blur": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 5,
-        "min": 0,
-        "order": 198,
-        "text": "ui_icue_area_blur",
-        "type": "slider",
-        "value": 1
-      },
-      "icue_area_decay": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 100,
-        "min": 0,
-        "order": 199,
-        "text": "ui_icue_area_decay",
-        "type": "slider",
-        "value": 20
-      },
-      "icue_area_preview": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "order": 200,
-        "text": "ui_icue_area_preview",
-        "type": "bool",
-        "value": false
-      },
-      "icue_main_color": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 2",
-        "order": 201,
-        "text": "ui_icue_main_color",
-        "type": "color",
-        "value": "0 0.8 0"
-      },
-      "spacer_20": {
-        "condition": "HEADER_ICUE.value",
-        "order": 202,
+        "order": 1140,
         "text": "ui_spacer",
         "type": "text"
       },
       "HEADER_MISC": {
-        "order": 203,
+        "order": 1150,
         "text": "ui_HEADER_MISC",
         "type": "bool",
         "value": false
       },
-      "spacer_21": {
+      "spacer_27": {
         "condition": "HEADER_MISC.value",
-        "order": 204,
+        "order": 1160,
         "text": "ui_spacer",
         "type": "text"
       },
       "seizure_warning": {
         "condition": "HEADER_MISC.value",
-        "order": 205,
+        "order": 1170,
         "text": "ui_seizure_warning",
         "type": "bool",
         "value": true
       },
       "debugging": {
         "condition": "HEADER_MISC.value",
-        "order": 206,
+        "order": 1180,
         "text": "ui_debugging",
         "type": "bool",
         "value": false
       },
       "HEADER_THANKS": {
-        "order": 207,
+        "order": 1190,
         "text": "ui_HEADER_THANKS",
         "type": "text"
       }
