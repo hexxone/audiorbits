@@ -3,6 +3,9 @@
  */
 
 THREE.LUTShader = {
+
+	shaderID: "LUTShader",
+
   uniforms: {
     tDiffuse: { value: null },
     lutMap: { value: null },
@@ -10,6 +13,9 @@ THREE.LUTShader = {
   },
 
   vertexShader: `
+      precision lowp float;
+      //shaderquality
+
       varying vec2 vUv;
       void main() {
         vUv = uv;
@@ -18,8 +24,11 @@ THREE.LUTShader = {
     `,
 
   fragmentShader: `
-      #include <common>
+      precision lowp float;
+      //shaderquality
 
+      #include <common>
+      
       #define FILTER_LUT true
 
       uniform sampler2D tDiffuse;

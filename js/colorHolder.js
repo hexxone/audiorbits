@@ -1,28 +1,38 @@
-
+/**
+ * @author D.Thiele @https://hexx.one
+ *
+ * @license
+ * Copyright (c) 2020 D.Thiele All rights reserved.  
+ * Licensed under the GNU GENERAL PUBLIC LICENSE.
+ * See LICENSE file in the project root for full license information.  
+ * 
+ * @description
+ * Contains color settings and objects for audiOrbits
+ * 
+ */
 
 var colorHolder = {
 
-    settings: {
-        num_subsets_per_level: 4096,
+	settings: {
+		num_subsets_per_level: 16,
 		// Color category
 		color_mode: 0,
 		user_color_a: "1 0.5 0",
 		user_color_b: "0 0.5 1",
 		color_fade_speed: 2,
-    },
+	},
 
 	// color data
-    hueValues: [],
+	hueValues: [],
 
 	// user colors converted from RGB to HSL
 	colorObject: null,
-    
-    // gets called when updating color picker
-    init: function() {
-        var self = colorHolder;
-        self.hueValues = [];
-        self.initHueValues();
-    },
+
+	// gets called when updating color picker
+	init: function () {
+		var self = colorHolder;
+		self.initHueValues();
+	},
 
 	// initialize hue-values by color mode
 	initHueValues: function () {
@@ -46,8 +56,8 @@ var colorHolder = {
 	getColorObject: function () {
 		var self = colorHolder;
 		var sett = self.settings;
-		var a = self.rgbToHue(sett.user_color_a.split(" ")).h;
-		var b = self.rgbToHue(sett.user_color_b.split(" ")).h;
+		var a = self.rgbToHue(sett.user_color_a).h;
+		var b = self.rgbToHue(sett.user_color_b).h;
 		var mi = Math.min(a, b);
 		var ma = Math.max(a, b);
 		return {
@@ -60,58 +70,27 @@ var colorHolder = {
 	},
 
 	// get HUE val
-	rgbToHue: function (arr) {
-		let rabs, gabs, babs, rr, gg, bb, h, s, v, diff, diffc, percentRoundFn;
-		rabs = arr[0] / 255;
-		gabs = arr[1] / 255;
-		babs = arr[2] / 255;
-		v = Math.max(rabs, gabs, babs),
-			diff = v - Math.min(rabs, gabs, babs);
-		diffc = c => (v - c) / 6 / diff + 1 / 2;
-		percentRoundFn = num => Math.round(num * 100) / 100;
-		if (diff == 0) {
-			h = s = 0;
-		} else {
-			s = diff / v;
-			rr = diffc(rabs);
-			gg = diffc(gabs);
-			bb = diffc(babs);
-
-			if (rabs === v) {
-				h = bb - gg;
-			} else if (gabs === v) {
-				h = (1 / 3) + rr - bb;
-			} else if (babs === v) {
-				h = (2 / 3) + gg - rr;
-			}
-			if (h < 0) {
-				h += 1;
-			} else if (h > 1) {
-				h -= 1;
-			}
-		}
-		return {
-			h: h,
-			s: s,
-			v: v
-		};
+	rgbToHue: function (r_g_b) {
+		const arr = r_g_b.split(" ");
+		const tmp = new THREE.Color(arr[0], arr[1], arr[2]);
+		var hsl = {};
+		tmp.getHSL(hsl);
+		return hsl;
 	},
 
 
-    update: function(ellapsed, deltaTime) {
-        var self = colorHolder;
-        var sett = self.settings;
+	// shift hue values
+	update: function (ellapsed, deltaTime) {
+		var self = colorHolder;
+		var sett = self.settings;
 
-		// shift hue values
 		if (sett.color_mode == 0) {
 			var hueAdd = (sett.color_fade_speed / 4000) * deltaTime;
-			for (var s = 0; s < sett.num_subsets_per_level - 1; s++) {
+			for (var s = 0; s < sett.num_subsets_per_level; s++) {
 				self.hueValues[s] += hueAdd;
 				if (self.hueValues[s] >= 1)
 					self.hueValues[s] -= 1;
 			}
 		}
-
-
-    }
+	}
 }

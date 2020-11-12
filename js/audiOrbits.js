@@ -28,6 +28,8 @@
  * 		- add "center"-mode for camera?
  * - record "how to debug"-video?
  * - highlight seizure text on white BG
+ * - fix reload notification
+ * - add missing reload trigger texts
  * 
  * - fix translations
  * - split shaders from context
@@ -39,7 +41,13 @@
  * 
  * - implement 3x new dropdown settings
  * - implement audio max saturation & brightness
- * - outsource code (geometry,shaders)
+ * 
+ * - use buffer for geometry colors?
+ * - calculate in weasWorker?
+ * - weas_custom branch?
+ * 
+ * - add new re-init vars
+ * - remove "misc" category
 */
 
 // custom logging function
@@ -63,8 +71,6 @@ var audiOrbits = {
 	// for more explanation on settings visit the Workshop-Item-Forum (link above)
 	settings: {
 		schemecolor: "0 0 0",
-		// mirrored setting
-		scaling_factor: 1800,
 		// Advanced
 		stats_option: -1,
 		shader_quality: "low",
@@ -83,8 +89,6 @@ var audiOrbits = {
 	resetTimespan: 3,
 	resetTimeout: null,
 
-	// html elements
-	container: null,
 
 	// interval for swirlHandler
 	swirlInterval: null,
@@ -111,7 +115,7 @@ var audiOrbits = {
 
 		// possible apply-targets
 		var settStorage = [sett, weas.settings, weicue.settings, colorHolder.settings,
-							ctxHolder.settings, geoHolder.settings];
+			ctxHolder.settings, shaderHolder.settings, geoHolder.settings];
 
 		// loop all settings for updated values
 		for (var setting in props) {
@@ -210,7 +214,6 @@ var audiOrbits = {
 		print("initializing...");
 		var self = audiOrbits;
 		var sett = self.settings;
-
 		// No WebGL ? o.O
 		if (!THREE || !Detector.webgl) {
 			Detector.addGetWebGLMessage();
@@ -221,19 +224,13 @@ var audiOrbits = {
 		ThreePatcher.patch();
 		THREE.Cache.enabled = true;
 
-		// static element
-		self.container = document.getElementById("renderContainer");
-
 		// init plugins
 		lutSetup.run();
 		weicue.init();
 
-		// initialize
-		self.initSystem();
-
 		// initialize wrapper
 		var initWrap = () => {
-			$("#mainCvs").addClass("show");
+			self.initSystem();
 			self.popupMessage("<h1>" + document.title + "</h1>", true);
 		};
 
@@ -247,21 +244,16 @@ var audiOrbits = {
 		print("re-initializing...");
 		// Lifetime variables
 		var self = audiOrbits;
-
-		self.swirlStep = 0;
 		// hide reloader
 		ReloadHelper.Hide();
 		// kill intervals
 		clearInterval(self.swirlInterval);
+		self.swirlStep = 0;
 		// kill stats
 		if (self.stats) self.stats.dispose();
 		self.stats = null;
-		// stop frame animation
-		ctxHolder.setRenderer(false);
 		// actual re-init
 		self.initSystem();
-		// show again
-		$("#mainCvs").addClass("show");
 	},
 
 	// initialize the geometric & grpahics system
@@ -269,17 +261,19 @@ var audiOrbits = {
 	initSystem: function () {
 		// Lifetime variables
 		var self = audiOrbits;
-		// initialize geometry
-		geoHolder.init((threeObjects) => {
-			// initialize three js with some scene objects
-			ctxHolder.init(threeObjects);
+		// prepare shaders
+		ShaderQuality.Inject(self.settings.shader_quality,
+			[THREE.BlendShader, THREE.BlurShader, THREE.FractalMirrorShader,
+			THREE.FXAAShader, THREE.LuminosityHighPassShader, THREE.LUTShader]);
+		// initialize three js and add geometry to returned scene
+		geoHolder.init(ctxHolder.init(), () => {
 			// start auto parallax handler
 			self.swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
-			// start rendering
-			ctxHolder.setRenderer(true);
 			// print
 			print("initializing complete.", true);
-		})
+			// start rendering
+			ctxHolder.setRenderer(true);
+		});
 	},
 
 
@@ -333,7 +327,8 @@ window.wallpaperPropertyListener = {
 			audiOrbits.resetTimeout = setTimeout(audiOrbits.reInitSystem, audiOrbits.resetTimespan * 1000);
 			// show reloader
 			ReloadHelper.Show();
-			$("#mainCvs").removeClass("show");
+			// stop frame animation
+			ctxHolder.setRenderer(false);
 		}
 	},
 	setPaused: (isPaused) => {
