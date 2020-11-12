@@ -14,6 +14,9 @@ THREE.BlendShader = {
 
     // default vertex shader
     vertexShader: `
+        precision lowp float;
+        //shaderquality
+
         varying vec2 vUv;
 
         void main() {
@@ -24,11 +27,8 @@ THREE.BlendShader = {
 
     // simple blending Shader
     fragmentShader: `
-        #ifdef GL_FRAGMENT_PRECISION_HIGH
-        precision highp float;
-        #else
-        precision mediump float;
-        #endif
+        precision lowp float;
+        //shaderquality
 
 		uniform sampler2D tDiffuse;
         uniform sampler2D overlayBuffer;

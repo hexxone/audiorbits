@@ -22,6 +22,9 @@ THREE.FractalMirrorShader = {
   },
 
   vertexShader: `
+    precision lowp float;
+    //shaderquality
+
     varying vec2 vUv;
 
     void main() {
@@ -31,11 +34,8 @@ THREE.FractalMirrorShader = {
     `,
 
   fragmentShader: `
-    #ifdef GL_FRAGMENT_PRECISION_HIGH
-    precision highp float;
-    #else
     precision lowp float;
-    #endif
+    //shaderquality
 
     uniform sampler2D tDiffuse;
     uniform vec2 iResolution;

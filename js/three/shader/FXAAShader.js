@@ -18,6 +18,10 @@ THREE.FXAAShader = {
 	},
 
 	vertexShader: [
+		"",
+        "precision lowp float;",
+        "//shaderquality",
+		"",
 		"varying vec2 vUv;",
 		"void main() {",
 		"	vUv = uv;",
@@ -26,11 +30,9 @@ THREE.FXAAShader = {
 	].join("\n"),
 
 	fragmentShader: [
-		"#ifdef GL_FRAGMENT_PRECISION_HIGH",
-		"precision highp float;",
-		"#else",
-		"precision mediump float;",
-		"#endif",
+		"",
+        "precision lowp float;",
+        "//shaderquality",
 		"",
 		"uniform sampler2D tDiffuse;",
 		"",
