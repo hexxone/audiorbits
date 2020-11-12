@@ -17,6 +17,8 @@
  * - implement ps4 experiment
  * - implement cloud experiment
  * - new color mode "level splitting"?
+ * 
+ * - experimental: set buffergeometry drawrange on audio?
  */
 
 
@@ -65,6 +67,12 @@ var geoHolder = {
 		audiozoom_val: 2,
 		only_forward: false,
 		audiozoom_smooth: false,
+		// time-value smoothing ratio
+		// mirrored on WEAS
+		audio_increase: 75,
+		audio_decrease: 35,
+		// experimental on points material
+		sAttenuation: false,
 	},
 
 	// main orbit data
@@ -82,7 +90,7 @@ var geoHolder = {
 	afterRenderQueue: [],
 
 	// initialize geometry generator, data & objects
-	init: function (callback) {
+	init: function (scene, call) {
 		var self = geoHolder;
 		var sett = self.settings;
 		// reset generator
@@ -102,21 +110,19 @@ var geoHolder = {
 			self.levelWorker.addEventListener('error', self.levelError, false);
 		}
 
-		// load texture async and init geometry
+		var texture = null;
+		// load texture sync and init geometry
 		if (sett.geometry_type == 0) {
 			print("loading Texture: " + sett.base_texture_path);
-			new THREE.TextureLoader().load(sett.base_texture_path,
-				(tex) => self.initGeometries(callback, tex),
-				undefined,
-				self.textureError
-			);
+			texture = new THREE.TextureLoader().load(sett.base_texture_path);
 		}
-		// initialize direct
-		else self.initGeometries(callback)
+
+		// initialize
+		self.initGeometries(scene, call, texture);
 	},
 
 	// create WEBGL objects for each level and subset
-	initGeometries: function (callback, texture) {
+	initGeometries: function (scene, call, texture) {
 		var self = geoHolder;
 		var sett = self.settings;
 
@@ -129,13 +135,11 @@ var geoHolder = {
 			transparent: true
 		};
 
-		if (texture) matprops.map = texture;
+		if (texture != null) matprops.map = texture;
 
 		// reset Orbit data
 		self.levels = [];
 		self.moveBacks = [];
-
-		var tObjects = [];
 
 		var hues = colorHolder.hueValues;
 		var subsetDist = sett.level_depth / sett.num_subsets_per_level;
@@ -147,23 +151,26 @@ var geoHolder = {
 			var sets = [];
 			// build all subsets
 			for (var s = 0; s < sett.num_subsets_per_level; s++) {
+				
 				// create particle geometry from orbit vertex data
 				var geometry = new THREE.BufferGeometry();
 
 				// position attribute (2 vertices per point, thats pretty illegal)
 				geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2));
 
-				// create particle material with map & size
+				// create material
 				var material = new THREE.PointsMaterial(matprops);
+
 				// set material defaults
-				material.color.setHSL(hues[s], 0, 0);
+				material.color.setHSL(hues[s], sett.default_saturation / 100, sett.default_brightness / 100);
+
 				// create particle system from geometry and material
 				var particles = new THREE.Points(geometry, material);
-				particles.myMaterial = material;
 				particles.myLevel = l;
 				particles.mySubset = s;
 				particles.position.x = 0;
 				particles.position.y = 0;
+				// position in space
 				if (sett.level_shifting) {
 					particles.position.z = - sett.level_depth * l - (s * subsetDist * 2) + sett.scaling_factor / 2;
 					if (l % 2 != 0) particles.position.z -= subsetDist;
@@ -173,10 +180,7 @@ var geoHolder = {
 				particles.rotation.z = -0.785398;
 				particles.needsUpdate = false;
 				// add to scene
-				tObjects.push(particles);
-				sets[s] = {
-					child: particles
-				};
+				scene.add(sets[s] = particles);
 			}
 			// create level object
 			self.levels[l] = {
@@ -195,10 +199,15 @@ var geoHolder = {
 				}
 				// prepare new orbit levels for the first reset/moveBack already
 				for (var l = 0; l < sett.num_levels; l++) {
+					// make new vertex shit 
+					for(var s = 0; s < sett.num_subsets_per_level; s++) {
+						self.levels[l].subsets[s].geometry.computeVertexNormals();
+					}
+					// prepare next position shit
 					self.generateLevel(l);
 				}
 				// tell parent to continue
-				if (callback) callback(tObjects);
+				if (call) call();
 			};
 
 			// generate levels in web worker
@@ -207,7 +216,7 @@ var geoHolder = {
 			}
 		}
 		// call directly
-		else if (callback) callback(tObjects);
+		else if (call) call();
 	},
 
 	// failed to load texture
@@ -240,8 +249,8 @@ var geoHolder = {
 				// copy end index
 				var tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset) * 2;
 				// slice & set xyzBuffer data, then update child
-				subbs[s].child.geometry.attributes.position.set(xyzBuf.slice(from, tooo), 0);
-				subbs[s].child.needsUpdate = true;
+				subbs[s].geometry.attributes.position.set(xyzBuf.slice(from, tooo), 0);
+				subbs[s].needsUpdate = true;
 			});
 		}
 
@@ -277,7 +286,7 @@ var geoHolder = {
 		var sett = self.settings;
 
 		// calculate boost strength & step size if data given
-		var flmult = (15 + sett.audio_multiplier) * 0.02;
+		var flmult = (15 + sett.audio_multiplier) / 65;
 		var spvn = sett.zoom_val / 1.5 * deltaTime;
 
 		// audio stuff
@@ -287,8 +296,6 @@ var geoHolder = {
 			spvn = (spvn + sett.audiozoom_val / 3) * deltaTime;
 			// get 
 			lastAudio = weas.lastAudio;
-			// debug
-			print("Audio data: "  + JSON.stringify(lastAudio.data))
 			// calc audio boost
 			boost = lastAudio.intensity * flmult;
 			// calculate step distance between levels
@@ -296,16 +303,22 @@ var geoHolder = {
 			// speed velocity calculation
 			if (sett.audiozoom_val > 0)
 				spvn += sett.zoom_val * boost * 0.01 + boost * sett.audiozoom_val * 0.03 * deltaTime;
+
 		}
 
 		// speed / zoom smoothing
 		if (!hasAudio || sett.audiozoom_smooth) {
-			spvn -= ((spvn - self.speedVelocity) * sett.audio_smoothing / 1000);
+			var diff = spvn - self.speedVelocity;
+			var mlt = diff > 0 ? sett.audio_increase : sett.audio_decrease;
+			spvn -= diff * mlt / 300;
 		}
 		// no negative zoom?
 		if (sett.only_forward && spvn < 0) {
 			spvn = 0;
 		}
+		// debug
+		print("Audio data: " + JSON.stringify([lastAudio, boost, step, self.speedVelocity, spvn]))
+
 		self.speedVelocity = spvn;
 
 		// rotation calculation
@@ -317,6 +330,7 @@ var geoHolder = {
 		var sixtyDelta = deltaTime * 2000;
 		var colObject = colorHolder.colorObject;
 		var hues = colorHolder.hueValues;
+
 		// get targeted saturations
 		var defSat = sett.default_saturation / 100;
 		var minSat = sett.minimum_saturation / 100;
@@ -326,22 +340,25 @@ var geoHolder = {
 		var minBri = sett.minimum_brightness / 100;
 		var maxBri = sett.maximum_brightness / 100;
 
-		// dont re-declare this shit every time... should be faster
-		var lv, level, ss, set, child, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
+		// this is a bit hacky
+		var camPos = sett.scaling_factor / 2;
 
-		// TODO this is a bit hacky
-		var camPos = ctxHolder.camera.position;
+		// dont re-declare this shit every time... should be faster
+		var lv, level, ss, child, dist, freqIdx, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
 
 		// process all levels
 		for (lv = 0; lv < self.levels.length; lv++) {
 			level = self.levels[lv];
 			// process all subset childrens
 			for (ss = 0; ss < level.subsets.length; ss++) {
-				set = level.subsets[ss];
-				child = set.child;
+				child = level.subsets[ss];
+
+				// velocity & rotation
+				child.position.z += spvn;
+				child.rotation.z -= rot;
 
 				// reset if out of bounds
-				if (child.position.z > camPos.z) {
+				if (child.position.z > camPos) {
 					// offset to back
 					//print("moved back child: " + i);
 					child.position.z -= sett.num_levels * sett.level_depth;
@@ -364,9 +381,11 @@ var geoHolder = {
 
 				// HSL calculation with audio?
 				if (hasAudio) {
-					// use obj to camera distance with step to get frequency from data >> do some frequency calculations
-					// get & process frequency data
-					freqData = parseFloat(lastAudio.data[Math.round((camPos.z - child.position.z) / step) + 4]);
+					// use "obj"-to-"camera" distance with "step" to get "frequency" data
+					// then process it
+					dist = Math.round((camPos - child.position.z) / step);
+					freqIdx = Math.min(lastAudio.data.length, Math.max(0, dist - 2));
+					freqData = parseFloat(lastAudio.data[freqIdx]);
 					freqLvl = (freqData * flmult / 3) / lastAudio.max;
 					// uhoh ugly special case
 					if (sett.color_mode == 4)
@@ -376,11 +395,16 @@ var geoHolder = {
 					// quick maths
 					setHue = tmpHue % 1.0;
 					setSat = Math.abs(minSat + freqLvl + freqLvl * boost * 0.07);
-					setLight = Math.min(0.7, minBri + freqLvl + freqLvl * boost * 0.01);
+					setLight = Math.abs(minBri + freqLvl + freqLvl * boost * 0.01);
+
+					//print("Debug: " + JSON.stringify([step, freqIdx, freqData, freqLvl, tmpHue]))
 				}
 				else {
 					// get current HSL
-					hsl = child.myMaterial.color.getHSL({});
+					hsl = {};
+					child.material.color.getHSL(hsl);
+					print("got hsl: " + JSON.stringify(hsl));
+
 					setHue = hsl.h;
 					setSat = hsl.s;
 					setLight = hsl.l;
@@ -394,12 +418,16 @@ var geoHolder = {
 					if (Math.abs(defBri - setLight) > 0.01)
 						setLight += (defBri - setLight) / sixtyDelta;
 				}
-				// update dat shit
+				// debug
 				print("setHSL | child: " + (lv * level.subsets.length + ss) + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
-				child.myMaterial.color.setHSL(
+
+				// update dat shit
+				//child.material.color.setHSL( self.clamp(setHue, 0, 1, true), 1, 0.7);
+				/*child.material.color.setHSL(
 					self.clamp(setHue, 0, 1, true),
 					self.clamp(setSat, 0, maxSat),
-					self.clamp(setLight, 0, maxBri));
+					self.clamp(setLight, 0, maxBri));*/
+				child.material.color.setHSL(setHue, setSat, setLight);
 			}
 		}
 
@@ -417,8 +445,6 @@ var geoHolder = {
 			if (val < min) return max - val;
 			return val % max;
 		}
-		else {
-			return Math.max(Math.min(val, max), min);
-		}
+		else return Math.max(Math.min(val, max), min);
 	}
 }

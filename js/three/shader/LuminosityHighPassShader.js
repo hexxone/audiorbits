@@ -18,6 +18,9 @@ THREE.LuminosityHighPassShader = {
 	},
 
 	vertexShader: `
+		precision lowp float;
+		//shaderquality
+
 		varying vec2 vUv;
 
 		void main() {
@@ -27,11 +30,8 @@ THREE.LuminosityHighPassShader = {
 	`,
 
 	fragmentShader: `
-		#ifdef GL_FRAGMENT_PRECISION_HIGH
-		precision highp float;
-		#else
-		precision mediump float;
-		#endif
+        precision lowp float;
+        //shaderquality
 
 		uniform sampler2D tDiffuse;
 		uniform vec3 defaultColor;

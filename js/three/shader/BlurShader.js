@@ -15,8 +15,9 @@ THREE.BlurShader = {
 
     // Default vertex shader
     vertexShader: `
-        precision mediump float;
-    
+        precision lowp float;
+        //shaderquality
+
         varying vec2 vUv;
     
         void main() {
@@ -27,11 +28,8 @@ THREE.BlurShader = {
 
     // Simple Chromatic Aberration Shader
     fragmentShader: `
-        #ifdef GL_FRAGMENT_PRECISION_HIGH
-        precision highp float;
-        #else
-        precision mediump float;
-        #endif
+        precision lowp float;
+        //shaderquality
 
         varying vec2 vUv;
 
