@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/tsc",
+        //"allowJs": true,
+        "target": "es2015",
+        "module": "es2015",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "types": [
+            "jquery"
+        ],
+    },
+    "include": [
+        "./src/**/*.ts",
+        "./we_utils/**/*.ts"
+    ]
+}
