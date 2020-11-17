@@ -129,13 +129,12 @@ var geoHolder = {
 		print("building geometries.");
 		// material properties
 		var matprops = {
+			map: texture,
 			size: sett.texture_size,
 			blending: THREE.AdditiveBlending,
 			depthTest: false,
 			transparent: true
 		};
-
-		if (texture != null) matprops.map = texture;
 
 		// reset Orbit data
 		self.levels = [];
@@ -145,22 +144,23 @@ var geoHolder = {
 		var subsetDist = sett.level_depth / sett.num_subsets_per_level;
 		// build all levels
 		for (var l = 0; l < sett.num_levels; l++) {
+			// create level object
+			self.levels[l] = {
+				myLevel: l,
+				subsets: []
+			};
 			// set subset moveback counter
 			self.moveBacks[l] = 0;
-			// keep temp
-			var sets = [];
 			// build all subsets
 			for (var s = 0; s < sett.num_subsets_per_level; s++) {
-				
+
 				// create particle geometry from orbit vertex data
 				var geometry = new THREE.BufferGeometry();
-
 				// position attribute (2 vertices per point, thats pretty illegal)
 				geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2));
 
 				// create material
 				var material = new THREE.PointsMaterial(matprops);
-
 				// set material defaults
 				material.color.setHSL(hues[s], sett.default_saturation / 100, sett.default_brightness / 100);
 
@@ -180,13 +180,9 @@ var geoHolder = {
 				particles.rotation.z = -0.785398;
 				particles.needsUpdate = false;
 				// add to scene
-				scene.add(sets[s] = particles);
+				scene.add(particles);
+				self.levels[l].subsets[s] = particles;
 			}
-			// create level object
-			self.levels[l] = {
-				myLevel: l,
-				subsets: sets
-			};
 		}
 
 		// run fractal generator for "default" / "particle" mode
