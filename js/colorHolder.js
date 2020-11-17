@@ -31,12 +31,6 @@ var colorHolder = {
 	// gets called when updating color picker
 	init: function () {
 		var self = colorHolder;
-		self.initHueValues();
-	},
-
-	// initialize hue-values by color mode
-	initHueValues: function () {
-		var self = colorHolder;
 		var sett = self.settings;
 		var cobj = self.colorObject = self.getColorObject();
 		print("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb);

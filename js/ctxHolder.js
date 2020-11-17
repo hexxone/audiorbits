@@ -41,6 +41,7 @@ var ctxHolder = {
 		fps_value: 60,
 		// mirrored setting
 		scaling_factor: 1800,
+		fog_thickness: 3,
 	},
 
 	// html elements
