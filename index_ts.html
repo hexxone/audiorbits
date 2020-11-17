@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<!-- AudiOrbits main html file - One is everything and everything is one -->
+
+<head>
+  <!-- Meta and style stuff -->
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1">
+  <title>AudiOrbits 2.4</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <!-- load compiled typescript library -->
+  <script type="module" src="dist/min/src/audiOrbits.js"></script>
+</head>
+
+<body>
+  <img id="img_back" />
+  <div id="renderContainer">
+    <canvas id="mainCvs"></canvas>
+  </div>
+  <img id="img_over" />
+  <div id="debugwnd">
+    <h2>Debug logging active for 1 minute!</h2>
+  </div>
+  <div id="txtholder" class="polygon"></div>
+  <script>
+    ///////////////////////////////////////////////
+    // Actual Initialisation
+    ///////////////////////////////////////////////
+    const AudiOrbits = reqiuirejs('audiOrbits');
+    var audiOrbits = new AudiOrbits();
+  </script>
+</body>
+
+</html>

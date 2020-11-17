@@ -39,9 +39,11 @@ var ctxHolder = {
 		camera_bound: 1000,
 		custom_fps: false,
 		fps_value: 60,
+		// offtopic
+		fog_thickness: 3,
+		stats_option: -1,
 		// mirrored setting
 		scaling_factor: 1800,
-		fog_thickness: 3,
 	},
 
 	// html elements

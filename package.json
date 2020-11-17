@@ -1,0 +1,30 @@
+{
+  "name": "audiorbits",
+  "version": "2.4.0",
+  "description": "Web Wallpaper for Wallpaper Engine",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "minify": "uglifyjs-folder ./dist/tsc -eo ./dist/min -x .js",
+    "dist": "npm run build && npm run minify"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hexxone/audiorbits.git"
+  },
+  "author": "hexxone",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/hexxone/audiorbits/issues"
+  },
+  "homepage": "https://github.com/hexxone/audiorbits#readme",
+  "dependencies": {
+    "@types/jquery": "^3.5.4",
+    "jquery": "^3.5.1",
+    "stats-js": "^1.0.1",
+    "three": "^0.122.0"
+  },
+  "devDependencies": {
+    "uglifyjs-folder": "^2.0.0"
+  }
+}

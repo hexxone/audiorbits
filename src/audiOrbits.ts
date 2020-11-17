@@ -50,75 +50,128 @@
  * - remove "misc" category
 */
 
+import { ctxHolder } from './ctxHolder';
+import { ReloadHelper } from '../we_utils/src/ReloadHelper';
+import { WarnHelper } from '../we_utils/src/WarnHelper';
+
+
 // custom logging function
-function print(arg, force) {
-	if (audiOrbits.debug || force) console.log("AudiOrbits: " + JSON.stringify(arg));
+var debug: boolean = false;
+function print(arg, force?) {
+	if (debug || force) console.log("AudiOrbits: " + JSON.stringify(arg));
 }
 
 // what's the wallpaper currently doing?
-var RunState = {
-	None: 0,
-	Initializing: 1,
-	Running: 2,
-	Paused: 3,
-	ReInitializing: 4
-};
+enum RunState {
+	None = 0,
+	Initializing = 1,
+	Running = 2,
+	Paused = 3,
+	ReInitializing = 4
+}
 
 // base object for wallpaper
-var audiOrbits = {
+export class audiOrbits {
 	// holds default wallpaper settings
 	// these basically connect 1:1 to wallpaper engine settings.
 	// for more explanation on settings visit the Workshop-Item-Forum (link above)
-	settings: {
+	settings = {
 		schemecolor: "0 0 0",
 		// Advanced
+		stats_option: -1,
 		shader_quality: "low",
 		// Misc category
 		seizure_warning: true,
-	},
+		// mirrored setting
+		parallax_option: 0,
+		auto_parallax_speed: 1
+	};
 
 	// state of the Wallpaper
-	state: 0,
+	state: RunState = RunState.None;
 
 	// debugging
-	debug: false,
-	debugTimeout: null,
+	debugTimeout: number = null;
 	// Seconds & interval for reloading the wallpaper
-	resetTimespan: 3,
-	resetTimeout: null,
-
+	resetTimespan: number = 3;
+	resetTimeout: number = null;
 
 	// interval for swirlHandler
-	swirlInterval: null,
-	swirlStep: 0,
+	swirlInterval: number = null;
+	swirlStep: number = 0;
+
+	// important objects
+	ctxHolder: ctxHolder = new ctxHolder();
+	reloadHelper: ReloadHelper = new ReloadHelper();
+	warnHelper: WarnHelper = new WarnHelper();
+
+	constructor() {
+		// will apply settings edited in Wallpaper Engine
+		// this will also cause initialization for the first time
+		window['wallpaperPropertyListener'] = {
+			applyGeneralProperties: (props) => {
+
+			},
+			applyUserProperties: (props) => {
+				var initFlag = this.applyCustomProps(props);
+				// very first initialization
+				if (this.state == RunState.None) {
+					this.state = RunState.Initializing;
+					$(() => this.initOnce());
+				}
+				else if (initFlag) {
+					this.state = RunState.ReInitializing;
+					print("got reInit-flag from applying settings!", true);
+					if (this.resetTimeout) clearTimeout(this.resetTimeout);
+					this.resetTimeout = setTimeout(this.reInitSystem, this.resetTimespan * 1000);
+					// show reloader
+					this.reloadHelper.Show();
+					// stop frame animation
+					this.ctxHolder.setRenderer(false);
+				}
+			},
+			setPaused: (isPaused) => {
+				if (this.state == RunState.Paused) {
+					if (isPaused) return;
+					this.state = RunState.Running;
+				}
+				else if (this.state == RunState.Running) {
+					if (!isPaused) return;
+					this.state = RunState.Paused;
+				}
+				console.log("Set pause: " + isPaused);
+				this.ctxHolder.setRenderer(isPaused);
+			}
+		};
+
+	}
 
 	///////////////////////////////////////////////
 	// APPLY SETTINGS
 	///////////////////////////////////////////////
 
 	// Apply settings from the project.json "properties" object and takes certain actions
-	applyCustomProps: function (props) {
+	applyCustomProps(props) {
 		print("applying settings: " + Object.keys(props).length);
 
-		var _ignore = ["debugging", "img_overlay", "img_background", "base_texture", "mirror_invalid_val"];
+		const _ignore: string[] = ["debugging", "img_overlay", "img_background", "base_texture", "mirror_invalid_val"];
 
-		var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "icue_mode",
+		const _reInit: string[] = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "icue_mode",
 			"scaling_factor", "camera_bound", "num_points_per_subset", "num_subsets_per_level",
 			"num_levels", "level_depth", "level_shifting", "bloom_filter", "lut_filter", "mirror_shader",
 			"mirror_invert", "fx_antialiasing", "blur_strength", "custom_fps", "shader_quality"];
 
-		var self = audiOrbits;
-		var sett = self.settings;
+		var sett = this.settings;
 		var reInitFlag = false;
 
 		// possible apply-targets
-		var settStorage = [sett, weas.settings, weicue.settings, colorHolder.settings,
-			ctxHolder.settings, shaderHolder.settings, geoHolder.settings];
+		var settStorage = [sett, this.ctxHolder.settings, this.ctxHolder.weas.settings, this.ctxHolder.weicue.settings,
+			this.ctxHolder.colorHolder.settings, this.ctxHolder.shaderHolder.settings, this.ctxHolder.geoHolder.settings];
 
 		// loop all settings for updated values
 		for (var setting in props) {
 			// ignore this setting or apply it manually
-			if (_ignore.includes(setting) || setting.startsWith("HEADER_")) continue;
+			if (_ignore.indexOf(setting) > -1 || this.startsWith(setting, "HEADER_")) continue;
 			// get the updated setting
 			var prop = props[setting];
 			// check typing
@@ -138,17 +191,15 @@ var audiOrbits = {
 						storage[setting] = prop.value;
 
 					// set re-init flag if value changed and included in list
-					reInitFlag = reInitFlag || b4Setting != storage[setting] && _reInit.includes(setting);
+					reInitFlag = reInitFlag || b4Setting != storage[setting] && _reInit.indexOf(setting) > -1;
 				}
 			}
 			// invalid?
 			if (!found) print("Unknown setting: " + setting + ". Are you using an old preset?", true);
 		}
 
-		// update preview visbility after setting possibly changed
-		weicue.updatePreview();
-		// update parallax -> mouse settings
-		ctxHolder.updateSettings();
+		// update parallax / weicue settings
+		this.ctxHolder.updateSettings();
 
 		// Custom bg color
 		if (props.main_color) {
@@ -159,109 +210,94 @@ var audiOrbits = {
 
 		// Custom user images
 		if (props.img_background)
-			self.setImgSrc("#img_back", props.img_background.value);
+			this.setImgSrc("#img_back", props.img_background.value);
 		if (props.img_overlay)
-			self.setImgSrc("#img_over", props.img_overlay.value);
+			this.setImgSrc("#img_over", props.img_overlay.value);
 
 		// re-initialize colors if mode or user value changed
 		if (props.color_mode || props.user_color_a || props.user_color_b) {
-			colorHolder.init();
+			this.ctxHolder.colorHolder.init();
 		}
 
 		// debug logging
-		if (props.debugging) self.debug = props.debugging.value == true;
-		if (!self.debug && self.debugTimeout) {
-			clearTimeout(self.debugTimeout);
-			self.debugTimeout = null;
+		if (props.debugging) debug = props.debugging.value == true;
+		if (!debug && this.debugTimeout) {
+			clearTimeout(this.debugTimeout);
+			this.debugTimeout = null;
 		}
-		if (self.debug && !self.debugTimeout)
-			self.debugTimeout = setTimeout(() => self.applyCustomProps({ debugging: { value: false } }), 1000 * 60);
-		$("#debugwnd").css("visibility", self.debug ? "visible" : "hidden");
+		if (debug && !this.debugTimeout)
+			this.debugTimeout = setTimeout(() => this.applyCustomProps({ debugging: { value: false } }), 1000 * 60);
+		$("#debugwnd").css("visibility", debug ? "visible" : "hidden");
 
 		// have render-relevant settings been changed?
 		return reInitFlag;
-	},
+	}
+
+	startsWith(str, word) {
+		return str.lastIndexOf(word, 0) === 0;
+	}
 
 	// Set Image
-	setImgSrc: function (imgID, srcVal) {
+	setImgSrc(imgID: string, srcVal: string) {
 		$(imgID).fadeOut(1000, () => {
 			if (srcVal && srcVal !== "") {
 				$(imgID).attr("src", "file:///" + srcVal);
 				$(imgID).fadeIn(1000);
 			}
 		});
-	},
+	}
 
 
 	///////////////////////////////////////////////
 	// INITIALIZE
 	///////////////////////////////////////////////
 
-	initOnce: function () {
+	initOnce() {
 		print("initializing...");
-		var self = audiOrbits;
-		var sett = self.settings;
-		// No WebGL ? o.O
-		if (!THREE || !Detector.webgl) {
-			Detector.addGetWebGLMessage();
-			return;
-		}
-
+		var sett = this.settings;
 		// bruh...
 		ThreePatcher.patch();
-		THREE.Cache.enabled = true;
 
-		// init plugins
-		lutSetup.run();
-		weicue.init();
+		// TODO
+		//THREE.Cache.enabled = true;
 
 		// initialize wrapper
 		var initWrap = () => {
-			self.initSystem();
-			self.popupMessage("<h1>" + document.title + "</h1>", true);
+			this.initSystem();
+			this.popupMessage("<h1>" + document.title + "</h1>", true);
 		};
 
 		// show seizure warning before initializing?
 		if (!sett.seizure_warning) initWrap();
-		else WarnHelper.Show(initWrap);
-	},
+		else this.warnHelper.Show(initWrap);
+	}
 
 	// re-initialies the walpaper after some time
-	reInitSystem: function () {
+	reInitSystem() {
 		print("re-initializing...");
-		// Lifetime variables
-		var self = audiOrbits;
 		// hide reloader
-		ReloadHelper.Hide();
+		this.reloadHelper.Hide();
 		// kill intervals
-		clearInterval(self.swirlInterval);
-		self.swirlStep = 0;
-		// kill stats
-		if (self.stats) self.stats.dispose();
-		self.stats = null;
+		clearInterval(this.swirlInterval);
+		this.swirlStep = 0;
 		// actual re-init
-		self.initSystem();
-	},
+		this.initSystem();
+	}
 
 	// initialize the geometric & grpahics system
 	// => starts rendering loop afterwards
-	initSystem: function () {
-		// Lifetime variables
-		var self = audiOrbits;
-		// prepare shaders
-		ShaderQuality.Inject(self.settings.shader_quality,
-			[THREE.BlendShader, THREE.BlurShader, THREE.FractalMirrorShader,
-			THREE.FXAAShader, THREE.LuminosityHighPassShader, THREE.LUTShader]);
+	initSystem() {
 		// initialize three js and add geometry to returned scene
-		geoHolder.init(ctxHolder.init(), () => {
+		this.ctxHolder.init(() => {
 			// start auto parallax handler
-			self.swirlInterval = setInterval(self.swirlHandler, 1000 / 60);
+			this.swirlInterval = setInterval(this.swirlHandler, 1000 / 60);
 			// print
 			print("initializing complete.", true);
 			// start rendering
-			ctxHolder.setRenderer(true);
+			this.ctxHolder.setRenderer(true);
+			this.state = RunState.Running;
 		});
-	},
+	}
 
 
 	///////////////////////////////////////////////
@@ -269,18 +305,17 @@ var audiOrbits = {
 	///////////////////////////////////////////////
 
 	// Auto Parallax handler
-	swirlHandler: function () {
-		var self = audiOrbits;
-		var sett = self.settings;
+	swirlHandler() {
+		var sett = this.settings;
 		if (sett.parallax_option != 2) return;
-		self.swirlStep += sett.auto_parallax_speed / 8;
-		if (self.swirlStep > 360) self.swirlStep -= 360;
-		else if (self.swirlStep < 0) self.swirlStep += 360;
-		ctxHolder.positionMouseAngle(self.swirlStep);
-	},
+		this.swirlStep += sett.auto_parallax_speed / 8;
+		if (this.swirlStep > 360) this.swirlStep -= 360;
+		else if (this.swirlStep < 0) this.swirlStep += 360;
+		this.ctxHolder.positionMouseAngle(this.swirlStep);
+	}
 
 	// popup message handler
-	popupMessage: function (msg, hideAfter) {
+	popupMessage(msg, hideAfter) {
 		$("#txtholder").html(msg);
 		$("#txtholder").fadeIn({ queue: false, duration: "slow" });
 		$("#txtholder").animate({ bottom: "40px" }, "slow");
@@ -288,46 +323,5 @@ var audiOrbits = {
 			$("#txtholder").fadeOut({ queue: false, duration: "slow" });
 			$("#txtholder").animate({ bottom: "-40px" }, "slow");
 		}, 7000);
-	}
-};
-
-
-///////////////////////////////////////////////
-// Actual Initialisation
-///////////////////////////////////////////////
-
-// will apply settings edited in Wallpaper Engine
-// this will also cause initialization for the first time
-window.wallpaperPropertyListener = {
-	applyGeneralProperties: (props) => { },
-	applyUserProperties: (props) => {
-		var initFlag = audiOrbits.applyCustomProps(props);
-		// very first initialization
-		if (audiOrbits.state == RunState.None) {
-			audiOrbits.state = RunState.Initializing;
-			$(() => audiOrbits.initOnce());
-		}
-		else if (initFlag) {
-			audiOrbits.state = RunState.ReInitializing;
-			print("got reInit-flag from applying settings!", true);
-			if (audiOrbits.resetTimeout) clearTimeout(audiOrbits.resetTimeout);
-			audiOrbits.resetTimeout = setTimeout(audiOrbits.reInitSystem, audiOrbits.resetTimespan * 1000);
-			// show reloader
-			ReloadHelper.Show();
-			// stop frame animation
-			ctxHolder.setRenderer(false);
-		}
-	},
-	setPaused: (isPaused) => {
-		if (audiOrbits.state == RunState.Paused) {
-			if (isPaused) return;
-			audiOrbits.state = RunState.Running;
-		}
-		else if (audiOrbits.state == RunState.Running) {
-			if (!isPaused) return;
-			audiOrbits.state = RunState.Paused;
-		}
-		console.log("Set pause: " + isPaused);
-		ctxHolder.setRenderer(isPaused);
 	}
 };
