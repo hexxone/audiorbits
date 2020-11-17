@@ -8,18 +8,18 @@
       "de-de": {
         "ui_spacer": "======================<br><br>",
         "ui_splitt": "--------------------------------------",
-        "ui_RELOAD_INFO": "<h4><small>⚠️ Nach dem ändern dieser Einstellungen lädt das Wallpaper automatisch neu ⚠️</small></h4>",
+        "ui_RELOAD_INFO": "<h4><small>🔃 Nach dem ändern dieser Einstellungen lädt das Wallpaper automatisch neu 🔃</small></h4>",
         "ui_HEADER_GEOMETRY": "<h4>📐 <u>Geometrie</u></h4>",
-        "ui_geometry_type": "Geometrie-Variante",
+        "ui_geometry_type": "Geometrie-Variante 🔃",
         "ui_geometry_type_0": "Textur",
         "ui_geometry_type_1": "Partikel",
         "ui_geometry_type_2": "Test 1",
         "ui_geometry_type_3": "Test 2",
-        "ui_base_texture": "Basis Textur",
+        "ui_base_texture": "Basis Textur 🔃",
         "ui_base_texture_0": "Galaxy",
         "ui_base_texture_1": "Cuboid",
         "ui_base_texture_2": "Fractal",
-        "ui_texture_size": "Textur Größe",
+        "ui_texture_size": "Textur Größe 🔃",
         "ui_HEADER_PARAMS": "🧬 <u>Parameter anzeigen</u>",
         "ui_alg_a_max": "Param A Maximum",
         "ui_alg_a_min": "Param A Minimum",
@@ -34,12 +34,12 @@
         "ui_generate_tunnel": "⭕️ <u>Tunnel generieren</u>",
         "ui_tunnel_inner_radius": "Tunnel Größe",
         "ui_tunnel_outer_radius": "Tunnel Wand",
-        "ui_scaling_factor": "Skalierung",
-        "ui_num_levels": "Level Anzahl",
-        "ui_level_depth": "Level Tiefe",
-        "ui_level_shifting": "Level Shifting",
-        "ui_num_points_per_subset": "Punkte pro Subset",
-        "ui_num_subsets_per_level": "Subsets pro Level",
+        "ui_scaling_factor": "Skalierung 🔃",
+        "ui_num_levels": "Level Anzahl 🔃",
+        "ui_level_depth": "Level Tiefe 🔃",
+        "ui_level_shifting": "Level Shifting 🔃",
+        "ui_num_points_per_subset": "Punkte pro Subset 🔃",
+        "ui_num_subsets_per_level": "Subsets pro Level 🔃",
         "ui_HEADER_PRLX": "<h4>🎥 <u>Kamera</u></h4>",
         "ui_parallax_angle": "Rotations-winkel",
         "ui_parallax_option": "Parallax",
@@ -50,6 +50,8 @@
         "ui_parallax_strength": "Stärke",
         "ui_auto_parallax_speed": "Geschwindigkeit",
         "ui_camera_bound": "Kamera Pos.",
+        "ui_custom_fps": "Eigenes Rendering 🔃",
+        "ui_fps_value": "FPS Ziel",
         "ui_field_of_view": "Field of View",
         "ui_fog_thickness": "Nebeldichte",
         "ui_HEADER_MOVEMENT": "<h4>⏫ <u>Bewegung</u></h4>",
@@ -72,20 +74,20 @@
         "ui_color_fade_speed": "Farbwechsel-Geschw.",
         "ui_HEADER_SATURATION": "<h4>📊 <u>Sättigung</u></h4>",
         "ui_default_saturation": "Standard Sättigung",
-        "ui_minimum_saturation": "Minimum Sättigung",
-        "ui_maximum_saturation": "Maximum Sättigung",
+        "ui_minimum_saturation": "🔊 Minimum Sättigung",
+        "ui_maximum_saturation": "🔊 Maximum Sättigung",
         "ui_HEADER_BRIGHTNESS": "<h4>🔆 <u>Helligkeit</u></h4>",
         "ui_default_brightness": "Standard Helligkeit",
-        "ui_minimum_brightness": "Minimum Helligkeit",
-        "ui_maximum_brightness": "Maximum Helligkeit",
+        "ui_minimum_brightness": "🔊 Minimum Helligkeit",
+        "ui_maximum_brightness": "🔊 Maximum Helligkeit",
         "ui_HEADER_FILTER": "<h4>🕶 <u>Shader</u></h4>",
-        "ui_bloom_filter": "Bloom",
-        "ui_blur_strength": "Blur",
-        "ui_fx_antialiasing": "FXAA",
-        "ui_mirror_shader": "Spiegel",
-        "ui_mirror_invert": "Spiegel invertieren",
+        "ui_bloom_filter": "Bloom 🔃",
+        "ui_blur_strength": "Blur 🔃",
+        "ui_fx_antialiasing": "FXAA 🔃",
+        "ui_mirror_shader": "Spiegel 🔃",
+        "ui_mirror_invert": "Spiegel invertieren 🔃",
         "ui_mirror_invalid_val": "<h4><small>Der Wert Darf nicht 1 sein! Nehme bitte 0 oder mindestens 2!</small></h4>",
-        "ui_lut_filter": "LookUpTable",
+        "ui_lut_filter": "LookUpTable 🔃",
         "ui_lut_filter_0": "Aus",
         "ui_lut_filter_1": "Posterisieren",
         "ui_lut_filter_2": "Invers",
@@ -95,8 +97,8 @@
         "ui_img_overlay": "Vordergrund",
         "ui_HEADER_AUDIO": "<h4>🔊 <u>Audio</u></h4>",
         "ui_HEADER_NO_AUDIO": "<h4>🔇 <u>Audio ist deaktiviert!</u></h4>",
-        "equalize": "Equalizer",
-        "mono_audio": "Mono Audio",
+        "ui_equalize": "Equalizer",
+        "ui_mono_audio": "Mono Audio",
         "ui_audio_direction": "Audio-Richtung",
         "ui_audio_direction_0": "Tiefen nah, Höhen fern",
         "ui_audio_direction_1": "Höhen nah, Tiefen fern",
@@ -122,14 +124,12 @@
         "ui_icue_mode_1": "Projektion",
         "ui_icue_mode_2": "Farbe",
         "ui_HEADER_ADVANCED": "<h4>⚙️ <u>Erweitert</u></h4>",
-        "ui_custom_fps": "Eigenes Rendering",
-        "ui_fps_value": "FPS Ziel",
-        "ui_stats_option": "Statistiken",
+        "ui_stats_option": "Statistiken 🔃",
         "ui_stats_option_0": "Keine",
         "ui_stats_option_1": "FPS",
         "ui_stats_option_2": "MS",
         "ui_stats_option_3": "MB",
-        "ui_shader_quality": "Shader Qualität",
+        "ui_shader_quality": "Shader Qualität 🔃",
         "ui_shader_quality_1": "Niedrig",
         "ui_shader_quality_2": "Mittel",
         "ui_shader_quality_3": "Hoch",
@@ -149,10 +149,21 @@
     },
     "properties": {
       "schemecolor": {
-        "order": 10,
+        "order": 0,
         "text": "ui_browse_properties_scheme_color",
         "type": "color",
         "value": "0 0 0"
+      },
+      "SPACER_00": {
+        "order": 5,
+        "text": "ui_spacer",
+        "type": "text",
+        "value": false
+      },
+      "banner_reload": {
+        "order": 10,
+        "text": "ui_RELOAD_INFO",
+        "type": "text"
       },
       "SPACER_01": {
         "order": 20,
@@ -691,7 +702,7 @@
         "value": 60
       },
       "minimum_brightness": {
-        "condition": "HEADER_BRIGHTNESS.value",
+        "condition": "HEADER_BRIGHTNESS.value && audioprocessing.value",
         "editable": false,
         "max": 100,
         "min": 1,
@@ -701,7 +712,7 @@
         "value": 10
       },
       "maximum_brightness": {
-        "condition": "HEADER_BRIGHTNESS.value",
+        "condition": "HEADER_BRIGHTNESS.value && audioprocessing.value",
         "editable": false,
         "max": 100,
         "min": 1,
@@ -739,7 +750,7 @@
         "value": 75
       },
       "minimum_saturation": {
-        "condition": "HEADER_SATURATION.value",
+        "condition": "HEADER_SATURATION.value && audioprocessing.value",
         "editable": false,
         "max": 100,
         "min": 1,
@@ -749,7 +760,7 @@
         "value": 10
       },
       "maximum_saturation": {
-        "condition": "HEADER_SATURATION.value",
+        "condition": "HEADER_SATURATION.value && audioprocessing.value",
         "editable": false,
         "max": 100,
         "min": 1,
@@ -774,12 +785,6 @@
         "condition": "HEADER_FILTER.value",
         "order": 680,
         "text": "ui_splitt",
-        "type": "text"
-      },
-      "filter_reload": {
-        "condition": "HEADER_FILTER.value",
-        "order": 690,
-        "text": "ui_RELOAD_INFO",
         "type": "text"
       },
       "bloom_filter": {
@@ -913,16 +918,16 @@
       "equalize": {
         "condition": "HEADER_AUDIO.value && audioprocessing.value",
         "order": 850,
-        "text": "ui_equzalize",
+        "text": "ui_equalize",
         "type": "bool",
-        "value": false
+        "value": true
       },
       "mono_audio": {
         "condition": "HEADER_AUDIO.value && audioprocessing.value",
         "order": 860,
         "text": "ui_mono_audio",
         "type": "bool",
-        "value": false
+        "value": true
       },
       "audio_direction": {
         "condition": "HEADER_AUDIO.value && audioprocessing.value",
@@ -1156,12 +1161,6 @@
         "text": "ui_splitt",
         "type": "text"
       },
-      "ADVANCED_INFO": {
-        "condition": "HEADER_ADVANCED.value",
-        "order": 1120,
-        "text": "ui_RELOAD_INFO",
-        "type": "text"
-      },
       "stats_option": {
         "condition": "HEADER_ADVANCED.value",
         "options": [
@@ -1238,40 +1237,28 @@
         "type": "slider",
         "value": 3
       },
-      "SPACER_26": {
+      "seizure_warning": {
         "condition": "HEADER_ADVANCED.value",
         "order": 1180,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_MISC": {
-        "order": 1190,
-        "text": "ui_HEADER_MISC",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_27": {
-        "condition": "HEADER_MISC.value",
-        "order": 1200,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "seizure_warning": {
-        "condition": "HEADER_MISC.value",
-        "order": 1210,
         "text": "ui_seizure_warning",
         "type": "bool",
         "value": true
       },
       "debugging": {
-        "condition": "HEADER_MISC.value",
-        "order": 1220,
+        "condition": "HEADER_ADVANCED.value",
+        "order": 1190,
         "text": "ui_debugging",
         "type": "bool",
         "value": false
       },
+      "SPACER_26": {
+        "condition": "HEADER_ADVANCED.value",
+        "order": 1200,
+        "text": "ui_spacer",
+        "type": "text"
+      },
       "HEADER_THANKS": {
-        "order": 1230,
+        "order": 1210,
         "text": "ui_HEADER_THANKS",
         "type": "text"
       }
