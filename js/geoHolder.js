@@ -31,7 +31,7 @@ var geoHolder = {
 		level_shifting: false,
 		num_subsets_per_level: 12,
 		num_points_per_subset: 4096,
-		base_texture_path: "./img/galaxy.png",
+		base_texture: 0,
 		texture_size: 7,
 		// Tunnel generator
 		generate_tunnel: false,
@@ -113,8 +113,14 @@ var geoHolder = {
 		var texture = null;
 		// load texture sync and init geometry
 		if (sett.geometry_type == 0) {
-			print("loading Texture: " + sett.base_texture_path);
-			texture = new THREE.TextureLoader().load(sett.base_texture_path);
+			// get texture path
+			var texPth = "./img/galaxy.png";
+			switch (sett.base_texture) {
+				case 1: texPth = "./img/cuboid.png"; break;
+				case 2: texPth = "./img/fractal.png"; break;
+			}
+			print("loading Texture: " + texPth);
+			texture = new THREE.TextureLoader().load(texPth);
 		}
 
 		// initialize
@@ -196,7 +202,7 @@ var geoHolder = {
 				// prepare new orbit levels for the first reset/moveBack already
 				for (var l = 0; l < sett.num_levels; l++) {
 					// make new vertex shit 
-					for(var s = 0; s < sett.num_subsets_per_level; s++) {
+					for (var s = 0; s < sett.num_subsets_per_level; s++) {
 						self.levels[l].subsets[s].geometry.computeVertexNormals();
 					}
 					// prepare next position shit
@@ -418,12 +424,13 @@ var geoHolder = {
 				print("setHSL | child: " + (lv * level.subsets.length + ss) + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
 
 				// update dat shit
-				//child.material.color.setHSL( self.clamp(setHue, 0, 1, true), 1, 0.7);
-				/*child.material.color.setHSL(
+				child.material.color.setHSL(
 					self.clamp(setHue, 0, 1, true),
 					self.clamp(setSat, 0, maxSat),
-					self.clamp(setLight, 0, maxBri));*/
-				child.material.color.setHSL(setHue, setSat, setLight);
+					self.clamp(setLight, 0, maxBri));
+
+				//child.material.color.setHSL(setHue, setSat, setLight);
+				//child.material.color.setHSL( self.clamp(setHue, 0, 1, true), 1, 0.7);
 			}
 		}
 
