@@ -2,9 +2,9 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
-import { Pass } from './EffectComposer';
+import { HelpPass } from "./HelpPass";
 
-export class RenderPass extends Pass {
+export class RenderPass extends HelpPass {
 
 	scene = null;
 	camera = null;
@@ -18,7 +18,6 @@ export class RenderPass extends Pass {
 
 	constructor(scene, camera, overrideMaterial, clearColor, clearAlpha) {
 		super();
-		Pass.call(this);
 
 		this.scene = scene;
 		this.camera = camera;

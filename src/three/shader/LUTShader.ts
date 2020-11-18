@@ -2,9 +2,11 @@
  * @author D.Thiele @https://hexx.one
  */
 
-export class LUTShader {
+import { BaseShader } from "./BaseShader";
 
-	shaderID = "LUTShader";
+export class LUTShader extends BaseShader {
+
+  shaderID = "LUTShader";
 
   uniforms = {
     tDiffuse: { value: null },
@@ -70,8 +72,4 @@ export class LUTShader {
         gl_FragColor = tempColor;
       }
     `;
-}
-
-export class LUTShaderNearest extends LUTShader {
-  fragmentShader = new LUTShader().fragmentShader.replace('#define FILTER_LUT', '//');
 }

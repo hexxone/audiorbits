@@ -2,21 +2,21 @@
  * @author alteredq / http://alteredqualia.com/
  */
 import * as THREE from 'three';
+import { BaseShader } from '../shader/BaseShader';
 
-import {Pass,FullScreenQuad} from './EffectComposer';
+import { FullScreenQuad } from "./FullScreenQuad";
+import { HelpPass } from "./HelpPass";
 
-export class ShaderPass extends Pass {
+export class ShaderPass extends HelpPass {
 
 	textureID = null;
 	uniforms = null;
-	material = null;
-	fsQuad = null;
+	material: THREE.Material = null;
+	fsQuad: FullScreenQuad = null;
 	renderToScreen = false;
 
-	constructor(shader, textureID = "tDiffuse") {
+	constructor(shader: BaseShader, textureID = "tDiffuse") {
 		super();
-
-		Pass.call(this);
 		this.textureID = textureID;
 
 		if (shader instanceof THREE.ShaderMaterial) {
@@ -34,13 +34,14 @@ export class ShaderPass extends Pass {
 		this.fsQuad = new FullScreenQuad(this.material);
 	}
 
-	
+
 	render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
 
 		if (this.uniforms[this.textureID])
 			this.uniforms[this.textureID].value = readBuffer.texture;
 
-		this.fsQuad.material = this.material;
+		// @TODO does this work?
+		//this.fsQuad.material = this.material;
 
 		if (this.renderToScreen) {
 			renderer.setRenderTarget(null);

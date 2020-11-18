@@ -4,7 +4,11 @@
  * Full-screen textured quad shader
  */
 
-export class CopyShader {
+import { BaseShader } from "./BaseShader"
+
+export class CopyShader extends BaseShader {
+
+	shaderID = "copyShader";
 
 	uniforms = {
 		tDiffuse: { value: null },
@@ -32,4 +36,4 @@ export class CopyShader {
 			gl_FragColor = opacity * texel;
 		}
 	`
-};
+}

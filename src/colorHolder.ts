@@ -39,7 +39,7 @@ export class colorHolder {
 	colorObject: ColorObject = null;
 
 	// gets called when updating color picker
-	init () {
+	init() {
 		var sett = this.settings;
 		var cobj = this.colorObject = this.getColorObject();
 		console.log("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb);
@@ -56,7 +56,7 @@ export class colorHolder {
 	}
 
 	// returns the processed user color object
-	getColorObject () {
+	getColorObject() {
 		var sett = this.settings;
 		var a = this.rgbToHue(sett.user_color_a).h;
 		var b = this.rgbToHue(sett.user_color_b).h;
