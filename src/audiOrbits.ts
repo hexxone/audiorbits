@@ -49,7 +49,6 @@
  * - add new re-init vars
  * - remove "misc" category
 */
-
 import { ctxHolder } from './ctxHolder';
 import { ReloadHelper } from '../we_utils/src/ReloadHelper';
 import { WarnHelper } from '../we_utils/src/WarnHelper';
@@ -106,6 +105,7 @@ export class audiOrbits {
 	warnHelper: WarnHelper = new WarnHelper();
 
 	constructor() {
+		console.log("AudiOrbits running...");
 		// will apply settings edited in Wallpaper Engine
 		// this will also cause initialization for the first time
 		window['wallpaperPropertyListener'] = {
@@ -123,7 +123,7 @@ export class audiOrbits {
 					this.state = RunState.ReInitializing;
 					print("got reInit-flag from applying settings!", true);
 					if (this.resetTimeout) clearTimeout(this.resetTimeout);
-					this.resetTimeout = setTimeout(this.reInitSystem, this.resetTimespan * 1000);
+					this.resetTimeout = setTimeout(() => this.reInitSystem(), this.resetTimespan * 1000);
 					// show reloader
 					this.reloadHelper.Show();
 					// stop frame animation
@@ -254,11 +254,9 @@ export class audiOrbits {
 
 	initOnce() {
 		print("initializing...");
-		var sett = this.settings;
-		// bruh...
-		ThreePatcher.patch();
 
-		// TODO
+		// @TODO
+		//ThreePatcher.patch();
 		//THREE.Cache.enabled = true;
 
 		// initialize wrapper
@@ -268,7 +266,7 @@ export class audiOrbits {
 		};
 
 		// show seizure warning before initializing?
-		if (!sett.seizure_warning) initWrap();
+		if (!this.settings.seizure_warning) initWrap();
 		else this.warnHelper.Show(initWrap);
 	}
 
@@ -290,7 +288,7 @@ export class audiOrbits {
 		// initialize three js and add geometry to returned scene
 		this.ctxHolder.init(() => {
 			// start auto parallax handler
-			this.swirlInterval = setInterval(this.swirlHandler, 1000 / 60);
+			this.swirlInterval = setInterval(() => this.swirlHandler(), 1000 / 60);
 			// print
 			print("initializing complete.", true);
 			// start rendering
@@ -306,9 +304,8 @@ export class audiOrbits {
 
 	// Auto Parallax handler
 	swirlHandler() {
-		var sett = this.settings;
-		if (sett.parallax_option != 2) return;
-		this.swirlStep += sett.auto_parallax_speed / 8;
+		if (this.settings.parallax_option != 2) return;
+		this.swirlStep += this.settings.auto_parallax_speed / 8;
 		if (this.swirlStep > 360) this.swirlStep -= 360;
 		else if (this.swirlStep < 0) this.swirlStep += 360;
 		this.ctxHolder.positionMouseAngle(this.swirlStep);
@@ -325,3 +322,9 @@ export class audiOrbits {
 		}, 7000);
 	}
 };
+
+
+///////////////////////////////////////////////
+// Actual Initialisation
+///////////////////////////////////////////////
+const _ = new audiOrbits();

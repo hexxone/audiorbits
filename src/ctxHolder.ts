@@ -26,8 +26,8 @@ import { VRButton } from './VRButton';
 import { EffectComposer } from './three/postprocessing/EffectComposer';
 
 import Stats from '../we_utils/src/Stats';
-import {WEAS} from '../we_utils/src/WEAS';
-import {WEICUE} from '../we_utils/src/WEICUE';
+import { WEAS } from '../we_utils/src/WEAS';
+import { WEICUE } from '../we_utils/src/WEICUE';
 
 
 // VRButton, geoHolder, colorHolder
@@ -75,31 +75,27 @@ export class ctxHolder {
 	composer = null;
 	camera = null;
 	scene = null;
-	clock = null;
 	stats = null;
+	clock = new THREE.Clock();
 
 	// custom render timing
 	renderTimeout = null;
 
 	// window half size
-	windowHalfX = 0;
-	windowHalfY = 0;
+	windowHalfX = window.innerWidth / 2;
+	windowHalfY = window.innerHeight / 2;
 
 	// important objects
-	weas: WEAS = null;
-	weicue: WEICUE = null;
-	colorHolder: colorHolder = null;
-	shaderHolder: shaderHolder = null;
+	colorHolder: colorHolder = new colorHolder();
+	shaderHolder: shaderHolder = new shaderHolder();
+	lutSetup: lutSetup = new lutSetup();
+	weas: WEAS = new WEAS();
+
 	geoHolder: geoHolder = null;
-	lutSetup: lutSetup = null;
+	weicue: WEICUE = null;
 
 	// add global listeners
 	constructor() {
-		// static element
-		this.container = document.getElementById("renderContainer");
-		// deltaTime-calculation helper
-		this.clock = new THREE.Clock();
-
 		// mouse listener
 		var mouseUpdate = (event) => {
 			if (this.settings.parallax_option != 1) return;
@@ -127,15 +123,15 @@ export class ctxHolder {
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 		}, false);
 
-		
-		// init plugins
-		this.lutSetup = new lutSetup();
-		this.weicue.init();
-
+		// init modules on document ready
+		this.geoHolder = new geoHolder(this.weas);
+		this.weicue = new WEICUE(this.weas);
 	}
 
 	// initialize three-js context
 	init(callback) {
+		// static element
+		this.container = document.getElementById("renderContainer");
 
 		// destroy old context
 		if (this.renderer) this.renderer.forceContextLoss();
@@ -218,7 +214,7 @@ export class ctxHolder {
 		if (this.settings.parallax_option == 0) this.mouseX = this.mouseY = 0;
 		// set Cursor for "fixed" parallax mode
 		if (this.settings.parallax_option == 3) this.positionMouseAngle(this.settings.parallax_angle);
-		
+
 		// update preview visbility after setting possibly changed
 		this.weicue.updatePreview();
 	}
@@ -246,10 +242,10 @@ export class ctxHolder {
 			this.PAUSED = false;
 			// initialize rendering
 			if (this.settings.custom_fps) {
-				this.renderTimeout = setTimeout(this.renderLoop, 1000 / this.settings.fps_value);
+				this.renderTimeout = setTimeout(() => this.renderLoop(), 1000 / this.settings.fps_value);
 			}
 			else if (this.renderer) {
-				this.renderer.setAnimationLoop(this.renderLoop);
+				this.renderer.setAnimationLoop(() => this.renderLoop());
 			}
 			else console.log("not initialized!");
 			// show again
@@ -257,18 +253,22 @@ export class ctxHolder {
 		}
 		else {
 			this.PAUSED = true;
-		} $("#mainCvs").removeClass("show");
+			$("#mainCvs").removeClass("show");
+		}
 	}
 
 	// root render frame call
 	renderLoop() {
 		// paused - stop render
 		if (this.PAUSED) return;
+
 		// custom rendering needs manual re-call
-		if (this.renderTimeout) this.renderTimeout = setTimeout(this.renderLoop, 1000 / this.settings.fps_value);
+		if (this.renderTimeout)
+			this.renderTimeout = setTimeout(() => this.renderLoop(), 1000 / this.settings.fps_value);
 
 		// track FPS, mem etc.
-		if (this.stats) this.stats.begin();
+		if (this.stats)
+			this.stats.begin();
 		// Figure out how much time passed since the last animation and calc delta
 		// Minimum we should reach is 1 FPS
 		var ellapsed = Math.min(1, Math.max(0.001, this.clock.getDelta()));
@@ -276,14 +276,18 @@ export class ctxHolder {
 
 		// render before updating
 		this.composer.render();
+
 		// update objects
 		this.colorHolder.update(ellapsed, delta);
 		this.geoHolder.update(ellapsed, delta);
 		this.update(ellapsed, delta);
+
 		// ICUE PROCESSING
 		this.weicue.updateCanvas(this.mainCanvas);
+
 		// end stats
-		if (this.stats) this.stats.end();
+		if (this.stats)
+			this.stats.end();
 	}
 
 
@@ -340,5 +344,4 @@ export class ctxHolder {
 		this.mouseX = w * Math.sin(ang);
 		this.mouseY = w * Math.cos(ang);
 	}
-
 }

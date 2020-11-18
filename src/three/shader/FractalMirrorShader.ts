@@ -9,9 +9,11 @@
  * @description
  * Inspired by ackleyrc: https://www.shadertoy.com/view/llXcRl 
  */
-import * as THREE from 'three';
 
-export class FractalMirrorShader {
+import * as THREE from 'three';
+import { BaseShader } from './BaseShader';
+
+export class FractalMirrorShader extends BaseShader {
 
   shaderID = "fractalMirror";
 
@@ -22,7 +24,7 @@ export class FractalMirrorShader {
     invert: { value: false }
   };
 
-  vertexShader: `
+  vertexShader = `
     precision lowp float;
     //shaderquality
 
@@ -34,7 +36,7 @@ export class FractalMirrorShader {
     }
     `;
 
-  fragmentShader: `
+  fragmentShader = `
     precision lowp float;
     //shaderquality
 
@@ -66,4 +68,4 @@ export class FractalMirrorShader {
       gl_FragColor = texture2D(tDiffuse, transformed);
     }
   `;
-};
+}

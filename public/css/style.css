@@ -24,6 +24,7 @@ body {
     text-align: center;
     font-weight: 700;
     color: #fff;
+    height: 100vh;
 }
 
 #img_back, #img_over {

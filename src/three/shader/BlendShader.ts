@@ -1,9 +1,10 @@
 /**
  * @author D.Thiele @https://hexx.one
  */
-import * as THREE from 'three';
 
-export class BlendShader {
+import { BaseShader } from "./BaseShader";
+
+export class BlendShader extends BaseShader {
 
     shaderID = "blendShader";
 
@@ -43,4 +44,4 @@ export class BlendShader {
 			gl_FragColor = vec4(diff, 1.0);
 		}
     `;
-};
+}
