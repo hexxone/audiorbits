@@ -32,6 +32,13 @@ Please head over to the Workshop-Page for a full list (see title for the link).
 
 ### Changelog:
 
+Version 2.4:
+- Add Audio "Stereo" Mode
+- Add Audio "Direction" Mode
+- Add Movement "Direction" Mode
+- Completely reworked Settings categories
+- internally Switch to TypeScript
+
 Version 2.3:
 - added "shader_quality"-setting (Advanced)
 - outsourced and restructured most libraries

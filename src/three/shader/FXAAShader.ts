@@ -8,20 +8,21 @@
  * http://www.glge.org/demos/fxaa/
  */
 import * as THREE from 'three';
+import { BaseShader } from './BaseShader';
 
-export class FXAAShader {
+export class FXAAShader extends BaseShader {
 
 	shaderID = "fxaaShader";
 
 	uniforms = {
-		"tDiffuse": { value: null },
-		"resolution": { value: new THREE.Vector2(1 / 1024, 1 / 512) }
-	};
+		tDiffuse: { value: null },
+		resolution: { value: new THREE.Vector2(1 / 1024, 1 / 512) }
+	}
 
 	vertexShader = [
 		"",
-        "precision lowp float;",
-        "//shaderquality",
+		"precision lowp float;",
+		"//shaderquality",
 		"",
 		"varying vec2 vUv;",
 		"void main() {",
@@ -32,8 +33,8 @@ export class FXAAShader {
 
 	fragmentShader = [
 		"",
-        "precision lowp float;",
-        "//shaderquality",
+		"precision lowp float;",
+		"//shaderquality",
 		"",
 		"uniform sampler2D tDiffuse;",
 		"",

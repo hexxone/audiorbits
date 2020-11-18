@@ -43,7 +43,7 @@ export class EffectComposer {
 		this.passes = [];
 
 		// dependencies
-		this.copyPass = new ShaderPass(CopyShader);
+		this.copyPass = new ShaderPass(new CopyShader());
 		this._previousFrameTime = Date.now();
 	}
 
@@ -118,47 +118,3 @@ export class EffectComposer {
 		}
 	}
 }
-
-
-export class Pass {
-	// if set to true, the pass is processed by the composer
-	enabled = true;
-	// if set to true, the pass indicates to swap read and write buffer after rendering
-	needsSwap = true;
-	// if set to true, the pass clears its buffer before rendering
-	clear = false;
-	// if set to true, the result of the pass is rendered to screen. This is set automatically by EffectComposer.
-	renderToScreen = false;
-
-	setSize(width, height) { }
-
-	render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
-		console.error('THREE.Pass: .render() must be implemented in derived pass.');
-	}
-};
-
-// Helper for passes that need to fill the viewport with a single quad.
-export class FullScreenQuad {
-	camera = null;
-	geometry = null;
-	mesh = null;
-	_mat = null;
-	material = {
-		get: function () {
-			return this._mesh.material;
-		},
-		set: function (value) {
-			this._mesh.material = value;
-		}
-	}
-	constructor(material) {
-		this._mat = material;
-		this.camera = new THREE.OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
-		this.geometry = new THREE.PlaneBufferGeometry(2, 2);
-		this.mesh = new THREE.Mesh(this.geometry, material);
-	}
-	render (renderer) {
-		renderer.render(this.mesh, this.camera);
-	}
-}
-

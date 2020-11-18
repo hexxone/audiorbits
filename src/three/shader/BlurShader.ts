@@ -2,8 +2,9 @@
  * @author D.Thiele @https://hexx.one
  */
 import * as THREE from 'three';
+import { BaseShader } from './BaseShader';
 
-export class BlurShader {
+export class BlurShader extends BaseShader {
 
     shaderID = "blurShader";
 
@@ -66,4 +67,4 @@ export class BlurShader {
             gl_FragColor = vec4(gaussCol.rgb, alphaV);
         }
     `
-};
+}

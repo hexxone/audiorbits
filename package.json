@@ -4,9 +4,16 @@
   "description": "Web Wallpaper for Wallpaper Engine",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "minify": "uglifyjs-folder ./dist/tsc -eo ./dist/min -x .js",
-    "dist": "npm run build && npm run minify"
+    "clean": "rm -rf ./dist",
+    "clean-win": "Rmdir /S \"dist\"",
+    "tsc": "tsc",
+    "babel": "babel dist/tsc --out-dir dist/babel --source-maps",
+    "webpack": "webpack",
+    "pack": "cp -R public dist/pack",
+    "pack-win": "xcopy public\\*.* dist\\pack\\ /e /i /y /s",
+    "build-win": "yarn run clean-win && yarn run tsc && yarn run babel && yarn run webpack && yarn run pack-win",
+    "build": "yarn run clean && yarn run tsc && yarn run babel && yarn run webpack && yarn run pack",
+    "startdev": "webpack serve"
   },
   "repository": {
     "type": "git",
@@ -25,6 +32,10 @@
     "three": "^0.122.0"
   },
   "devDependencies": {
-    "uglifyjs-folder": "^2.0.0"
+    "babel-plugin-transform-define": "^2.0.0",
+    "circular-dependency-plugin": "^5.2.2",
+    "webpack": "^5.5.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.11.0"
   }
 }

@@ -22,9 +22,9 @@
  */
 
 import * as THREE from 'three';
-import { WEAS } from '../we_utils/src/WEAS';
 
 import { colorHolder } from './colorHolder';
+import { WEAS } from '../we_utils/src/WEAS';
 
 interface Level {
 	level: number;
@@ -131,8 +131,44 @@ export class geoHolder {
 		// setup fractal generator for "default" / "particle" mode
 		if (sett.geometry_type < 2) {
 			this.levelWorker = new Worker('./js/worker/levelWorker.js');
-			this.levelWorker.addEventListener('message', this.levelGenerated, false);
-			this.levelWorker.addEventListener('error', this.levelError, false);
+
+			// LEVEL GENERATED CALLBACK
+			this.levelWorker.addEventListener('message', (e) => {
+				let ldata = e.data;
+				console.log("generated level: " + ldata.id);
+
+				var sett = this.settings;
+				this.levelWorkersRunning--;
+
+				let xyzBuf = new Float32Array(ldata.xyzBuff);
+				var subbs = this.levels[ldata.id].sets;
+
+				// spread over time for less thread blocking
+				for (let s = 0; s < sett.num_subsets_per_level; s++) {
+					this.afterRenderQueue.push(() => {
+						// copy start index
+						var from = (s * sett.num_points_per_subset) * 2;
+						// copy end index
+						var tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset) * 2;
+						// slice & set xyzBuffer data, then update child
+						(((subbs[s].object as THREE.Points).geometry as THREE.BufferGeometry).attributes.position as THREE.BufferAttribute).set(xyzBuf.slice(from, tooo), 0);
+
+						subbs[s].needsUpdate = true;
+					});
+				}
+
+				// if all workers finished and we have a queued event, trigger it
+				// this is used as "finished"-trigger for initial level generation...
+				if (this.levelWorkersRunning == 0 && this.levelWorkerCall) {
+					this.levelWorkerCall();
+					this.levelWorkerCall = null;
+				}
+			}, false);
+
+			// ERROR CALLBACK
+			this.levelWorker.addEventListener('error', (e) => {
+				console.log("level error: [" + e.filename + ", Line: " + e.lineno + "] " + e.message, true);
+			}, false);
 		}
 
 		var texture = null;
@@ -253,44 +289,6 @@ export class geoHolder {
 	// FRACTAL GENERATOR
 	///////////////////////////////////////////////
 
-	// web worker has finished generating the level
-	levelGenerated(e) {
-		let ldata = e.data;
-		console.log("generated level: " + ldata.id);
-
-		var sett = this.settings;
-		this.levelWorkersRunning--;
-
-		let xyzBuf = new Float32Array(ldata.xyzBuff);
-		var subbs = this.levels[ldata.id].sets;
-
-		// spread over time for less thread blocking
-		for (let s = 0; s < sett.num_subsets_per_level; s++) {
-			this.afterRenderQueue.push(() => {
-				// copy start index
-				var from = (s * sett.num_points_per_subset) * 2;
-				// copy end index
-				var tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset) * 2;
-				// slice & set xyzBuffer data, then update child
-				(((subbs[s].object as THREE.Points).geometry as THREE.BufferGeometry).attributes.position as THREE.BufferAttribute).set(xyzBuf.slice(from, tooo), 0);
-
-				subbs[s].needsUpdate = true;
-			});
-		}
-
-		// if all workers finished and we have a queued event, trigger it
-		// this is used as "finished"-trigger for initial level generation...
-		if (this.levelWorkersRunning == 0 && this.levelWorkerCall) {
-			this.levelWorkerCall();
-			this.levelWorkerCall = null;
-		}
-	}
-
-	// uh oh
-	levelError(e) {
-		console.log("level error: [" + e.filename + ", Line: " + e.lineno + "] " + e.message, true);
-	}
-
 	// queue worker event
 	generateLevel(level) {
 		console.log("generating level: " + level);
@@ -339,8 +337,12 @@ export class geoHolder {
 		if (sett.only_forward && spvn < 0) {
 			spvn = 0;
 		}
+		// reverse zoom?
+		if(sett.movement_type == 1) {
+			spvn *= -1;
+		}
 		// debug
-		console.log("Audio data: " + JSON.stringify([lastAudio, boost, step, this.speedVelocity, spvn]))
+		//console.log("Audio data: " + JSON.stringify([lastAudio, boost, step, this.speedVelocity, spvn]))
 
 		this.speedVelocity = spvn;
 
@@ -368,19 +370,26 @@ export class geoHolder {
 		var camPos = sett.scaling_factor / 2;
 
 		// dont re-declare this shit every time... should be faster
-		var lv, level, ss, prnt, child, dist, freqIdx, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
+		// first the objects
+		var lv, level : Level, ss, prnt : Subset, child;
+		// second the attributes
+		var dist, freqIdx, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
 
 		// process all levels
 		for (lv = 0; lv < this.levels.length; lv++) {
 			level = this.levels[lv];
 			// process all subset childrens
-			for (ss = 0; ss < level.subsets.length; ss++) {
-				prnt = level.subsets[ss];
+			for (ss = 0; ss < level.sets.length; ss++) {
+				prnt = level.sets[ss];
 				child = prnt.object;
 
 				// velocity & rotation
 				child.position.z += spvn;
 				child.rotation.z -= rot;
+
+
+				// TODO ADD REVERSE MODE???
+
 
 				// reset if out of bounds
 				if (child.position.z > camPos) {

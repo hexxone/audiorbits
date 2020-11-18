@@ -2,10 +2,11 @@
     "compilerOptions": {
         "outDir": "./dist/tsc",
         //"allowJs": true,
-        "target": "es2015",
-        "module": "es2015",
+        "target": "es2017",
+        "module": "commonjs",
         "moduleResolution": "node",
         "esModuleInterop": true,
+        "emitDecoratorMetadata": false,
         "types": [
             "jquery"
         ],

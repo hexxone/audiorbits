@@ -13,22 +13,22 @@
 
 import * as THREE from 'three';
 
-import {lutSetup} from './lutSetup';
+import { lutSetup } from './lutSetup';
 
-import {EffectComposer} from './three/postprocessing/EffectComposer';
-import {RenderPass} from './three/postprocessing/RenderPass';
-import {ShaderPass} from './three/postprocessing/ShaderPass';
-import {UnrealBloomPass} from './three/postprocessing/UnrealBloomPass';
+import { RenderPass } from './three/postprocessing/RenderPass';
+import { ShaderPass } from './three/postprocessing/ShaderPass';
+import { UnrealBloomPass } from './three/postprocessing/UnrealBloomPass';
 
-import {BlurShader} from './three/shader/BlurShader';
 import * as LUT from './three/shader/LUTShader';
-import {FractalMirrorShader} from './three/shader/FractalMirrorShader';
-import {FXAAShader} from './three/shader/FXAAShader';
+import * as LUTShaderNearest from "./three/shader/LUTShaderNearest";
+import { BlurShader } from './three/shader/BlurShader';
+import { FXAAShader } from './three/shader/FXAAShader';
+import { FractalMirrorShader } from './three/shader/FractalMirrorShader';
 
 export class shaderHolder {
 
 	// Filter / Shader settings
-    settings = {
+	settings = {
 		bloom_filter: false,
 		lut_filter: -1,
 		mirror_shader: 0,
@@ -36,7 +36,7 @@ export class shaderHolder {
 		fx_antialiasing: true,
 		blur_strength: 0,
 	};
-	
+
 	lutSetup: lutSetup = null;
 
 	constructor() {
@@ -44,7 +44,7 @@ export class shaderHolder {
 	}
 
 	// initialize shaders after composer
-	init (scene, camera, composer) {
+	init(scene, camera, composer) {
 		var sett = this.settings;
 
 		// last added filter
@@ -65,8 +65,7 @@ export class shaderHolder {
 			// add normal or filtered LUT shader
 			var lutInfo = this.lutSetup.Textures[sett.lut_filter];
 			// get normal or filtered LUT shader
-			var lutPass = new ShaderPass(lutInfo.filter ?
-				LUT.LUTShader : LUT.LUTShaderNearest);
+			var lutPass = new ShaderPass(lutInfo.filter ? new LUT.LUTShader() : new LUTShaderNearest.LUTShaderNearest());
 			// prepare render queue
 			lutPass.renderToScreen = false;
 			lutPass.material.transparent = true;
@@ -79,7 +78,7 @@ export class shaderHolder {
 
 		// fractal mirror shader
 		if (sett.mirror_shader > 1) {
-			var mirrorPass = new ShaderPass(FractalMirrorShader);
+			var mirrorPass = new ShaderPass(new FractalMirrorShader());
 			mirrorPass.renderToScreen = false;
 			mirrorPass.material.transparent = true;
 			composer.addPass(mirrorPass);
@@ -92,7 +91,7 @@ export class shaderHolder {
 
 		// Nvidia FX antialiasing
 		if (sett.fx_antialiasing) {
-			var fxaaPass = new ShaderPass(FXAAShader);
+			var fxaaPass = new ShaderPass(new FXAAShader());
 			fxaaPass.renderToScreen = false;
 			fxaaPass.material.transparent = true;
 			composer.addPass(fxaaPass);
@@ -105,14 +104,14 @@ export class shaderHolder {
 		if (sett.blur_strength > 0) {
 			var bs = sett.blur_strength / 5;
 			// X
-			var blurPassX = new ShaderPass(BlurShader);
+			var blurPassX = new ShaderPass(new BlurShader());
 			blurPassX.renderToScreen = false;
 			blurPassX.material.transparent = true;
 			blurPassX.uniforms.u_dir.value = new THREE.Vector2(bs, 0);
 			blurPassX.uniforms.iResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
 			composer.addPass(blurPassX);
 			// Y
-			var blurPassY = new ShaderPass(BlurShader);
+			var blurPassY = new ShaderPass(new BlurShader());
 			blurPassY.renderToScreen = false;
 			blurPassY.material.transparent = true;
 			blurPassY.uniforms.u_dir.value = new THREE.Vector2(0, bs);

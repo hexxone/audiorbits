@@ -5,8 +5,9 @@
  * http://en.wikipedia.org/wiki/Luminosity
  */
 import * as THREE from 'three';
+import { BaseShader } from './BaseShader';
 
-export class LuminosityHighPassShader {
+export class LuminosityHighPassShader extends BaseShader {
 
 	shaderID = "luminosityHighPass";
 

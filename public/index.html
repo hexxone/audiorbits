@@ -10,7 +10,10 @@
   <title>AudiOrbits 2.4</title>
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <!-- load compiled typescript library -->
-  <script type="module" src="dist/min/src/audiOrbits.js"></script>
+  <script type="text/javascript" src="./js/jquery-3.5.1.min.js"></script>
+  <script type="text/javascript" src="./js/Stats.js"></script>
+  <script type="text/javascript" src="./js/wewwa.js"></script>
+  <script type="text/javascript" src="bundle.js"></script>
 </head>
 
 <body>
@@ -23,13 +26,6 @@
     <h2>Debug logging active for 1 minute!</h2>
   </div>
   <div id="txtholder" class="polygon"></div>
-  <script>
-    ///////////////////////////////////////////////
-    // Actual Initialisation
-    ///////////////////////////////////////////////
-    const AudiOrbits = reqiuirejs('audiOrbits');
-    var audiOrbits = new AudiOrbits();
-  </script>
 </body>
 
 </html>

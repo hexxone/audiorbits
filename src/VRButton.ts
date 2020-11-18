@@ -5,7 +5,7 @@
 
 export class VRButton {
 
-	createButton (renderer) {
+	createButton(renderer) {
 		function showEnterVR( /*device*/) {
 
 			var currentSession = null;
@@ -22,8 +22,6 @@ export class VRButton {
 				button.textContent = 'ENTER VR';
 				currentSession = null;
 			}
-
-			//
 
 			button.style.display = '';
 			button.style.cursor = 'pointer';
