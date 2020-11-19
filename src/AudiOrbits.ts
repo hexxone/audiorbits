@@ -43,7 +43,7 @@
  * 
 */
 
-import { ctxHolder } from './ctxHolder';
+import { CtxHolder } from './CtxHolder';
 import { ReloadHelper } from '../we_utils/src/ReloadHelper';
 import { WarnHelper } from '../we_utils/src/WarnHelper';
 import { Smallog } from '../we_utils/src/Smallog';
@@ -61,7 +61,7 @@ enum RunState {
 }
 
 // base object for wallpaper
-export class audiOrbits {
+export class AudiOrbits {
 	// holds default wallpaper settings
 	// these basically connect 1:1 to wallpaper engine settings.
 	// for more explanation on settings visit the Workshop-Item-Forum (link above)
@@ -90,7 +90,7 @@ export class audiOrbits {
 	swirlStep: number = 0;
 
 	// important objects
-	ctxHolder: ctxHolder = new ctxHolder();
+	ctxHolder: CtxHolder = new CtxHolder();
 	reloadHelper: ReloadHelper = new ReloadHelper();
 	warnHelper: WarnHelper = new WarnHelper();
 
@@ -311,4 +311,4 @@ export class audiOrbits {
 ///////////////////////////////////////////////
 // Actual Initialisation
 ///////////////////////////////////////////////
-const _ = new audiOrbits();
+const _ = new AudiOrbits();

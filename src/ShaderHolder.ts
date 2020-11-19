@@ -13,7 +13,7 @@
 
 import * as THREE from 'three';
 
-import { lutSetup } from './lutSetup';
+import { LUTSetup } from './lutSetup';
 
 import { RenderPass } from './three/postprocessing/RenderPass';
 import { ShaderPass } from './three/postprocessing/ShaderPass';
@@ -26,7 +26,7 @@ import { FXAAShader } from './three/shader/FXAAShader';
 import { FractalMirrorShader } from './three/shader/FractalMirrorShader';
 import { Smallog } from '../we_utils/src/Smallog';
 
-export class shaderHolder {
+export class ShaderHolder {
 
 	// Filter / Shader settings
 	settings = {
@@ -38,10 +38,10 @@ export class shaderHolder {
 		blur_strength: 0,
 	};
 
-	lutSetup: lutSetup = null;
+	lutSetup: LUTSetup = null;
 
 	constructor() {
-		this.lutSetup = new lutSetup();
+		this.lutSetup = new LUTSetup();
 	}
 
 	// initialize shaders after composer
