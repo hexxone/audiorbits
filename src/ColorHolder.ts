@@ -22,7 +22,7 @@ interface ColorObject {
 	range: number;
 }
 
-export class colorHolder {
+export class ColorHolder {
 
 	settings = {
 		num_subsets_per_level: 16,

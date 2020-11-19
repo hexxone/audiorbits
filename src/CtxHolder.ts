@@ -12,7 +12,7 @@
 
 import * as THREE from 'three';
 
-import { colorHolder } from './colorHolder';
+import { ColorHolder } from './ColorHolder';
 import { geoHolder } from './geoHolder';
 import { lutSetup } from './lutSetup';
 import { shaderHolder } from './shaderHolder';
@@ -83,7 +83,7 @@ export class ctxHolder {
 	windowHalfY = window.innerHeight / 2;
 
 	// important objects
-	colorHolder: colorHolder = new colorHolder();
+	colorHolder: ColorHolder = new ColorHolder();
 	shaderHolder: shaderHolder = new shaderHolder();
 	lutSetup: lutSetup = new lutSetup();
 	weas: WEAS = new WEAS();
