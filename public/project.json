@@ -69,6 +69,7 @@
         "ui_color_mode_2": "Farbverlauf",
         "ui_color_mode_3": "Farbbereich (zufall)",
         "ui_color_mode_4": "Farbbereich (audio)",
+        "ui_color_mode_5": "Level splitting",
         "ui_user_color_a": "Hauptfarbe",
         "ui_user_color_b": "Zweitfarbe",
         "ui_color_fade_speed": "Farbwechsel-Geschw.",
@@ -129,7 +130,7 @@
         "ui_stats_option_1": "FPS",
         "ui_stats_option_2": "MS",
         "ui_stats_option_3": "MB",
-        "ui_shader_quality": "Shader Qualität 🔃",
+        "ui_shader_quality": "Qualität 🔃",
         "ui_shader_quality_1": "Niedrig",
         "ui_shader_quality_2": "Mittel",
         "ui_shader_quality_3": "Hoch",
@@ -642,6 +643,10 @@
           {
             "label": "ui_color_mode_4",
             "value": 4
+          },
+          {
+            "label": "ui_color_mode_5",
+            "value": 5
           }
         ],
         "order": 500,
@@ -649,29 +654,29 @@
         "type": "combo",
         "value": 0
       },
-      "color_fade_speed": {
-        "condition": "HEADER_COLOR.value && color_mode.value == 0",
-        "editable": true,
-        "max": 10,
-        "min": 0,
-        "order": 510,
-        "text": "ui_color_fade_speed",
-        "type": "slider",
-        "value": 2
-      },
       "user_color_a": {
         "condition": "HEADER_COLOR.value && color_mode.value >0",
-        "order": 520,
+        "order": 510,
         "text": "ui_user_color_a",
         "type": "color",
         "value": "1 0.5 0"
       },
       "user_color_b": {
         "condition": "HEADER_COLOR.value && color_mode.value >1",
-        "order": 530,
+        "order": 520,
         "text": "ui_user_color_b",
         "type": "color",
         "value": "0 0.5 1"
+      },
+      "color_fade_speed": {
+        "condition": "HEADER_COLOR.value",
+        "editable": true,
+        "max": 20,
+        "min": 0,
+        "order": 530,
+        "text": "ui_color_fade_speed",
+        "type": "slider",
+        "value": 2
       },
       "SPACER_12": {
         "condition": "HEADER_COLOR.value",
@@ -1205,7 +1210,7 @@
         "order": 1140,
         "text": "ui_shader_quality",
         "type": "combo",
-        "value": "low"
+        "value": "medium"
       },
       "field_of_view": {
         "condition": "HEADER_ADVANCED.value",

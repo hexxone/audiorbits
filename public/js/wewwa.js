@@ -42,7 +42,7 @@ var wewwApp = wewwApp || {};
 wewwApp.Init = () => {
     wewwApp.LoadProjectJSON((proj) => {
         if (proj.type != "web") {
-            console.log("Error! Loaded project.json is not a web Wallpaper. How did this happen? Aborting...");
+            console.error("Error! Loaded project.json is not a web Wallpaper. How did this happen? Aborting...");
             return;
         }
         wewwApp.project = proj;
@@ -61,7 +61,7 @@ wewwApp.LoadProjectJSON = (complete) => {
         url: "project.json",
         beforeSend: (xhr) => xhr.overrideMimeType("text/plain;"),
         success: (result) => complete(JSON.parse(result)),
-        error: (xhr, status, error) => console.log(status + ": ajax error!\r\n" + error)
+        error: (xhr, status, error) => console.error(status + ": ajax error!\r\n" + error)
     });
 }
 
@@ -71,7 +71,7 @@ wewwApp.LoadStorage = () => {
     if (last != null) {
         var merged = Object.assign(props, JSON.parse(last));
         wewwApp.project.general.properties = merged;
-        console.log("Loaded & merged settings.")
+        console.debug("Loaded & merged settings.")
     }
 }
 
@@ -489,7 +489,9 @@ wewwApp.SetProperty = (prop, elm) => {
     var applyCall = (val) => {
         // save the updated value to storage
         props[prop].value = val;
-        console.log("Property set: " + prop + " v: " + val);
+
+        //console.debug("Property set: " + prop + " v: " + val);
+
         // update
         wewwApp.UpdateSettings();
         var obj = {};
@@ -574,17 +576,16 @@ wewwApp.UpdateSettings = () => {
                         replW = replW.substr(1);
                         prefix = "!" + prefix;
                     }
-                    console.log("replace: " + onlyVal + " >> " + prefix + replW);
+                    //console.debug("replace: " + onlyVal + " >> " + prefix + replW);
                     cprop = cprop.replace(onlyVal, prefix + replW);
                 }
 
             }
-            console.log("eval: (" + cprop + ") for: " + p);
             try {
                 visible = eval(cprop) == true;
             }
             catch (e) {
-                console.log("Error: " + e);
+                console.error("Error: (" + cprop + ") for: " + p + " => " + e);
             }
         }
 
@@ -652,7 +653,7 @@ wewwApp.requestMicrophone = () => {
         wewwApp.source.connect(wewwApp.analyser);
         wewwApp.startAudioInterval();
     }).catch(function (err) {
-        console.log(err);
+        console.error(err);
         if (location.protocol != "https:") {
             var r = confirm("Activating the Microphone failed! Your Browser might require the site to be loaded using HTTPS for this feature to work! Press 'ok'/'yes' to get redirected to HTTPS and try again.");
             if (r) window.location.href = window.location.href.replace("http", "https");
@@ -728,9 +729,9 @@ wewwApp.stopAudioInterval = () => {
     }
 }
 
-if (window.wallpaperRegisterAudioListener) console.log("WEWWA: detected wallpaper engine - Standby.");
+if (window.wallpaperRegisterAudioListener) console.info("[WEWWA] detected wallpaper engine => Standby.");
 else {
-    console.log("WEWWA: wallpaper engine not detected - Init!");
+    console.info("[WEWWA] wallpaper engine not detected => Init!");
     // define audio listener first, so we dont miss when it gets registered.
     window.wallpaperRegisterAudioListener = function (callback) {
         // set callback to be called later with analysed audio data

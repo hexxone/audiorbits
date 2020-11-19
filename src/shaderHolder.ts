@@ -24,6 +24,7 @@ import * as LUTShaderNearest from "./three/shader/LUTShaderNearest";
 import { BlurShader } from './three/shader/BlurShader';
 import { FXAAShader } from './three/shader/FXAAShader';
 import { FractalMirrorShader } from './three/shader/FractalMirrorShader';
+import { Smallog } from '../we_utils/src/Smallog';
 
 export class shaderHolder {
 
@@ -49,7 +50,7 @@ export class shaderHolder {
 
 		// last added filter
 		var lastEffect = null;
-		console.log("adding shaders to render chain.");
+		Smallog.Debug("adding shaders to render chain.");
 		composer.addPass(new RenderPass(scene, camera, null, 0x000000, 1));
 
 		// bloom

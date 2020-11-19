@@ -7,12 +7,9 @@
  * See LICENSE file in the project root for full license information.  
  * 
  * @description
- * Geometry Helper for AudiOrbits.
- * 
- * basically some code outsourcing to make main file more readable.
+ * Contains and updates the Geometry for AudiOrbits.
  * 
  * @todo
- * 
  * - implement particle system
  * - implement ps4 experiment
  * - implement cloud experiment
@@ -25,6 +22,7 @@ import * as THREE from 'three';
 
 import { colorHolder } from './colorHolder';
 import { WEAS } from '../we_utils/src/WEAS';
+import { Smallog } from '../we_utils/src/Smallog';
 
 interface Level {
 	level: number;
@@ -135,7 +133,7 @@ export class geoHolder {
 			// LEVEL GENERATED CALLBACK
 			this.levelWorker.addEventListener('message', (e) => {
 				let ldata = e.data;
-				console.log("generated level: " + ldata.id);
+				Smallog.Debug("generated level: " + ldata.id);
 
 				var sett = this.settings;
 				this.levelWorkersRunning--;
@@ -167,7 +165,7 @@ export class geoHolder {
 
 			// ERROR CALLBACK
 			this.levelWorker.addEventListener('error', (e) => {
-				console.log("level error: [" + e.filename + ", Line: " + e.lineno + "] " + e.message, true);
+				Smallog.Error("level error: [" + e.filename + ", Line: " + e.lineno + "] " + e.message);
 			}, false);
 		}
 
@@ -180,7 +178,7 @@ export class geoHolder {
 				case 1: texPth = "./img/cuboid.png"; break;
 				case 2: texPth = "./img/fractal.png"; break;
 			}
-			console.log("loading Texture: " + texPth);
+			Smallog.Debug("loading Texture: " + texPth);
 			texture = new THREE.TextureLoader().load(texPth);
 		}
 
@@ -192,7 +190,7 @@ export class geoHolder {
 	initGeometries(scene, call, texture) {
 		var sett = this.settings;
 
-		console.log("building geometries.");
+		Smallog.Debug("building geometries.");
 		// material properties
 		var matprops = {
 			map: texture,
@@ -281,8 +279,8 @@ export class geoHolder {
 
 	// failed to load texture
 	textureError(err) {
-		console.log("texture loading error:");
-		console.log(err);
+		Smallog.Error("texture loading error:");
+		Smallog.Error(err);
 	}
 
 	///////////////////////////////////////////////
@@ -291,7 +289,7 @@ export class geoHolder {
 
 	// queue worker event
 	generateLevel(level) {
-		console.log("generating level: " + level);
+		Smallog.Debug("generating level: " + level);
 		this.levelWorkersRunning++;
 		this.levelWorker.postMessage({
 			id: level,
@@ -342,7 +340,7 @@ export class geoHolder {
 			spvn *= -1;
 		}
 		// debug
-		//console.log("Audio data: " + JSON.stringify([lastAudio, boost, step, this.speedVelocity, spvn]))
+		Smallog.Debug("Audio data: " + JSON.stringify([lastAudio, boost, step, this.speedVelocity, spvn])),
 
 		this.speedVelocity = spvn;
 
@@ -431,13 +429,13 @@ export class geoHolder {
 					setSat = Math.abs(minSat + freqLvl + freqLvl * boost * 0.07);
 					setLight = Math.abs(minBri + freqLvl + freqLvl * boost * 0.01);
 
-					//console.log("Debug: " + JSON.stringify([step, freqIdx, freqData, freqLvl, tmpHue]))
+					//Smallog.Debug("Debug: " + JSON.stringify([step, freqIdx, freqData, freqLvl, tmpHue]))
 				}
 				else {
 					// get current HSL
 					hsl = {};
 					child.material.color.getHSL(hsl);
-					//console.log("got hsl: " + JSON.stringify(hsl));
+					//Smallog.Debug("got hsl: " + JSON.stringify(hsl));
 
 					setHue = hsl.h;
 					setSat = hsl.s;
@@ -453,7 +451,7 @@ export class geoHolder {
 						setLight += (defBri - setLight) / sixtyDelta;
 				}
 				// debug
-				//console.log("setHSL | child: " + (lv * level.subsets.length + ss) + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
+				//Smallog.Debug("setHSL | child: " + (lv * level.subsets.length + ss) + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
 
 				// update dat shit
 				child.material.color.setHSL(
