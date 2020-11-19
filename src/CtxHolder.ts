@@ -13,9 +13,9 @@
 import * as THREE from 'three';
 
 import { ColorHolder } from './ColorHolder';
-import { geoHolder } from './geoHolder';
-import { lutSetup } from './lutSetup';
-import { shaderHolder } from './shaderHolder';
+import { GeoHolder } from './GeoHolder';
+import { LUTSetup } from './LUTSetup';
+import { ShaderHolder } from './ShaderHolder';
 import { VRButton } from './VRButton';
 
 import { EffectComposer } from './three/postprocessing/EffectComposer';
@@ -28,7 +28,7 @@ import { Smallog } from '../we_utils/src/Smallog';
 
 // VRButton, geoHolder, colorHolder
 
-export class ctxHolder {
+export class CtxHolder {
 
 	// global state
 	isWebContext = false;
@@ -84,11 +84,11 @@ export class ctxHolder {
 
 	// important objects
 	colorHolder: ColorHolder = new ColorHolder();
-	shaderHolder: shaderHolder = new shaderHolder();
-	lutSetup: lutSetup = new lutSetup();
+	shaderHolder: ShaderHolder = new ShaderHolder();
+	lutSetup: LUTSetup = new LUTSetup();
 	weas: WEAS = new WEAS();
 
-	geoHolder: geoHolder = null;
+	geoHolder: GeoHolder = null;
 	weicue: WEICUE = null;
 
 	// add global listeners
@@ -121,7 +121,7 @@ export class ctxHolder {
 		}, false);
 
 		// init modules on document ready
-		this.geoHolder = new geoHolder(this.weas);
+		this.geoHolder = new GeoHolder(this.weas);
 		this.weicue = new WEICUE(this.weas);
 	}
 
