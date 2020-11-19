@@ -20,7 +20,7 @@
 
 import * as THREE from 'three';
 
-import { colorHolder } from './colorHolder';
+import { ColorHolder } from './ColorHolder';
 import { WEAS } from '../we_utils/src/WEAS';
 import { Smallog } from '../we_utils/src/Smallog';
 
@@ -36,7 +36,7 @@ interface Subset {
 	set: number;
 }
 
-export class geoHolder {
+export class GeoHolder {
 
 	weas: WEAS = null;
 
@@ -103,14 +103,14 @@ export class geoHolder {
 	levelWorkerCall = null;
 
 	// color holder
-	colorHolder: colorHolder = null;
+	colorHolder: ColorHolder = null;
 
 	// actions to perform after render
 	afterRenderQueue = [];
 
 	constructor(weas: WEAS) {
 		this.weas = weas;
-		this.colorHolder = new colorHolder();
+		this.colorHolder = new ColorHolder();
 	}
 
 	// initialize geometry generator, data & objects
