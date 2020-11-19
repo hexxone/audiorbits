@@ -24,7 +24,6 @@
  * @todo
  * - update translations -> project.json -> steam
  * - use webworker rendering?
- * - only show audio-related settings if enabled || also if min > max  => WARNING
  * - add new re-init vars
  * - implement color mode "level splitting"?
  * - implement reverse movement mode
@@ -35,6 +34,7 @@
  * - move "audio disabled" text top top
  * - mminimum saturation -> minimum
  * - maximum saturation -> maximum etc...
+ * - only show audio-related settings if enabled || also if min > max  => WARNING
  * 
  * - highlight seizure text on white BG
  * - finish implementing Web-XR
@@ -44,9 +44,9 @@
 */
 
 import { CtxHolder } from './CtxHolder';
-import { ReloadHelper } from '../we_utils/src/ReloadHelper';
-import { WarnHelper } from '../we_utils/src/WarnHelper';
-import { Smallog } from '../we_utils/src/Smallog';
+import { ReloadHelper } from './we_utils/src/ReloadHelper';
+import { WarnHelper } from './we_utils/src/WarnHelper';
+import { LogLevel, Smallog } from './we_utils/src/Smallog';
 
 // custom logging function
 var debug: boolean = false;
@@ -210,7 +210,10 @@ export class AudiOrbits {
 		}
 
 		// debug logging
-		if (props.debugging) debug = props.debugging.value == true;
+		if (props.debugging) {
+			debug = props.debugging.value == true;
+			Smallog.SetLevel(debug ? LogLevel.Debug : LogLevel.Info);
+		}
 		if (!debug && this.debugTimeout) {
 			clearTimeout(this.debugTimeout);
 			this.debugTimeout = null;

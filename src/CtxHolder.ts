@@ -20,10 +20,10 @@ import { VRButton } from './VRButton';
 
 import { EffectComposer } from './three/postprocessing/EffectComposer';
 
-import Stats from '../we_utils/src/Stats';
-import { WEAS } from '../we_utils/src/WEAS';
-import { WEICUE } from '../we_utils/src/WEICUE';
-import { Smallog } from '../we_utils/src/Smallog';
+import Stats from './we_utils/src/Stats';
+import { WEAS } from './we_utils/src/WEAS';
+import { WEICUE } from './we_utils/src/WEICUE';
+import { Smallog } from './we_utils/src/Smallog';
 
 
 // VRButton, geoHolder, colorHolder
