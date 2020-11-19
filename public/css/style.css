@@ -56,7 +56,7 @@ body {
 
 #mainCvs.show {
     opacity: 1;
-    transition: opacity 10s ease;
+    transition: opacity 6s ease;
 }
 
 #debugwnd {

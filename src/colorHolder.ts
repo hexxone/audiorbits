@@ -12,6 +12,7 @@
  */
 
 import * as THREE from 'three';
+import { Smallog } from '../we_utils/src/Smallog';
 
 interface ColorObject {
 	hsla: number;
@@ -42,7 +43,7 @@ export class colorHolder {
 	init() {
 		var sett = this.settings;
 		var cobj = this.colorObject = this.getColorObject();
-		console.log("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb);
+		Smallog.Debug("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb);
 		for (var s = 0; s < sett.num_subsets_per_level; s++) {
 			var col = Math.random();
 			switch (sett.color_mode) {
@@ -84,8 +85,8 @@ export class colorHolder {
 	// shift hue values
 	update(ellapsed, deltaTime) {
 		var sett = this.settings;
-		if (sett.color_mode == 0) {
-			var hueAdd = (sett.color_fade_speed / 4000) * deltaTime;
+		if (sett.color_fade_speed > 0) {
+			var hueAdd = (sett.color_fade_speed / 6000) * deltaTime;
 			for (var s = 0; s < sett.num_subsets_per_level; s++) {
 				this.hueValues[s] += hueAdd;
 				if (this.hueValues[s] >= 1)

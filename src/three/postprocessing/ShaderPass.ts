@@ -9,13 +9,13 @@ import { HelpPass } from "./HelpPass";
 
 export class ShaderPass extends HelpPass {
 
-	textureID = null;
-	uniforms = null;
+	renderToScreen: boolean = false;
 	material: THREE.Material = null;
-	fsQuad: FullScreenQuad = null;
-	renderToScreen = false;
+	textureID: string = null;
+	uniforms = null;
+	fsQuad = null;
 
-	constructor(shader: BaseShader, textureID = "tDiffuse") {
+	constructor(shader: BaseShader, textureID: string = "tDiffuse") {
 		super();
 		this.textureID = textureID;
 
@@ -41,7 +41,7 @@ export class ShaderPass extends HelpPass {
 			this.uniforms[this.textureID].value = readBuffer.texture;
 
 		// @TODO does this work?
-		//this.fsQuad.material = this.material;
+		this.fsQuad.material = this.material;
 
 		if (this.renderToScreen) {
 			renderer.setRenderTarget(null);

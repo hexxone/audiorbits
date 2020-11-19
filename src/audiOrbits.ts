@@ -22,43 +22,34 @@
  * Leave me some feedback on the Workshop-Page for this item if you like!
  * 
  * @todo
- * - always allow color fading?
- * - new color mode "level splitting"?
+ * - update translations -> project.json -> steam
+ * - use webworker rendering?
+ * - only show audio-related settings if enabled || also if min > max  => WARNING
+ * - add new re-init vars
+ * - implement color mode "level splitting"?
+ * - implement reverse movement mode
+ * - use buffer for geometry colors && sizes?
+ * 		- in weasWorker?
+ * 
+ * - add "we_utils" as submodule of src
+ * - move "audio disabled" text top top
+ * - mminimum saturation -> minimum
+ * - maximum saturation -> maximum etc...
+ * 
+ * - highlight seizure text on white BG
  * - finish implementing Web-XR
  * 		- add "center"-mode for camera?
  * - record "how to debug"-video?
- * - highlight seizure text on white BG
- * - fix reload notification
- * - add missing reload trigger texts
  * 
- * - fix translations
- * - split shaders from context
- * - switch to typescript
- * - use webworker rendering?
- * - only show audio-related settings if enabled
- * - fix peak filter
- * - fix shader precision inject?
- * 
- * - implement 3x new dropdown settings
- * - implement audio max saturation & brightness
- * 
- * - use buffer for geometry colors?
- * - calculate in weasWorker?
- * - weas_custom branch?
- * 
- * - add new re-init vars
- * - remove "misc" category
 */
+
 import { ctxHolder } from './ctxHolder';
 import { ReloadHelper } from '../we_utils/src/ReloadHelper';
 import { WarnHelper } from '../we_utils/src/WarnHelper';
-
+import { Smallog } from '../we_utils/src/Smallog';
 
 // custom logging function
 var debug: boolean = false;
-function print(arg, force?) {
-	if (debug || force) console.log("AudiOrbits: " + JSON.stringify(arg));
-}
 
 // what's the wallpaper currently doing?
 enum RunState {
@@ -78,7 +69,6 @@ export class audiOrbits {
 		schemecolor: "0 0 0",
 		// Advanced
 		stats_option: -1,
-		shader_quality: "low",
 		// Misc category
 		seizure_warning: true,
 		// mirrored setting
@@ -105,7 +95,7 @@ export class audiOrbits {
 	warnHelper: WarnHelper = new WarnHelper();
 
 	constructor() {
-		console.log("AudiOrbits running...");
+		Smallog.Info("initializing...");
 		// will apply settings edited in Wallpaper Engine
 		// this will also cause initialization for the first time
 		window['wallpaperPropertyListener'] = {
@@ -121,7 +111,7 @@ export class audiOrbits {
 				}
 				else if (initFlag) {
 					this.state = RunState.ReInitializing;
-					print("got reInit-flag from applying settings!", true);
+					Smallog.Debug("got reInit-flag from applying settings!");
 					if (this.resetTimeout) clearTimeout(this.resetTimeout);
 					this.resetTimeout = setTimeout(() => this.reInitSystem(), this.resetTimespan * 1000);
 					// show reloader
@@ -139,7 +129,7 @@ export class audiOrbits {
 					if (!isPaused) return;
 					this.state = RunState.Paused;
 				}
-				console.log("Set pause: " + isPaused);
+				Smallog.Debug("set pause: " + isPaused);
 				this.ctxHolder.setRenderer(isPaused);
 			}
 		};
@@ -152,7 +142,7 @@ export class audiOrbits {
 
 	// Apply settings from the project.json "properties" object and takes certain actions
 	applyCustomProps(props) {
-		print("applying settings: " + Object.keys(props).length);
+		Smallog.Debug("applying settings: " + JSON.stringify(Object.keys(props)));
 
 		const _ignore: string[] = ["debugging", "img_overlay", "img_background", "base_texture", "mirror_invalid_val"];
 
@@ -195,7 +185,7 @@ export class audiOrbits {
 				}
 			}
 			// invalid?
-			if (!found) print("Unknown setting: " + setting + ". Are you using an old preset?", true);
+			if (!found) Smallog.Info("Unknown setting: " + setting + ". Are you using an old preset?");
 		}
 
 		// update parallax / weicue settings
@@ -253,12 +243,6 @@ export class audiOrbits {
 	///////////////////////////////////////////////
 
 	initOnce() {
-		print("initializing...");
-
-		// @TODO
-		//ThreePatcher.patch();
-		//THREE.Cache.enabled = true;
-
 		// initialize wrapper
 		var initWrap = () => {
 			this.initSystem();
@@ -272,7 +256,7 @@ export class audiOrbits {
 
 	// re-initialies the walpaper after some time
 	reInitSystem() {
-		print("re-initializing...");
+		Smallog.Info("re-initializing...");
 		// hide reloader
 		this.reloadHelper.Hide();
 		// kill intervals
@@ -290,7 +274,7 @@ export class audiOrbits {
 			// start auto parallax handler
 			this.swirlInterval = setInterval(() => this.swirlHandler(), 1000 / 60);
 			// print
-			print("initializing complete.", true);
+			Smallog.Info("initializing complete.");
 			// start rendering
 			this.ctxHolder.setRenderer(true);
 			this.state = RunState.Running;
