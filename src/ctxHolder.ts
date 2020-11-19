@@ -7,12 +7,7 @@
  * See LICENSE file in the project root for full license information.  
  * 
  * @description
- * Contains render-relevant three-js objects
- * 
- * basically some code outsourcing to make main file more readable.
- * 
- * @todo
- * - use three.js "performance" mode?
+ * Contains main rendering context for AudiOrbits
  */
 
 import * as THREE from 'three';
@@ -28,6 +23,7 @@ import { EffectComposer } from './three/postprocessing/EffectComposer';
 import Stats from '../we_utils/src/Stats';
 import { WEAS } from '../we_utils/src/WEAS';
 import { WEICUE } from '../we_utils/src/WEICUE';
+import { Smallog } from '../we_utils/src/Smallog';
 
 
 // VRButton, geoHolder, colorHolder
@@ -55,6 +51,7 @@ export class ctxHolder {
 		camera_bound: 1000,
 		custom_fps: false,
 		fps_value: 60,
+		shader_quality: "medium",
 		// offtopic
 		fog_thickness: 3,
 		stats_option: -1,
@@ -150,6 +147,9 @@ export class ctxHolder {
 		this.mainCanvas.width = window.innerWidth;
 		this.mainCanvas.height = window.innerHeight;
 
+		// dont use depth buffer on low quality
+		const dBuffer = this.settings.shader_quality == "low" ? false : true;
+
 		// create camera
 		this.camera = new THREE.PerspectiveCamera(this.settings.field_of_view, window.innerWidth / window.innerHeight, 1, 2 * this.settings.scaling_factor);
 		this.camera.position.z = this.settings.scaling_factor / 2;
@@ -159,25 +159,27 @@ export class ctxHolder {
 		this.scene.fog = new THREE.FogExp2(0x000000, this.settings.fog_thickness / 8000);
 		// create render-context
 		this.renderer = new THREE.WebGLRenderer({
-			canvas: this.mainCanvas,
 			alpha: true,
 			antialias: false,
-			logarithmicDepthBuffer: true
+			canvas: this.mainCanvas,
+			logarithmicDepthBuffer: dBuffer,
+			powerPreference: this.getPowerPreference(),
+			precision: this.settings.shader_quality + "p",
 		});
 		this.renderer.clearColor = 0x000000;
 		this.renderer.clearAlpha = 1;
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		// initialize VR mode
 		if (this.isWebContext) this.initWebXR();
+
 		// initialize shader composer
 		this.composer = new EffectComposer(this.renderer);
-
 		// initialize shaders
 		this.shaderHolder.init(this.scene, this.camera, this.composer);
 
 		// initialize statistics
 		if (this.settings.stats_option >= 0) {
-			console.log("Init stats: " + this.settings.stats_option);
+			Smallog.Debug("Init stats: " + this.settings.stats_option);
 			this.stats = Stats();
 			this.stats.showPanel(this.settings.stats_option); // 0: fps, 1: ms, 2: mb, 3+: custom
 			document.body.appendChild(this.stats.dom);
@@ -226,7 +228,7 @@ export class ctxHolder {
 
 	// start or stop rendering
 	setRenderer(render) {
-		console.log("setRenderer: " + render);
+		Smallog.Debug("setRenderer: " + render);
 
 		// clear all old renderers
 		if (this.renderer) {
@@ -247,7 +249,7 @@ export class ctxHolder {
 			else if (this.renderer) {
 				this.renderer.setAnimationLoop(() => this.renderLoop());
 			}
-			else console.log("not initialized!");
+			else Smallog.Error("not initialized!");
 			// show again
 			$("#mainCvs").addClass("show");
 		}
@@ -334,6 +336,15 @@ export class ctxHolder {
 	///////////////////////////////////////////////
 	// HELPER
 	///////////////////////////////////////////////
+
+	// use overall "quality" setting to determine three.js "power" mode
+	getPowerPreference() {
+		switch(this.settings.shader_quality) {
+			case "low": return "low-power";
+			case "high": return "high-performance";
+			default: return "default";
+		}
+	}
 
 	// position Mouse with angle
 	positionMouseAngle(degrees) {

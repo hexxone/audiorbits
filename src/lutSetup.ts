@@ -13,6 +13,7 @@
  */
 
 import * as THREE from 'three';
+import { Smallog } from '../we_utils/src/Smallog';
 
 export class lutSetup {
 
@@ -72,7 +73,7 @@ export class lutSetup {
                         info.filter ? THREE.LinearFilter : THREE.NearestFilter);
                     texture.needsUpdate = true;
                 }, null, function (err) {
-                    console.log("Error loading LUT: ");
+                    Smallog.Error("Error loading LUT: " + err);
                     throw err;
                 });
             }

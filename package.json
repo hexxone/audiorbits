@@ -5,14 +5,16 @@
   "main": "index.js",
   "scripts": {
     "clean": "rm -rf ./dist",
-    "clean-win": "Rmdir /S \"dist\"",
+    "clean-win": "Rmdir /Q /S \"dist\"",
     "tsc": "tsc",
     "babel": "babel dist/tsc --out-dir dist/babel --source-maps",
     "webpack": "webpack",
     "pack": "cp -R public dist/pack",
     "pack-win": "xcopy public\\*.* dist\\pack\\ /e /i /y /s",
-    "build-win": "yarn run clean-win && yarn run tsc && yarn run babel && yarn run webpack && yarn run pack-win",
-    "build": "yarn run clean && yarn run tsc && yarn run babel && yarn run webpack && yarn run pack",
+    "after-clean": "rm -rf ./dist/tsc",
+    "after-clean-win": "Rmdir /Q /S \"dist\\tsc\"",
+    "build-win": "yarn run clean-win && yarn run tsc && yarn run babel && yarn run webpack && yarn run pack-win && yarn run after-clean-win",
+    "build": "yarn run clean && yarn run tsc && yarn run babel && yarn run webpack && yarn run pack && yarn run after-clean",
     "startdev": "webpack serve"
   },
   "repository": {
