@@ -13,7 +13,7 @@
  */
 
 import * as THREE from 'three';
-import { Smallog } from '../we_utils/src/Smallog';
+import { Smallog } from './we_utils/src/Smallog';
 
 export class LUTSetup {
 
