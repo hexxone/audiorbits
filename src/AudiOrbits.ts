@@ -30,10 +30,6 @@
  * - use buffer for geometry colors && sizes?
  * 		- in weasWorker?
  * 
- * - add "we_utils" as submodule of src
- * - move "audio disabled" text top top
- * - mminimum saturation -> minimum
- * - maximum saturation -> maximum etc...
  * - only show audio-related settings if enabled || also if min > max  => WARNING
  * 
  * - highlight seizure text on white BG
