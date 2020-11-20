@@ -74,13 +74,10 @@
         "ui_user_color_b": "Zweitfarbe",
         "ui_color_fade_speed": "Farbwechsel-Geschw.",
         "ui_HEADER_SATURATION": "<h4>📊 <u>Sättigung</u></h4>",
-        "ui_default_saturation": "Standard Sättigung",
-        "ui_minimum_saturation": "🔊 Minimum Sättigung",
-        "ui_maximum_saturation": "🔊 Maximum Sättigung",
         "ui_HEADER_BRIGHTNESS": "<h4>🔆 <u>Helligkeit</u></h4>",
-        "ui_default_brightness": "Standard Helligkeit",
-        "ui_minimum_brightness": "🔊 Minimum Helligkeit",
-        "ui_maximum_brightness": "🔊 Maximum Helligkeit",
+        "ui_default": "Standard",
+        "ui_minimum": "🔊 Minimum",
+        "ui_maximum": "🔊 Maximum",
         "ui_HEADER_FILTER": "<h4>🕶 <u>Shader</u></h4>",
         "ui_bloom_filter": "Bloom 🔃",
         "ui_blur_strength": "Blur 🔃",
@@ -150,10 +147,17 @@
     },
     "properties": {
       "schemecolor": {
-        "order": 0,
+        "order": -10,
         "text": "ui_browse_properties_scheme_color",
         "type": "color",
         "value": "0 0 0"
+      },
+      "HEADER_NO_AUDIO": {
+        "condition": "!audioprocessing.value",
+        "order": 0,
+        "text": "ui_HEADER_NO_AUDIO",
+        "type": "text",
+        "value": false
       },
       "SPACER_00": {
         "order": 5,
@@ -702,7 +706,7 @@
         "max": 100,
         "min": 1,
         "order": 570,
-        "text": "ui_default_brightness",
+        "text": "ui_default",
         "type": "slider",
         "value": 60
       },
@@ -712,7 +716,7 @@
         "max": 100,
         "min": 1,
         "order": 580,
-        "text": "ui_minimum_brightness",
+        "text": "ui_minimum",
         "type": "slider",
         "value": 10
       },
@@ -722,7 +726,7 @@
         "max": 100,
         "min": 1,
         "order": 590,
-        "text": "ui_maximum_brightness",
+        "text": "ui_maximum",
         "type": "slider",
         "value": 80
       },
@@ -750,7 +754,7 @@
         "max": 100,
         "min": 1,
         "order": 630,
-        "text": "ui_default_saturation",
+        "text": "ui_default",
         "type": "slider",
         "value": 75
       },
@@ -760,7 +764,7 @@
         "max": 100,
         "min": 1,
         "order": 640,
-        "text": "ui_minimum_saturation",
+        "text": "ui_minimum",
         "type": "slider",
         "value": 10
       },
@@ -770,7 +774,7 @@
         "max": 100,
         "min": 1,
         "order": 650,
-        "text": "ui_maximum_saturation",
+        "text": "ui_maximum",
         "type": "slider",
         "value": 80
       },
@@ -899,13 +903,6 @@
         "order": 820,
         "text": "ui_spacer",
         "type": "text"
-      },
-      "HEADER_NO_AUDIO": {
-        "condition": "!audioprocessing.value",
-        "order": 830,
-        "text": "ui_HEADER_NO_AUDIO",
-        "type": "text",
-        "value": false
       },
       "HEADER_AUDIO": {
         "condition": "audioprocessing.value",

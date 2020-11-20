@@ -3,7 +3,7 @@ const path = require('path');
 const CircularDependencyPlugin = require('circular-dependency-plugin')
 
 module.exports = {
-  entry: './dist/babel/src/audiOrbits.js',
+  entry: './dist/babel/AudiOrbits.js',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist') + '/pack'

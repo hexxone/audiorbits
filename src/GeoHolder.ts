@@ -21,8 +21,8 @@
 import * as THREE from 'three';
 
 import { ColorHolder } from './ColorHolder';
-import { WEAS } from '../we_utils/src/WEAS';
-import { Smallog } from '../we_utils/src/Smallog';
+import { WEAS } from './we_utils/src/WEAS';
+import { Smallog } from './we_utils/src/Smallog';
 
 interface Level {
 	level: number;
@@ -307,6 +307,7 @@ export class GeoHolder {
 		// calculate boost strength & step size if data given
 		var flmult = (15 + sett.audio_multiplier) / 65;
 		var spvn = sett.zoom_val / 1.5 * deltaTime;
+		var reversed = sett.movement_type == 1;
 
 		// audio stuff
 		var hasAudio = this.weas.hasAudio();
@@ -336,7 +337,7 @@ export class GeoHolder {
 			spvn = 0;
 		}
 		// reverse zoom?
-		if(sett.movement_type == 1) {
+		if(reversed) {
 			spvn *= -1;
 		}
 		// debug
@@ -366,6 +367,8 @@ export class GeoHolder {
 
 		// this is a bit hacky
 		var camPos = sett.scaling_factor / 2;
+		var orbitSize = sett.num_levels * sett.level_depth;
+		var backPos = camPos - orbitSize;
 
 		// dont re-declare this shit every time... should be faster
 		// first the objects
@@ -385,17 +388,19 @@ export class GeoHolder {
 				child.position.z += spvn;
 				child.rotation.z -= rot;
 
-
-				// TODO ADD REVERSE MODE???
-
-
-				// reset if out of bounds
-				if (child.position.z > camPos) {
-					// offset to back
-					//print("moved back child: " + i);
-					child.position.z -= sett.num_levels * sett.level_depth;
+				// reset to back if out of bounds
+				var moved = false;
+				if (!reversed && child.position.z > camPos) {
+					child.position.z -= orbitSize;
+					moved = true;
+				}
+				// reset to front
+				else if(reversed && child.position.z < backPos) {
+					child.position.z += orbitSize;
+					moved = true;
+				}
+				if(moved) {
 					this.moveBacks[prnt.level]++;
-
 					// update the child visually
 					if (prnt.needsUpdate) {
 						child.geometry.attributes.position.needsUpdate = true;
