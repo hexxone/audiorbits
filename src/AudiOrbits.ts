@@ -91,6 +91,7 @@ export class AudiOrbits {
 	warnHelper: WarnHelper = new WarnHelper();
 
 	constructor() {
+		Smallog.SetPrefix("[AudiOrbits] ");
 		Smallog.Info("initializing...");
 		// will apply settings edited in Wallpaper Engine
 		// this will also cause initialization for the first time
