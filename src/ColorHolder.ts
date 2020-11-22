@@ -12,6 +12,9 @@
  */
 
 import * as THREE from 'three';
+import { CComponent } from './we_utils/src/CComponent';
+
+import { CSettings } from './we_utils/src/CSettings';
 import { Smallog } from './we_utils/src/Smallog';
 
 interface ColorObject {
@@ -22,25 +25,25 @@ interface ColorObject {
 	range: number;
 }
 
-export class ColorHolder {
+class ColorSettings extends CSettings {
+	num_subsets_per_level: number = 16;
+	// Color category
+	color_mode: number = 0;
+	user_color_a: string = "1 0.5 0";
+	user_color_b: string = "0 0.5 1";
+	color_fade_speed: number = 2;
+}
 
-	settings = {
-		num_subsets_per_level: 16,
-		// Color category
-		color_mode: 0,
-		user_color_a: "1 0.5 0",
-		user_color_b: "0 0.5 1",
-		color_fade_speed: 2,
-	};
-
-	// color data
-	hueValues: number[] = [];
+export class ColorHolder extends CComponent {
+	// settings
+	public settings: ColorSettings = new ColorSettings();
 
 	// user colors converted from RGB to HSL
-	colorObject: ColorObject = null;
+	public colorObject: ColorObject = null;
+	public hueValues: number[] = [];
 
 	// gets called when updating color picker
-	init() {
+	public init() {
 		var sett = this.settings;
 		var cobj = this.colorObject = this.getColorObject();
 		Smallog.Debug("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb);
@@ -57,7 +60,7 @@ export class ColorHolder {
 	}
 
 	// returns the processed user color object
-	getColorObject() {
+	private getColorObject() {
 		var sett = this.settings;
 		var a = this.rgbToHue(sett.user_color_a).h;
 		var b = this.rgbToHue(sett.user_color_b).h;
@@ -73,7 +76,7 @@ export class ColorHolder {
 	}
 
 	// get HUE val
-	rgbToHue(r_g_b) {
+	private rgbToHue(r_g_b) {
 		const arr = r_g_b.split(" ");
 		const tmp = new THREE.Color(arr[0], arr[1], arr[2]);
 		var hsl = { h: 0, s: 0, l: 0 };
@@ -81,9 +84,8 @@ export class ColorHolder {
 		return hsl;
 	}
 
-
 	// shift hue values
-	update(ellapsed, deltaTime) {
+	public update(ellapsed, deltaTime) {
 		var sett = this.settings;
 		if (sett.color_fade_speed > 0) {
 			var hueAdd = (sett.color_fade_speed / 6000) * deltaTime;

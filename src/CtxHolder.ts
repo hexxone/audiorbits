@@ -24,11 +24,32 @@ import Stats from './we_utils/src/Stats';
 import { WEAS } from './we_utils/src/WEAS';
 import { WEICUE } from './we_utils/src/WEICUE';
 import { Smallog } from './we_utils/src/Smallog';
+import { CSettings } from "./we_utils/src/CSettings";
+import { CComponent } from './we_utils/src/CComponent';
 
+class CtxSettings extends CSettings {
+	// Camera category
+	parallax_option: number = 0;
+	parallax_angle: number = 180;
+	parallax_strength: number = 3;
+	auto_parallax_speed: number = 2;
+	field_of_view: number = 90;
+	custom_fps: boolean = false;
+	fps_value: number = 60;
+	shader_quality: number = 1;
+	cam_centered: boolean = false;
 
-// VRButton, geoHolder, colorHolder
+	// offtopic
+	fog_thickness: number = 3;
+	stats_option: number = -1;
 
-export class CtxHolder {
+	// mirrored setting
+	scaling_factor: number = 1500;
+	level_depth: number = 1000;
+	num_levels: number = 8000;
+}
+
+export class CtxHolder extends CComponent {
 
 	// global state
 	isWebContext = false;
@@ -41,23 +62,7 @@ export class CtxHolder {
 		controller2: null
 	};
 
-	settings = {
-		// Camera category
-		parallax_option: 0,
-		parallax_angle: 180,
-		parallax_strength: 3,
-		auto_parallax_speed: 2,
-		field_of_view: 90,
-		camera_bound: 1000,
-		custom_fps: false,
-		fps_value: 60,
-		shader_quality: "medium",
-		// offtopic
-		fog_thickness: 3,
-		stats_option: -1,
-		// mirrored setting
-		scaling_factor: 1800,
-	};
+	public settings: CtxSettings = new CtxSettings();
 
 	// html elements
 	container = null;
@@ -85,14 +90,17 @@ export class CtxHolder {
 	// important objects
 	colorHolder: ColorHolder = new ColorHolder();
 	shaderHolder: ShaderHolder = new ShaderHolder();
-	lutSetup: LUTSetup = new LUTSetup();
-	weas: WEAS = new WEAS();
 
-	geoHolder: GeoHolder = null;
-	weicue: WEICUE = null;
+	weas: WEAS = new WEAS();
+	geoHolder: GeoHolder = new GeoHolder(this.weas);
+	weicue: WEICUE = new WEICUE(this.weas);
+
+	lutSetup: LUTSetup = new LUTSetup();
 
 	// add global listeners
 	constructor() {
+		super();
+
 		// mouse listener
 		var mouseUpdate = (event) => {
 			if (this.settings.parallax_option != 1) return;
@@ -120,9 +128,12 @@ export class CtxHolder {
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 		}, false);
 
-		// init modules on document ready
-		this.geoHolder = new GeoHolder(this.weas);
-		this.weicue = new WEICUE(this.weas);
+		// keep track of children settings
+		this.children.push(this.colorHolder);
+		this.children.push(this.shaderHolder);
+		this.children.push(this.weas);
+		this.children.push(this.geoHolder);
+		this.children.push(this.weicue);
 	}
 
 	// initialize three-js context
@@ -148,11 +159,14 @@ export class CtxHolder {
 		this.mainCanvas.height = window.innerHeight;
 
 		// dont use depth buffer on low quality
-		const dBuffer = this.settings.shader_quality == "low" ? false : true;
+		const qual = this.settings.shader_quality < 3 ? (this.settings.shader_quality < 2 ? "low" : "medium") : "high";
+		const dBuffer = this.settings.shader_quality > 1;
+		const shaderP = qual + "p";
+
 
 		// create camera
-		this.camera = new THREE.PerspectiveCamera(this.settings.field_of_view, window.innerWidth / window.innerHeight, 1, 2 * this.settings.scaling_factor);
-		this.camera.position.z = this.settings.scaling_factor / 2;
+		const viewDist = this.settings.num_levels * this.settings.level_depth * (this.settings.cam_centered ? 0.5 : 1);
+		this.camera = new THREE.PerspectiveCamera(this.settings.field_of_view, window.innerWidth / window.innerHeight, 3, viewDist * 1.2);
 		// create scene
 		this.scene = new THREE.Scene();
 		// create distance fog
@@ -164,7 +178,7 @@ export class CtxHolder {
 			canvas: this.mainCanvas,
 			logarithmicDepthBuffer: dBuffer,
 			powerPreference: this.getPowerPreference(),
-			precision: this.settings.shader_quality + "p",
+			precision: shaderP,
 		});
 		this.renderer.clearColor = 0x000000;
 		this.renderer.clearAlpha = 1;
@@ -173,9 +187,9 @@ export class CtxHolder {
 		if (this.isWebContext) this.initWebXR();
 
 		// initialize shader composer
-		this.composer = new EffectComposer(this.renderer);
+		this.composer = new EffectComposer(this.renderer, shaderP);
 		// initialize shaders
-		this.shaderHolder.init(this.scene, this.camera, this.composer);
+		this.shaderHolder.pipeline(this.scene, this.camera, this.composer);
 
 		// initialize statistics
 		if (this.settings.stats_option >= 0) {
@@ -185,14 +199,14 @@ export class CtxHolder {
 			document.body.appendChild(this.stats.dom);
 		}
 
-		this.geoHolder.init(this.scene, callback);
+		this.geoHolder.init(this.scene, this.camera, callback);
 	}
 
 	// update shader values
 	update(ellapsed, deltaTime) {
 
 		// calculate camera parallax with smoothing
-		var clampCam = (axis) => Math.min(this.settings.camera_bound, Math.max(-this.settings.camera_bound, axis));
+		var clampCam = (axis) => Math.min(this.settings.scaling_factor / 2, Math.max(-this.settings.scaling_factor / 2, axis));
 		var newCamX = clampCam(this.mouseX * this.settings.parallax_strength / 50);
 		var newCamY = clampCam(this.mouseY * this.settings.parallax_strength / -50);
 		if (this.camera.position.x != newCamX)
@@ -339,9 +353,9 @@ export class CtxHolder {
 
 	// use overall "quality" setting to determine three.js "power" mode
 	getPowerPreference() {
-		switch(this.settings.shader_quality) {
-			case "low": return "low-power";
-			case "high": return "high-performance";
+		switch (this.settings.shader_quality) {
+			case 1: return "low-power";
+			case 3: return "high-performance";
 			default: return "default";
 		}
 	}
