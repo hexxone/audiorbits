@@ -4,7 +4,9 @@
 
 import { BaseShader } from "./BaseShader";
 
-export class BlendShader extends BaseShader {
+export class BlendShader implements BaseShader {
+    
+    defines = null;
 
     shaderID = "blendShader";
 
@@ -16,9 +18,6 @@ export class BlendShader extends BaseShader {
 
     // default vertex shader
     vertexShader = `
-        precision lowp float;
-        //shaderquality
-
         varying vec2 vUv;
 
         void main() {
@@ -29,9 +28,6 @@ export class BlendShader extends BaseShader {
 
     // simple blending Shader
     fragmentShader = `
-        precision lowp float;
-        //shaderquality
-
 		uniform sampler2D tDiffuse;
         uniform sampler2D overlayBuffer;
         

@@ -4,7 +4,9 @@
 
 import { BaseShader } from "./BaseShader";
 
-export class LUTShader extends BaseShader {
+export class LUTShader implements BaseShader {
+
+  defines = null;
 
   shaderID = "LUTShader";
 
@@ -15,9 +17,6 @@ export class LUTShader extends BaseShader {
   };
 
   vertexShader = `
-      precision lowp float;
-      //shaderquality
-
       varying vec2 vUv;
       void main() {
         vUv = uv;
@@ -26,9 +25,6 @@ export class LUTShader extends BaseShader {
     `;
 
   fragmentShader = `
-      precision lowp float;
-      //shaderquality
-
       #include <common>
       
       #define FILTER_LUT true

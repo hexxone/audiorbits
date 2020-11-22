@@ -13,7 +13,9 @@
 import * as THREE from 'three';
 import { BaseShader } from './BaseShader';
 
-export class FractalMirrorShader extends BaseShader {
+export class FractalMirrorShader implements BaseShader {
+
+  defines = null;
 
   shaderID = "fractalMirror";
 
@@ -25,9 +27,6 @@ export class FractalMirrorShader extends BaseShader {
   };
 
   vertexShader = `
-    precision lowp float;
-    //shaderquality
-
     varying vec2 vUv;
 
     void main() {
@@ -37,9 +36,6 @@ export class FractalMirrorShader extends BaseShader {
     `;
 
   fragmentShader = `
-    precision lowp float;
-    //shaderquality
-
     uniform sampler2D tDiffuse;
     uniform vec2 iResolution;
     uniform float numSides;

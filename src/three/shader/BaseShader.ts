@@ -2,11 +2,11 @@
  * @author D.Thiele @https://hexx.one
  */
 
-export abstract class BaseShader {
+export interface BaseShader {
 
-    shaderID: string = "baseShader";
-    vertexShader: string = "";
-    fragmentShader: string = "";
-    uniforms: any = {};
-	defines: any = null;
+    shaderID: string;
+    vertexShader: string ;
+    fragmentShader: string;
+    uniforms: any;
+	defines: any;
 }

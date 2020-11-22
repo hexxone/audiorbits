@@ -26,23 +26,36 @@
  * - use webworker rendering?
  * - add new re-init vars
  * - implement color mode "level splitting"?
- * - implement reverse movement mode
  * - use buffer for geometry colors && sizes?
  * 		- in weasWorker?
  * 
- * - only show audio-related settings if enabled || also if min > max  => WARNING
+ * - test "min > max" saturation/light
+ * - move fov to camera category
+ * - add "camera centered" checkbox for vr
+ * - add fog / leveldepth percentage density   ((1 / viewDist * val / 100))
+ * 
+ * - change weas worker path in we_utils?
  * 
  * - highlight seizure text on white BG
  * - finish implementing Web-XR
- * 		- add "center"-mode for camera?
+ * 		- add  "vr-cam" mode, with relative controls
  * - record "how to debug"-video?
  * 
 */
 
 import { CtxHolder } from './CtxHolder';
+
+import { LogLevel, Smallog } from './we_utils/src/Smallog';
 import { ReloadHelper } from './we_utils/src/ReloadHelper';
 import { WarnHelper } from './we_utils/src/WarnHelper';
-import { LogLevel, Smallog } from './we_utils/src/Smallog';
+import { CSettings } from "./we_utils/src/CSettings";
+
+const Ignore: string[] = ["debugging", "img_overlay", "img_background", "mirror_invalid_val"];
+
+const ReInit: string[] = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "icue_mode",
+	"scaling_factor", "camera_bound", "num_points_per_subset", "num_subsets_per_level",
+	"num_levels", "level_depth", "level_shifting", "bloom_filter", "lut_filter", "mirror_shader",
+	"mirror_invert", "fx_antialiasing", "blur_strength", "custom_fps", "shader_quality"];
 
 // custom logging function
 var debug: boolean = false;
@@ -56,39 +69,40 @@ enum RunState {
 	ReInitializing = 4
 }
 
+// type-safe settings
+class MainSettings extends CSettings {
+	schemecolor: string = "0 0 0";
+	// Advanced
+	stats_option: number = -1;
+	// Misc category
+	seizure_warning: boolean = true;
+	// mirrored setting
+	parallax_option: number = 0;
+	auto_parallax_speed: number = 1;
+}
+
 // base object for wallpaper
-export class AudiOrbits {
+class AudiOrbits {
 	// holds default wallpaper settings
 	// these basically connect 1:1 to wallpaper engine settings.
 	// for more explanation on settings visit the Workshop-Item-Forum (link above)
-	settings = {
-		schemecolor: "0 0 0",
-		// Advanced
-		stats_option: -1,
-		// Misc category
-		seizure_warning: true,
-		// mirrored setting
-		parallax_option: 0,
-		auto_parallax_speed: 1
-	};
+	private settings: MainSettings = new MainSettings();
 
 	// state of the Wallpaper
-	state: RunState = RunState.None;
+	public state: RunState = RunState.None;
 
 	// debugging
-	debugTimeout: number = null;
+	private debugTimeout: number = null;
 	// Seconds & interval for reloading the wallpaper
-	resetTimespan: number = 3;
-	resetTimeout: number = null;
-
+	private resetTimespan: number = 3;
+	private resetTimeout: number = null;
 	// interval for swirlHandler
-	swirlInterval: number = null;
-	swirlStep: number = 0;
-
+	private swirlInterval: number = null;
+	private swirlStep: number = 0;
 	// important objects
-	ctxHolder: CtxHolder = new CtxHolder();
-	reloadHelper: ReloadHelper = new ReloadHelper();
-	warnHelper: WarnHelper = new WarnHelper();
+	private ctxHolder: CtxHolder = new CtxHolder();
+	private reloadHelper: ReloadHelper = new ReloadHelper();
+	private warnHelper: WarnHelper = new WarnHelper();
 
 	constructor() {
 		Smallog.SetPrefix("[AudiOrbits] ");
@@ -138,27 +152,19 @@ export class AudiOrbits {
 	///////////////////////////////////////////////
 
 	// Apply settings from the project.json "properties" object and takes certain actions
-	applyCustomProps(props) {
+	private applyCustomProps(props) {
 		Smallog.Debug("applying settings: " + JSON.stringify(Object.keys(props)));
 
-		const _ignore: string[] = ["debugging", "img_overlay", "img_background", "base_texture", "mirror_invalid_val"];
-
-		const _reInit: string[] = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "icue_mode",
-			"scaling_factor", "camera_bound", "num_points_per_subset", "num_subsets_per_level",
-			"num_levels", "level_depth", "level_shifting", "bloom_filter", "lut_filter", "mirror_shader",
-			"mirror_invert", "fx_antialiasing", "blur_strength", "custom_fps", "shader_quality"];
-
-		var sett = this.settings;
-		var reInitFlag = false;
-
 		// possible apply-targets
-		var settStorage = [sett, this.ctxHolder.settings, this.ctxHolder.weas.settings, this.ctxHolder.weicue.settings,
-			this.ctxHolder.colorHolder.settings, this.ctxHolder.shaderHolder.settings, this.ctxHolder.geoHolder.settings];
+		const sett = this.settings;
+		const settingsStorages: CSettings[] = [sett, ...this.ctxHolder.GetSettings()];
+
+		var reInitFlag = false;
 
 		// loop all settings for updated values
 		for (var setting in props) {
 			// ignore this setting or apply it manually
-			if (_ignore.indexOf(setting) > -1 || this.startsWith(setting, "HEADER_")) continue;
+			if (Ignore.indexOf(setting) > -1 || this.startsWith(setting, "HEADER_")) continue;
 			// get the updated setting
 			var prop = props[setting];
 			// check typing
@@ -166,23 +172,26 @@ export class AudiOrbits {
 
 			var found = false;
 			// process all storages
-			for (var storage of settStorage) {
-				if (storage[setting] != null) {
-					// save b4
-					found = true;
-					var b4Setting = storage[setting];
-					// apply prop value
-					if (prop.type == "bool")
-						storage[setting] = prop.value == true;
-					else
-						storage[setting] = prop.value;
-
-					// set re-init flag if value changed and included in list
-					reInitFlag = reInitFlag || b4Setting != storage[setting] && _reInit.indexOf(setting) > -1;
+			for (var storage of settingsStorages) {
+				var fo = false;
+				// apply prop value
+				switch (prop.type) {
+					case "bool":
+						found ||= (fo = storage.apply(setting, prop.value == "True"));
+						break;
+					case "slider":
+					case "combo":
+						found ||= (fo = storage.apply(setting, parseFloat(prop.value)));
+						break;
+					default:
+						found ||= (fo = storage.apply(setting, prop.value));
+						break;
 				}
+				// set re-init flag if value changed and included in list
+				if (fo) reInitFlag ||= ReInit.indexOf(setting) > -1;
 			}
 			// invalid?
-			if (!found) Smallog.Info("Unknown setting: " + setting + ". Are you using an old preset?");
+			if (!found) Smallog.Error("Unknown setting: " + setting + ". Are you using an old preset?");
 		}
 
 		// update parallax / weicue settings
@@ -223,12 +232,12 @@ export class AudiOrbits {
 		return reInitFlag;
 	}
 
-	startsWith(str, word) {
+	private startsWith(str, word) {
 		return str.lastIndexOf(word, 0) === 0;
 	}
 
 	// Set Image
-	setImgSrc(imgID: string, srcVal: string) {
+	private setImgSrc(imgID: string, srcVal: string) {
 		$(imgID).fadeOut(1000, () => {
 			if (srcVal && srcVal !== "") {
 				$(imgID).attr("src", "file:///" + srcVal);
@@ -242,20 +251,19 @@ export class AudiOrbits {
 	// INITIALIZE
 	///////////////////////////////////////////////
 
-	initOnce() {
-		// initialize wrapper
+	// do first init after page loaded
+	private initOnce() {
 		var initWrap = () => {
 			this.initSystem();
 			this.popupMessage("<h1>" + document.title + "</h1>", true);
 		};
-
 		// show seizure warning before initializing?
 		if (!this.settings.seizure_warning) initWrap();
 		else this.warnHelper.Show(initWrap);
 	}
 
 	// re-initialies the walpaper after some time
-	reInitSystem() {
+	private reInitSystem() {
 		Smallog.Info("re-initializing...");
 		// hide reloader
 		this.reloadHelper.Hide();
@@ -268,7 +276,7 @@ export class AudiOrbits {
 
 	// initialize the geometric & grpahics system
 	// => starts rendering loop afterwards
-	initSystem() {
+	private initSystem() {
 		// initialize three js and add geometry to returned scene
 		this.ctxHolder.init(() => {
 			// start auto parallax handler
@@ -287,7 +295,7 @@ export class AudiOrbits {
 	///////////////////////////////////////////////
 
 	// Auto Parallax handler
-	swirlHandler() {
+	private swirlHandler() {
 		if (this.settings.parallax_option != 2) return;
 		this.swirlStep += this.settings.auto_parallax_speed / 8;
 		if (this.swirlStep > 360) this.swirlStep -= 360;
@@ -296,7 +304,7 @@ export class AudiOrbits {
 	}
 
 	// popup message handler
-	popupMessage(msg, hideAfter) {
+	private popupMessage(msg, hideAfter) {
 		$("#txtholder").html(msg);
 		$("#txtholder").fadeIn({ queue: false, duration: "slow" });
 		$("#txtholder").animate({ bottom: "40px" }, "slow");

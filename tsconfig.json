@@ -12,7 +12,6 @@
         ],
     },
     "include": [
-        "./src/**/*.ts",
-        "./we_utils/**/*.ts"
+        "./src/**/*.ts"
     ]
 }

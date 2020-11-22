@@ -6,13 +6,13 @@
  */
 import * as THREE from 'three';
 import { FullScreenQuad } from "./FullScreenQuad";
-import { HelpPass } from "./HelpPass";
+import { BasePass } from "./BasePass";
 
 import { CopyShader } from '../shader/CopyShader';
 import { LuminosityHighPassShader } from '../shader/LuminosityHighPassShader';
 
 
-export class UnrealBloomPass extends HelpPass {
+export class UnrealBloomPass implements BasePass {
 
 	strength = null;
 	radius = null;
@@ -22,21 +22,25 @@ export class UnrealBloomPass extends HelpPass {
 	highPassUniforms = null;
 
 	// create color only once here, reuse it later inside the render function
+	clear = true;
 	clearColor = new THREE.Color(0, 0, 0);
-	renderTargetsHorizontal = [];
-	renderTargetsVertical = [];
+	renderTargetsHorizontal: THREE.WebGLRenderTarget[] = [];
+	renderTargetsVertical: THREE.WebGLRenderTarget[] = [];
+	renderToScreen = false;
 	nMips = 5;
 
-	materialHighPassFilter = null;
-	separableBlurMaterials = [];
-	compositeMaterial = null;
+	separableBlurMaterials: THREE.ShaderMaterial[] = [];
+	materialHighPassFilter: THREE.ShaderMaterial = null;
+	compositeMaterial: THREE.ShaderMaterial = null;
+	materialCopy: THREE.ShaderMaterial = null;
 	bloomTintColors = null;
 	copyUniforms = null;
-	materialCopy = null;
 	enabled = true;
 	needsSwap = false;
+	
 	oldClearColor = new THREE.Color();
 	oldClearAlpha = 1;
+
 	basic = new THREE.MeshBasicMaterial();
 	fsQuad = new FullScreenQuad(null);
 
@@ -44,7 +48,6 @@ export class UnrealBloomPass extends HelpPass {
 	BlurDirectionY = new THREE.Vector2(0.0, 1.0);
 
 	constructor(resolution, strength, radius, threshold) {
-		super();
 
 		this.resolution = (resolution !== undefined) ? new THREE.Vector2(resolution.x, resolution.y) : new THREE.Vector2(256, 256);
 		this.strength = (strength !== undefined) ? strength : 1;
@@ -181,7 +184,7 @@ export class UnrealBloomPass extends HelpPass {
 		// Render input to screen
 		if (this.renderToScreen) {
 
-			this.fsQuad.material.set(this.basic);
+			this.fsQuad.SetMaterial(this.basic);
 			this.basic.map = readBuffer.texture;
 			renderer.setRenderTarget(null);
 			renderer.clear();
@@ -192,7 +195,7 @@ export class UnrealBloomPass extends HelpPass {
 
 		this.highPassUniforms["tDiffuse"].value = readBuffer.texture;
 		this.highPassUniforms["luminosityThreshold"].value = this.threshold;
-		this.fsQuad.material = this.materialHighPassFilter;
+		this.fsQuad.SetMaterial(this.materialHighPassFilter);
 
 		renderer.setRenderTarget(this.renderTargetBright);
 		renderer.clear();
@@ -204,7 +207,7 @@ export class UnrealBloomPass extends HelpPass {
 
 		for (var i = 0; i < this.nMips; i++) {
 
-			this.fsQuad.material = this.separableBlurMaterials[i];
+			this.fsQuad.SetMaterial(this.separableBlurMaterials[i]);
 
 			this.separableBlurMaterials[i].uniforms["colorTexture"].value = inputRenderTarget.texture;
 			this.separableBlurMaterials[i].uniforms["direction"].value = this.BlurDirectionX;
@@ -223,7 +226,7 @@ export class UnrealBloomPass extends HelpPass {
 
 		// Composite All the mips
 
-		this.fsQuad.material = this.compositeMaterial;
+		this.fsQuad.SetMaterial(this.compositeMaterial);
 		this.compositeMaterial.uniforms["bloomStrength"].value = this.strength;
 		this.compositeMaterial.uniforms["bloomRadius"].value = this.radius;
 		this.compositeMaterial.uniforms["bloomTintColors"].value = this.bloomTintColors;
@@ -234,7 +237,7 @@ export class UnrealBloomPass extends HelpPass {
 
 		// Blend it additively over the input texture
 
-		this.fsQuad.material = this.materialCopy;
+		this.fsQuad.SetMaterial(this.materialCopy);
 		this.copyUniforms["tDiffuse"].value = this.renderTargetsHorizontal[0].texture;
 
 		if (maskActive) renderer.context.enable(renderer.context.STENCIL_TEST);
@@ -279,12 +282,6 @@ export class UnrealBloomPass extends HelpPass {
 
 			fragmentShader:
 				"#include <common>\
-				\n\
-				\n#ifdef GL_FRAGMENT_PRECISION_HIGH\
-				\nprecision highp float;\
-				\n#else\
-				\nprecision mediump float;\
-				\n#endif\
 				\n\
 				varying vec2 vUv;\
 				uniform sampler2D colorTexture;\
@@ -345,12 +342,6 @@ export class UnrealBloomPass extends HelpPass {
 
 			fragmentShader:
 				"varying vec2 vUv;\
-				\n\
-				\n#ifdef GL_FRAGMENT_PRECISION_HIGH\
-				\nprecision highp float;\
-				\n#else\
-				\nprecision mediump float;\
-				\n#endif\
 				\n\
 				uniform sampler2D blurTexture1;\
 				uniform sampler2D blurTexture2;\

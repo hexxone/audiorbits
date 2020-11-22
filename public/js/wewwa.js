@@ -32,9 +32,6 @@
  *   - apply all settings once
  * - react to changes made in the ui and update them in the wallpaper
  * - save changes made in the ui to localStorage
- * 
- * @todo
- * - check for correct audio data
 */
 
 var wewwApp = wewwApp || {};

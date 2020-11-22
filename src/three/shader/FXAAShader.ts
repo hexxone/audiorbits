@@ -10,7 +10,9 @@
 import * as THREE from 'three';
 import { BaseShader } from './BaseShader';
 
-export class FXAAShader extends BaseShader {
+export class FXAAShader implements BaseShader {
+	
+	defines = null;
 
 	shaderID = "fxaaShader";
 
@@ -20,10 +22,6 @@ export class FXAAShader extends BaseShader {
 	}
 
 	vertexShader = [
-		"",
-		"precision lowp float;",
-		"//shaderquality",
-		"",
 		"varying vec2 vUv;",
 		"void main() {",
 		"	vUv = uv;",
@@ -32,10 +30,6 @@ export class FXAAShader extends BaseShader {
 	].join("\n");
 
 	fragmentShader = [
-		"",
-		"precision lowp float;",
-		"//shaderquality",
-		"",
 		"uniform sampler2D tDiffuse;",
 		"",
 		"uniform vec2 resolution;",

@@ -5,18 +5,20 @@ import * as THREE from 'three';
 import { BaseShader } from '../shader/BaseShader';
 
 import { FullScreenQuad } from "./FullScreenQuad";
-import { HelpPass } from "./HelpPass";
+import { BasePass } from "./BasePass";
 
-export class ShaderPass extends HelpPass {
+export class ShaderPass implements BasePass {
 
-	renderToScreen: boolean = false;
+	enabled = true;
+	needsSwap = true;
+	clear = false;
+	renderToScreen = false;
 	material: THREE.Material = null;
 	textureID: string = null;
 	uniforms = null;
-	fsQuad = null;
+	fsQuad: FullScreenQuad = null;
 
 	constructor(shader: BaseShader, textureID: string = "tDiffuse") {
-		super();
 		this.textureID = textureID;
 
 		if (shader instanceof THREE.ShaderMaterial) {
@@ -34,14 +36,14 @@ export class ShaderPass extends HelpPass {
 		this.fsQuad = new FullScreenQuad(this.material);
 	}
 
+	setSize(width,height) {}
 
 	render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
 
 		if (this.uniforms[this.textureID])
 			this.uniforms[this.textureID].value = readBuffer.texture;
 
-		// @TODO does this work?
-		this.fsQuad.material = this.material;
+		this.fsQuad.SetMaterial(this.material);
 
 		if (this.renderToScreen) {
 			renderer.setRenderTarget(null);
