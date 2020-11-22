@@ -10,14 +10,11 @@ export class FullScreenQuad {
 	geometry = null;
 	mesh = null;
 	_mat = null;
-	material = {
-		get: function () {
-			return this._mesh.material;
-		},
-		set: function (value) {
-			this._mesh.material = value;
-		}
-	};
+
+	SetMaterial(mat:THREE.Material) {
+		this.mesh.material = mat;
+	}
+
 	constructor(material) {
 		this._mat = material;
 		this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);

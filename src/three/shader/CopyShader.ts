@@ -6,7 +6,8 @@
 
 import { BaseShader } from "./BaseShader"
 
-export class CopyShader extends BaseShader {
+export class CopyShader implements BaseShader {
+	defines = null;
 
 	shaderID = "copyShader";
 

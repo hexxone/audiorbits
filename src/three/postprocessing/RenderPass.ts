@@ -2,9 +2,14 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
-import { HelpPass } from "./HelpPass";
+import { BasePass } from "./BasePass";
 
-export class RenderPass extends HelpPass {
+export class RenderPass implements BasePass {
+
+	enabled = true;
+	needsSwap = false;
+	clear = true;
+	renderToScreen = true;
 
 	scene = null;
 	camera = null;
@@ -12,12 +17,9 @@ export class RenderPass extends HelpPass {
 	clearColor = null;
 	clearAlpha = null;
 
-	clear = true;
 	clearDepth = false;
-	needsSwap = false;
 
 	constructor(scene, camera, overrideMaterial, clearColor, clearAlpha) {
-		super();
 
 		this.scene = scene;
 		this.camera = camera;
@@ -27,6 +29,8 @@ export class RenderPass extends HelpPass {
 		this.clearColor = clearColor;
 		this.clearAlpha = (clearAlpha !== undefined) ? clearAlpha : 0;
 	}
+
+	setSize(width, height) {}
 
 	render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
 		var oldAutoClear = renderer.autoClear;

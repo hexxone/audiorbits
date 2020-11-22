@@ -6,20 +6,28 @@ import * as THREE from 'three';
 
 import { ShaderPass } from './ShaderPass';
 import { CopyShader } from '../shader/CopyShader';
+import { BasePass } from './BasePass';
 
-export class EffectComposer {
+export class EffectComposer implements BasePass {
 
 	renderer = null;
-	renderTarget1 = null;
-	renderTarget2 = null;
-	writeBuffer = this.renderTarget1;
-	readBuffer = this.renderTarget2;
-	renderToScreen = true;
-	passes = [];
-	copyPass = null;
+	renderTarget1: THREE.WebGLRenderTarget = null;
+	renderTarget2: THREE.WebGLRenderTarget = null;
+	writeBuffer: THREE.WebGLRenderTarget = this.renderTarget1;
+	readBuffer: THREE.WebGLRenderTarget = this.renderTarget2;
+	renderToScreen: boolean = true;
+	passes: BasePass[] = [];
+	copyPass: ShaderPass = null;
 	_previousFrameTime = Date.now();
 
-	constructor(renderer, renderTarget?) {
+	enabled: boolean;
+	needsSwap: boolean;
+	clear: boolean;
+
+	globalPrecision: string;
+
+	constructor(renderer: THREE.WebGLRenderer, globalPrec: string = "mediump", renderTarget?: THREE.WebGLRenderTarget) {
+
 		this.renderer = renderer;
 		if (renderTarget === undefined) {
 			var parameters = {
@@ -45,32 +53,55 @@ export class EffectComposer {
 		// dependencies
 		this.copyPass = new ShaderPass(new CopyShader());
 		this._previousFrameTime = Date.now();
+		// overwrite shader precision
+		this.globalPrecision = globalPrec;
 	}
 
-	swapBuffers() {
+	public swapBuffers() {
 		var tmp = this.readBuffer;
 		this.readBuffer = this.writeBuffer;
 		this.writeBuffer = tmp;
 	}
 
-	addPass(pass) {
-		this.passes.push(pass);
+	public addPass(pass: BasePass) {
+		var p: BasePass = this.wrapPrecision(pass);
+		this.passes.push(p);
 		var size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
-		pass.setSize(size.width, size.height);
+		p.setSize(size.width, size.height);
 	}
 
-	insertPass(pass, index) {
-		this.passes.splice(index, 0, pass);
+	public insertPass(pass: BasePass, index) {
+		this.passes.splice(index, 0, this.wrapPrecision(pass));
 	}
 
-	isLastEnabledPass(passIndex) {
+	private wrapPrecision(pass: BasePass) {
+		var copy: any = pass;
+		if (copy.material) {
+			// get prefix
+			var pre = "precision " + this.globalPrecision + " float;\r\n    "
+				+ "precision " + this.globalPrecision + " int;\r\n    ";
+			// "medium" sampler precision should always be available for "high" float precision.
+			if (this.globalPrecision == "highp") {
+				pre += "precision mediump sampler2D;\r\n    "
+					+ "precision mediump samplerCube;\r\n    ";
+			}
+			// apply it
+			if (copy.material.vertexShader)
+				copy.material.vertexShader = pre + copy.material.vertexShader;
+			if (copy.material.fragmentShader)
+				copy.material.fragmentShader = pre + copy.material.fragmentShader;
+		}
+		return copy;
+	}
+
+	public isLastEnabledPass(passIndex) {
 		for (var i = passIndex + 1; i < this.passes.length; i++) {
 			if (this.passes[i].enabled) return false;
 		}
 		return true;
 	}
 
-	render(deltaTime) {
+	public render(deltaTime) {
 		// deltaTime value is in seconds
 		if (deltaTime === undefined) {
 			deltaTime = (Date.now() - this._previousFrameTime) * 0.001;
@@ -78,7 +109,7 @@ export class EffectComposer {
 		this._previousFrameTime = Date.now();
 		var currentRenderTarget = this.renderer.getRenderTarget();
 
-		var pass, i, il = this.passes.length;
+		var pass: BasePass, i, il = this.passes.length;
 		for (i = 0; i < il; i++) {
 
 			pass = this.passes[i];
@@ -93,7 +124,7 @@ export class EffectComposer {
 		this.renderer.setRenderTarget(currentRenderTarget);
 	}
 
-	reset(renderTarget) {
+	public reset(renderTarget) {
 
 		if (renderTarget === undefined) {
 			var size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
@@ -110,7 +141,7 @@ export class EffectComposer {
 
 	}
 
-	setSize(width, height) {
+	public setSize(width, height) {
 		this.renderTarget1.setSize(width, height);
 		this.renderTarget2.setSize(width, height);
 		for (var i = 0; i < this.passes.length; i++) {

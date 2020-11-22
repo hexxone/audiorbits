@@ -7,7 +7,9 @@
 import * as THREE from 'three';
 import { BaseShader } from './BaseShader';
 
-export class LuminosityHighPassShader extends BaseShader {
+export class LuminosityHighPassShader implements BaseShader {
+	
+	defines = null;
 
 	shaderID = "luminosityHighPass";
 
@@ -20,9 +22,6 @@ export class LuminosityHighPassShader extends BaseShader {
 	};
 
 	vertexShader = `
-		precision lowp float;
-		//shaderquality
-
 		varying vec2 vUv;
 
 		void main() {
@@ -32,9 +31,6 @@ export class LuminosityHighPassShader extends BaseShader {
 	`;
 
 	fragmentShader = `
-        precision lowp float;
-        //shaderquality
-
 		uniform sampler2D tDiffuse;
 		uniform vec3 defaultColor;
 		uniform float defaultOpacity;

@@ -10,6 +10,7 @@
  * Contains and updates the Geometry for AudiOrbits.
  * 
  * @todo
+ * - customize hue/color audio influence (slider)
  * - implement particle system
  * - implement ps4 experiment
  * - implement cloud experiment
@@ -23,6 +24,8 @@ import * as THREE from 'three';
 import { ColorHolder } from './ColorHolder';
 import { WEAS } from './we_utils/src/WEAS';
 import { Smallog } from './we_utils/src/Smallog';
+import { CSettings } from "./we_utils/src/CSettings";
+import { CComponent } from './we_utils/src/CComponent';
 
 interface Level {
 	level: number;
@@ -36,85 +39,90 @@ interface Subset {
 	set: number;
 }
 
-export class GeoHolder {
+class GeoSettings extends CSettings {
+	geometry_type: number = 0;
+	num_levels: number = 6;
+	level_depth: number = 1200;
+	level_shifting: boolean = false;
+	num_subsets_per_level: number = 12;
+	num_points_per_subset: number = 4096;
+	base_texture: number = 0;
+	texture_size: number = 7;
+	// Tunnel generator
+	generate_tunnel: boolean = false;
+	tunnel_inner_radius: number = 5;
+	tunnel_outer_radius: number = 5;
+	// Algorithm params
+	alg_a_min: number = -25;
+	alg_a_max: number = 25;
+	alg_b_min: number = 0.3;
+	alg_b_max: number = 1.7;
+	alg_c_min: number = 5;
+	alg_c_max: number = 16;
+	alg_d_min: number = 1;
+	alg_d_max: number = 9;
+	alg_e_min: number = 1;
+	alg_e_max: number = 10;
+	// mirrored setting
+	scaling_factor: number = 1500;
+	// Movement category
+	movement_type: number = 0;
+	zoom_val: number = 1;
+	rotation_val: number = 0;
+	// Brightness category
+	default_brightness: number = 60;
+	minimum_brightness: number = 10;
+	maximum_brightness: number = 90;
+	// Saturation category
+	default_saturation: number = 10;
+	minimum_saturation: number = 10;
+	maximum_saturation: number = 90;
+	// Audio category
+	audio_multiplier: number = 2;
+	audiozoom_val: number = 2;
+	only_forward: boolean = false;
+	audiozoom_smooth: boolean = false;
+	// time-value smoothing ratio
+	// mirrored on WEAS
+	audio_increase: number = 75;
+	audio_decrease: number = 35;
+}
 
-	weas: WEAS = null;
+export class GeoHolder extends CComponent {
 
-	settings = {
-		geometry_type: 0,
-		num_levels: 6,
-		level_depth: 1200,
-		level_shifting: false,
-		num_subsets_per_level: 12,
-		num_points_per_subset: 4096,
-		base_texture: 0,
-		texture_size: 7,
-		// Tunnel generator
-		generate_tunnel: false,
-		tunnel_inner_radius: 5,
-		tunnel_outer_radius: 5,
-		// Algorithm params
-		alg_a_min: -25,
-		alg_a_max: 25,
-		alg_b_min: 0.3,
-		alg_b_max: 1.7,
-		alg_c_min: 5,
-		alg_c_max: 16,
-		alg_d_min: 1,
-		alg_d_max: 9,
-		alg_e_min: 1,
-		alg_e_max: 10,
-		// mirrored setting
-		scaling_factor: 1800,
-		// Movement category
-		movement_type: 0,
-		zoom_val: 1,
-		rotation_val: 0,
-		// Brightness category
-		default_brightness: 60,
-		minimum_brightness: 10,
-		maximum_brightness: 90,
-		// Saturation category
-		default_saturation: 10,
-		minimum_saturation: 10,
-		maximum_saturation: 90,
-		// Audio category
-		audio_multiplier: 2,
-		audiozoom_val: 2,
-		only_forward: false,
-		audiozoom_smooth: false,
-		// time-value smoothing ratio
-		// mirrored on WEAS
-		audio_increase: 75,
-		audio_decrease: 35,
-		// experimental on points material
-		sAttenuation: false,
-	}
+	public settings: GeoSettings = new GeoSettings();
 
 	// main orbit data
-	levels: Level[] = [];
-	moveBacks: number[] = [];
+	private levels: Level[] = [];
+	private moveBacks: number[] = [];
 	// speed smoothing helper
-	speedVelocity = 0;
+	private speedVelocity = 0;
 
 	// generator holder
-	levelWorker: Worker = null;
-	levelWorkersRunning: number = 0;
-	levelWorkerCall = null;
+	private levelWorker: Worker = null;
+	private levelWorkersRunning: number = 0;
+	private levelWorkerCall = null;
 
 	// color holder
-	colorHolder: ColorHolder = null;
+	private colorHolder: ColorHolder = new ColorHolder();
+
+	// keep camera position for moving subsets around
+	private camera: THREE.Camera = null;
 
 	// actions to perform after render
-	afterRenderQueue = [];
+	private afterRenderQueue = [];
+
+	private weas: WEAS = null;
 
 	constructor(weas: WEAS) {
+		super();
 		this.weas = weas;
-		this.colorHolder = new ColorHolder();
+		this.children.push(this.colorHolder);
 	}
 
 	// initialize geometry generator, data & objects
-	init(scene, call) {
+	public init(scene: THREE.Scene, cam: THREE.Camera, call) {
+		this.camera = cam;
 		var sett = this.settings;
 		// reset generator
 		if (this.levelWorker) this.levelWorker.terminate();
@@ -139,7 +147,7 @@ export class GeoHolder {
 				this.levelWorkersRunning--;
 
 				let xyzBuf = new Float32Array(ldata.xyzBuff);
-				var subbs = this.levels[ldata.id].sets;
+				var subbs: any[] = this.levels[ldata.id].sets;
 
 				// spread over time for less thread blocking
 				for (let s = 0; s < sett.num_subsets_per_level; s++) {
@@ -149,8 +157,8 @@ export class GeoHolder {
 						// copy end index
 						var tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset) * 2;
 						// slice & set xyzBuffer data, then update child
-						(((subbs[s].object as THREE.Points).geometry as THREE.BufferGeometry).attributes.position as THREE.BufferAttribute).set(xyzBuf.slice(from, tooo), 0);
-
+						Smallog.Debug("Slidee from: " + from + ", to ==> " + tooo);
+						subbs[s].object.geometry.attributes.position.set(xyzBuf.slice(from, tooo), 0);
 						subbs[s].needsUpdate = true;
 					});
 				}
@@ -169,7 +177,7 @@ export class GeoHolder {
 			}, false);
 		}
 
-		var texture = null;
+		var texture: THREE.Texture = null;
 		// load texture sync and init geometry
 		if (sett.geometry_type == 0) {
 			// get texture path
@@ -183,12 +191,13 @@ export class GeoHolder {
 		}
 
 		// initialize
-		this.initGeometries(scene, call, texture);
+		this.initGeometries(scene, texture, call);
 	}
 
 	// create WEBGL objects for each level and subset
-	initGeometries(scene, call, texture) {
+	private initGeometries(scene: THREE.Scene, texture: THREE.Texture, call) {
 		var sett = this.settings;
+		var camZ = this.camera.position.z;
 
 		Smallog.Debug("building geometries.");
 		// material properties
@@ -215,6 +224,8 @@ export class GeoHolder {
 			};
 			// set subset moveback counter
 			this.moveBacks[l] = 0;
+
+			const lDist = - camZ - sett.level_depth * l;
 			// build all subsets
 			for (var s = 0; s < sett.num_subsets_per_level; s++) {
 
@@ -234,10 +245,10 @@ export class GeoHolder {
 				particles.position.y = 0;
 				// position in space
 				if (sett.level_shifting) {
-					particles.position.z = - sett.level_depth * l - (s * subsetDist * 2) + sett.scaling_factor / 2;
+					particles.position.z = lDist - (s * subsetDist * 2);
 					if (l % 2 != 0) particles.position.z -= subsetDist;
 				}
-				else particles.position.z = - sett.level_depth * l - (s * subsetDist) + sett.scaling_factor / 2;
+				else particles.position.z = lDist - (s * subsetDist);
 				// euler angle 45 deg in radians
 				particles.rotation.z = -0.785398;
 				// add to scene
@@ -277,18 +288,12 @@ export class GeoHolder {
 		else if (call) call();
 	}
 
-	// failed to load texture
-	textureError(err) {
-		Smallog.Error("texture loading error:");
-		Smallog.Error(err);
-	}
-
 	///////////////////////////////////////////////
 	// FRACTAL GENERATOR
 	///////////////////////////////////////////////
 
 	// queue worker event
-	generateLevel(level) {
+	private generateLevel(level) {
 		Smallog.Debug("generating level: " + level);
 		this.levelWorkersRunning++;
 		this.levelWorker.postMessage({
@@ -301,23 +306,35 @@ export class GeoHolder {
 	// move geometry
 	///////////////////////////////////////////////
 
-	update(ellapsed, deltaTime) {
+	public update(ellapsed, deltaTime) {
 		var sett = this.settings;
 
 		// calculate boost strength & step size if data given
-		var flmult = (15 + sett.audio_multiplier) / 65;
 		var spvn = sett.zoom_val / 1.5 * deltaTime;
 		var reversed = sett.movement_type == 1;
 
+		// get targeted saturations
+		var defSat = sett.default_saturation / 100;
+		var minSat = sett.minimum_saturation / 100;
+		var maxSat = sett.maximum_saturation / 100;
+		// get targeted brightness's
+		var defBri = sett.default_brightness / 100;
+		var minBri = sett.minimum_brightness / 100;
+		var maxBri = sett.maximum_brightness / 100;
+
+
 		// audio stuff
 		var hasAudio = this.weas.hasAudio();
-		var lastAudio, boost, step;
+		var flmult = (15 + sett.audio_multiplier) / 65;
+		var lastAudio, boost, step, scaleBri, scaleSat;
 		if (hasAudio) {
 			spvn = (spvn + sett.audiozoom_val / 3) * deltaTime;
 			// get 
 			lastAudio = this.weas.lastAudio;
 			// calc audio boost
 			boost = lastAudio.intensity * flmult;
+			// calculate scale helper
+			scaleBri = (maxBri - minBri) * boost / 100;
 			// calculate step distance between levels
 			step = (sett.num_levels * sett.level_depth * 1.2) / 128;
 			// speed velocity calculation
@@ -337,12 +354,11 @@ export class GeoHolder {
 			spvn = 0;
 		}
 		// reverse zoom?
-		if(reversed) {
+		if (reversed) {
 			spvn *= -1;
 		}
 		// debug
-		Smallog.Debug("Audio data: " + JSON.stringify([lastAudio, boost, step, this.speedVelocity, spvn])),
-
+		Smallog.Debug("Audio data: " + JSON.stringify([lastAudio, boost, step, this.speedVelocity, spvn]));
 		this.speedVelocity = spvn;
 
 		// rotation calculation
@@ -356,25 +372,16 @@ export class GeoHolder {
 		var hues = this.colorHolder.hueValues;
 		var color_mode = this.colorHolder.settings.color_mode;
 
-		// get targeted saturations
-		var defSat = sett.default_saturation / 100;
-		var minSat = sett.minimum_saturation / 100;
-		var maxSat = sett.maximum_saturation / 100;
-		// get targeted brightness's
-		var defBri = sett.default_brightness / 100;
-		var minBri = sett.minimum_brightness / 100;
-		var maxBri = sett.maximum_brightness / 100;
-
 		// this is a bit hacky
-		var camPos = sett.scaling_factor / 2;
+		var camZ = this.camera.position.z;
 		var orbitSize = sett.num_levels * sett.level_depth;
-		var backPos = camPos - orbitSize;
+		var backPos = camZ - orbitSize;
 
 		// dont re-declare this shit every time... should be faster
 		// first the objects
-		var lv, level : Level, ss, prnt : Subset, child;
+		var lv, level: Level, ss, prnt: Subset, child;
 		// second the attributes
-		var dist, freqIdx, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
+		var dist, freqIdx, freqData, freqLvl, hsl, targetHue, setHue, setSat, setLight;
 
 		// process all levels
 		for (lv = 0; lv < this.levels.length; lv++) {
@@ -390,16 +397,16 @@ export class GeoHolder {
 
 				// reset to back if out of bounds
 				var moved = false;
-				if (!reversed && child.position.z > camPos) {
+				if (!reversed && child.position.z > camZ) {
 					child.position.z -= orbitSize;
 					moved = true;
 				}
 				// reset to front
-				else if(reversed && child.position.z < backPos) {
+				else if (reversed && child.position.z < backPos) {
 					child.position.z += orbitSize;
 					moved = true;
 				}
-				if(moved) {
+				if (moved) {
 					this.moveBacks[prnt.level]++;
 					// update the child visually
 					if (prnt.needsUpdate) {
@@ -414,40 +421,36 @@ export class GeoHolder {
 				}
 
 				// targeted HUE
-				tmpHue = Math.abs(hues[prnt.set]);
+				targetHue = Math.abs(hues[prnt.set]);
 
 				// HSL calculation with audio?
 				if (hasAudio) {
 					// use "obj"-to-"camera" distance with "step" to get "frequency" data
 					// then process it
-					dist = Math.round((camPos - child.position.z) / step);
+					dist = Math.round((camZ - child.position.z) / step);
 					freqIdx = Math.min(lastAudio.data.length, Math.max(0, dist - 2));
 					freqData = parseFloat(lastAudio.data[freqIdx]);
 					freqLvl = (freqData * flmult / 3) / lastAudio.max;
 					// uhoh ugly special case
 					if (color_mode == 4)
-						tmpHue += (colObject.hslb - tmpHue) * freqData / lastAudio.max;
+						targetHue += (colObject.hslb - targetHue) * freqData / lastAudio.max;
 					else if (color_mode == 0)
-						tmpHue += freqLvl;
+						targetHue += freqLvl;
 					// quick maths
-					setHue = tmpHue % 1.0;
-					setSat = Math.abs(minSat + freqLvl + freqLvl * boost * 0.07);
-					setLight = Math.abs(minBri + freqLvl + freqLvl * boost * 0.01);
-
-					//Smallog.Debug("Debug: " + JSON.stringify([step, freqIdx, freqData, freqLvl, tmpHue]))
+					setHue = targetHue;
+					setSat = minSat + freqLvl * scaleSat;
+					setLight = minBri + freqLvl * scaleBri;
 				}
 				else {
 					// get current HSL
 					hsl = {};
 					child.material.color.getHSL(hsl);
-					//Smallog.Debug("got hsl: " + JSON.stringify(hsl));
-
 					setHue = hsl.h;
 					setSat = hsl.s;
 					setLight = hsl.l;
 					// targeted HUE
-					if (Math.abs(tmpHue - setHue) > 0.01)
-						setHue += (tmpHue - setHue) / sixtyDelta;
+					if (Math.abs(targetHue - setHue) > 0.01)
+						setHue += (targetHue - setHue) / sixtyDelta;
 					// targeted saturation
 					if (Math.abs(defSat - setSat) > 0.01)
 						setSat += (defSat - setSat) / sixtyDelta;
@@ -463,9 +466,6 @@ export class GeoHolder {
 					this.clamp(setHue, 0, 1, true),
 					this.clamp(setSat, 0, maxSat),
 					this.clamp(setLight, 0, maxBri));
-
-				//child.material.color.setHSL(setHue, setSat, setLight);
-				//child.material.color.setHSL( this.clamp(setHue, 0, 1, true), 1, 0.7);
 			}
 		}
 
@@ -478,7 +478,7 @@ export class GeoHolder {
 	}
 
 	// correct colors to be safe
-	clamp(val: number, min: number, max: number, goround = false) {
+	private clamp(val: number, min: number, max: number, goround = false) {
 		if (goround) {
 			if (val < min) return max - val;
 			return val % max;

@@ -4,7 +4,8 @@
 import * as THREE from 'three';
 import { BaseShader } from './BaseShader';
 
-export class BlurShader extends BaseShader {
+export class BlurShader implements BaseShader {
+    defines = null;
 
     shaderID = "blurShader";
 
@@ -17,9 +18,6 @@ export class BlurShader extends BaseShader {
 
     // Default vertex shader
     vertexShader: `
-        precision lowp float;
-        //shaderquality
-
         varying vec2 vUv;
     
         void main() {
@@ -30,9 +28,6 @@ export class BlurShader extends BaseShader {
 
     // Simple Chromatic Aberration Shader
     fragmentShader: `
-        precision lowp float;
-        //shaderquality
-
         varying vec2 vUv;
 
         uniform sampler2D tDiffuse;

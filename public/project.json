@@ -49,7 +49,6 @@
         "ui_parallax_option_3": "Fest",
         "ui_parallax_strength": "Stärke",
         "ui_auto_parallax_speed": "Geschwindigkeit",
-        "ui_camera_bound": "Kamera Pos.",
         "ui_custom_fps": "Eigenes Rendering 🔃",
         "ui_fps_value": "FPS Ziel",
         "ui_field_of_view": "Field of View",
@@ -528,6 +527,26 @@
         "text": "ui_auto_parallax_speed",
         "type": "slider",
         "value": 2
+      },
+      "field_of_view": {
+        "condition": "HEADER_PRLX.value",
+        "editable": true,
+        "max": 130,
+        "min": 50,
+        "order": 373,
+        "text": "ui_field_of_view",
+        "type": "slider",
+        "value": 70
+      },
+      "fog_thickness": {
+        "condition": "HEADER_PRLX.value",
+        "editable": true,
+        "max": 10,
+        "min": 1,
+        "order": 376,
+        "text": "ui_fog_thickness",
+        "type": "slider",
+        "value": 3
       },
       "SPACER_08": {
         "condition": "HEADER_PRLX.value",
@@ -1192,52 +1211,22 @@
         "condition": "HEADER_ADVANCED.value",
         "options": [
           {
-            "label": "ui_shader_quality_3",
-            "value": "high"
+            "label": "ui_shader_quality_1",
+            "value": 1
           },
           {
             "label": "ui_shader_quality_2",
-            "value": "medium"
+            "value": 2
           },
           {
-            "label": "ui_shader_quality_1",
-            "value": "low"
+            "label": "ui_shader_quality_3",
+            "value": 3
           }
         ],
         "order": 1140,
         "text": "ui_shader_quality",
         "type": "combo",
-        "value": "medium"
-      },
-      "field_of_view": {
-        "condition": "HEADER_ADVANCED.value",
-        "editable": true,
-        "max": 130,
-        "min": 50,
-        "order": 1150,
-        "text": "ui_field_of_view",
-        "type": "slider",
-        "value": 70
-      },
-      "camera_bound": {
-        "condition": "HEADER_ADVANCED.value",
-        "editable": true,
-        "max": 4000,
-        "min": 0,
-        "order": 1160,
-        "text": "ui_camera_bound",
-        "type": "slider",
-        "value": 1000
-      },
-      "fog_thickness": {
-        "condition": "HEADER_ADVANCED.value",
-        "editable": true,
-        "max": 10,
-        "min": 1,
-        "order": 1170,
-        "text": "ui_fog_thickness",
-        "type": "slider",
-        "value": 3
+        "value": 2
       },
       "seizure_warning": {
         "condition": "HEADER_ADVANCED.value",
