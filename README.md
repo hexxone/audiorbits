@@ -1,3 +1,6 @@
+# This is an Experimental branch! Nothing may stay the same.
+
+
 ## [AudiOrbits](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780) is a web wallpaper designed for [Wallpaper Engine](https://steamcommunity.com/app/431960)
 
 ### [THIS](https://github.com/hexxone/audiorbits) is the wallpaper's public git repository.
@@ -18,11 +21,14 @@ Just remember to give credit where due :)
 
 
 ### Dependencies / Libraries
-- [we_utils](https://github.com/hexxone/we_utils) diverse utilities
-- [we_project_helper](https://github.com/hexxone/we_project_helper) translating & editing .json
+- [we_utils](https://github.com/hexxone/we_utils) utilities for WE-Web-Wallpapers
+- [we_project_helper](https://github.com/hexxone/we_project_helper) manipulating `project.json`
 - [jQuery](https://jquery.com/) gui editing
 - [three.js](https://threejs.org/) & Examples for webgl rendering
-- [HTML5 Environment](https://html5test.com/) for webGL & audio features
+- [typescript](https://www.typescriptlang.org/) for typization
+- [yarn](https://yarnpkg.com/) for TypeScript packages
+- [webpack](https://webpack.js.org/) for bundling & testing
+- [HTML5](https://html5test.com/) for WebGL & WebAudio
 
 
 ### Features:
@@ -38,8 +44,10 @@ Version 2.4:
 - Add Audio "Mono/Stereo" Setting
 - Add "Movement Direction" Setting
 - Add Color Mode "Level Splitting"
+- level generation allows more points per level now
+- shortened fade-in time and fixxed reload bar
 - Completely reworked Settings categories / ordering
-- Internally switched to TypeScript language
+- Internally switched to TypeScript and Webpack
 
 Version 2.3:
 - added "shader_quality"-setting (Advanced)
