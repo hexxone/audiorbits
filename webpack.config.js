@@ -22,11 +22,8 @@ module.exports = {
         use: [
           {
             loader: 'worker-loader',
-          },
-          {
-            loader: 'babel-loader',
             options: {
-              presets: ['@babel/preset-env'],
+              esModule: false,
             },
           },
         ],

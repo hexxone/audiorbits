@@ -10,6 +10,11 @@
         "types": [
             "jquery"
         ],
+        "lib": [
+            "es7",
+            "DOM",
+            "webworker",
+        ]
     },
     "include": [
         "./src/**/*.ts"
