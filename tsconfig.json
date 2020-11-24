@@ -7,13 +7,9 @@
         "moduleResolution": "node",
         "esModuleInterop": true,
         "emitDecoratorMetadata": false,
+        "sourceMap": false,
         "types": [
             "jquery"
-        ],
-        "lib": [
-            "es7",
-            "DOM",
-            "webworker",
         ]
     },
     "include": [
