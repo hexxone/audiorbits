@@ -3,7 +3,9 @@ const path = require('path');
 const CircularDependencyPlugin = require('circular-dependency-plugin')
 
 module.exports = {
-  entry: './dist/babel/AudiOrbits.js',
+  entry: {
+    magicIO: './dist/babel/AudiOrbits.js'
+  },
   output: {
     filename: 'AudiOrbits.bundle.js',
     path: path.resolve(__dirname, 'dist') + '/pack/js'
@@ -12,6 +14,24 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, 'dist') + '/pack',
     port: 9000
+  },
+  module: {
+    rules: [
+      {
+        test: /\.worker\.(c|m)?js$/i,
+        use: [
+          {
+            loader: 'worker-loader',
+          },
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env'],
+            },
+          },
+        ],
+      }
+    ]
   },
   plugins: [
     new CircularDependencyPlugin({
