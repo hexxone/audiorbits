@@ -15,7 +15,7 @@
  * Go here:	https://orbits.hexx.one
  * 
  * @description
- * Audiorbits for Wallpaper Engine
+ * Audiorbits Web-Wallpaper for Wallpaper Engine
  * 
  * If you're reading this you're either pretty interested in the code or just bored :P
  * Either way thanks for using this Wallpaper I guess.
@@ -29,15 +29,14 @@
  * - use buffer for geometry colors && sizes?
  * 		- in weasWorker?
  * 
+ * - use webpack wrapper to make app available in localstorage as service?
  * - test "min > max" saturation/light
  * - move fov to camera category
- * - add "camera centered" checkbox for vr
  * - add fog / leveldepth percentage density   ((1 / viewDist * val / 100))
- * 
- * - change weas worker path in we_utils?
  * 
  * - highlight seizure text on white BG
  * - finish implementing Web-XR
+ * 		- add "camera centered" checkbox for vr
  * 		- add  "vr-cam" mode, with relative controls
  * - record "how to debug"-video?
  * 

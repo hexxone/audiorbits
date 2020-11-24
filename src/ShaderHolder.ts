@@ -94,7 +94,7 @@ export class ShaderHolder extends CComponent {
 			composer.addPass(fxaaPass);
 			lastEffect = fxaaPass;
 			// set uniform
-			fxaaPass.uniforms.resolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
+			fxaaPass.uniforms.resolution.value = new THREE.Vector2(1 / window.innerWidth, 1 / window.innerHeight);
 		}
 
 		// TWO-PASS Blur using the same directional shader
