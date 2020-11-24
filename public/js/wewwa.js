@@ -734,6 +734,18 @@ else {
         // set callback to be called later with analysed audio data
         wewwApp.audioCallback = callback;
     }
+    // ready helper
+    const ready = function (fn) {
+        if (typeof fn !== 'function')
+            return false;
+        // If document is already loaded, run method
+        const check = () => (document.readyState === 'interactive' || document.readyState === 'complete')
+        if(check()) return fn();
+        // Otherwise, wait until document is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            if(check()) return fn();
+        }, false);
+    }
     // intialize when ready
-    $(() => wewwApp.Init());
+    ready(() => wewwApp.Init());
 }

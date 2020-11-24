@@ -49,6 +49,7 @@ import { LogLevel, Smallog } from './we_utils/src/Smallog';
 import { ReloadHelper } from './we_utils/src/ReloadHelper';
 import { WarnHelper } from './we_utils/src/WarnHelper';
 import { CSettings } from "./we_utils/src/CSettings";
+import { Ready } from './we_utils/src/Ready';
 
 const Ignore: string[] = ["debugging", "img_overlay", "img_background", "mirror_invalid_val"];
 
@@ -118,7 +119,7 @@ class AudiOrbits {
 				// very first initialization
 				if (this.state == RunState.None) {
 					this.state = RunState.Initializing;
-					$(() => this.initOnce());
+					Ready.On(() => this.initOnce());
 				}
 				else if (initFlag) {
 					this.state = RunState.ReInitializing;
