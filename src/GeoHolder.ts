@@ -27,6 +27,8 @@ import { Smallog } from './we_utils/src/Smallog';
 import { CSettings } from "./we_utils/src/CSettings";
 import { CComponent } from './we_utils/src/CComponent';
 
+import LevelWorker from 'worker-loader!./LevelWorker';
+
 interface Level {
 	level: number;
 	sets: Subset[];
@@ -99,7 +101,7 @@ export class GeoHolder extends CComponent {
 	private speedVelocity = 0;
 
 	// generator holder
-	private levelWorker: Worker = null;
+	private levelWorker: LevelWorker = null;
 	private levelWorkersRunning: number = 0;
 	private levelWorkerCall = null;
 
@@ -136,40 +138,37 @@ export class GeoHolder extends CComponent {
 
 		// setup fractal generator for "default" / "particle" mode
 		if (sett.geometry_type < 2) {
-			this.levelWorker = new Worker('./js/worker/levelWorker.js');
+			this.levelWorker = new LevelWorker();
+
 
 			// LEVEL GENERATED CALLBACK
 			this.levelWorker.addEventListener('message', (e) => {
-				let ldata = e.data;
-				Smallog.Debug("generated level: " + ldata.id);
-
-				var sett = this.settings;
-				this.levelWorkersRunning--;
-
-				let xyzBuf = new Float32Array(ldata.xyzBuff);
-				var subbs: any[] = this.levels[ldata.id].sets;
-
-				// spread over time for less thread blocking
-				for (let s = 0; s < sett.num_subsets_per_level; s++) {
+				let dat = e.data;
+				if (dat.action == "level") {
+					Smallog.Debug("generated level: " + dat.level);
+					// if all workers finished and we have a queued event, trigger it
+					// this is used as "finished"-trigger for initial level generation...
+					this.levelWorkersRunning--;
+					if (this.levelWorkersRunning == 0 && this.levelWorkerCall) {
+						this.levelWorkerCall();
+						this.levelWorkerCall = null;
+					}
+				}
+				else if (dat.action == "subset") {
+					Smallog.Debug("generated subset: " + dat.level + "/" + dat.subset);
+					// transfer buffer array and get subset
+					let xyBuff = new Float32Array(dat.xyBuff);
+					var subSet: any = this.levels[dat.level].sets[dat.subset];
+					// spread over time for less thread blocking
 					this.afterRenderQueue.push(() => {
-						// copy start index
-						var from = (s * sett.num_points_per_subset) * 2;
-						// copy end index
-						var tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset) * 2;
-						// slice & set xyzBuffer data, then update child
-						Smallog.Debug("Slidee from: " + from + ", to ==> " + tooo);
-						subbs[s].object.geometry.attributes.position.set(xyzBuf.slice(from, tooo), 0);
-						subbs[s].needsUpdate = true;
+						// set buffer geometry data, then tell the child it's update ready
+						subSet.object.geometry.attributes.position.set(xyBuff, 0);
+						subSet.needsUpdate = true;
 					});
 				}
-
-				// if all workers finished and we have a queued event, trigger it
-				// this is used as "finished"-trigger for initial level generation...
-				if (this.levelWorkersRunning == 0 && this.levelWorkerCall) {
-					this.levelWorkerCall();
-					this.levelWorkerCall = null;
-				}
 			}, false);
+
+
 
 			// ERROR CALLBACK
 			this.levelWorker.addEventListener('error', (e) => {
