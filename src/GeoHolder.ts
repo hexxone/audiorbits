@@ -334,11 +334,12 @@ export class GeoHolder extends CComponent {
 			boost = lastAudio.intensity * flmult;
 			// calculate scale helper
 			scaleBri = (maxBri - minBri) * boost / 100;
+			scaleSat = (maxSat - minSat) * boost / 100;
 			// calculate step distance between levels
 			step = (sett.num_levels * sett.level_depth * 1.2) / 128;
 			// speed velocity calculation
 			if (sett.audiozoom_val > 0)
-				spvn += sett.zoom_val * boost * 0.01 + boost * sett.audiozoom_val * 0.03 * deltaTime;
+				spvn += sett.zoom_val * boost / 150 + boost * sett.audiozoom_val / 200 * deltaTime;
 
 		}
 
@@ -458,7 +459,7 @@ export class GeoHolder extends CComponent {
 						setLight += (defBri - setLight) / sixtyDelta;
 				}
 				// debug
-				//Smallog.Debug("setHSL | child: " + (lv * level.subsets.length + ss) + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
+				Smallog.Debug("setHSL | child: " + (lv * level.sets.length + ss) + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
 
 				// update dat shit
 				child.material.color.setHSL(
