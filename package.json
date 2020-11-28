@@ -6,15 +6,15 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "clean-win": "Rmdir /Q /S \"dist\"",
-    "tsc": "tsc",
-    "babel": "babel dist/tsc --out-dir dist/babel --source-maps",
+    "tsc": "tsc --removeComments",
+    "babel": "babel dist/tsc --out-dir dist/babel",
     "webpack": "webpack",
     "pack": "cp -R public dist/pack",
     "pack-win": "xcopy public\\*.* dist\\pack\\ /e /i /y /s",
     "after-clean": "rm -rf ./dist/tsc",
     "after-clean-win": "Rmdir /Q /S \"dist\\tsc\"",
-    "build-win": "yarn run clean-win && yarn run tsc && yarn run babel && yarn run webpack && yarn run pack-win && yarn run after-clean-win",
-    "build": "yarn run clean && yarn run tsc && yarn run babel && yarn run webpack && yarn run pack && yarn run after-clean",
+    "build-win": "yarn run clean-win && yarn run tsc && yarn run babel && yarn run pack-win && yarn run webpack && yarn run after-clean-win",
+    "build": "yarn run clean && yarn run tsc && yarn run babel && yarn run pack && yarn run webpack && yarn run after-clean",
     "startdev": "webpack serve"
   },
   "repository": {
@@ -36,6 +36,7 @@
   "devDependencies": {
     "babel-plugin-transform-define": "^2.0.0",
     "circular-dependency-plugin": "^5.2.2",
+    "null-loader": "^4.0.1",
     "webpack": "^5.5.0",
     "webpack-cli": "^4.2.0",
     "webpack-dev-server": "^3.11.0",

@@ -14,7 +14,6 @@ import * as THREE from 'three';
 
 import { ColorHolder } from './ColorHolder';
 import { GeoHolder } from './GeoHolder';
-import { LUTSetup } from './LUTSetup';
 import { ShaderHolder } from './ShaderHolder';
 import { VRButton } from './VRButton';
 
@@ -94,8 +93,6 @@ export class CtxHolder extends CComponent {
 	weas: WEAS = new WEAS();
 	geoHolder: GeoHolder = new GeoHolder(this.weas);
 	weicue: WEICUE = new WEICUE(this.weas);
-
-	lutSetup: LUTSetup = new LUTSetup();
 
 	// add global listeners
 	constructor() {

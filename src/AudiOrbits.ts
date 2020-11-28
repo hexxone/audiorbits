@@ -26,10 +26,10 @@
  * - use webworker rendering?
  * - add new re-init vars
  * - implement color mode "level splitting"?
- * - use buffer for geometry colors && sizes?
+ * - use buffer for geometry size?
  * 		- in weasWorker?
  * 
- * - use webpack wrapper to make app available in localstorage as service?
+ * - overrideable logger path?
  * - test "min > max" saturation/light
  * - move fov to camera category
  * - add fog / leveldepth percentage density   ((1 / viewDist * val / 100))
@@ -49,6 +49,7 @@ import { ReloadHelper } from './we_utils/src/ReloadHelper';
 import { WarnHelper } from './we_utils/src/WarnHelper';
 import { CSettings } from "./we_utils/src/CSettings";
 import { Ready } from './we_utils/src/Ready';
+import { WEWWA } from './we_utils/src/WEWWA';
 
 const Ignore: string[] = ["debugging", "img_overlay", "img_background", "mirror_invalid_val"];
 
@@ -92,12 +93,12 @@ class AudiOrbits {
 	public state: RunState = RunState.None;
 
 	// debugging
-	private debugTimeout: number = null;
+	private debugTimeout: any = null;
 	// Seconds & interval for reloading the wallpaper
 	private resetTimespan: number = 3;
-	private resetTimeout: number = null;
+	private resetTimeout: any = null;
 	// interval for swirlHandler
-	private swirlInterval: number = null;
+	private swirlInterval: any = null;
 	private swirlStep: number = 0;
 	// important objects
 	private ctxHolder: CtxHolder = new CtxHolder();
@@ -319,4 +320,7 @@ class AudiOrbits {
 ///////////////////////////////////////////////
 // Actual Initialisation
 ///////////////////////////////////////////////
-const _ = new AudiOrbits();
+
+const _W = new WEWWA();
+
+const _A = new AudiOrbits();

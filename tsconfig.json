@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "outDir": "./dist/tsc",
-        //"allowJs": true,
         "target": "es2017",
         "module": "commonjs",
         "moduleResolution": "node",
@@ -13,6 +12,6 @@
         ]
     },
     "include": [
-        "./src/**/*.ts"
+        "./src/**/*.ts", "src/we_utils/src/OfflinePlugin.js"
     ]
 }
