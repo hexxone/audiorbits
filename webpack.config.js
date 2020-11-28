@@ -1,19 +1,22 @@
 const path = require('path');
 
-//const CircularDependencyPlugin = require('circular-dependency-plugin')
+const OfflinePlugin = require('./src/we_utils/src/OfflinePlugin');
 
 module.exports = {
+  mode: 'production',
   entry: {
     audiorbits: './dist/babel/AudiOrbits.js'
   },
   output: {
     chunkFilename: '[id].bundle.js',
-    path: path.resolve(__dirname, 'dist') + '/pack/js'
+    path: path.resolve(__dirname, 'dist') + '/pack' // TODO ADD /js/ path back ???
   },
-  //devtool: "source-map",
   devServer: {
     contentBase: path.join(__dirname, 'dist') + '/pack',
-    port: 9000
+    port: 9000,
+    hot: false,
+    inline: false,
+    liveReload: false
   },
   resolve: {
     extensions: ['.ts', '.js']
@@ -31,7 +34,20 @@ module.exports = {
             },
           },
         ],
+      },
+      // exlude lvie reloading from the bundle -_-
+      // @TODO find another way?
+      {
+        test: path.resolve(__dirname, 'node_modules/webpack-dev-server/client'),
+        loader: 'null-loader'
       }
     ]
-  }
+  },
+  plugins: [
+    new OfflinePlugin({
+      outdir: "dist/pack",
+      outfile: 'offlinefiles.json',
+      extrafiles: ["/"]
+    })
+  ]
 };
