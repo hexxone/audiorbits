@@ -29,6 +29,8 @@
  * - use buffer for geometry size?
  * 		- in weasWorker?
  * 
+ * - put audioZoom, negative and smoothing to movement category?
+ * - fix weas stuff (frequency mapping)
  * - overrideable logger path?
  * - test "min > max" saturation/light
  * - move fov to camera category
@@ -321,6 +323,7 @@ class AudiOrbits {
 // Actual Initialisation
 ///////////////////////////////////////////////
 
-const _W = new WEWWA();
+const _wrap = new WEWWA(() => {
+	const _main = new AudiOrbits();
+});
 
-const _A = new AudiOrbits();
