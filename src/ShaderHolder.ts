@@ -13,7 +13,7 @@
 
 import * as THREE from 'three';
 
-import { LUTSetup } from './lutSetup';
+import { LUTSetup } from './LutSetup';
 
 import { RenderPass } from './three/postprocessing/RenderPass';
 import { ShaderPass } from './three/postprocessing/ShaderPass';
@@ -21,6 +21,7 @@ import { UnrealBloomPass } from './three/postprocessing/UnrealBloomPass';
 
 import * as LUT from './three/shader/LUTShader';
 import * as LUTShaderNearest from "./three/shader/LUTShaderNearest";
+
 import { BlurShader } from './three/shader/BlurShader';
 import { FXAAShader } from './three/shader/FXAAShader';
 import { FractalMirrorShader } from './three/shader/FractalMirrorShader';
