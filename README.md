@@ -39,15 +39,19 @@ Please head over to the Workshop-Page for a full list (see title for the link).
 ### Changelog:
 
 Version 2.4:
-- Add "Audio Direction" Setting
-- Add Audio "Equalize" Setting
-- Add Audio "Mono/Stereo" Setting
-- Add "Movement Direction" Setting
-- Add Color Mode "Level Splitting"
+- reworked Settings categories / ordering
+  - Add "Audio Direction" Combobox (normal & invert)
+  - Add Audio "Equalize" Setting
+  - Add Audio "Mono/Stereo" Setting
+  - Add "Movement Direction" Combobox (normal & invert)
+  - Add Color Mode "Level Splitting"
+  - Add "Geometry Mode" Setting (default: Points)
+    - Add Geometry Mode "Particles"
+    - Add Geometry Mode "Experimental"
 - level generation allows more points per level now
 - shortened fade-in time and fixxed reload bar
-- Completely reworked Settings categories / ordering
-- Internally switched to TypeScript and Webpack
+- internally switched to TypeScript and Webpack
+- when ran in browser, App will make itself available offline
 
 Version 2.3:
 - added "shader_quality"-setting (Advanced)

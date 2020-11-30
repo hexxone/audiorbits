@@ -8,13 +8,16 @@
  * 
  * @description
  * Contains main rendering context for AudiOrbits
+ * 
+ * @todo
+ * - fix camera parallax stuff
  */
 
 import * as THREE from 'three';
 
-import { ColorHolder } from './ColorHolder';
-import { GeoHolder } from './GeoHolder';
-import { ShaderHolder } from './ShaderHolder';
+import { ColorHelper } from './ColorHelper';
+import { LevelHolder } from './LevelHelper';
+import { ShaderHolder } from './ShaderHelper';
 import { VRButton } from './VRButton';
 
 import { EffectComposer } from './three/postprocessing/EffectComposer';
@@ -25,8 +28,9 @@ import { WEICUE } from './we_utils/src/WEICUE';
 import { Smallog } from './we_utils/src/Smallog';
 import { CSettings } from "./we_utils/src/CSettings";
 import { CComponent } from './we_utils/src/CComponent';
+import { FancyText } from './FancyText';
 
-class CtxSettings extends CSettings {
+class ContextSettings extends CSettings {
 	// Camera category
 	parallax_option: number = 0;
 	parallax_angle: number = 180;
@@ -48,51 +52,53 @@ class CtxSettings extends CSettings {
 	num_levels: number = 8000;
 }
 
-export class CtxHolder extends CComponent {
+export class ContextHolder extends CComponent {
 
 	// global state
-	isWebContext = false;
-	PAUSED = false;
+	public isWebContext = false;
+	public PAUSED = false;
 
 	// webvr user input data
-	userData = {
+	private userData = {
 		isSelecting: false,
 		controller1: null,
 		controller2: null
 	};
 
-	public settings: CtxSettings = new CtxSettings();
+	public settings: ContextSettings = new ContextSettings();
 
 	// html elements
-	container = null;
-	mainCanvas = null;
+	private container = null;
+	private mainCanvas = null;
 
 	// mouse over canvas
-	mouseX = 0;
-	mouseY = 0;
+	private mouseX = 0;
+	private mouseY = 0;
 
 	// Three.js objects
-	renderer = null;
-	composer = null;
-	camera = null;
-	scene = null;
-	stats = null;
-	clock = new THREE.Clock();
+	private renderer: THREE.WebGLRenderer = null;
+	private camera: THREE.PerspectiveCamera = null;
+	private scene: THREE.Scene = null;
+	private stats: Stats = null;
+
+	private composer: EffectComposer = null;
+	private clock: THREE.Clock = new THREE.Clock();
 
 	// custom render timing
-	renderTimeout = null;
+	private renderTimeout = null;
 
 	// window half size
-	windowHalfX = window.innerWidth / 2;
-	windowHalfY = window.innerHeight / 2;
+	private windowHalfX = window.innerWidth / 2;
+	private windowHalfY = window.innerHeight / 2;
 
 	// important objects
-	colorHolder: ColorHolder = new ColorHolder();
-	shaderHolder: ShaderHolder = new ShaderHolder();
+	public colorHolder: ColorHelper = new ColorHelper();
+	public shaderHolder: ShaderHolder = new ShaderHolder();
+	public textHolder: FancyText = null;
 
-	weas: WEAS = new WEAS();
-	geoHolder: GeoHolder = new GeoHolder(this.weas);
-	weicue: WEICUE = new WEICUE(this.weas);
+	public weas: WEAS = new WEAS();
+	public geoHolder: LevelHolder = new LevelHolder(this.weas);
+	public weicue: WEICUE = new WEICUE(this.weas);
 
 	// add global listeners
 	constructor() {
@@ -177,8 +183,7 @@ export class CtxHolder extends CComponent {
 			powerPreference: this.getPowerPreference(),
 			precision: shaderP,
 		});
-		this.renderer.clearColor = 0x000000;
-		this.renderer.clearAlpha = 1;
+		this.renderer.setClearColor(0x000000, 0);
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		// initialize VR mode
 		if (this.isWebContext) this.initWebXR();
@@ -196,6 +201,10 @@ export class CtxHolder extends CComponent {
 			document.body.appendChild(this.stats.dom);
 		}
 
+		// initialize fancy text
+		this.textHolder = new FancyText(this.scene, this.camera.position.multiplyScalar(0.7), document.title);
+
+		// initialize main geometry
 		this.geoHolder.init(this.scene, this.camera, callback);
 	}
 
@@ -222,7 +231,7 @@ export class CtxHolder extends CComponent {
 	}
 
 	// called after any setting changed
-	updateSettings() {
+	public updateSettings() {
 		// fix for centered camera on Parallax "none"
 		if (this.settings.parallax_option == 0) this.mouseX = this.mouseY = 0;
 		// set Cursor for "fixed" parallax mode
@@ -238,7 +247,7 @@ export class CtxHolder extends CComponent {
 	///////////////////////////////////////////////
 
 	// start or stop rendering
-	setRenderer(render) {
+	public setRenderer(render) {
 		Smallog.Debug("setRenderer: " + render);
 
 		// clear all old renderers
@@ -271,7 +280,7 @@ export class CtxHolder extends CComponent {
 	}
 
 	// root render frame call
-	renderLoop() {
+	private renderLoop() {
 		// paused - stop render
 		if (this.PAUSED) return;
 
@@ -309,33 +318,33 @@ export class CtxHolder extends CComponent {
 	///////////////////////////////////////////////
 
 	// will initialize webvr components and rendering
-	initWebXR() {
+	private initWebXR() {
 		this.renderer.xr.enabled = true;
 		document.body.appendChild(new VRButton().createButton(this.renderer));
 
-		this.userData.controller1 = this.renderer.vr.getController(0);
+		this.userData.controller1 = this.renderer.xr.getController(0);
 		this.userData.controller1.addEventListener("selectstart", this.onVRSelectStart);
 		this.userData.controller1.addEventListener("selectend", this.onVRSelectEnd);
 		this.scene.add(this.userData.controller1);
 
-		this.userData.controller2 = this.renderer.vr.getController(1);
+		this.userData.controller2 = this.renderer.xr.getController(1);
 		this.userData.controller2.addEventListener("selectstart", this.onVRSelectStart);
 		this.userData.controller2.addEventListener("selectend", this.onVRSelectEnd);
 		this.scene.add(this.userData.controller2);
 	}
 
 	// controller starts selecting
-	onVRSelectStart() {
+	private onVRSelectStart() {
 		this.userData.isSelecting = true;
 	}
 
 	// controller stops selecting
-	onVRSelectEnd() {
+	private onVRSelectEnd() {
 		this.userData.isSelecting = false;
 	}
 
 	// use VR controller like mouse & parallax
-	handleVRController(controller) {
+	private handleVRController(controller) {
 		/** @TODO
 		controller.userData.isSelecting
 		controller.position
@@ -349,7 +358,7 @@ export class CtxHolder extends CComponent {
 	///////////////////////////////////////////////
 
 	// use overall "quality" setting to determine three.js "power" mode
-	getPowerPreference() {
+	private getPowerPreference() {
 		switch (this.settings.shader_quality) {
 			case 1: return "low-power";
 			case 3: return "high-performance";
@@ -358,7 +367,7 @@ export class CtxHolder extends CComponent {
 	}
 
 	// position Mouse with angle
-	positionMouseAngle(degrees) {
+	public positionMouseAngle(degrees) {
 		var ang = degrees * Math.PI / 180;
 		var w = window.innerHeight;
 		if (window.innerWidth < w) w = window.innerWidth;

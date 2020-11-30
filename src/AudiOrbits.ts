@@ -31,6 +31,8 @@
  * 
  * - put audioZoom, negative and smoothing to movement category?
  * - fix weas stuff (frequency mapping)
+ * - fix alpha shit
+ * - add wewwa cache reset
  * - overrideable logger path?
  * - test "min > max" saturation/light
  * - move fov to camera category
@@ -44,7 +46,7 @@
  * 
 */
 
-import { CtxHolder } from './CtxHolder';
+import { ContextHolder } from './ContextHelper';
 
 import { LogLevel, Smallog } from './we_utils/src/Smallog';
 import { ReloadHelper } from './we_utils/src/ReloadHelper';
@@ -55,10 +57,11 @@ import { WEWWA } from './we_utils/src/WEWWA';
 
 const Ignore: string[] = ["debugging", "img_overlay", "img_background", "mirror_invalid_val"];
 
-const ReInit: string[] = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "icue_mode",
-	"scaling_factor", "camera_bound", "num_points_per_subset", "num_subsets_per_level",
-	"num_levels", "level_depth", "level_shifting", "bloom_filter", "lut_filter", "mirror_shader",
-	"mirror_invert", "fx_antialiasing", "blur_strength", "custom_fps", "shader_quality"];
+const ReInit: string[] = ["geometry_type", "base_texture", "texture_size",
+	"scaling_factor", "num_levels", "level_depth", "level_shifting", "num_subsets_per_level",
+	"num_points_per_subset", "custom_fps", "bloom_filter", "lut_filter", "mirror_shader",
+	"mirror_invert", "fx_antialiasing", "blur_strength", "stats_option", "field_of_view",
+	"fog_thickness", "icue_mode", "shader_quality"];
 
 // custom logging function
 var debug: boolean = false;
@@ -103,7 +106,7 @@ class AudiOrbits {
 	private swirlInterval: any = null;
 	private swirlStep: number = 0;
 	// important objects
-	private ctxHolder: CtxHolder = new CtxHolder();
+	private ctxHolder: ContextHolder = new ContextHolder();
 	private reloadHelper: ReloadHelper = new ReloadHelper();
 	private warnHelper: WarnHelper = new WarnHelper();
 
@@ -323,6 +326,7 @@ class AudiOrbits {
 // Actual Initialisation
 ///////////////////////////////////////////////
 
+// if the wallpaper is ran in browser, we want to delay the init until caching is complete.
 const _wrap = new WEWWA(() => {
 	const _main = new AudiOrbits();
 });

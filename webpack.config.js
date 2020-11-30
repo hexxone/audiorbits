@@ -35,8 +35,7 @@ module.exports = {
           },
         ],
       },
-      // exlude lvie reloading from the bundle -_-
-      // @TODO find another way?
+      // exlude lvie reloading from the bundle -_- @TODO find another way?
       {
         test: path.resolve(__dirname, 'node_modules/webpack-dev-server/client'),
         loader: 'null-loader'

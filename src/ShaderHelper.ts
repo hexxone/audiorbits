@@ -13,7 +13,7 @@
 
 import * as THREE from 'three';
 
-import { LUTSetup } from './LutSetup';
+import { LUTHelper } from './LUTHelper';
 
 import { RenderPass } from './three/postprocessing/RenderPass';
 import { ShaderPass } from './three/postprocessing/ShaderPass';
@@ -43,7 +43,7 @@ export class ShaderHolder extends CComponent {
 
 	public settings: ShaderSettings = new ShaderSettings();
 
-	private lutSetup: LUTSetup = new LUTSetup();
+	private lutSetup: LUTHelper = new LUTHelper();
 
 	// initialize shaders after composer
 	public pipeline(scene: THREE.Scene, camera: THREE.Camera, composer: EffectComposer) {

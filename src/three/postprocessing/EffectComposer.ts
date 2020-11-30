@@ -101,7 +101,7 @@ export class EffectComposer implements BasePass {
 		return true;
 	}
 
-	public render(deltaTime) {
+	public render(deltaTime?) {
 		// deltaTime value is in seconds
 		if (deltaTime === undefined) {
 			deltaTime = (Date.now() - this._previousFrameTime) * 0.001;
@@ -124,7 +124,7 @@ export class EffectComposer implements BasePass {
 		this.renderer.setRenderTarget(currentRenderTarget);
 	}
 
-	public reset(renderTarget) {
+	public reset(renderTarget?) {
 
 		if (renderTarget === undefined) {
 			var size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
