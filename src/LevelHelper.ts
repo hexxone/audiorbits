@@ -21,7 +21,7 @@
 
 import * as THREE from 'three';
 
-import { ColorHolder } from './ColorHolder';
+import { ColorHelper } from './ColorHelper';
 import { WEAS } from './we_utils/src/WEAS';
 import { Smallog } from './we_utils/src/Smallog';
 import { CSettings } from "./we_utils/src/CSettings";
@@ -41,7 +41,7 @@ interface Subset {
 	set: number;
 }
 
-class GeoSettings extends CSettings {
+class LevelSettings extends CSettings {
 	geometry_type: number = 0;
 	num_levels: number = 6;
 	level_depth: number = 1200;
@@ -90,9 +90,9 @@ class GeoSettings extends CSettings {
 	audio_decrease: number = 35;
 }
 
-export class GeoHolder extends CComponent {
+export class LevelHolder extends CComponent {
 
-	public settings: GeoSettings = new GeoSettings();
+	public settings: LevelSettings = new LevelSettings();
 
 	// main orbit data
 	private levels: Level[] = [];
@@ -106,7 +106,7 @@ export class GeoHolder extends CComponent {
 	private levelWorkerCall = null;
 
 	// color holder
-	private colorHolder: ColorHolder = new ColorHolder();
+	private colorHolder: ColorHelper = new ColorHelper();
 
 	// keep camera position for moving subsets around
 	private camera: THREE.Camera = null;
@@ -199,14 +199,6 @@ export class GeoHolder extends CComponent {
 		var camZ = this.camera.position.z;
 
 		Smallog.Debug("building geometries.");
-		// material properties
-		var matprops = {
-			map: texture,
-			size: sett.texture_size,
-			blending: THREE.AdditiveBlending,
-			depthTest: false,
-			transparent: true
-		};
 
 		// reset Orbit data
 		this.levels = [];
@@ -233,28 +225,46 @@ export class GeoHolder extends CComponent {
 				// position attribute (2 vertices per point, thats pretty illegal)
 				geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2));
 
-				// create material
-				var material = new THREE.PointsMaterial(matprops);
+				var setObj, material;
+				if (sett.geometry_type == 0) {
+					// create material
+					material = new THREE.PointsMaterial({
+						map: texture,
+						size: sett.texture_size,
+						blending: THREE.AdditiveBlending,
+						depthTest: false,
+						transparent: true
+					});
+					// create particle system from geometry and material
+					setObj = new THREE.Points(geometry, material);
+				}
+				// line geometry type
+				else if (sett.geometry_type == 1) {
+					material = new THREE.LineBasicMaterial({
+						linewidth: sett.texture_size,
+					});
+					// create lineloop system from geometry and material
+					setObj = new THREE.LineSegments(geometry, material);
+				}
+
 				// set material defaults
 				material.color.setHSL(hues[s], sett.default_saturation / 100, sett.default_brightness / 100);
-
-				// create particle system from geometry and material
-				var particles = new THREE.Points(geometry, material);
-				particles.position.x = 0;
-				particles.position.y = 0;
+				// set Object defaults
+				setObj.position.x = 0;
+				setObj.position.y = 0;
 				// position in space
 				if (sett.level_shifting) {
-					particles.position.z = lDist - (s * subsetDist * 2);
-					if (l % 2 != 0) particles.position.z -= subsetDist;
+					setObj.position.z = lDist - (s * subsetDist * 2);
+					if (l % 2 != 0) setObj.position.z -= subsetDist;
 				}
-				else particles.position.z = lDist - (s * subsetDist);
+				else setObj.position.z = lDist - (s * subsetDist);
 				// euler angle 45 deg in radians
-				particles.rotation.z = -0.785398;
+				setObj.rotation.z = -0.785398;
 				// add to scene
-				scene.add(particles);
+				scene.add(setObj);
 				this.levels[l].sets[s] = {
 					needsUpdate: false,
-					object: particles,
+					object: setObj,
 					level: l,
 					set: s
 				}
