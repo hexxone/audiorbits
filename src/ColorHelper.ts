@@ -34,7 +34,7 @@ class ColorSettings extends CSettings {
 	color_fade_speed: number = 2;
 }
 
-export class ColorHolder extends CComponent {
+export class ColorHelper extends CComponent {
 	// settings
 	public settings: ColorSettings = new ColorSettings();
 

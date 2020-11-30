@@ -7,11 +7,22 @@
         "esModuleInterop": true,
         "emitDecoratorMetadata": false,
         "sourceMap": false,
+        "baseUrl": ".",
+        "paths": {
+            "three": [
+                "node_modules/three/src/Three"
+            ]
+        },
+        "lib": [
+            "dom",
+            "es2015"
+        ],
         "types": [
             "jquery"
         ]
     },
     "include": [
-        "./src/**/*.ts", "src/we_utils/src/OfflinePlugin.js"
+        "./src/**/*.ts",
+        "src/we_utils/src/OfflinePlugin.js"
     ]
 }

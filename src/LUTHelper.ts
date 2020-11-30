@@ -16,7 +16,7 @@ import * as THREE from 'three';
 
 import { Smallog } from './we_utils/src/Smallog';
 
-export class LUTSetup {
+export class LUTHelper {
     // set the size to 2 (the identity size). We'll restore it when the
     // image has loaded. This way the code using the lut doesn't have to
     // care if the image has loaded or not
