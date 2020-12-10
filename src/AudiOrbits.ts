@@ -31,11 +31,7 @@
  * 
  * - put audioZoom, negative and smoothing to movement category?
  * - fix weas stuff (frequency mapping)
- * - fix alpha shit
- * - add wewwa cache reset
- * - overrideable logger path?
  * - test "min > max" saturation/light
- * - move fov to camera category
  * - add fog / leveldepth percentage density   ((1 / viewDist * val / 100))
  * 
  * - highlight seizure text on white BG

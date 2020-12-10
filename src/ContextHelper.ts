@@ -140,7 +140,7 @@ export class ContextHolder extends CComponent {
 	}
 
 	// initialize three-js context
-	init(callback) {
+	public init(callback) {
 		// static element
 		this.container = document.getElementById("renderContainer");
 
@@ -209,7 +209,7 @@ export class ContextHolder extends CComponent {
 	}
 
 	// update shader values
-	update(ellapsed, deltaTime) {
+	private update(ellapsed, deltaTime) {
 
 		// calculate camera parallax with smoothing
 		var clampCam = (axis) => Math.min(this.settings.scaling_factor / 2, Math.max(-this.settings.scaling_factor / 2, axis));
@@ -261,7 +261,7 @@ export class ContextHolder extends CComponent {
 		// call new renderer ?
 		if (render) {
 			// set state to running
-			this.PAUSED = false;
+			this.PAUSED = this.weicue.PAUSED = false;
 			// initialize rendering
 			if (this.settings.custom_fps) {
 				this.renderTimeout = setTimeout(() => this.renderLoop(), 1000 / this.settings.fps_value);
@@ -274,7 +274,7 @@ export class ContextHolder extends CComponent {
 			$("#mainCvs").addClass("show");
 		}
 		else {
-			this.PAUSED = true;
+			this.PAUSED = this.weicue.PAUSED = true;
 			$("#mainCvs").removeClass("show");
 		}
 	}

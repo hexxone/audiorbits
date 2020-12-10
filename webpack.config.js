@@ -9,7 +9,7 @@ module.exports = {
   },
   output: {
     chunkFilename: '[id].bundle.js',
-    path: path.resolve(__dirname, 'dist') + '/pack' // TODO ADD /js/ path back ???
+    path: path.resolve(__dirname, 'dist') + '/pack/js'
   },
   devServer: {
     contentBase: path.join(__dirname, 'dist') + '/pack',
@@ -44,7 +44,7 @@ module.exports = {
   },
   plugins: [
     new OfflinePlugin({
-      outdir: "dist/pack",
+      outdir: "dist/pack/",
       outfile: 'offlinefiles.json',
       extrafiles: ["/"]
     })

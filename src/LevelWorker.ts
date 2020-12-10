@@ -10,12 +10,14 @@
  * AudiOrbits level-generator worker.
  */
 
+import { LevelSettings } from "./LevelHelper";
+
 interface BasicGeometry {
-    Generate(sett: any, levelId: number);
+    Generate(sett: LevelSettings, levelId: number);
 }
 
 class FractalGeometry implements BasicGeometry {
-    public Generate(sett: any, levelId: number) {
+    public Generate(sett: LevelSettings, levelId: number) {
         // shorter to write and better to read
         let numSubsets = sett.num_subsets_per_level;
         let numPoints = sett.num_points_per_subset;
@@ -189,7 +191,7 @@ function getGenByType(gt) {
 lvlw.addEventListener("message", (e) => {
     // what I need:
     let eventData = e.data;
-    let sett = eventData.settings;
+    let sett: LevelSettings = eventData.settings;
     let levelId = eventData.id;
     // run generator
     getGenByType(sett.geometry_type).Generate(sett, levelId);
