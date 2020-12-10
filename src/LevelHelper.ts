@@ -17,6 +17,9 @@
  * - new color mode "level splitting"?
  * 
  * - experimental: set buffergeometry drawrange on audio?
+ * 
+ * - add material side "both" switch for vr
+ * - test other blending modes
  */
 
 import * as THREE from 'three';
@@ -41,7 +44,7 @@ interface Subset {
 	set: number;
 }
 
-class LevelSettings extends CSettings {
+export class LevelSettings extends CSettings {
 	geometry_type: number = 0;
 	num_levels: number = 6;
 	level_depth: number = 1200;
@@ -343,8 +346,8 @@ export class LevelHolder extends CComponent {
 			// calc audio boost
 			boost = lastAudio.intensity * flmult;
 			// calculate scale helper
-			scaleBri = (maxBri - minBri) * boost / 100;
-			scaleSat = (maxSat - minSat) * boost / 100;
+			scaleBri = (maxBri - minBri) * boost / 75;
+			scaleSat = (maxSat - minSat) * boost / 75;
 			// calculate step distance between levels
 			step = (sett.num_levels * sett.level_depth * 1.2) / 128;
 			// speed velocity calculation
@@ -474,8 +477,8 @@ export class LevelHolder extends CComponent {
 				// update dat shit
 				child.material.color.setHSL(
 					this.clamp(setHue, 0, 1, true),
-					this.clamp(setSat, 0, maxSat),
-					this.clamp(setLight, 0, maxBri));
+					this.clamp(setSat, 0, 1),
+					this.clamp(setLight, 0, 1));
 			}
 		}
 
