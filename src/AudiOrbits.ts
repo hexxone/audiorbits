@@ -22,18 +22,41 @@
  * Leave me some feedback on the Workshop-Page for this item if you like!
  * 
  * @todo
+ * 
+ * lighthouse:
+ * - gif -> webp ?
+ * - png -> webp ?
+ * - image explicit width/height
+ * - cf longer cache policy (2d?)
+ * - web app manifest?
+ * - <img alt's
+ * - <form <input <label's
+ * - <meta name="theme-color" content="#317EFB"/>
+ * 
+ * 
+ * project.json
+ * - put audioZoom, negative and smoothing to movement category
  * - update translations -> project.json -> steam
- * - use webworker rendering?
+ * - update preview image?
+ * 
+ * 
+ * main code:
+ * - test "min > max" saturation/light
+ * - add fog / leveldepth percentage density   ((1 / viewDist * val / 100))
  * - add new re-init vars
+ * 
+ * - fix weas stuff (frequency mapping)
  * - implement color mode "level splitting"?
+ * 		- in weasWorker?
  * - use buffer for geometry size?
  * 		- in weasWorker?
  * 
- * - put audioZoom, negative and smoothing to movement category?
- * - fix weas stuff (frequency mapping)
- * - test "min > max" saturation/light
- * - add fog / leveldepth percentage density   ((1 / viewDist * val / 100))
+ * - make all workers WASM
  * 
+ * 
+ * low priority:
+ * - remove jquery
+ * - use threejs webworker rendering?
  * - highlight seizure text on white BG
  * - finish implementing Web-XR
  * 		- add "camera centered" checkbox for vr
