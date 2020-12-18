@@ -25,7 +25,7 @@
 import * as THREE from 'three';
 
 import { ColorHelper } from './ColorHelper';
-import { WEAS } from './we_utils/src/WEAS';
+import { WEAS } from './we_utils/src/weas/WEAS';
 import { Smallog } from './we_utils/src/Smallog';
 import { CSettings } from "./we_utils/src/CSettings";
 import { CComponent } from './we_utils/src/CComponent';

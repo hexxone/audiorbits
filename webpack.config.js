@@ -1,6 +1,7 @@
 const path = require('path');
 
-const OfflinePlugin = require('./src/we_utils/src/OfflinePlugin');
+const OfflinePlugin = require('./src/we_utils/src/offline/OfflinePlugin');
+const WasmPlugin = require('./src/we_utils/src/wasm/WasmPlugin');
 
 module.exports = {
   mode: 'production',
@@ -9,11 +10,17 @@ module.exports = {
   },
   output: {
     chunkFilename: '[id].bundle.js',
-    path: path.resolve(__dirname, 'dist') + '/pack/js'
+    path: path.resolve(__dirname, 'dist') + '/pack'
   },
   devServer: {
     contentBase: path.join(__dirname, 'dist') + '/pack',
     port: 9000,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      https: true
+    },
+    // dont use any live features...
+    // otherwise, it will recompile
     hot: false,
     inline: false,
     liveReload: false
@@ -23,19 +30,21 @@ module.exports = {
   },
   module: {
     rules: [
+      // use a worker-loader for workers...
       {
         test: /\.worker\.(c|m)?js$/i,
-        use: [
-          {
-            loader: 'worker-loader',
-            options: {
-              esModule: true,
-              chunkFilename: '[id].[chunkhash].worker.js',
-            },
-          },
-        ],
+        loader: 'worker-loader',
+        options: {
+          esModule: true,
+          chunkFilename: '[id].[chunkhash].worker.js',
+        },
       },
-      // exlude lvie reloading from the bundle -_- @TODO find another way?
+      // exclude wasm js & ts from build
+      {
+        test: /\.wasm\.(c|m)?(j|t)s$/i,
+        loader: 'null-loader'
+      },
+      // exclude live reloading from the bundle -_- no other way?
       {
         test: path.resolve(__dirname, 'node_modules/webpack-dev-server/client'),
         loader: 'null-loader'
@@ -43,10 +52,21 @@ module.exports = {
     ]
   },
   plugins: [
+    // offline worker helper
+    // will create a list of all app-files.
+    // this list is used to cache the app offline in browser.
     new OfflinePlugin({
-      outdir: "dist/pack/",
+      staticdir: "dist/pack/",
       outfile: 'offlinefiles.json',
       extrafiles: ["/"]
+    }),
+    // manual wasm module build
+    // just so you don't have to modify the process everytime...
+    // this will compile all modules in 'rootpath' (recursive)
+    // where the 'include' (regex) matches a filename.
+    new WasmPlugin({
+      relpath: '../../../',
+      regexx: /.*\.wasm\.asc$/,
     })
   ]
 };

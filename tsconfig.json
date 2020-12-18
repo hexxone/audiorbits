@@ -23,6 +23,9 @@
     },
     "include": [
         "./src/**/*.ts",
-        "src/we_utils/src/OfflinePlugin.js"
+    ],
+    "exclude": [
+        "**/wasm/**",
+        "**/*.wasm.ts"
     ]
 }
