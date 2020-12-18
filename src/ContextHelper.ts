@@ -23,7 +23,7 @@ import { VRButton } from './VRButton';
 import { EffectComposer } from './three/postprocessing/EffectComposer';
 
 import Stats from './we_utils/src/Stats';
-import { WEAS } from './we_utils/src/WEAS';
+import { WEAS } from './we_utils/src/weas/WEAS';
 import { WEICUE } from './we_utils/src/WEICUE';
 import { Smallog } from './we_utils/src/Smallog';
 import { CSettings } from "./we_utils/src/CSettings";

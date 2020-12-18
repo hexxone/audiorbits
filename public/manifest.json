@@ -1,0 +1,25 @@
+{
+    "name": "AudiOrbits",
+    "short_name": "AudiOrbits",
+    "description": "Fractal Web Wallpaper for Wallpaper Engine",
+    "start_url": "/?source=manifest",
+    "display": "minimal-ui",
+    "scope": "/",
+    "theme_color": "#111",
+    "background_color": "#000",
+    "icons": [{
+      "src": "img/preview.jpg",
+      "sizes": "512x512",
+      "type": "image/jpg"
+    }],
+    "related_applications": [{
+      "platform": "webapps",
+      "url": "https://orbits.hexx.one"
+    }],
+    "categories": [
+        "personalization",
+        "music",
+        "photo",
+        "utilities"
+    ]
+  }
