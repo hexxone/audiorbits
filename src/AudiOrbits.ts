@@ -23,45 +23,39 @@
  * 
  * @todo
  * 
- * lighthouse:
- * - gif -> webp ?
- * - png -> webp ?
- * - image explicit width/height
- * - cf longer cache policy (2d?)
- * - web app manifest?
- * - <img alt's
- * - <form <input <label's
- * - <meta name="theme-color" content="#317EFB"/>
- * 
- * 
  * project.json
  * - put audioZoom, negative and smoothing to movement category
  * - update translations -> project.json -> steam
  * - update preview image?
+ * - rename camera > parallax to "position"
+ * - add checkbox "parallax"
+ * - add "reverse mode" "normal, none, invert"
  * 
  * 
  * main code:
- * - test "min > max" saturation/light
- * - add fog / leveldepth percentage density   ((1 / viewDist * val / 100))
+ * - fix "min > max" saturation/light
+ * - change fog / leveldepth percentage density   ((1 / viewDist * val / 100))
  * - add new re-init vars
  * 
  * - fix weas stuff (frequency mapping)
  * - implement color mode "level splitting"?
- * 		- in weasWorker?
  * - use buffer for geometry size?
- * 		- in weasWorker?
- * 
- * - make all workers WASM
+ * 		- in WASM?
  * 
  * 
  * low priority:
  * - remove jquery
- * - use threejs webworker rendering?
  * - highlight seizure text on white BG
  * - finish implementing Web-XR
  * 		- add "camera centered" checkbox for vr
  * 		- add  "vr-cam" mode, with relative controls
  * - record "how to debug"-video?
+ * 
+ * lighthouse:
+ * - image explicit width/height
+ * - cf longer cache policy (2d?)
+ * - <img alt's
+ * - <form <input <label's
  * 
 */
 
@@ -143,7 +137,7 @@ class AudiOrbits {
 				// very first initialization
 				if (this.state == RunState.None) {
 					this.state = RunState.Initializing;
-					Ready.On(() => this.initOnce());
+					Ready().then(() => this.initOnce());
 				}
 				else if (initFlag) {
 					this.state = RunState.ReInitializing;
@@ -278,13 +272,13 @@ class AudiOrbits {
 
 	// do first init after page loaded
 	private initOnce() {
-		var initWrap = () => {
+		const initWrap = () => {
 			this.initSystem();
 			this.popupMessage("<h1>" + document.title + "</h1>", true);
 		};
 		// show seizure warning before initializing?
 		if (!this.settings.seizure_warning) initWrap();
-		else this.warnHelper.Show(initWrap);
+		else this.warnHelper.Show().then(initWrap);
 	}
 
 	// re-initialies the walpaper after some time
@@ -303,14 +297,14 @@ class AudiOrbits {
 	// => starts rendering loop afterwards
 	private initSystem() {
 		// initialize three js and add geometry to returned scene
-		this.ctxHolder.init(() => {
+		this.ctxHolder.init().then(() => {
 			// start auto parallax handler
 			this.swirlInterval = setInterval(() => this.swirlHandler(), 1000 / 60);
-			// print
-			Smallog.Info("initializing complete.");
 			// start rendering
 			this.ctxHolder.setRenderer(true);
 			this.state = RunState.Running;
+			// print
+			Smallog.Info("initializing complete.");
 		});
 	}
 

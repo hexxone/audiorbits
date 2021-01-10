@@ -1,4 +1,7 @@
 
+
+// @TODO finish implementing this, remove old text, css and font
+
 import * as THREE from 'three';
 
 

@@ -27,7 +27,7 @@ export class ShaderPass implements BasePass {
 		} else if (shader) {
 			this.uniforms = THREE.UniformsUtils.clone(shader.uniforms);
 			this.material = new THREE.ShaderMaterial({
-				defines: Object.apply({}, shader.defines),
+				defines: Object.assign({}, shader.defines),
 				uniforms: this.uniforms,
 				vertexShader: shader.vertexShader,
 				fragmentShader: shader.fragmentShader

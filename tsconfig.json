@@ -25,7 +25,7 @@
         "./src/**/*.ts",
     ],
     "exclude": [
-        "**/wasm/**",
-        "**/*.wasm.ts"
+        "**/wasc-builder/**",
+        "**/*.wasm.asc"
     ]
 }
