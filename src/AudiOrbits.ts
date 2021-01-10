@@ -36,7 +36,7 @@
  * - fix "min > max" saturation/light
  * - change fog / leveldepth percentage density   ((1 / viewDist * val / 100))
  * - add new re-init vars
- * 
+ * - fix seizure warning text
  * - fix weas stuff (frequency mapping)
  * - implement color mode "level splitting"?
  * - use buffer for geometry size?
