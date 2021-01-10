@@ -65,7 +65,7 @@ export class LUTHelper {
         });
     }
 
-    private makeLUTTexture (info) {
+    private makeLUTTexture(info) {
         const imgLoader = new THREE.ImageLoader();
         const ctx = document.createElement("canvas").getContext("2d");
 
@@ -93,7 +93,7 @@ export class LUTHelper {
         return texture;
     }
 
-    private makeIdentityLutTexture (data, wid, hig, filter) {
+    private makeIdentityLutTexture(data, wid, hig, filter) {
         const texture = new THREE.DataTexture(data, wid, hig, THREE.RGBAFormat);
         texture.minFilter = filter;
         texture.magFilter = filter;

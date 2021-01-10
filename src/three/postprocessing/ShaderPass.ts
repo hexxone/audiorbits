@@ -36,7 +36,7 @@ export class ShaderPass implements BasePass {
 		this.fsQuad = new FullScreenQuad(this.material);
 	}
 
-	setSize(width,height) {}
+	setSize(width, height) { }
 
 	render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
 

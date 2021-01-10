@@ -30,7 +30,7 @@ export class RenderPass implements BasePass {
 		this.clearAlpha = (clearAlpha !== undefined) ? clearAlpha : 0;
 	}
 
-	setSize(width, height) {}
+	setSize(width, height) { }
 
 	render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
 		var oldAutoClear = renderer.autoClear;
