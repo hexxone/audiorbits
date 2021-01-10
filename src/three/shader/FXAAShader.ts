@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { BaseShader } from './BaseShader';
 
 export class FXAAShader implements BaseShader {
-	
+
 	defines = null;
 
 	shaderID = "fxaaShader";

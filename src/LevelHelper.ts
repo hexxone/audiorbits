@@ -331,7 +331,7 @@ export class LevelHolder extends CComponent {
 		await run(({ module, instance, importObject, params }) => {
 			const { exports } = instance;
 			const { data } = params[0];
-			
+
 			const transfer = importObject.__getFloat32ArrayView(exports.levelSettings);
 			transfer.set(data);
 

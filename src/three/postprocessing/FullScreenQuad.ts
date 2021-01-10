@@ -11,7 +11,7 @@ export class FullScreenQuad {
 	mesh = null;
 	_mat = null;
 
-	SetMaterial(mat:THREE.Material) {
+	SetMaterial(mat: THREE.Material) {
 		this.mesh.material = mat;
 	}
 
@@ -21,6 +21,7 @@ export class FullScreenQuad {
 		this.geometry = new THREE.PlaneBufferGeometry(2, 2);
 		this.mesh = new THREE.Mesh(this.geometry, material);
 	}
+	
 	render(renderer) {
 		renderer.render(this.mesh, this.camera);
 	}

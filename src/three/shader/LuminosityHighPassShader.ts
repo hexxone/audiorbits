@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { BaseShader } from './BaseShader';
 
 export class LuminosityHighPassShader implements BaseShader {
-	
+
 	defines = null;
 
 	shaderID = "luminosityHighPass";

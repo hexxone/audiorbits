@@ -5,7 +5,7 @@
 import { BaseShader } from "./BaseShader";
 
 export class BlendShader implements BaseShader {
-    
+
     defines = null;
 
     shaderID = "blendShader";

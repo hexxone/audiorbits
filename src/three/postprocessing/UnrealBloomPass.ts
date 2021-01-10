@@ -37,7 +37,7 @@ export class UnrealBloomPass implements BasePass {
 	copyUniforms = null;
 	enabled = true;
 	needsSwap = false;
-	
+
 	oldClearColor = new THREE.Color();
 	oldClearAlpha = 1;
 
