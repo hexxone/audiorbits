@@ -1,7 +1,7 @@
 const path = require('path');
 
 const OfflinePlugin = require('./src/we_utils/src/offline/OfflinePlugin');
-const WascBuilderPlugin = require('./src/we_utils/src/wasc-builder/WascBuilderPlugin');
+const WascBuilderPlugin = require('./src/we_utils/src/wasc-worker/WascBuilderPlugin');
 
 module.exports = {
   mode: 'production',
