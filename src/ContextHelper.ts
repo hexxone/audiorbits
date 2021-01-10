@@ -140,72 +140,75 @@ export class ContextHolder extends CComponent {
 	}
 
 	// initialize three-js context
-	public init(callback) {
-		// static element
-		this.container = document.getElementById("renderContainer");
+	public init(): Promise<void> {
+		return new Promise(resolve => {
 
-		// destroy old context
-		if (this.renderer) this.renderer.forceContextLoss();
-		if (this.composer) this.composer.reset();
-		if (this.mainCanvas) {
-			this.container.removeChild(this.mainCanvas);
-			var cvs = document.createElement("canvas");
-			cvs.id = "mainCvs";
-			this.container.appendChild(cvs);
-		}
+			// static element
+			this.container = document.getElementById("renderContainer");
 
-		// get canvases & contexts
-		// ensure the canvas sizes are set !!!
-		// these are independent from the style sizes
-		this.mainCanvas = document.getElementById("mainCvs");
-		this.mainCanvas.width = window.innerWidth;
-		this.mainCanvas.height = window.innerHeight;
+			// destroy old context
+			if (this.renderer) this.renderer.forceContextLoss();
+			if (this.composer) this.composer.reset();
+			if (this.mainCanvas) {
+				this.container.removeChild(this.mainCanvas);
+				var cvs = document.createElement("canvas");
+				cvs.id = "mainCvs";
+				this.container.appendChild(cvs);
+			}
 
-		// dont use depth buffer on low quality
-		const qual = this.settings.shader_quality < 3 ? (this.settings.shader_quality < 2 ? "low" : "medium") : "high";
-		const dBuffer = this.settings.shader_quality > 1;
-		const shaderP = qual + "p";
+			// get canvases & contexts
+			// ensure the canvas sizes are set !!!
+			// these are independent from the style sizes
+			this.mainCanvas = document.getElementById("mainCvs");
+			this.mainCanvas.width = window.innerWidth;
+			this.mainCanvas.height = window.innerHeight;
+
+			// dont use depth buffer on low quality
+			const qual = this.settings.shader_quality < 3 ? (this.settings.shader_quality < 2 ? "low" : "medium") : "high";
+			const dBuffer = this.settings.shader_quality > 1;
+			const shaderP = qual + "p";
 
 
-		// create camera
-		const viewDist = this.settings.num_levels * this.settings.level_depth * (this.settings.cam_centered ? 0.5 : 1);
-		this.camera = new THREE.PerspectiveCamera(this.settings.field_of_view, window.innerWidth / window.innerHeight, 3, viewDist * 1.2);
-		// create scene
-		this.scene = new THREE.Scene();
-		// create distance fog
-		this.scene.fog = new THREE.FogExp2(0x000000, this.settings.fog_thickness / 8000);
-		// create render-context
-		this.renderer = new THREE.WebGLRenderer({
-			alpha: true,
-			antialias: false,
-			canvas: this.mainCanvas,
-			logarithmicDepthBuffer: dBuffer,
-			powerPreference: this.getPowerPreference(),
-			precision: shaderP,
+			// create camera
+			const viewDist = this.settings.num_levels * this.settings.level_depth * (this.settings.cam_centered ? 0.5 : 1);
+			this.camera = new THREE.PerspectiveCamera(this.settings.field_of_view, window.innerWidth / window.innerHeight, 3, viewDist * 1.2);
+			// create scene
+			this.scene = new THREE.Scene();
+			// create distance fog
+			this.scene.fog = new THREE.FogExp2(0x000000, this.settings.fog_thickness / 8000);
+			// create render-context
+			this.renderer = new THREE.WebGLRenderer({
+				alpha: true,
+				antialias: false,
+				canvas: this.mainCanvas,
+				logarithmicDepthBuffer: dBuffer,
+				powerPreference: this.getPowerPreference(),
+				precision: shaderP,
+			});
+			this.renderer.setClearColor(0x000000, 0);
+			this.renderer.setSize(window.innerWidth, window.innerHeight);
+			// initialize VR mode
+			if (this.isWebContext) this.initWebXR();
+
+			// initialize shader composer
+			this.composer = new EffectComposer(this.renderer, shaderP);
+			// initialize shaders
+			this.shaderHolder.pipeline(this.scene, this.camera, this.composer);
+
+			// initialize statistics
+			if (this.settings.stats_option >= 0) {
+				Smallog.Debug("Init stats: " + this.settings.stats_option);
+				this.stats = Stats();
+				this.stats.showPanel(this.settings.stats_option); // 0: fps, 1: ms, 2: mb, 3+: custom
+				document.body.appendChild(this.stats.dom);
+			}
+
+			// initialize fancy text
+			this.textHolder = new FancyText(this.scene, this.camera.position.multiplyScalar(0.7), document.title);
+
+			// initialize main geometry
+			this.geoHolder.init(this.scene, this.camera, resolve);
 		});
-		this.renderer.setClearColor(0x000000, 0);
-		this.renderer.setSize(window.innerWidth, window.innerHeight);
-		// initialize VR mode
-		if (this.isWebContext) this.initWebXR();
-
-		// initialize shader composer
-		this.composer = new EffectComposer(this.renderer, shaderP);
-		// initialize shaders
-		this.shaderHolder.pipeline(this.scene, this.camera, this.composer);
-
-		// initialize statistics
-		if (this.settings.stats_option >= 0) {
-			Smallog.Debug("Init stats: " + this.settings.stats_option);
-			this.stats = Stats();
-			this.stats.showPanel(this.settings.stats_option); // 0: fps, 1: ms, 2: mb, 3+: custom
-			document.body.appendChild(this.stats.dom);
-		}
-
-		// initialize fancy text
-		this.textHolder = new FancyText(this.scene, this.camera.position.multiplyScalar(0.7), document.title);
-
-		// initialize main geometry
-		this.geoHolder.init(this.scene, this.camera, callback);
 	}
 
 	// update shader values
@@ -239,6 +242,9 @@ export class ContextHolder extends CComponent {
 
 		// update preview visbility after setting possibly changed
 		this.weicue.updatePreview();
+
+		// apply eventually updated settings to WASM Module
+		this.weas.updateSettings();
 	}
 
 

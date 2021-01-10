@@ -24,13 +24,15 @@
 
 import * as THREE from 'three';
 
+import { ASUtil } from '@assemblyscript/loader';
+
 import { ColorHelper } from './ColorHelper';
 import { WEAS } from './we_utils/src/weas/WEAS';
 import { Smallog } from './we_utils/src/Smallog';
 import { CSettings } from "./we_utils/src/CSettings";
 import { CComponent } from './we_utils/src/CComponent';
 
-import LevelWorker from 'worker-loader!./LevelWorker';
+import wascWorker from './we_utils/src/wasc-worker';
 
 interface Level {
 	level: number;
@@ -44,7 +46,7 @@ interface Subset {
 	set: number;
 }
 
-export class LevelSettings extends CSettings {
+class LevelSettings extends CSettings {
 	geometry_type: number = 0;
 	num_levels: number = 6;
 	level_depth: number = 1200;
@@ -93,6 +95,29 @@ export class LevelSettings extends CSettings {
 	audio_decrease: number = 35;
 }
 
+// settings required in worker
+enum WasmSettings {
+	geometry_type = 0,
+	num_subsets_per_level = 1,
+	num_points_per_subset = 2,
+	scaling_factor = 3,
+
+	generate_tunnel = 4, // @todo remove, use iRadius > 0
+
+	tunnel_inner_radius = 5,
+	tunnel_outer_radius = 6,
+	alg_a_min = 7,
+	alg_a_max = 8,
+	alg_b_min = 9,
+	alg_b_max = 10,
+	alg_c_min = 11,
+	alg_c_max = 12,
+	alg_d_min = 13,
+	alg_d_max = 14,
+	alg_e_min = 15,
+	alg_e_max = 16,
+}
+
 export class LevelHolder extends CComponent {
 
 	public settings: LevelSettings = new LevelSettings();
@@ -104,9 +129,7 @@ export class LevelHolder extends CComponent {
 	private speedVelocity = 0;
 
 	// generator holder
-	private levelWorker: LevelWorker = null;
-	private levelWorkersRunning: number = 0;
-	private levelWorkerCall = null;
+	private levelBuilder: any = null;
 
 	// color holder
 	private colorHolder: ColorHelper = new ColorHelper();
@@ -117,6 +140,7 @@ export class LevelHolder extends CComponent {
 	// actions to perform after render
 	private afterRenderQueue = [];
 
+	// audio provider
 	private weas: WEAS = null;
 
 	constructor(weas: WEAS) {
@@ -126,68 +150,27 @@ export class LevelHolder extends CComponent {
 	}
 
 	// initialize geometry generator, data & objects
-	public init(scene: THREE.Scene, cam: THREE.Camera, call) {
+	public async init(scene: THREE.Scene, cam: THREE.Camera, call) {
 		this.camera = cam;
 		var sett = this.settings;
 		// reset generator
-		if (this.levelWorker) this.levelWorker.terminate();
-		this.levelWorkersRunning = 0;
 		this.afterRenderQueue = [];
+
+		// setup fractal generator -> get exported functions
+		this.levelBuilder = await wascWorker(this.getGeoModName(), {}, true);
+		await this.updateSettings();
+
 		// reset rendering
 		this.speedVelocity = 0;
 
 		// prepare colors
 		this.colorHolder.init();
 
-		// setup fractal generator for "default" / "particle" mode
-		if (sett.geometry_type < 2) {
-			this.levelWorker = new LevelWorker();
-
-
-			// LEVEL GENERATED CALLBACK
-			this.levelWorker.addEventListener('message', (e) => {
-				let dat = e.data;
-				if (dat.action == "level") {
-					Smallog.Debug("generated level: " + dat.level);
-					// if all workers finished and we have a queued event, trigger it
-					// this is used as "finished"-trigger for initial level generation...
-					this.levelWorkersRunning--;
-					if (this.levelWorkersRunning == 0 && this.levelWorkerCall) {
-						this.levelWorkerCall();
-						this.levelWorkerCall = null;
-					}
-				}
-				else if (dat.action == "subset") {
-					Smallog.Debug("generated subset: " + dat.level + "/" + dat.subset);
-					// transfer buffer array and get subset
-					let xyBuff = new Float32Array(dat.xyBuff);
-					var subSet: any = this.levels[dat.level].sets[dat.subset];
-					// spread over time for less thread blocking
-					this.afterRenderQueue.push(() => {
-						// set buffer geometry data, then tell the child it's update ready
-						subSet.object.geometry.attributes.position.set(xyBuff, 0);
-						subSet.needsUpdate = true;
-					});
-				}
-			}, false);
-
-
-
-			// ERROR CALLBACK
-			this.levelWorker.addEventListener('error', (e) => {
-				Smallog.Error("level error: [" + e.filename + ", Line: " + e.lineno + "] " + e.message);
-			}, false);
-		}
-
-		var texture: THREE.Texture = null;
 		// load texture sync and init geometry
+		var texture: THREE.Texture = null;
 		if (sett.geometry_type == 0) {
 			// get texture path
-			var texPth = "./img/galaxy.png";
-			switch (sett.base_texture) {
-				case 1: texPth = "./img/cuboid.png"; break;
-				case 2: texPth = "./img/fractal.png"; break;
-			}
+			const texPth = this.getBaseTexPath();
 			Smallog.Debug("loading Texture: " + texPth);
 			texture = new THREE.TextureLoader().load(texPth);
 		}
@@ -196,8 +179,23 @@ export class LevelHolder extends CComponent {
 		this.initGeometries(scene, texture, call);
 	}
 
+	private getGeoModName() {
+		switch (this.settings.geometry_type) {
+			case 0: return "FractalGeometry.wasm";
+			case 1: return "BasicGeometry.wasm";
+		}
+	}
+
+	private getBaseTexPath() {
+		switch (this.settings.base_texture) {
+			case 0: return "./img/galaxy.png";
+			case 1: return "./img/cuboid.png";
+			case 2: return "./img/fractal.png";
+		}
+	}
+
 	// create WEBGL objects for each level and subset
-	private initGeometries(scene: THREE.Scene, texture: THREE.Texture, call) {
+	private initGeometries(scene: THREE.Scene, texture: THREE.Texture, resolve) {
 		var sett = this.settings;
 		var camZ = this.camera.position.z;
 
@@ -226,32 +224,19 @@ export class LevelHolder extends CComponent {
 				// create particle geometry from orbit vertex data
 				var geometry = new THREE.BufferGeometry();
 				// position attribute (2 vertices per point, thats pretty illegal)
-				geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2));
+				geometry.setAttribute('position',
+					new THREE.BufferAttribute(
+						new Float32Array(sett.num_points_per_subset * 2),
+						2
+					)
+				);
 
-				var setObj, material;
-				if (sett.geometry_type == 0) {
-					// create material
-					material = new THREE.PointsMaterial({
-						map: texture,
-						size: sett.texture_size,
-						blending: THREE.AdditiveBlending,
-						depthTest: false,
-						transparent: true
-					});
-					// create particle system from geometry and material
-					setObj = new THREE.Points(geometry, material);
-				}
-				// line geometry type
-				else if (sett.geometry_type == 1) {
-					material = new THREE.LineBasicMaterial({
-						linewidth: sett.texture_size,
-					});
-					// create lineloop system from geometry and material
-					setObj = new THREE.LineSegments(geometry, material);
-				}
+				// make the correct object and material for current settinfs
+				const { setObj, material } = this.getSubsetObject(geometry, texture);
 
 				// set material defaults
 				material.color.setHSL(hues[s], sett.default_saturation / 100, sett.default_brightness / 100);
+
 				// set Object defaults
 				setObj.position.x = 0;
 				setObj.position.y = 0;
@@ -274,45 +259,143 @@ export class LevelHolder extends CComponent {
 			}
 		}
 
-		// run fractal generator for "default" / "particle" mode
-		if (sett.geometry_type < 2) {
-			// set function to be called when all levels are generated, will apply data
-			this.levelWorkerCall = () => {
-				// apply data manually
-				while (this.afterRenderQueue.length > 0) {
-					this.afterRenderQueue.shift()();
-				}
-				// prepare new orbit levels for the first reset/moveBack already
-				for (var l = 0; l < sett.num_levels; l++) {
-					// prepare next position shit
-					this.generateLevel(l);
-				}
-				// tell parent to continue
-				if (call) call();
-			};
-
-			// generate levels in web worker
-			for (var l = 0; l < sett.num_levels; l++) {
-				this.generateLevel(l);
-			}
+		// trigger level generation once
+		const firstWait: Promise<void>[] = [];
+		for (var l = 0; l < sett.num_levels; l++) {
+			firstWait.push(this.generateLevel(l));
 		}
-		// call directly
-		else if (call) call();
+		// wait for all generators to finish
+		Promise.all(firstWait);
+
+		// apply data manually
+		while (this.afterRenderQueue.length > 0) {
+			this.afterRenderQueue.shift()();
+		}
+
+		// generate standby data for first move-back
+		for (var l = 0; l < sett.num_levels; l++) {
+			this.generateLevel(l);
+		}
+		// return control flow
+		resolve();
+	}
+
+	// returns the correct object and Material for a Subset
+	private getSubsetObject(geometry, texture) {
+		var setObj, material;
+
+		// default fractal geometry
+		if (this.settings.geometry_type == 0) {
+			// create material
+			material = new THREE.PointsMaterial({
+				map: texture,
+				size: this.settings.texture_size,
+				blending: THREE.AdditiveBlending,
+				depthTest: false,
+				transparent: true
+			});
+			// create particle system from geometry and material
+			setObj = new THREE.Points(geometry, material);
+		}
+
+		// line geometry type
+		else if (this.settings.geometry_type == 1) {
+			material = new THREE.LineBasicMaterial({
+				linewidth: this.settings.texture_size,
+			});
+			// create lineloop system from geometry and material
+			setObj = new THREE.LineSegments(geometry, material);
+		}
+
+		return { setObj, material };
 	}
 
 	///////////////////////////////////////////////
 	// FRACTAL GENERATOR
 	///////////////////////////////////////////////
 
-	// queue worker event
-	private generateLevel(level) {
-		Smallog.Debug("generating level: " + level);
-		this.levelWorkersRunning++;
-		this.levelWorker.postMessage({
-			id: level,
-			settings: this.settings
+	// CAVEAT: only available after init and module load
+	public async updateSettings() {
+		if (!this.levelBuilder) return;
+
+		var keys = Object.keys(WasmSettings);
+		keys = keys.slice(keys.length / 2);
+		const sett = new Float32Array(keys.length);
+		for (let index = 0; index < keys.length; index++) {
+			const key = keys[index];
+			sett[WasmSettings[key]] = this.settings[key] || 0;
+		}
+
+		// WRAP IN isolated Function ran inside worker
+		const { run } = this.levelBuilder;
+		await run(({ module, instance, importObject, params }) => {
+			const { exports } = instance;
+			const { data } = params[0];
+			
+			const transfer = importObject.__getFloat32ArrayView(exports.levelSettings);
+			transfer.set(data);
+
+			console.debug("Send Settings to Worker: " + JSON.stringify(data));
+		}, {
+			// Data passed to worker
+			data: sett
 		});
 	}
+
+	// queue worker event
+	private generateLevel(level): Promise<void> {
+		Smallog.Debug("generating level: " + level);
+
+		const start = performance.now();
+		const { run } = this.levelBuilder;
+		// isolated Function ran inside worker
+		return run(({ module, instance, importObject, params }) => {
+			const { exports } = instance;
+			const { level } = params[0];
+
+			const io = importObject as ASUtil;
+			// assembly level Building
+			// returns pointer to int32-array with float-references
+			const dataPtr = exports.build(level);
+			// will contain transferrable float-arrays
+			var resultObj = {};
+			// iterate over all pointers
+			const setPtrs = io.__getInt32Array(dataPtr);
+			for (let set = 0; set < setPtrs.length; set++) {
+				const setPtr = setPtrs[set];
+				const setArr = io.__getFloat32ArrayView(setPtr);
+				resultObj["set_" + set] = setArr;
+			}
+			return resultObj;
+		}, {
+			// Data passed to worker
+			level: level
+
+		}).then((result) => {
+			// worker result, back in main context
+			const subbs = this.levels[level].sets as any[];
+			const setsPerLvl = this.settings.num_subsets_per_level;
+			// spread over time for less thread blocking
+			for (let s = 0; s < setsPerLvl; s++) {
+				// apply actual last Data from worker
+				this.afterRenderQueue.push(() => {
+					// get & set xyzBuffer data, then update child
+					const data = new Float32Array(result["set_" + s]);
+					subbs[s].object.geometry.attributes.position.set(data, 0);
+					subbs[s].needsUpdate = true;
+				});
+			}
+			// print info
+			Smallog.Debug("Generated Level " + level + "! Time= " + (performance.now() - start));
+			return true;
+
+		}).catch(e => {
+			Smallog.Error("Generate Error " + level + "! Msg= " + e.toString());
+			console.error(e);
+			return false;
+		});
+	}
+
 
 	///////////////////////////////////////////////
 	// move geometry
@@ -337,7 +420,7 @@ export class LevelHolder extends CComponent {
 
 		// audio stuff
 		var hasAudio = this.weas.hasAudio();
-		var flmult = (15 + sett.audio_multiplier) / 65;
+		var flmult = (15 + sett.audio_multiplier) / 60;
 		var lastAudio, boost, step, scaleBri, scaleSat;
 		if (hasAudio) {
 			spvn = (spvn + sett.audiozoom_val / 3) * deltaTime;
@@ -443,7 +526,7 @@ export class LevelHolder extends CComponent {
 					dist = Math.round((camZ - child.position.z) / step);
 					freqIdx = Math.min(lastAudio.data.length, Math.max(0, dist - 2));
 					freqData = parseFloat(lastAudio.data[freqIdx]);
-					freqLvl = (freqData * flmult / 3) / lastAudio.max;
+					freqLvl = (freqData * flmult / 3) / lastAudio.average;
 					// uhoh ugly special case
 					if (color_mode == 4)
 						targetHue += (colObject.hslb - targetHue) * freqData / lastAudio.max;

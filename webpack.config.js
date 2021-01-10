@@ -1,7 +1,7 @@
 const path = require('path');
 
 const OfflinePlugin = require('./src/we_utils/src/offline/OfflinePlugin');
-const WasmPlugin = require('./src/we_utils/src/wasm/WasmPlugin');
+const WascBuilderPlugin = require('./src/we_utils/src/wasc-builder/WascBuilderPlugin');
 
 module.exports = {
   mode: 'production',
@@ -10,10 +10,10 @@ module.exports = {
   },
   output: {
     chunkFilename: '[id].bundle.js',
-    path: path.resolve(__dirname, 'dist') + '/pack'
+    path: path.resolve(__dirname, 'dist', 'pack')
   },
   devServer: {
-    contentBase: path.join(__dirname, 'dist') + '/pack',
+    contentBase: path.resolve(__dirname, 'dist', 'pack'),
     port: 9000,
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -30,7 +30,7 @@ module.exports = {
   },
   module: {
     rules: [
-      // use a worker-loader for workers...
+      // use a specific loader for workers...
       {
         test: /\.worker\.(c|m)?js$/i,
         loader: 'worker-loader',
@@ -41,7 +41,7 @@ module.exports = {
       },
       // exclude wasm js & ts from build
       {
-        test: /\.wasm\.(c|m)?(j|t)s$/i,
+        test: /\.wasm\.(c|m)?(a|j|t)s(c)?$/i,
         loader: 'null-loader'
       },
       // exclude live reloading from the bundle -_- no other way?
@@ -64,9 +64,11 @@ module.exports = {
     // just so you don't have to modify the process everytime...
     // this will compile all modules in 'rootpath' (recursive)
     // where the 'include' (regex) matches a filename.
-    new WasmPlugin({
+    new WascBuilderPlugin({
+      production: true,
       relpath: '../../../',
       regexx: /.*\.wasm\.asc$/,
+      cleanup: true
     })
   ]
 };

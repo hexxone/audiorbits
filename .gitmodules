@@ -1,3 +1,6 @@
 [submodule "we_utils"]
 	path = src/we_utils
 	url = https://github.com/hexxone/we_utils.git
+[submodule "src/wasc-worker"]
+	path = src/wasc-worker
+	url = https://github.com/hexxone/wasc-worker.git
