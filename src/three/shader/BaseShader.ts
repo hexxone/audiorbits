@@ -5,8 +5,8 @@
 export interface BaseShader {
 
     shaderID: string;
-    vertexShader: string ;
+    vertexShader: string;
     fragmentShader: string;
     uniforms: any;
-	defines: any;
+    defines: any;
 }
