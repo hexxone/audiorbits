@@ -42,11 +42,12 @@
         "ui_num_subsets_per_level": "Subsets pro Level 🔃",
         "ui_HEADER_PRLX": "<h4>🎥 <u>Kamera</u></h4>",
         "ui_parallax_angle": "Rotations-winkel",
-        "ui_parallax_option": "Parallax",
+        "ui_parallax_option": "Position",
         "ui_parallax_option_0": "Aus",
         "ui_parallax_option_1": "Cursor",
         "ui_parallax_option_2": "Automatisch",
         "ui_parallax_option_3": "Fest",
+        "ui_parallax_cam": "Parallax",
         "ui_parallax_strength": "Stärke",
         "ui_auto_parallax_speed": "Geschwindigkeit",
         "ui_custom_fps": "Eigenes Rendering 🔃",
@@ -498,6 +499,13 @@
         "type": "combo",
         "value": 0
       },
+      "parallax_cam": {
+        "condition": "HEADER_PRLX.value",
+        "order": 345,
+        "text": "ui_parallax_cam",
+        "type": "bool",
+        "value": true
+      },
       "parallax_strength": {
         "condition": "HEADER_PRLX.value && parallax_option.value > 0",
         "editable": false,
@@ -540,8 +548,8 @@
       },
       "fog_thickness": {
         "condition": "HEADER_PRLX.value",
-        "editable": true,
-        "max": 10,
+        "editable": false,
+        "max": 99,
         "min": 1,
         "order": 376,
         "text": "ui_fog_thickness",
@@ -592,6 +600,30 @@
         "text": "ui_zoom_val",
         "type": "slider",
         "value": 1
+      },
+      "audiozoom_val": {
+        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
+        "editable": true,
+        "max": 15,
+        "min": 0,
+        "order": 422,
+        "text": "ui_audiozoom_val",
+        "type": "slider",
+        "value": 2
+      },
+      "only_forward": {
+        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
+        "order": 424,
+        "text": "ui_only_forward",
+        "type": "bool",
+        "value": false
+      },
+      "audiozoom_smooth": {
+        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
+        "order": 426,
+        "text": "ui_audiozoom_smooth",
+        "type": "bool",
+        "value": false
       },
       "rotation_val": {
         "condition": "HEADER_MOVEMENT.value",
@@ -1016,30 +1048,6 @@
         "text": "ui_audio_decrease",
         "type": "slider",
         "value": 35
-      },
-      "audiozoom_val": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "editable": true,
-        "max": 15,
-        "min": 0,
-        "order": 930,
-        "text": "ui_audiozoom_val",
-        "type": "slider",
-        "value": 2
-      },
-      "only_forward": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "order": 940,
-        "text": "ui_only_forward",
-        "type": "bool",
-        "value": false
-      },
-      "audiozoom_smooth": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "order": 950,
-        "text": "ui_audiozoom_smooth",
-        "type": "bool",
-        "value": false
       },
       "minimum_volume": {
         "condition": "HEADER_AUDIO.value && audioprocessing.value",
