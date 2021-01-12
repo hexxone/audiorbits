@@ -36,6 +36,7 @@ class ContextSettings extends CSettings {
 	parallax_angle: number = 180;
 	parallax_strength: number = 3;
 	auto_parallax_speed: number = 2;
+	parallax_cam: boolean = true;
 	field_of_view: number = 90;
 	custom_fps: boolean = false;
 	fps_value: number = 60;
@@ -175,7 +176,7 @@ export class ContextHolder extends CComponent {
 			// create scene
 			this.scene = new THREE.Scene();
 			// create distance fog
-			this.scene.fog = new THREE.FogExp2(0x000000, this.settings.fog_thickness / 8000);
+			this.scene.fog = new THREE.FogExp2(0x000000, this.settings.fog_thickness / viewDist / 2);
 			// create render-context
 			this.renderer = new THREE.WebGLRenderer({
 				alpha: true,
@@ -211,20 +212,25 @@ export class ContextHolder extends CComponent {
 		});
 	}
 
+	// clamp camera position
+	private clampCam(axis) {
+		return Math.min(this.settings.scaling_factor / 2, Math.max(-this.settings.scaling_factor / 2, axis));
+	}
+
 	// update shader values
 	private update(ellapsed, deltaTime) {
-
-		// calculate camera parallax with smoothing
-		var clampCam = (axis) => Math.min(this.settings.scaling_factor / 2, Math.max(-this.settings.scaling_factor / 2, axis));
-		var newCamX = clampCam(this.mouseX * this.settings.parallax_strength / 50);
-		var newCamY = clampCam(this.mouseY * this.settings.parallax_strength / -50);
+		// calculate camera positioning
+		const newCamX = this.clampCam(this.mouseX * this.settings.parallax_strength / 50);
+		const newCamY = this.clampCam(this.mouseY * this.settings.parallax_strength / -50);
 		if (this.camera.position.x != newCamX)
 			this.camera.position.x += (newCamX - this.camera.position.x) * deltaTime * 0.05;
 		if (this.camera.position.y != newCamY)
 			this.camera.position.y += (newCamY - this.camera.position.y) * deltaTime * 0.05;
 
-		// set camera view-target to scene-center
-		this.camera.lookAt(this.scene.position);
+		// calculate camera look-at-point (parallax)
+		const lookOrigin = this.settings.parallax_cam ? this.scene.position : this.camera.position;
+		const lookAt = lookOrigin.sub(new THREE.Vector3(0, 0, this.settings.level_depth * 2));
+		this.camera.lookAt(lookAt);
 
 		// TODO: WEBVR PROCESSING
 		if (this.isWebContext) {
@@ -253,7 +259,7 @@ export class ContextHolder extends CComponent {
 	///////////////////////////////////////////////
 
 	// start or stop rendering
-	public setRenderer(render) {
+	public setRenderer(render: boolean) {
 		Smallog.Debug("setRenderer: " + render);
 
 		// clear all old renderers

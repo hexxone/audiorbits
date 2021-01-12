@@ -24,19 +24,19 @@
  * @todo
  * 
  * project.json
- * - put audioZoom, negative and smoothing to movement category
  * - update translations -> project.json -> steam
  * - update preview image?
  * - rename camera > parallax to "position"
  * - add checkbox "parallax"
  * - add "reverse mode" "normal, none, invert"
+ * - test prop type "hidden" in WE for seizure lang txt
  * 
  * 
  * main code:
  * - fix "min > max" saturation/light
- * - change fog / leveldepth percentage density   ((1 / viewDist * val / 100))
  * - add new re-init vars
  * - fix seizure warning text
+ * - fix level generator
  * - fix weas stuff (frequency mapping)
  * - implement color mode "level splitting"?
  * - use buffer for geometry size?
@@ -150,7 +150,7 @@ class AudiOrbits {
 					this.ctxHolder.setRenderer(false);
 				}
 			},
-			setPaused: (isPaused) => {
+			setPaused: (isPaused: boolean) => {
 				if (this.state == RunState.Paused) {
 					if (isPaused) return;
 					this.state = RunState.Running;
@@ -340,7 +340,5 @@ class AudiOrbits {
 ///////////////////////////////////////////////
 
 // if the wallpaper is ran in browser, we want to delay the init until caching is complete.
-const _wrap = new WEWWA(() => {
-	const _main = new AudiOrbits();
-});
+new WEWWA(() => new AudiOrbits());
 
