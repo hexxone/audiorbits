@@ -14,7 +14,6 @@
  * - implement particle system
  * - implement ps4 experiment
  * - implement cloud experiment
- * - new color mode "level splitting"?
  * 
  * - experimental: set buffergeometry drawrange on audio?
  * 
@@ -87,7 +86,7 @@ class LevelSettings extends CSettings {
 	// Audio category
 	audio_multiplier: number = 2;
 	audiozoom_val: number = 2;
-	only_forward: boolean = false;
+	reverse_type: number = 0;
 	audiozoom_smooth: boolean = false;
 	// time-value smoothing ratio
 	// mirrored on WEAS
@@ -102,20 +101,18 @@ enum WasmSettings {
 	num_points_per_subset = 2,
 	scaling_factor = 3,
 
-	generate_tunnel = 4, // @todo remove, use iRadius > 0
-
-	tunnel_inner_radius = 5,
-	tunnel_outer_radius = 6,
-	alg_a_min = 7,
-	alg_a_max = 8,
-	alg_b_min = 9,
-	alg_b_max = 10,
-	alg_c_min = 11,
-	alg_c_max = 12,
-	alg_d_min = 13,
-	alg_d_max = 14,
-	alg_e_min = 15,
-	alg_e_max = 16,
+	tunnel_inner_radius = 4,
+	tunnel_outer_radius = 5,
+	alg_a_min = 6,
+	alg_a_max = 7,
+	alg_b_min = 8,
+	alg_b_max = 9,
+	alg_c_min = 10,
+	alg_c_max = 11,
+	alg_d_min = 12,
+	alg_d_max = 13,
+	alg_e_min = 14,
+	alg_e_max = 15,
 }
 
 export class LevelHolder extends CComponent {
@@ -331,11 +328,15 @@ export class LevelHolder extends CComponent {
 		await run(({ module, instance, importObject, params }) => {
 			const { exports } = instance;
 			const { data } = params[0];
+			const io = importObject as ASUtil;
 
-			const transfer = importObject.__getFloat32ArrayView(exports.levelSettings);
+			const transfer = io.__getFloat32ArrayView(exports.levelSettings);
 			transfer.set(data);
 
-			console.debug("Send Settings to Worker: " + JSON.stringify(data));
+			// generate the data structure with updated settings
+			exports.update();
+
+			console.debug("Sent Settings to Worker: " + JSON.stringify(data));
 		}, {
 			// Data passed to worker
 			data: sett
@@ -352,8 +353,8 @@ export class LevelHolder extends CComponent {
 		return run(({ module, instance, importObject, params }) => {
 			const { exports } = instance;
 			const { level } = params[0];
-
 			const io = importObject as ASUtil;
+
 			// assembly level Building
 			// returns pointer to int32-array with float-references
 			const dataPtr = exports.build(level);
@@ -361,9 +362,18 @@ export class LevelHolder extends CComponent {
 			var resultObj = {};
 			// iterate over all pointers
 			const setPtrs = io.__getInt32Array(dataPtr);
+
+			// TODO REMOVE
+			console.log(dataPtr);
+			console.log(setPtrs);
+
 			for (let set = 0; set < setPtrs.length; set++) {
 				const setPtr = setPtrs[set];
 				const setArr = io.__getFloat32ArrayView(setPtr);
+
+				// TODO REMOVE
+				console.log(setArr);
+
 				resultObj["set_" + set] = setArr;
 			}
 			return resultObj;
@@ -386,11 +396,11 @@ export class LevelHolder extends CComponent {
 				});
 			}
 			// print info
-			Smallog.Debug("Generated Level " + level + "! Time= " + (performance.now() - start));
+			Smallog.Debug("Generated Level=" + level + ", Time= " + (performance.now() - start));
 			return true;
 
 		}).catch(e => {
-			Smallog.Error("Generate Error " + level + "! Msg= " + e.toString());
+			Smallog.Error("Generate Error at Level='" + level + "', Msg='" + e.toString() + "'");
 			console.error(e);
 			return false;
 		});
@@ -406,21 +416,21 @@ export class LevelHolder extends CComponent {
 
 		// calculate boost strength & step size if data given
 		var spvn = sett.zoom_val / 1.5 * deltaTime;
-		var reversed = sett.movement_type == 1;
+		const reversed = sett.movement_type == 1;
 
 		// get targeted saturations
-		var defSat = sett.default_saturation / 100;
-		var minSat = sett.minimum_saturation / 100;
-		var maxSat = sett.maximum_saturation / 100;
+		const defSat = sett.default_saturation / 100;
+		const minSat = sett.minimum_saturation / 100;
+		const maxSat = sett.maximum_saturation / 100;
 		// get targeted brightness's
-		var defBri = sett.default_brightness / 100;
-		var minBri = sett.minimum_brightness / 100;
-		var maxBri = sett.maximum_brightness / 100;
+		const defBri = sett.default_brightness / 100;
+		const minBri = sett.minimum_brightness / 100;
+		const maxBri = sett.maximum_brightness / 100;
 
 
 		// audio stuff
-		var hasAudio = this.weas.hasAudio();
-		var flmult = (15 + sett.audio_multiplier) / 60;
+		const hasAudio = this.weas.hasAudio();
+		const flmult = (15 + sett.audio_multiplier) / 60;
 		var lastAudio, boost, step, scaleBri, scaleSat;
 		if (hasAudio) {
 			spvn = (spvn + sett.audiozoom_val / 3) * deltaTime;
@@ -445,11 +455,17 @@ export class LevelHolder extends CComponent {
 			var mlt = diff > 0 ? sett.audio_increase : sett.audio_decrease;
 			spvn -= diff * mlt / 300;
 		}
-		// no negative zoom?
-		if (sett.only_forward && spvn < 0) {
-			spvn = 0;
+
+		switch (sett.reverse_type) {
+			case 1: // no negative zoom?
+				if (spvn < 0) spvn = 0;
+				break;
+			case 2: // convert negative zoom?
+				if (spvn < 0) spvn = Math.abs(spvn);
+				break;
 		}
-		// reverse zoom?
+
+		// inverted movement type?
 		if (reversed) {
 			spvn *= -1;
 		}
