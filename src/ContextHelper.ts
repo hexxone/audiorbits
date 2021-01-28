@@ -10,7 +10,7 @@
  * Contains main rendering context for AudiOrbits
  * 
  * @todo
- * - fix camera parallax stuff
+ * - test camera parallax stuff
  */
 
 import * as THREE from 'three';
@@ -93,8 +93,8 @@ export class ContextHolder extends CComponent {
 	private windowHalfY = window.innerHeight / 2;
 
 	// important objects
-	public colorHolder: ColorHelper = new ColorHelper();
-	public shaderHolder: ShaderHolder = new ShaderHolder();
+	private colorHolder: ColorHelper = new ColorHelper();
+	private shaderHolder: ShaderHolder = new ShaderHolder();
 	public textHolder: FancyText = null;
 
 	public weas: WEAS = new WEAS();
@@ -209,6 +209,8 @@ export class ContextHolder extends CComponent {
 
 			// initialize main geometry
 			this.geoHolder.init(this.scene, this.camera, resolve);
+
+			this.showMessage(document.title);
 		});
 	}
 
@@ -240,7 +242,7 @@ export class ContextHolder extends CComponent {
 	}
 
 	// called after any setting changed
-	public updateSettings() {
+	public updateSettings(updateColor) {
 		// fix for centered camera on Parallax "none"
 		if (this.settings.parallax_option == 0) this.mouseX = this.mouseY = 0;
 		// set Cursor for "fixed" parallax mode
@@ -251,6 +253,9 @@ export class ContextHolder extends CComponent {
 
 		// apply eventually updated settings to WASM Module
 		this.weas.updateSettings();
+
+		// apply changed color settings
+		if (updateColor) this.colorHolder.init();
 	}
 
 
@@ -376,6 +381,14 @@ export class ContextHolder extends CComponent {
 			case 3: return "high-performance";
 			default: return "default";
 		}
+	}
+
+	// shows a fancy text mesage
+	private showMessage(msg: string) {
+		// TODO test
+		this.textHolder = new FancyText(this.scene,
+			this.camera.position.sub(new THREE.Vector3(0, 0, this.settings.level_depth / 2)),
+			msg);
 	}
 
 	// position Mouse with angle

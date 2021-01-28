@@ -26,10 +26,7 @@
  * project.json
  * - update translations -> project.json -> steam
  * - update preview image?
- * - rename camera > parallax to "position"
- * - add checkbox "parallax"
- * - add "reverse mode" "normal, none, invert"
- * - test prop type "hidden" in WE for seizure lang txt
+ * - test prop text in WE
  * 
  * 
  * main code:
@@ -37,25 +34,21 @@
  * - add new re-init vars
  * - fix seizure warning text
  * - fix level generator
- * - fix weas stuff (frequency mapping)
- * - implement color mode "level splitting"?
- * - use buffer for geometry size?
- * 		- in WASM?
+ * - fix weas frequency mapping
+ * - use buffer for geometry size in WASM?
+ * - wasc-loader worker debugging option ?
+ * - wasc-loader worker option
  * 
  * 
  * low priority:
  * - remove jquery
+ * - fix licenses?
  * - highlight seizure text on white BG
  * - finish implementing Web-XR
  * 		- add "camera centered" checkbox for vr
  * 		- add  "vr-cam" mode, with relative controls
  * - record "how to debug"-video?
  * 
- * lighthouse:
- * - image explicit width/height
- * - cf longer cache policy (2d?)
- * - <img alt's
- * - <form <input <label's
  * 
 */
 
@@ -67,6 +60,7 @@ import { WarnHelper } from './we_utils/src/WarnHelper';
 import { CSettings } from "./we_utils/src/CSettings";
 import { Ready } from './we_utils/src/Ready';
 import { WEWWA } from './we_utils/src/WEWWA';
+import { CComponent } from './we_utils/src/CComponent';
 
 const Ignore: string[] = ["debugging", "img_overlay", "img_background", "mirror_invalid_val"];
 
@@ -101,11 +95,11 @@ class MainSettings extends CSettings {
 }
 
 // base object for wallpaper
-class AudiOrbits {
+class AudiOrbits extends CComponent {
 	// holds default wallpaper settings
 	// these basically connect 1:1 to wallpaper engine settings.
 	// for more explanation on settings visit the Workshop-Item-Forum (link above)
-	private settings: MainSettings = new MainSettings();
+	public settings: MainSettings = new MainSettings();
 
 	// state of the Wallpaper
 	public state: RunState = RunState.None;
@@ -120,12 +114,18 @@ class AudiOrbits {
 	private swirlStep: number = 0;
 	// important objects
 	private ctxHolder: ContextHolder = new ContextHolder();
-	private reloadHelper: ReloadHelper = new ReloadHelper();
 	private warnHelper: WarnHelper = new WarnHelper();
 
+	private reloadHelper: ReloadHelper = new ReloadHelper();
+
 	constructor() {
+		super();
 		Smallog.SetPrefix("[AudiOrbits] ");
 		Smallog.Info("initializing...");
+
+		this.children.push(this.ctxHolder);
+		this.children.push(this.warnHelper);
+
 		// will apply settings edited in Wallpaper Engine
 		// this will also cause initialization for the first time
 		window['wallpaperPropertyListener'] = {
@@ -175,13 +175,11 @@ class AudiOrbits {
 		Smallog.Debug("applying settings: " + JSON.stringify(Object.keys(props)));
 
 		// possible apply-targets
-		const sett = this.settings;
-		const settingsStorages: CSettings[] = [sett, ...this.ctxHolder.GetSettings()];
-
+		const storages = this.GetSettings();
 		var reInitFlag = false;
 
 		// loop all settings for updated values
-		for (var setting in props) {
+		for (const setting in props) {
 			// ignore this setting or apply it manually
 			if (Ignore.indexOf(setting) > -1 || this.startsWith(setting, "HEADER_")) continue;
 			// get the updated setting
@@ -191,7 +189,7 @@ class AudiOrbits {
 
 			var found = false;
 			// process all storages
-			for (var storage of settingsStorages) {
+			for (const storage of storages) {
 				var fo = false;
 				// apply prop value
 				switch (prop.type) {
@@ -203,7 +201,7 @@ class AudiOrbits {
 						found ||= (fo = storage.apply(setting, parseFloat(prop.value)));
 						break;
 					default:
-						found ||= (fo = storage.apply(setting, prop.value));
+						found ||= (fo = storage.apply(setting, prop.value || prop.text));
 						break;
 				}
 				// set re-init flag if value changed and included in list
@@ -213,8 +211,8 @@ class AudiOrbits {
 			if (!found) Smallog.Error("Unknown setting: " + setting + ". Are you using an old preset?");
 		}
 
-		// update parallax / weicue settings
-		this.ctxHolder.updateSettings();
+		// update parallax, weicue, colors, etc.
+		this.ctxHolder.updateSettings(props.color_mode || props.user_color_a || props.user_color_b);
 
 		// Custom bg color
 		if (props.main_color) {
@@ -228,11 +226,6 @@ class AudiOrbits {
 			this.setImgSrc("#img_back", props.img_background.value);
 		if (props.img_overlay)
 			this.setImgSrc("#img_over", props.img_overlay.value);
-
-		// re-initialize colors if mode or user value changed
-		if (props.color_mode || props.user_color_a || props.user_color_b) {
-			this.ctxHolder.colorHolder.init();
-		}
 
 		// debug logging
 		if (props.debugging) {
@@ -274,7 +267,6 @@ class AudiOrbits {
 	private initOnce() {
 		const initWrap = () => {
 			this.initSystem();
-			this.popupMessage("<h1>" + document.title + "</h1>", true);
 		};
 		// show seizure warning before initializing?
 		if (!this.settings.seizure_warning) initWrap();
@@ -321,18 +313,7 @@ class AudiOrbits {
 		else if (this.swirlStep < 0) this.swirlStep += 360;
 		this.ctxHolder.positionMouseAngle(this.swirlStep);
 	}
-
-	// popup message handler
-	private popupMessage(msg, hideAfter) {
-		$("#txtholder").html(msg);
-		$("#txtholder").fadeIn({ queue: false, duration: "slow" });
-		$("#txtholder").animate({ bottom: "40px" }, "slow");
-		if (hideAfter) setTimeout(() => {
-			$("#txtholder").fadeOut({ queue: false, duration: "slow" });
-			$("#txtholder").animate({ bottom: "-40px" }, "slow");
-		}, 7000);
-	}
-};
+}
 
 
 ///////////////////////////////////////////////

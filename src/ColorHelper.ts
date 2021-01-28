@@ -48,11 +48,15 @@ export class ColorHelper extends CComponent {
 		var cobj = this.colorObject = this.getColorObject();
 		Smallog.Debug("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb);
 		for (var s = 0; s < sett.num_subsets_per_level; s++) {
-			var col = Math.random();
+			var col = Math.random(); // default: random
 			switch (sett.color_mode) {
+				// single color OR
+				// audio max = 2nd color, min = 1st color
 				case 1:
 				case 4: col = cobj.hsla; break;
+				// level gradient
 				case 2: col = cobj.hsla + (s / sett.num_subsets_per_level * cobj.range); break;
+				// random from range
 				case 3: col = cobj.hsla + (col * cobj.range); break;
 			}
 			this.hueValues[s] = col;
@@ -60,7 +64,7 @@ export class ColorHelper extends CComponent {
 	}
 
 	// returns the processed user color object
-	private getColorObject() {
+	private getColorObject(): ColorObject {
 		var sett = this.settings;
 		var a = this.rgbToHue(sett.user_color_a).h;
 		var b = this.rgbToHue(sett.user_color_b).h;

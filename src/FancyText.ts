@@ -1,9 +1,19 @@
-
-
-// @TODO finish implementing this, remove old text, css and font
+/**
+ * @author D.Thiele @https://hexx.one
+ *
+ * @license
+ * Copyright (c) 2020 D.Thiele All rights reserved.  
+ * Licensed under the GNU GENERAL PUBLIC LICENSE.
+ * See LICENSE file in the project root for full license information.  
+ * 
+ * @description
+ * Fancy Shorthand 3D Text Renderer for THREE js
+ * 
+ * @todo
+ * - test this, remove old text, css and font
+ */
 
 import * as THREE from 'three';
-
 
 export class FancyText {
 

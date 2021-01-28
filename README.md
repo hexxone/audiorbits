@@ -6,15 +6,22 @@
 ## NOTICE
 
 The Wallpaper is made for and maintained on the **Steam Workshop**.
-It is however basically a website and can be easily run in most browsers.
+It is however basically a website and can be easily run in *most* browsers.
 
-Since you usually need to own Wallpaper Engine in order to access it's Workshop Content (this Wallpaper), I published this repository...
+Usually you need to own Wallpaper Engine in order to access it's Workshop Content (this Wallpaper).
+And so, in order to fullfill the Licenses on this Software, I published this repository.
 
-*But:* **Please address any issues or suggestions on on Steam.**
+*But:* **Please address any [Issues](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/) or [Ideas](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/) on on Steam.**
 
-Also, feel free to use this Wallpaper at your favourite party, event, video, stream, etc.
+## License
 
-Please just remember to include a link to the Steam-Page or THIS repository - Thanks :)
+This Wallpaper is incorporating pieces of Software with different Licenses.
+The project itself is licensed under the GPLv3 and several portions of it under MIT.
+Users of any part of this Code must therefore abide by the conditions of all licences which covered it as they received it.
+
+Aside from that, feel free to use this Wallpaper at your favourite party, event, video, stream, etc.
+Please just remember to include a link to THIS repository or the Steam-Page.
+Thanks 🙂
 
 
 ## Technologies

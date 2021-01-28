@@ -39,9 +39,9 @@ module.exports = {
           chunkFilename: '[id].[chunkhash].worker.js',
         },
       },
-      // exclude wasm js & ts from build
+      // exclude .asc from the bundle
       {
-        test: /\.wasm\.(c|m)?(a|j|t)s(c)?$/i,
+        test: /.*\.asc$/i,
         loader: 'null-loader'
       },
       // exclude live reloading from the bundle -_- no other way?
@@ -52,23 +52,24 @@ module.exports = {
     ]
   },
   plugins: [
+    // manual wasm module build
+    // just so you don't have to modify the process everytime...
+    // this will compile all modules in 'rootpath' (recursive)
+    // where the 'include' (regex) matches a filename.
+    new WascBuilderPlugin({
+      production: false, // TODO for release
+      relpath: '../../../',
+      extension: 'asc',
+      cleanup: true
+    }),
     // offline worker helper
     // will create a list of all app-files.
     // this list is used to cache the app offline in browser.
     new OfflinePlugin({
       staticdir: "dist/pack/",
       outfile: 'offlinefiles.json',
-      extrafiles: ["/"]
-    }),
-    // manual wasm module build
-    // just so you don't have to modify the process everytime...
-    // this will compile all modules in 'rootpath' (recursive)
-    // where the 'include' (regex) matches a filename.
-    new WascBuilderPlugin({
-      production: true,
-      relpath: '../../../',
-      regexx: /.*\.wasm\.asc$/,
-      cleanup: true
+      extrafiles: ["/"],
+      pretty: true // TODO for release
     })
   ]
 };
