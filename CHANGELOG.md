@@ -1,12 +1,11 @@
 ## Changelog:
 
-### Version 2.4:
+### [Version 2.4](https://github.com/hexxone/audiorbits/releases/tag/2.4):
 - full code and settings category rework
 - Add "Audio Direction" Combobox (normal & invert)
 - Add Audio "Equalize" Setting
 - Add Audio "Mono/Stereo" Setting
 - Add "Movement Direction" Combobox (normal & invert)
-- Add Color Mode "Level Splitting"
 - Add "Geometry Mode" Setting (default: Points)
 - Add Geometry Mode "Particles"
 - Add Geometry Mode "Experimental"
@@ -14,7 +13,7 @@
 - shortened fade-in time and fixxed reload bar
 - when ran in browser, App will make itself available offline
 
-### Version 2.3:
+### [Version 2.3](https://github.com/hexxone/audiorbits/releases/tag/2.3):
 - added "shader_quality"-setting (Advanced)
 - outsourced and restructured most libraries
 - added lots of languages (see we_project_helper)

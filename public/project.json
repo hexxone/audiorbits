@@ -50,9 +50,9 @@
         "ui_parallax_cam": "Parallax",
         "ui_parallax_strength": "Stärke",
         "ui_auto_parallax_speed": "Geschwindigkeit",
-        "ui_custom_fps": "Eigenes Rendering 🔃",
+        "ui_custom_fps": "VSYNC Deaktivieren 🔃",
         "ui_fps_value": "FPS Ziel",
-        "ui_field_of_view": "Field of View",
+        "ui_field_of_view": "Sichtbereich",
         "ui_fog_thickness": "Nebeldichte",
         "ui_HEADER_MOVEMENT": "<h4>⏫ <u>Bewegung</u></h4>",
         "ui_movement_type": "Bewegungs-Richtung",
@@ -60,18 +60,21 @@
         "ui_movement_type_1": "Rückwärts",
         "ui_zoom_val": "Geschwindigkeit",
         "ui_rotation_val": "Rotations-geschw.",
-        "ui_only_forward": "Nicht negativ",
+        "ui_reverse_type": "🔊 Negativ-Zoom",
+        "ui_reverse_type_0": "Aktiviert",
+        "ui_reverse_type_1": "Deaktiviert",
+        "ui_reverse_type_2": "konvertieren",
         "ui_HEADER_COLOR": "<h4>🌈 <u>Farben</u></h4>",
-        "ui_main_color": "Hintergrund Farbe",
+        "ui_main_color": "Hintergrund",
         "ui_color_mode": "Farbmodus",
         "ui_color_mode_0": "Zufällig",
         "ui_color_mode_1": "Einfarbig",
         "ui_color_mode_2": "Farbverlauf",
-        "ui_color_mode_3": "Farbbereich (zufall)",
-        "ui_color_mode_4": "Farbbereich (audio)",
-        "ui_color_mode_5": "Level splitting",
-        "ui_user_color_a": "Hauptfarbe",
-        "ui_user_color_b": "Zweitfarbe",
+        "ui_color_mode_3": "Zufällig Farbbereich",
+        "ui_color_mode_4": "🔊 Farbbereich",
+        "ui_color_mode_5": "Levelteilung",
+        "ui_user_color_a": "Farbe 1",
+        "ui_user_color_b": "Farbe 2",
         "ui_color_fade_speed": "Farbwechsel-Geschw.",
         "ui_HEADER_SATURATION": "<h4>📊 <u>Sättigung</u></h4>",
         "ui_HEADER_BRIGHTNESS": "<h4>🔆 <u>Helligkeit</u></h4>",
@@ -83,7 +86,7 @@
         "ui_blur_strength": "Blur 🔃",
         "ui_fx_antialiasing": "FXAA 🔃",
         "ui_mirror_shader": "Spiegel 🔃",
-        "ui_mirror_invert": "Spiegel invertieren 🔃",
+        "ui_mirror_invert": "Spiegel invertiert 🔃",
         "ui_mirror_invalid_val": "<h4><small>Der Wert Darf nicht 1 sein! Nehme bitte 0 oder mindestens 2!</small></h4>",
         "ui_lut_filter": "LookUpTable 🔃",
         "ui_lut_filter_0": "Aus",
@@ -133,7 +136,8 @@
         "ui_shader_quality_3": "Hoch",
         "ui_debugging": "Debug logging",
         "ui_seizure_warning": "Epilepsiewarnung",
-        "ui_HEADER_THANKS": "<hr><h4><small>Danke fürs benutzen :)</small></h4>"
+        "ui_HEADER_THANKS": "<hr><h4><small>Danke fürs benutzen :)</small></h4>",
+        "ui_seizure_text": "Dieses \"Hintergrundbild\" kann bei Menschen mit lichtempfindlicher Epilepsie möglicherweise Anfälle auslösen.\r\nEin zu langes Betrachten kann zu Kopfschmerzen, kurzlebigen Veränderungen der visuellen Wahrnehmung und vielem mehr führen.\r\nDie Diskretion des Betrachters wird empfohlen.\r\n\r\nDieses \"Hintergrundbild\" kann, je nach Einstellungen, viel RAM-, CPU- und GPU-Resourcen nutzen.\r\nAchtung!"
       },
       "en-us": {},
       "es-es": {},
@@ -611,19 +615,33 @@
         "type": "slider",
         "value": 2
       },
-      "only_forward": {
-        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
-        "order": 424,
-        "text": "ui_only_forward",
-        "type": "bool",
-        "value": false
-      },
       "audiozoom_smooth": {
         "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
-        "order": 426,
+        "order": 424,
         "text": "ui_audiozoom_smooth",
         "type": "bool",
         "value": false
+      },
+      "reverse_type": {
+        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
+        "order": 426,
+        "text": "ui_reverse_type",
+        "options": [
+          {
+            "label": "ui_reverse_type_0",
+            "value": 0
+          },
+          {
+            "label": "ui_reverse_type_1",
+            "value": 1
+          },
+          {
+            "label": "ui_reverse_type_2",
+            "value": 2
+          }
+        ],
+        "type": "combo",
+        "value": 0
       },
       "rotation_val": {
         "condition": "HEADER_MOVEMENT.value",
@@ -1259,6 +1277,12 @@
       "HEADER_THANKS": {
         "order": 1210,
         "text": "ui_HEADER_THANKS",
+        "type": "text"
+      },
+      "seizure_text": {
+        "condition": "false",
+        "order": 1220,
+        "text": "ui_seizure_text",
         "type": "text"
       }
     },
