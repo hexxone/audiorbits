@@ -39,10 +39,15 @@ interface Level {
 }
 
 interface Subset {
-	needsUpdate: boolean;
-	object: THREE.Object3D;
+	hasNewData: boolean;
+	object: T3Object;
 	level: number;
 	set: number;
+}
+
+class T3Object extends THREE.Object3D {
+	geometry: THREE.BufferGeometry & { attributes: { position: THREE.BufferAttribute } };
+	material: THREE.Material & { color: THREE.Color };
 }
 
 class LevelSettings extends CSettings {
@@ -50,6 +55,7 @@ class LevelSettings extends CSettings {
 	num_levels: number = 6;
 	level_depth: number = 1200;
 	level_shifting: boolean = false;
+	level_spiralize: boolean = false;
 	num_subsets_per_level: number = 12;
 	num_points_per_subset: number = 4096;
 	base_texture: number = 0;
@@ -121,7 +127,7 @@ export class LevelHolder extends CComponent {
 
 	// main orbit data
 	private levels: Level[] = [];
-	private moveBacks: number[] = [];
+	private moveBacks: Int32Array;
 	// speed smoothing helper
 	private speedVelocity = 0;
 
@@ -157,6 +163,10 @@ export class LevelHolder extends CComponent {
 		this.levelBuilder = await wascWorker(this.getGeoModName(), {}, true);
 		await this.updateSettings();
 
+		// assert
+		if(this.levelBuilder) Smallog.Debug("Got Level Builder!")
+		else Smallog.Error("Could not create WebAssembly Level Builder! [Null-Object]");
+
 		// reset rendering
 		this.speedVelocity = 0;
 
@@ -173,7 +183,7 @@ export class LevelHolder extends CComponent {
 		}
 
 		// initialize
-		this.initGeometries(scene, texture, call);
+		await this.initGeometries(scene, texture, call);
 	}
 
 	private getGeoModName() {
@@ -192,64 +202,74 @@ export class LevelHolder extends CComponent {
 	}
 
 	// create WEBGL objects for each level and subset
-	private initGeometries(scene: THREE.Scene, texture: THREE.Texture, resolve) {
-		var sett = this.settings;
-		var camZ = this.camera.position.z;
+	private async initGeometries(scene: THREE.Scene, texture: THREE.Texture, resolve) {
+		const sett = this.settings;
+		const camZ = this.camera.position.z;
 
 		Smallog.Debug("building geometries.");
 
 		// reset Orbit data
-		this.levels = [];
-		this.moveBacks = [];
+		this.levels = new Array<Level>(sett.num_levels);
 
-		var hues = this.colorHolder.hueValues;
-		var subsetDist = sett.level_depth / sett.num_subsets_per_level;
-		// build all levels
+		// set subset moveback counter
+		this.moveBacks = new Int32Array(sett.num_levels);
+		this.moveBacks.fill(0);
+
+		const hues = this.colorHolder.hueValues;
+		const subsetDist = sett.level_depth / sett.num_subsets_per_level;
+		const deg45rad = 0.785398;
+
+		// create levels
 		for (var l = 0; l < sett.num_levels; l++) {
 			// create level object
 			this.levels[l] = {
 				level: l,
 				sets: []
 			};
-			// set subset moveback counter
-			this.moveBacks[l] = 0;
 
-			const lDist = - camZ - sett.level_depth * l;
-			// build all subsets
+			const lDist = camZ - sett.level_depth * l;
+			// create all subsets
 			for (var s = 0; s < sett.num_subsets_per_level; s++) {
 
 				// create particle geometry from orbit vertex data
-				var geometry = new THREE.BufferGeometry();
+				const geometry = new THREE.BufferGeometry();
 				// position attribute (2 vertices per point, thats pretty illegal)
 				geometry.setAttribute('position',
-					new THREE.BufferAttribute(
-						new Float32Array(sett.num_points_per_subset * 2),
-						2
-					)
+					new THREE.BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2)
 				);
 
 				// make the correct object and material for current settinfs
-				const { setObj, material } = this.getSubsetObject(geometry, texture);
+				const object = this.getSubsetObject(geometry, texture);
 
 				// set material defaults
-				material.color.setHSL(hues[s], sett.default_saturation / 100, sett.default_brightness / 100);
+				object.material.color.setHSL(hues[s], sett.default_saturation / 100, sett.default_brightness / 100);
 
 				// set Object defaults
-				setObj.position.x = 0;
-				setObj.position.y = 0;
+				object.position.x = 0;
+				object.position.y = 0;
+
 				// position in space
 				if (sett.level_shifting) {
-					setObj.position.z = lDist - (s * subsetDist * 2);
-					if (l % 2 != 0) setObj.position.z -= subsetDist;
+					object.position.z = lDist - (s * subsetDist * 2);
+					// offset every 2nd subset
+					if (l % 2 != 0) object.position.z -= subsetDist;
 				}
-				else setObj.position.z = lDist - (s * subsetDist);
-				// euler angle 45 deg in radians
-				setObj.rotation.z = -0.785398;
+				else object.position.z = lDist - (s * subsetDist);
+
+				if(sett.level_spiralize) {
+					// split angle across subset and regard previous rotation, lel why not
+					object.rotation.z = - (l * deg45rad + (s * deg45rad / sett.num_subsets_per_level));
+				}
+				else {
+					// angle 45 deg in radians
+					object.rotation.z = -deg45rad;
+				}
+
 				// add to scene
-				scene.add(setObj);
+				scene.add(object);
 				this.levels[l].sets[s] = {
-					needsUpdate: false,
-					object: setObj,
+					hasNewData: false,
+					object: object,
 					level: l,
 					set: s
 				}
@@ -262,7 +282,7 @@ export class LevelHolder extends CComponent {
 			firstWait.push(this.generateLevel(l));
 		}
 		// wait for all generators to finish
-		Promise.all(firstWait);
+		await Promise.all(firstWait);
 
 		// apply data manually
 		while (this.afterRenderQueue.length > 0) {
@@ -278,8 +298,8 @@ export class LevelHolder extends CComponent {
 	}
 
 	// returns the correct object and Material for a Subset
-	private getSubsetObject(geometry, texture) {
-		var setObj, material;
+	private getSubsetObject(geometry, texture): T3Object {
+		var object, material;
 
 		// default fractal geometry
 		if (this.settings.geometry_type == 0) {
@@ -292,7 +312,7 @@ export class LevelHolder extends CComponent {
 				transparent: true
 			});
 			// create particle system from geometry and material
-			setObj = new THREE.Points(geometry, material);
+			object = new THREE.Points(geometry, material);
 		}
 
 		// line geometry type
@@ -301,10 +321,10 @@ export class LevelHolder extends CComponent {
 				linewidth: this.settings.texture_size,
 			});
 			// create lineloop system from geometry and material
-			setObj = new THREE.LineSegments(geometry, material);
+			object = new THREE.LineSegments(geometry, material);
 		}
 
-		return { setObj, material };
+		return object;
 	}
 
 	///////////////////////////////////////////////
@@ -332,14 +352,13 @@ export class LevelHolder extends CComponent {
 
 			const transfer = io.__getFloat32ArrayView(exports.levelSettings);
 			transfer.set(data);
-
 			// generate the data structure with updated settings
 			exports.update();
-
-			console.debug("Sent Settings to Worker: " + JSON.stringify(data));
 		}, {
 			// Data passed to worker
 			data: sett
+		}).then(() => {
+			Smallog.Debug("Sent Settings to Generator: " + JSON.stringify(sett));
 		});
 	}
 
@@ -363,16 +382,9 @@ export class LevelHolder extends CComponent {
 			// iterate over all pointers
 			const setPtrs = io.__getInt32Array(dataPtr);
 
-			// TODO REMOVE
-			console.log(dataPtr);
-			console.log(setPtrs);
-
 			for (let set = 0; set < setPtrs.length; set++) {
 				const setPtr = setPtrs[set];
 				const setArr = io.__getFloat32ArrayView(setPtr);
-
-				// TODO REMOVE
-				console.log(setArr);
 
 				resultObj["set_" + set] = setArr;
 			}
@@ -383,7 +395,7 @@ export class LevelHolder extends CComponent {
 
 		}).then((result) => {
 			// worker result, back in main context
-			const subbs = this.levels[level].sets as any[];
+			const subbs = this.levels[level].sets;
 			const setsPerLvl = this.settings.num_subsets_per_level;
 			// spread over time for less thread blocking
 			for (let s = 0; s < setsPerLvl; s++) {
@@ -392,7 +404,7 @@ export class LevelHolder extends CComponent {
 					// get & set xyzBuffer data, then update child
 					const data = new Float32Array(result["set_" + s]);
 					subbs[s].object.geometry.attributes.position.set(data, 0);
-					subbs[s].needsUpdate = true;
+					subbs[s].hasNewData = true;
 				});
 			}
 			// print info
@@ -401,7 +413,6 @@ export class LevelHolder extends CComponent {
 
 		}).catch(e => {
 			Smallog.Error("Generate Error at Level='" + level + "', Msg='" + e.toString() + "'");
-			console.error(e);
 			return false;
 		});
 	}
@@ -423,7 +434,7 @@ export class LevelHolder extends CComponent {
 		const minSat = sett.minimum_saturation / 100;
 		const maxSat = sett.maximum_saturation / 100;
 		// get targeted brightness's
-		const defBri = sett.default_brightness / 100;
+		const defBri = sett.default_brightness / 100 * Math.min(5, sett.texture_size) / sett.texture_size;
 		const minBri = sett.minimum_brightness / 100;
 		const maxBri = sett.maximum_brightness / 100;
 
@@ -479,21 +490,21 @@ export class LevelHolder extends CComponent {
 		rot *= deltaTime;
 
 		// move as many calculations out of loop as possible
-		var sixtyDelta = deltaTime * 2000;
-		var colObject = this.colorHolder.colorObject;
-		var hues = this.colorHolder.hueValues;
-		var color_mode = this.colorHolder.settings.color_mode;
+		const sixtyDelta = deltaTime * 300;
+		const colObject = this.colorHolder.colorObject;
+		const hues = this.colorHolder.hueValues;
+		const color_mode = this.colorHolder.settings.color_mode;
 
 		// this is a bit hacky
-		var camZ = this.camera.position.z;
-		var orbitSize = sett.num_levels * sett.level_depth;
-		var backPos = camZ - orbitSize;
+		const camZ = this.camera.position.z;
+		const orbitSize = sett.num_levels * sett.level_depth;
+		const backPos = camZ - orbitSize;
 
 		// dont re-declare this shit every time... should be faster
 		// first the objects
-		var lv, level: Level, ss, prnt: Subset, child;
+		var lv: number, level: Level, ss: number, prnt: Subset, hsl: THREE.HSL = { h: 0, s: 0, l: 0 };
 		// second the attributes
-		var dist, freqIdx, freqData, freqLvl, hsl, targetHue, setHue, setSat, setLight;
+		var dist, freqIdx, freqData, freqLvl, targetHue, setHue, setSat, setLight;
 
 		// process all levels
 		for (lv = 0; lv < this.levels.length; lv++) {
@@ -501,32 +512,31 @@ export class LevelHolder extends CComponent {
 			// process all subset childrens
 			for (ss = 0; ss < level.sets.length; ss++) {
 				prnt = level.sets[ss];
-				child = prnt.object;
 
 				// velocity & rotation
-				child.position.z += spvn;
-				child.rotation.z -= rot;
+				prnt.object.position.z += spvn;
+				prnt.object.rotation.z -= rot;
 
-				// reset to back if out of bounds
 				var moved = false;
-				if (!reversed && child.position.z > camZ) {
-					child.position.z -= orbitSize;
+				if (prnt.object.position.z > camZ) {
+					// reset to back if behind cam
+					prnt.object.position.z -= orbitSize;
 					moved = true;
 				}
-				// reset to front
-				else if (reversed && child.position.z < backPos) {
-					child.position.z += orbitSize;
+				else if (prnt.object.position.z < backPos) {
+					// reset behind cam if too far away
+					prnt.object.position.z += orbitSize;
 					moved = true;
 				}
 				if (moved) {
 					this.moveBacks[prnt.level]++;
-					// update the child visually
-					if (prnt.needsUpdate) {
-						child.geometry.attributes.position.needsUpdate = true;
-						prnt.needsUpdate = false;
+					// update the child geometry only when it gets moved
+					if (prnt.hasNewData) {
+						prnt.hasNewData = false;
+						prnt.object.geometry.attributes.position.needsUpdate = true;
 					}
 					// process subset generation
-					if (this.moveBacks[prnt.level] == sett.num_subsets_per_level) {
+					if (Math.abs(this.moveBacks[prnt.level]) == sett.num_subsets_per_level) {
 						this.moveBacks[prnt.level] = 0;
 						this.generateLevel(prnt.level);
 					}
@@ -539,7 +549,7 @@ export class LevelHolder extends CComponent {
 				if (hasAudio) {
 					// use "obj"-to-"camera" distance with "step" to get "frequency" data
 					// then process it
-					dist = Math.round((camZ - child.position.z) / step);
+					dist = Math.round((camZ - prnt.object.position.z) / step);
 					freqIdx = Math.min(lastAudio.data.length, Math.max(0, dist - 2));
 					freqData = parseFloat(lastAudio.data[freqIdx]);
 					freqLvl = (freqData * flmult / 3) / lastAudio.average;
@@ -555,8 +565,7 @@ export class LevelHolder extends CComponent {
 				}
 				else {
 					// get current HSL
-					hsl = {};
-					child.material.color.getHSL(hsl);
+					prnt.object.material.color.getHSL(hsl);
 					setHue = hsl.h;
 					setSat = hsl.s;
 					setLight = hsl.l;
@@ -574,7 +583,7 @@ export class LevelHolder extends CComponent {
 				Smallog.Debug("setHSL | child: " + (lv * level.sets.length + ss) + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
 
 				// update dat shit
-				child.material.color.setHSL(
+				prnt.object.material.color.setHSL(
 					this.clamp(setHue, 0, 1, true),
 					this.clamp(setSat, 0, 1),
 					this.clamp(setLight, 0, 1));
