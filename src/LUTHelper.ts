@@ -72,6 +72,7 @@ export class LUTHelper {
         var texture = null;
         if (info.url) {
             const lutSize = info.size;
+            Smallog.Debug("Loading image: " + JSON.stringify(info));
             imgLoader.load(info.url, (image) => {
                 const width = lutSize * lutSize;
                 const height = lutSize;
@@ -83,6 +84,7 @@ export class LUTHelper {
 
                 texture = this.makeIdentityLutTexture(imageData.data.buffer, width, height,
                     info.filter ? THREE.LinearFilter : THREE.NearestFilter);
+
                 texture.needsUpdate = true;
             }, null, function (err) {
                 Smallog.Error("Error loading LUT: " + err);

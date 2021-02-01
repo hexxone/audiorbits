@@ -57,7 +57,7 @@ module.exports = {
     // this will compile all modules in 'rootpath' (recursive)
     // where the 'include' (regex) matches a filename.
     new WascBuilderPlugin({
-      production: false, // TODO for release
+      production: true, // TODO for release
       relpath: '../../../',
       extension: 'asc',
       cleanup: true
@@ -69,7 +69,7 @@ module.exports = {
       staticdir: "dist/pack/",
       outfile: 'offlinefiles.json',
       extrafiles: ["/"],
-      pretty: true // TODO for release
+      pretty: false // TODO for release
     })
   ]
 };

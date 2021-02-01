@@ -21,8 +21,9 @@ export class FancyText {
 
     private mesh: THREE.Mesh;
 
-    constructor(scene: THREE.Scene, CPos: THREE.Vector3, text: string, hideAfter: number = 6, font: string = "css/HEXAGON_cup_font.json") {
+    constructor(scene: THREE.Scene, CPos: THREE.Vector3, text: string, hideAfter: number = 6, font: string = "./css/HEXAGON_cup_font.json") {
         this.scene = scene;
+        return;
 
         const loader = new THREE.FontLoader();
         loader.load(font, (font) => {

@@ -233,7 +233,7 @@
         "order": 70,
         "text": "ui_alg_a_min",
         "type": "slider",
-        "value": -25
+        "value": -0.78
       },
       "alg_a_max": {
         "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
@@ -243,7 +243,7 @@
         "order": 80,
         "text": "ui_alg_a_max",
         "type": "slider",
-        "value": 25
+        "value": 2.5
       },
       "alg_b_min": {
         "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
@@ -253,7 +253,7 @@
         "order": 90,
         "text": "ui_alg_b_min",
         "type": "slider",
-        "value": 0.25
+        "value": -5
       },
       "alg_b_max": {
         "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
@@ -263,7 +263,7 @@
         "order": 100,
         "text": "ui_alg_b_max",
         "type": "slider",
-        "value": 1.7
+        "value": 3.8
       },
       "alg_c_min": {
         "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
@@ -273,7 +273,7 @@
         "order": 110,
         "text": "ui_alg_c_min",
         "type": "slider",
-        "value": 5
+        "value": -10
       },
       "alg_c_max": {
         "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
@@ -283,7 +283,7 @@
         "order": 120,
         "text": "ui_alg_c_max",
         "type": "slider",
-        "value": 16
+        "value": 11
       },
       "alg_d_min": {
         "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
@@ -293,7 +293,7 @@
         "order": 130,
         "text": "ui_alg_d_min",
         "type": "slider",
-        "value": 1
+        "value": -14
       },
       "alg_d_max": {
         "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
@@ -303,7 +303,7 @@
         "order": 140,
         "text": "ui_alg_d_max",
         "type": "slider",
-        "value": 9
+        "value": 23
       },
       "alg_e_min": {
         "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
@@ -313,7 +313,7 @@
         "order": 150,
         "text": "ui_alg_e_min",
         "type": "slider",
-        "value": 1
+        "value": -1
       },
       "alg_e_max": {
         "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
@@ -323,7 +323,7 @@
         "order": 160,
         "text": "ui_alg_e_max",
         "type": "slider",
-        "value": 10
+        "value": 30
       },
       "SPACER_03": {
         "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value",

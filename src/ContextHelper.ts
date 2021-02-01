@@ -49,7 +49,7 @@ class ContextSettings extends CSettings {
 
 	// mirrored setting
 	scaling_factor: number = 1500;
-	level_depth: number = 1000;
+	level_depth: number = 1200;
 	num_levels: number = 8000;
 }
 
@@ -173,10 +173,13 @@ export class ContextHolder extends CComponent {
 			// create camera
 			const viewDist = this.settings.num_levels * this.settings.level_depth * (this.settings.cam_centered ? 0.5 : 1);
 			this.camera = new THREE.PerspectiveCamera(this.settings.field_of_view, window.innerWidth / window.innerHeight, 3, viewDist * 1.2);
+
 			// create scene
 			this.scene = new THREE.Scene();
+
 			// create distance fog
-			this.scene.fog = new THREE.FogExp2(0x000000, this.settings.fog_thickness / viewDist / 2);
+			this.scene.fog = new THREE.FogExp2(0x000000, 0.0001 + this.settings.fog_thickness / viewDist / 10);
+
 			// create render-context
 			this.renderer = new THREE.WebGLRenderer({
 				alpha: true,
@@ -188,7 +191,8 @@ export class ContextHolder extends CComponent {
 			});
 			this.renderer.setClearColor(0x000000, 0);
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
-			// initialize VR mode
+
+			// TODO initialize VR mode
 			if (this.isWebContext) this.initWebXR();
 
 			// initialize shader composer
@@ -205,7 +209,7 @@ export class ContextHolder extends CComponent {
 			}
 
 			// initialize fancy text
-			this.textHolder = new FancyText(this.scene, this.camera.position.multiplyScalar(0.7), document.title);
+			this.textHolder = new FancyText(this.scene, this.camera.position, document.title);
 
 			// initialize main geometry
 			this.geoHolder.init(this.scene, this.camera, resolve);
@@ -221,18 +225,27 @@ export class ContextHolder extends CComponent {
 
 	// update shader values
 	private update(ellapsed, deltaTime) {
-		// calculate camera positioning
-		const newCamX = this.clampCam(this.mouseX * this.settings.parallax_strength / 50);
-		const newCamY = this.clampCam(this.mouseY * this.settings.parallax_strength / -50);
-		if (this.camera.position.x != newCamX)
-			this.camera.position.x += (newCamX - this.camera.position.x) * deltaTime * 0.05;
-		if (this.camera.position.y != newCamY)
-			this.camera.position.y += (newCamY - this.camera.position.y) * deltaTime * 0.05;
+		// update camera
+		const newXPos = this.clampCam(this.mouseX * this.settings.parallax_strength / 70);
+		const newYPos = this.clampCam(this.mouseY * this.settings.parallax_strength / -90);
 
-		// calculate camera look-at-point (parallax)
-		const lookOrigin = this.settings.parallax_cam ? this.scene.position : this.camera.position;
-		const lookAt = lookOrigin.sub(new THREE.Vector3(0, 0, this.settings.level_depth * 2));
-		this.camera.lookAt(lookAt);
+		var transformPosition = this.settings.parallax_cam ? this.camera.position : this.scene.position;
+		if (transformPosition.x != newXPos)
+			transformPosition.x += (newXPos - transformPosition.x) * deltaTime * 0.05;
+		if (transformPosition.y != newYPos)
+			transformPosition.y += (newYPos - transformPosition.y) * deltaTime * 0.05;
+
+		if(this.settings.parallax_cam) {
+			// calculated point is position (parallax)
+			this.camera.position.set(transformPosition.x, transformPosition.y, transformPosition.z);
+			this.camera.lookAt(new THREE.Vector3(0, 0, -this.settings.level_depth / 2).add(this.scene.position));
+		}
+		else {
+			// calculated point is look-at (inverted)
+			const pShort = this.scene.position;
+			this.camera.position.set(pShort.x, pShort.y, pShort.z);
+			this.camera.lookAt(transformPosition);
+		}
 
 		// TODO: WEBVR PROCESSING
 		if (this.isWebContext) {
@@ -386,9 +399,7 @@ export class ContextHolder extends CComponent {
 	// shows a fancy text mesage
 	private showMessage(msg: string) {
 		// TODO test
-		this.textHolder = new FancyText(this.scene,
-			this.camera.position.sub(new THREE.Vector3(0, 0, this.settings.level_depth / 2)),
-			msg);
+		this.textHolder = new FancyText(this.scene, new THREE.Vector3(0, 0, this.settings.level_depth / 2).add(this.camera.position), msg);
 	}
 
 	// position Mouse with angle

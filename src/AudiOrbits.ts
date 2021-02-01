@@ -24,6 +24,7 @@
  * @todo
  * 
  * project.json
+ * - add spiral
  * - update translations -> project.json -> steam
  * - update preview image?
  * - test prop text in WE
@@ -31,6 +32,8 @@
  * 
  * main code:
  * - fix "min > max" saturation/light
+ * - fix parallax
+ * - fix custom fps
  * - add new re-init vars
  * - fix seizure warning text
  * - fix level generator
@@ -38,6 +41,7 @@
  * - use buffer for geometry size in WASM?
  * - wasc-loader worker debugging option ?
  * - wasc-loader worker option
+ * - test spiral level rotation (45° per level)
  * 
  * 
  * low priority:
