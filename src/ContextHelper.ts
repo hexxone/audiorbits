@@ -44,7 +44,7 @@ class ContextSettings extends CSettings {
 	cam_centered: boolean = false;
 
 	// offtopic
-	fog_thickness: number = 3;
+	fog_thickness: number = 20;
 	stats_option: number = -1;
 
 	// mirrored setting
@@ -235,7 +235,7 @@ export class ContextHolder extends CComponent {
 		if (transformPosition.y != newYPos)
 			transformPosition.y += (newYPos - transformPosition.y) * deltaTime * 0.05;
 
-		if(this.settings.parallax_cam) {
+		if (this.settings.parallax_cam) {
 			// calculated point is position (parallax)
 			this.camera.position.set(transformPosition.x, transformPosition.y, transformPosition.z);
 			this.camera.lookAt(new THREE.Vector3(0, 0, -this.settings.level_depth / 2).add(this.scene.position));
