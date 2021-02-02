@@ -389,7 +389,7 @@
         "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
         "editable": false,
         "max": 25,
-        "min": 2,
+        "min": 1,
         "order": 230,
         "text": "ui_texture_size",
         "type": "slider",
@@ -403,19 +403,19 @@
       },
       "scaling_factor": {
         "condition": "HEADER_GEOMETRY.value",
-        "editable": true,
-        "max": 3000,
+        "editable": false,
+        "max": 4000,
         "min": 100,
         "order": 250,
         "text": "ui_scaling_factor",
         "type": "slider",
-        "value": 1800
+        "value": 1500
       },
       "num_levels": {
         "condition": "HEADER_GEOMETRY.value",
-        "editable": true,
+        "editable": false,
         "max": 32,
-        "min": 1,
+        "min": 2,
         "order": 260,
         "text": "ui_num_levels",
         "type": "slider",
@@ -423,7 +423,7 @@
       },
       "level_depth": {
         "condition": "HEADER_GEOMETRY.value",
-        "editable": true,
+        "editable": false,
         "max": 10000,
         "min": 100,
         "order": 270,
@@ -441,8 +441,8 @@
       "num_subsets_per_level": {
         "condition": "HEADER_GEOMETRY.value",
         "editable": true,
-        "max": 32,
-        "min": 1,
+        "max": 64,
+        "min": 2,
         "order": 290,
         "text": "ui_num_subsets_per_level",
         "type": "slider",
@@ -450,13 +450,13 @@
       },
       "num_points_per_subset": {
         "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 32000,
-        "min": 1024,
+        "editable": false,
+        "max": 32768,
+        "min": 512,
         "order": 300,
         "text": "ui_num_points_per_subset",
         "type": "slider",
-        "value": 4096
+        "value": 8192
       },
       "SPACER_06": {
         "condition": "HEADER_GEOMETRY.value",
@@ -553,12 +553,12 @@
       "fog_thickness": {
         "condition": "HEADER_PRLX.value",
         "editable": false,
-        "max": 99,
-        "min": 1,
+        "max": 95,
+        "min": 5,
         "order": 376,
         "text": "ui_fog_thickness",
         "type": "slider",
-        "value": 3
+        "value": 20
       },
       "SPACER_08": {
         "condition": "HEADER_PRLX.value",
