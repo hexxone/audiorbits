@@ -160,11 +160,11 @@ export class LevelHolder extends CComponent {
 		this.afterRenderQueue = [];
 
 		// setup fractal generator -> get exported functions
-		this.levelBuilder = await wascWorker(this.getGeoModName(), {}, true);
+		this.levelBuilder = await wascWorker(this.getGeoModName());
 		await this.updateSettings();
 
 		// assert
-		if(this.levelBuilder) Smallog.Debug("Got Level Builder!")
+		if (this.levelBuilder) Smallog.Debug("Got Level Builder!")
 		else Smallog.Error("Could not create WebAssembly Level Builder! [Null-Object]");
 
 		// reset rendering
@@ -256,7 +256,8 @@ export class LevelHolder extends CComponent {
 				}
 				else object.position.z = lDist - (s * subsetDist);
 
-				if(sett.level_spiralize) {
+				// TODO TEST
+				if (sett.level_spiralize) {
 					// split angle across subset and regard previous rotation, lel why not
 					object.rotation.z = - (l * deg45rad + (s * deg45rad / sett.num_subsets_per_level));
 				}

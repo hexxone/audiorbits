@@ -1,7 +1,15 @@
+/**
+ * Webpack build config for AudiOrbits.
+ * 
+ * Probably not a good example to start from :D
+ */
+
 const path = require('path');
 
 const OfflinePlugin = require('./src/we_utils/src/offline/OfflinePlugin');
 const WascBuilderPlugin = require('./src/we_utils/src/wasc-worker/WascBuilderPlugin');
+
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   mode: 'production',
@@ -71,5 +79,23 @@ module.exports = {
       extrafiles: ["/"],
       pretty: false // TODO for release
     })
-  ]
+  ],
+  // remove dead code in compilation
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
+        terserOptions: {
+          ecma: 7,
+          parse: {},
+          compress: {
+            unsafe: true, // TODO TEST
+          },
+          mangle: true,
+          module: true,
+          sourceMap: false,
+        }
+      }),
+    ],
+  }
 };
