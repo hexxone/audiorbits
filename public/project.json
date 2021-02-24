@@ -35,11 +35,13 @@
         "ui_tunnel_inner_radius": "Tunnel Größe",
         "ui_tunnel_outer_radius": "Tunnel Wand",
         "ui_scaling_factor": "Skalierung 🔃",
-        "ui_num_levels": "Level Anzahl 🔃",
-        "ui_level_depth": "Level Tiefe 🔃",
-        "ui_level_shifting": "Level Shifting 🔃",
-        "ui_num_points_per_subset": "Punkte pro Subset 🔃",
-        "ui_num_subsets_per_level": "Subsets pro Level 🔃",
+        "ui_num_levels": "Level 🔃",
+        "ui_level_depth": "Level Größe 🔃",
+        "ui_level_shifting": "Level Verschiebung 🔃",
+        "ui_level_spiralize": "Level Spirale 🔃",
+        "ui_num_points_per_subset": "Punkte/Subset 🔃",
+        "ui_num_subsets_per_level": "Subsets/Level 🔃",
+        "ui_random_seed": "Random-Seed 🔃",
         "ui_HEADER_PRLX": "<h4>🎥 <u>Kamera</u></h4>",
         "ui_parallax_angle": "Rotations-winkel",
         "ui_parallax_option": "Position",
@@ -82,13 +84,13 @@
         "ui_minimum": "🔊 Minimum",
         "ui_maximum": "🔊 Maximum",
         "ui_HEADER_FILTER": "<h4>🕶 <u>Shader</u></h4>",
-        "ui_bloom_filter": "Bloom 🔃",
-        "ui_blur_strength": "Blur 🔃",
-        "ui_fx_antialiasing": "FXAA 🔃",
-        "ui_mirror_shader": "Spiegel 🔃",
-        "ui_mirror_invert": "Spiegel invertiert 🔃",
+        "ui_bloom_filter": "Bloom",
+        "ui_blur_strength": "Blur",
+        "ui_fx_antialiasing": "FXAA",
+        "ui_mirror_shader": "Spiegel",
+        "ui_mirror_invert": "Spiegel invertiert",
         "ui_mirror_invalid_val": "<h4><small>Der Wert Darf nicht 1 sein! Nehme bitte 0 oder mindestens 2!</small></h4>",
-        "ui_lut_filter": "LookUpTable 🔃",
+        "ui_lut_filter": "LookUpTable",
         "ui_lut_filter_0": "Aus",
         "ui_lut_filter_1": "Posterisieren",
         "ui_lut_filter_2": "Invers",
@@ -134,6 +136,7 @@
         "ui_shader_quality_1": "Niedrig",
         "ui_shader_quality_2": "Mittel",
         "ui_shader_quality_3": "Hoch",
+        "ui_low_latency": "Low-Latency 🔃",
         "ui_debugging": "Debug logging",
         "ui_seizure_warning": "Epilepsiewarnung",
         "ui_HEADER_THANKS": "<hr><h4><small>Danke fürs benutzen :)</small></h4>",
@@ -151,21 +154,15 @@
     },
     "properties": {
       "schemecolor": {
-        "order": -10,
+        "order": 0,
         "text": "ui_browse_properties_scheme_color",
         "type": "color",
         "value": "0 0 0"
       },
       "HEADER_NO_AUDIO": {
         "condition": "!audioprocessing.value",
-        "order": 0,
-        "text": "ui_HEADER_NO_AUDIO",
-        "type": "text",
-        "value": false
-      },
-      "SPACER_00": {
         "order": 5,
-        "text": "ui_spacer",
+        "text": "ui_HEADER_NO_AUDIO",
         "type": "text",
         "value": false
       },
@@ -217,6 +214,43 @@
         "text": "ui_geometry_type",
         "type": "combo",
         "value": 0
+      },
+      "base_texture": {
+        "condition": "HEADER_GEOMETRY.value && geometry_type.value == 0",
+        "options": [
+          {
+            "label": "ui_base_texture_0",
+            "value": 0
+          },
+          {
+            "label": "ui_base_texture_1",
+            "value": 1
+          },
+          {
+            "label": "ui_base_texture_2",
+            "value": 2
+          }
+        ],
+        "order": 51,
+        "text": "ui_base_texture",
+        "type": "combo",
+        "value": 0
+      },
+      "texture_size": {
+        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+        "editable": false,
+        "max": 25,
+        "min": 1,
+        "order": 52,
+        "text": "ui_texture_size",
+        "type": "slider",
+        "value": 6
+      },
+      "SPACER_03": {
+        "condition": "HEADER_GEOMETRY.value",
+        "order": 53,
+        "text": "ui_splitt",
+        "type": "text"
       },
       "HEADER_PARAMS": {
         "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
@@ -325,8 +359,8 @@
         "type": "slider",
         "value": 30
       },
-      "SPACER_03": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value",
+      "SPACER_04": {
+        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
         "order": 170,
         "text": "ui_splitt",
         "type": "text"
@@ -358,45 +392,8 @@
         "type": "slider",
         "value": 2
       },
-      "SPACER_04": {
-        "condition": "HEADER_GEOMETRY.value && false",
-        "order": 210,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "base_texture": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value == 0",
-        "options": [
-          {
-            "label": "ui_base_texture_0",
-            "value": 0
-          },
-          {
-            "label": "ui_base_texture_1",
-            "value": 1
-          },
-          {
-            "label": "ui_base_texture_2",
-            "value": 2
-          }
-        ],
-        "order": 220,
-        "text": "ui_base_texture",
-        "type": "combo",
-        "value": 0
-      },
-      "texture_size": {
+      "SPACER_06": {
         "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
-        "editable": false,
-        "max": 25,
-        "min": 1,
-        "order": 230,
-        "text": "ui_texture_size",
-        "type": "slider",
-        "value": 6
-      },
-      "SPACER_05": {
-        "condition": "HEADER_GEOMETRY.value",
         "order": 240,
         "text": "ui_splitt",
         "type": "text"
@@ -438,6 +435,13 @@
         "type": "bool",
         "value": true
       },
+      "level_spiralize": {
+        "condition": "HEADER_GEOMETRY.value",
+        "order": 285,
+        "text": "ui_level_spiralize",
+        "type": "bool",
+        "value": false
+      },
       "num_subsets_per_level": {
         "condition": "HEADER_GEOMETRY.value",
         "editable": true,
@@ -458,7 +462,17 @@
         "type": "slider",
         "value": 8192
       },
-      "SPACER_06": {
+      "random_seed": {
+        "condition": "HEADER_GEOMETRY.value && geometry_type.value == 0",
+        "editable": true,
+        "max": 233280,
+        "min": 0,
+        "order": 305,
+        "text": "ui_random_seed",
+        "type": "slider",
+        "value": 0
+      },
+      "SPACER_07": {
         "condition": "HEADER_GEOMETRY.value",
         "order": 310,
         "text": "ui_spacer",
@@ -471,7 +485,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_07": {
+      "SPACER_08": {
         "condition": "HEADER_PRLX.value",
         "order": 330,
         "text": "ui_splitt",
@@ -560,7 +574,7 @@
         "type": "slider",
         "value": 20
       },
-      "SPACER_08": {
+      "SPACER_09": {
         "condition": "HEADER_PRLX.value",
         "order": 380,
         "text": "ui_spacer",
@@ -572,7 +586,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_09": {
+      "SPACER_10": {
         "condition": "HEADER_MOVEMENT.value",
         "order": 400,
         "text": "ui_splitt",
@@ -669,7 +683,7 @@
         "type": "slider",
         "value": 60
       },
-      "SPACER_10": {
+      "SPACER_11": {
         "condition": "HEADER_MOVEMENT.value",
         "order": 460,
         "text": "ui_spacer",
@@ -681,7 +695,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_11": {
+      "SPACER_12": {
         "condition": "HEADER_COLOR.value",
         "order": 480,
         "text": "ui_splitt",
@@ -751,7 +765,7 @@
         "type": "slider",
         "value": 2
       },
-      "SPACER_12": {
+      "SPACER_13": {
         "condition": "HEADER_COLOR.value",
         "order": 540,
         "text": "ui_spacer",
@@ -763,7 +777,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_13": {
+      "SPACER_14": {
         "condition": "HEADER_BRIGHTNESS.value",
         "order": 560,
         "text": "ui_splitt",
@@ -799,7 +813,7 @@
         "type": "slider",
         "value": 80
       },
-      "SPACER_14": {
+      "SPACER_15": {
         "condition": "HEADER_BRIGHTNESS.value",
         "order": 600,
         "text": "ui_spacer",
@@ -811,7 +825,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_15": {
+      "SPACER_16": {
         "condition": "HEADER_SATURATION.value",
         "order": 620,
         "text": "ui_splitt",
@@ -847,7 +861,7 @@
         "type": "slider",
         "value": 80
       },
-      "SPACER_16": {
+      "SPACER_17": {
         "condition": "HEADER_SATURATION.value",
         "order": 660,
         "text": "ui_spacer",
@@ -859,7 +873,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_17": {
+      "SPACER_18": {
         "condition": "HEADER_FILTER.value",
         "order": 680,
         "text": "ui_splitt",
@@ -937,7 +951,7 @@
         "type": "slider",
         "value": 0
       },
-      "SPACER_18": {
+      "SPACER_19": {
         "condition": "HEADER_FILTER.value",
         "order": 770,
         "text": "ui_spacer",
@@ -949,7 +963,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_19": {
+      "SPACER_20": {
         "condition": "HEADER_IMGS.value",
         "order": 790,
         "text": "ui_splitt",
@@ -967,7 +981,7 @@
         "text": "ui_img_background",
         "type": "file"
       },
-      "SPACER_20": {
+      "SPACER_21": {
         "condition": "HEADER_IMGS.value",
         "order": 820,
         "text": "ui_spacer",
@@ -980,7 +994,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_21": {
+      "SPACER_22": {
         "condition": "HEADER_AUDIO.value && audioprocessing.value",
         "order": 840,
         "text": "ui_splitt",
@@ -1077,7 +1091,7 @@
         "type": "slider",
         "value": 1
       },
-      "SPACER_22": {
+      "SPACER_23": {
         "condition": "HEADER_AUDIO.value && audioprocessing.value",
         "order": 970,
         "text": "ui_spacer",
@@ -1089,7 +1103,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_23": {
+      "SPACER_24": {
         "condition": "HEADER_ICUE.value",
         "order": 990,
         "text": "ui_splitt",
@@ -1190,7 +1204,7 @@
         "type": "color",
         "value": "0 0.8 0"
       },
-      "SPACER_24": {
+      "SPACER_25": {
         "condition": "HEADER_ICUE.value",
         "order": 1090,
         "text": "ui_spacer",
@@ -1202,7 +1216,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_25": {
+      "SPACER_26": {
         "condition": "HEADER_ADVANCED.value",
         "order": 1110,
         "text": "ui_splitt",
@@ -1254,6 +1268,13 @@
         "type": "combo",
         "value": 2
       },
+      "low_latency": {
+        "condition": "HEADER_ADVANCED.value",
+        "order": 1150,
+        "text": "ui_low_latency",
+        "type": "bool",
+        "value": false
+      },
       "seizure_warning": {
         "condition": "HEADER_ADVANCED.value",
         "order": 1180,
@@ -1268,7 +1289,7 @@
         "type": "bool",
         "value": false
       },
-      "SPACER_26": {
+      "SPACER_27": {
         "condition": "HEADER_ADVANCED.value",
         "order": 1200,
         "text": "ui_spacer",

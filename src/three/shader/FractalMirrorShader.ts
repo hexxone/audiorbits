@@ -10,7 +10,7 @@
  * Inspired by ackleyrc: https://www.shadertoy.com/view/llXcRl 
  */
 
-import * as THREE from 'three';
+import { Vector2 } from 'three';
 import { BaseShader } from './BaseShader';
 
 export class FractalMirrorShader implements BaseShader {
@@ -21,7 +21,7 @@ export class FractalMirrorShader implements BaseShader {
 
   uniforms = {
     tDiffuse: { value: null },
-    iResolution: { value: new THREE.Vector2(16, 9) },
+    iResolution: { value: new Vector2(16, 9) },
     numSides: { value: 2.0 }, // minimum value
     invert: { value: false }
   };

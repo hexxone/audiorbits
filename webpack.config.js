@@ -65,7 +65,7 @@ module.exports = {
     // this will compile all modules in 'rootpath' (recursive)
     // where the 'include' (regex) matches a filename.
     new WascBuilderPlugin({
-      production: true, // TODO for release
+      production: true, // TODO make env variable
       relpath: '../../../',
       extension: 'asc',
       cleanup: true
@@ -77,11 +77,11 @@ module.exports = {
       staticdir: "dist/pack/",
       outfile: 'offlinefiles.json',
       extrafiles: ["/"],
-      pretty: false // TODO for release
+      pretty: false // TODO make env variable
     })
   ],
   // remove dead code in compilation
-  optimization: {
+  optimization: { // TODO make env variable
     minimizer: [
       new TerserPlugin({
         // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions

@@ -15,7 +15,9 @@ export interface BasePass {
 	// if set to true, the result of the pass is rendered to screen. This is set automatically by EffectComposer.
 	renderToScreen: boolean; // = false;
 
-	setSize(width, height);
+	dispose();
 
-	render(renderer, writeBuffer, readBuffer, deltaTime, maskActive);
+	setSize(width: number, height: number);
+
+	render(renderer: THREE.WebGLRenderer, writeBuffer: THREE.WebGLRenderTarget, readBuffer: THREE.WebGLRenderTarget, deltaTime: number, maskActive: boolean);
 }

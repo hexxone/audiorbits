@@ -37,12 +37,12 @@
     "three": "^0.122.0"
   },
   "devDependencies": {
-    "assemblyscript": "^0.17.7",
+    "assemblyscript": "^0.17.14",
     "babel-plugin-transform-define": "^2.0.0",
     "circular-dependency-plugin": "^5.2.2",
     "cookieconsent": "^3.1.1",
     "null-loader": "^4.0.1",
-    "webpack": "^5.5.0",
+    "webpack": "^5.23.0",
     "webpack-cli": "^4.2.0",
     "webpack-dev-server": "^3.11.0",
     "worker-loader": "^3.0.5"

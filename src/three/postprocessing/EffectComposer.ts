@@ -1,81 +1,139 @@
 /**
  * @author alteredq / http://alteredqualia.com/
+ * 
+ * @author hexx.one
  */
 
-import * as THREE from 'three';
-
-import { ShaderPass } from './ShaderPass';
-import { CopyShader } from '../shader/CopyShader';
+import { LinearFilter, RGBAFormat, Vector2, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { BasePass } from './BasePass';
 
-export class EffectComposer implements BasePass {
+const defaultParams = {
+	minFilter: LinearFilter,
+	magFilter: LinearFilter,
+	format: RGBAFormat,
+	stencilBuffer: false
+};
 
-	renderer = null;
-	renderTarget1: THREE.WebGLRenderTarget = null;
-	renderTarget2: THREE.WebGLRenderTarget = null;
-	writeBuffer: THREE.WebGLRenderTarget = this.renderTarget1;
-	readBuffer: THREE.WebGLRenderTarget = this.renderTarget2;
-	renderToScreen: boolean = true;
-	passes: BasePass[] = [];
-	copyPass: ShaderPass = null;
-	_previousFrameTime = Date.now();
+export class EffectComposer {
 
-	enabled: boolean;
-	needsSwap: boolean;
-	clear: boolean;
+	private renderer = null;
+	private initSize: Vector2;
 
-	globalPrecision: string;
+	private globalPrecision: string;
 
-	constructor(renderer: THREE.WebGLRenderer, globalPrec: string = "mediump", renderTarget?: THREE.WebGLRenderTarget) {
+	private _previousFrameTime = Date.now();
+
+	private defaultTarget: WebGLRenderTarget;
+
+	private renderWrite: WebGLRenderTarget = null;
+	private writeBuffer: WebGLRenderTarget = null;
+
+	private renderRead: WebGLRenderTarget = null;
+	private readBuffer: WebGLRenderTarget = null;
+
+	// render by default
+	public renderToScreen: boolean = true;
+	public passes: BasePass[] = [];
+
+	// CURENTLY NOT USED
+	public enabled: boolean = true;
+	public needsSwap: boolean = false;
+	public clear: boolean;
+
+
+	constructor(renderer: WebGLRenderer, globalPrec: string = "mediump", renderTarget?: WebGLRenderTarget) {
 
 		this.renderer = renderer;
+		this.initSize = renderer.getDrawingBufferSize(new Vector2());
+
+		// use a new default render target if none is given
+		this.defaultTarget = new WebGLRenderTarget(this.initSize.width, this.initSize.height, defaultParams);
+		this.defaultTarget.texture.name = 'EffectComposer.dt';
+
 		if (renderTarget === undefined) {
-			var parameters = {
-				minFilter: THREE.LinearFilter,
-				magFilter: THREE.LinearFilter,
-				format: THREE.RGBAFormat,
-				stencilBuffer: false
-			};
-			var size = renderer.getDrawingBufferSize(new THREE.Vector2());
-			renderTarget = new THREE.WebGLRenderTarget(size.width, size.height, parameters);
-			renderTarget.texture.name = 'EffectComposer.rt1';
+			renderTarget = this.defaultTarget.clone();
+			renderTarget.texture.name = 'EffectComposer.wt';
 		}
 
-		this.renderTarget1 = renderTarget;
-		this.renderTarget2 = renderTarget.clone();
-		this.renderTarget2.texture.name = 'EffectComposer.rt2';
+		// set write buffer for shader pass rendering
+		this.renderWrite = renderTarget;
+		this.writeBuffer = this.renderWrite;
 
-		this.writeBuffer = this.renderTarget1;
-		this.readBuffer = this.renderTarget2;
-		this.renderToScreen = true;
+		// set input buffer for shader pass rendering
+		this.renderRead = renderTarget.clone();
+		this.renderRead.texture.name = 'EffectComposer.rt';
+		this.readBuffer = this.renderRead;
+
 		this.passes = [];
-
-		// dependencies
-		this.copyPass = new ShaderPass(new CopyShader());
 		this._previousFrameTime = Date.now();
-		// overwrite shader precision
 		this.globalPrecision = globalPrec;
 	}
 
-	public swapBuffers() {
-		var tmp = this.readBuffer;
-		this.readBuffer = this.writeBuffer;
-		this.writeBuffer = tmp;
-	}
-
 	public addPass(pass: BasePass) {
-		var p: BasePass = this.wrapPrecision(pass);
+		const p = this.wrapPrecision(pass);
 		this.passes.push(p);
-		var size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
-		p.setSize(size.width, size.height);
+		p.setSize(this.initSize.width, this.initSize.height);
 	}
 
-	public insertPass(pass: BasePass, index) {
+	public insertPass(pass: BasePass, index: number) {
 		this.passes.splice(index, 0, this.wrapPrecision(pass));
 	}
 
-	private wrapPrecision(pass: BasePass) {
-		var copy: any = pass;
+	public isLastEnabledPass(passIndex: number) {
+		for (var i = passIndex + 1; i < this.passes.length; i++) {
+			if (this.passes[i].enabled) return false;
+		}
+		return true;
+	}
+
+	public render(deltaTime?: number) {
+		// deltaTime value is in seconds
+		if (deltaTime === undefined) {
+			deltaTime = (Date.now() - this._previousFrameTime) * 0.001;
+		}
+		this._previousFrameTime = Date.now();
+		const currentRenderTarget = this.renderer.getRenderTarget();
+
+		this.passes.forEach((pass, i) => {
+			if (pass.enabled === false) return;
+			pass.renderToScreen = (this.renderToScreen && this.isLastEnabledPass(i));
+			pass.render(this.renderer, this.writeBuffer, this.readBuffer, deltaTime, false);
+			if (pass.needsSwap) this.swapBuffers();
+		});
+
+		this.renderer.setRenderTarget(currentRenderTarget);
+	}
+
+	public reset(renderTarget?: WebGLRenderTarget) {
+
+		if (renderTarget === undefined) {
+			renderTarget = this.defaultTarget.clone();
+			renderTarget.texture.name = 'EffectComposer.wt';
+		}
+
+		this.renderWrite.dispose();
+		this.renderRead.dispose();
+
+		this.renderWrite = renderTarget;
+		this.writeBuffer = this.renderWrite;
+
+		this.renderRead = renderTarget.clone();
+		this.renderRead.texture.name = 'EffectComposer.rt';
+		this.readBuffer = this.renderRead;
+
+		this.passes = [];
+	}
+
+	public setSize(width: number, height: number) {
+		this.renderWrite.setSize(width, height);
+		this.renderRead.setSize(width, height);
+		this.passes.forEach(pass => pass.setSize(width, height))
+	}
+
+	/* UTILS */
+
+	private wrapPrecision(pass: BasePass): BasePass {
+		const copy = pass as any;
 		if (copy.material) {
 			// get prefix
 			var pre = "precision " + this.globalPrecision + " float;\r\n    "
@@ -94,58 +152,9 @@ export class EffectComposer implements BasePass {
 		return copy;
 	}
 
-	public isLastEnabledPass(passIndex) {
-		for (var i = passIndex + 1; i < this.passes.length; i++) {
-			if (this.passes[i].enabled) return false;
-		}
-		return true;
-	}
-
-	public render(deltaTime?) {
-		// deltaTime value is in seconds
-		if (deltaTime === undefined) {
-			deltaTime = (Date.now() - this._previousFrameTime) * 0.001;
-		}
-		this._previousFrameTime = Date.now();
-		var currentRenderTarget = this.renderer.getRenderTarget();
-
-		var pass: BasePass, i, il = this.passes.length;
-		for (i = 0; i < il; i++) {
-
-			pass = this.passes[i];
-			if (pass.enabled === false) continue;
-			pass.renderToScreen = (this.renderToScreen && this.isLastEnabledPass(i));
-			pass.render(this.renderer, this.writeBuffer, this.readBuffer, deltaTime, false);
-
-			if (pass.needsSwap) {
-				this.swapBuffers();
-			}
-		}
-		this.renderer.setRenderTarget(currentRenderTarget);
-	}
-
-	public reset(renderTarget?) {
-
-		if (renderTarget === undefined) {
-			var size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
-			renderTarget = this.renderTarget1.clone();
-			renderTarget.setSize(size.width, size.height);
-		}
-		this.renderTarget1.dispose();
-		this.renderTarget2.dispose();
-		this.renderTarget1 = renderTarget;
-		this.renderTarget2 = renderTarget.clone();
-
-		this.writeBuffer = this.renderTarget1;
-		this.readBuffer = this.renderTarget2;
-
-	}
-
-	public setSize(width, height) {
-		this.renderTarget1.setSize(width, height);
-		this.renderTarget2.setSize(width, height);
-		for (var i = 0; i < this.passes.length; i++) {
-			this.passes[i].setSize(width, height);
-		}
+	private swapBuffers() {
+		const tmp = this.readBuffer;
+		this.readBuffer = this.writeBuffer;
+		this.writeBuffer = tmp;
 	}
 }

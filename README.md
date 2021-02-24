@@ -3,7 +3,8 @@
 
 ## [THIS](https://github.com/hexxone/audiorbits) is the wallpaper's public git repository.
 
-## NOTICE
+
+## About
 
 The Wallpaper is made for and maintained on the **Steam Workshop**.
 It is however basically a website and can be easily run in *most* browsers.
@@ -13,7 +14,8 @@ And so, in order to fullfill the Licenses on this Software, I published this rep
 
 *But:* **Please address any [Issues](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/) or [Ideas](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/) on on Steam.**
 
-## License
+
+## License(s)
 
 This Wallpaper is incorporating pieces of Software with different Licenses.
 The project itself is licensed under the GPLv3 and several portions of it under MIT.
@@ -42,9 +44,13 @@ Thanks 🙂
 - [CookieConsent](https://github.com/osano/cookieconsent) thanks to EU laws
 - [worker_loader](https://github.com/webpack-contrib/worker-loader) for easy TS workers
 - [wasc-worker](https://github.com/hexxone/wasc-worker) for easy AS workers
+- [hexagon-font](https://www.dafont.com/de/hexagon-cup.font) Thanks @Alessandro Caminiti!
+
 
 ## [Preview](https://orbits.hexx.one/)
 
+
 ## [Features](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
+
 
 ## [Changelog](https://github.com/hexxone/audiorbits/blob/master/CHANGELOG.md)
