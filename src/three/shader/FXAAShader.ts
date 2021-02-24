@@ -7,7 +7,7 @@
  * - WebGL port by @supereggbert
  * http://www.glge.org/demos/fxaa/
  */
-import * as THREE from 'three';
+import { Vector2 } from 'three';
 import { BaseShader } from './BaseShader';
 
 export class FXAAShader implements BaseShader {
@@ -18,7 +18,7 @@ export class FXAAShader implements BaseShader {
 
 	uniforms = {
 		tDiffuse: { value: null },
-		resolution: { value: new THREE.Vector2(1 / 1024, 1 / 512) }
+		resolution: { value: new Vector2(1 / 1024, 1 / 512) }
 	}
 
 	vertexShader = [

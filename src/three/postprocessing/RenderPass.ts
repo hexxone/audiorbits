@@ -8,16 +8,18 @@ export class RenderPass implements BasePass {
 
 	enabled = true;
 	needsSwap = false;
-	clear = true;
 	renderToScreen = true;
 
-	scene = null;
-	camera = null;
-	overrideMaterial = null;
+	clear = true;
+
 	clearColor = null;
 	clearAlpha = null;
-
 	clearDepth = false;
+
+	private scene = null;
+	private camera = null;
+	private overrideMaterial = null;
+
 
 	constructor(scene, camera, overrideMaterial, clearColor, clearAlpha) {
 
@@ -30,9 +32,13 @@ export class RenderPass implements BasePass {
 		this.clearAlpha = (clearAlpha !== undefined) ? clearAlpha : 0;
 	}
 
-	setSize(width, height) { }
+	public dispose() {
+		throw new Error("Method not implemented.");
+	}
 
-	render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
+	public setSize(width: number, height: number) { }
+
+	public render(renderer: THREE.WebGLRenderer, writeBuffer: THREE.WebGLRenderTarget, readBuffer: THREE.WebGLRenderTarget, deltaTime: number, maskActive: boolean) {
 		var oldAutoClear = renderer.autoClear;
 		renderer.autoClear = false;
 

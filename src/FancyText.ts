@@ -10,10 +10,11 @@
  * Fancy Shorthand 3D Text Renderer for THREE js
  * 
  * @todo
- * - test this, remove old text, css and font
+ * - FIX this
  */
 
-import * as THREE from 'three';
+import { Font, Mesh, MeshPhongMaterial, TextGeometry } from 'three';
+import { myFetch } from './we_utils/src/wasc-worker/WascRT';
 
 export class FancyText {
 
@@ -21,15 +22,14 @@ export class FancyText {
 
     private mesh: THREE.Mesh;
 
-    constructor(scene: THREE.Scene, CPos: THREE.Vector3, text: string, hideAfter: number = 6, font: string = "./css/HEXAGON_cup_font.json") {
+    constructor(scene: THREE.Scene, CPos: THREE.Vector3, lookAt: THREE.Vector3, text: string, hideAfter: number = 30, fontPath: string = "./css/HEXAGON_cup_font.json") {
         this.scene = scene;
-        return;
+        
+        myFetch(fontPath, "json").then(fDat => {
 
-        const loader = new THREE.FontLoader();
-        loader.load(font, (font) => {
-
-            const geometry = new THREE.TextGeometry(text, {
-                font: font,
+            const textFont = new Font(fDat);
+            const textGeo = new TextGeometry(text, {
+                font: textFont,
                 size: 200,
                 height: 5,
                 curveSegments: 12,
@@ -39,22 +39,27 @@ export class FancyText {
                 bevelOffset: 0,
                 bevelSegments: 5
             });
-
-            const textMaterial = new THREE.MeshPhongMaterial(
+    
+            const textMaterial = new MeshPhongMaterial(
                 { color: 0xffffff, specular: 0xffffff }
             );
+    
+            const textMesh = new Mesh(textGeo, textMaterial);
+            textMesh.position.set(CPos.x, CPos.y, CPos.z);
+            textMesh.lookAt(lookAt);
+            this.mesh = textMesh;
+            scene.add(textMesh);
+    
+            // hide again
+            setTimeout(() => this.Hide(), hideAfter * 1000);
 
-            const mesh = new THREE.Mesh(geometry, textMaterial);
-            mesh.position.set(CPos.x, CPos.y, CPos.z);
-            this.mesh = mesh;
-            scene.add(mesh);
         });
-
-        // hide again
-        setTimeout(() => this.Hide(), hideAfter * 1000);
     }
 
     public Hide() {
-        this.scene.remove(this.mesh);
+        if(this.mesh) {
+            this.scene.remove(this.mesh);
+            this.mesh = null;
+        }
     }
 }
