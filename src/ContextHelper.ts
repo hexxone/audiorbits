@@ -10,10 +10,10 @@
  * Contains main rendering context for AudiOrbits
  * 
  * @todo
- * - test camera parallax stuff
+ * - fix camera parallax stuff
  */
 
-import * as THREE from 'three';
+import { Clock, FogExp2, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three';
 
 import { ColorHelper } from './ColorHelper';
 import { LevelHolder } from './LevelHelper';
@@ -29,6 +29,7 @@ import { Smallog } from './we_utils/src/Smallog';
 import { CSettings } from "./we_utils/src/CSettings";
 import { CComponent } from './we_utils/src/CComponent';
 import { FancyText } from './FancyText';
+import { RenderPass } from './three/postprocessing/RenderPass';
 
 class ContextSettings extends CSettings {
 	// Camera category
@@ -51,6 +52,9 @@ class ContextSettings extends CSettings {
 	scaling_factor: number = 1500;
 	level_depth: number = 1200;
 	num_levels: number = 8000;
+
+	// use low latency audio?
+	low_latency: boolean = false;
 }
 
 export class ContextHolder extends CComponent {
@@ -83,7 +87,7 @@ export class ContextHolder extends CComponent {
 	private stats: Stats = null;
 
 	private composer: EffectComposer = null;
-	private clock: THREE.Clock = new THREE.Clock();
+	private clock: THREE.Clock = new Clock();
 
 	// custom render timing
 	private renderTimeout = null;
@@ -169,19 +173,18 @@ export class ContextHolder extends CComponent {
 			const dBuffer = this.settings.shader_quality > 1;
 			const shaderP = qual + "p";
 
-
 			// create camera
 			const viewDist = this.settings.num_levels * this.settings.level_depth * (this.settings.cam_centered ? 0.5 : 1);
-			this.camera = new THREE.PerspectiveCamera(this.settings.field_of_view, window.innerWidth / window.innerHeight, 3, viewDist * 1.2);
+			this.camera = new PerspectiveCamera(this.settings.field_of_view, window.innerWidth / window.innerHeight, 3, viewDist * 1.2);
 
 			// create scene
-			this.scene = new THREE.Scene();
+			this.scene = new Scene();
 
 			// create distance fog
-			this.scene.fog = new THREE.FogExp2(0x000000, 0.0001 + this.settings.fog_thickness / viewDist / 10);
+			this.scene.fog = new FogExp2(0x000000, 0.0001 + this.settings.fog_thickness / viewDist / 10);
 
 			// create render-context
-			this.renderer = new THREE.WebGLRenderer({
+			this.renderer = new WebGLRenderer({
 				alpha: true,
 				antialias: false,
 				canvas: this.mainCanvas,
@@ -197,8 +200,10 @@ export class ContextHolder extends CComponent {
 
 			// initialize shader composer
 			this.composer = new EffectComposer(this.renderer, shaderP);
+			this.composer.addPass(new RenderPass(this.scene, this.camera, null, 0x000000, 1));
+
 			// initialize shaders
-			this.shaderHolder.pipeline(this.scene, this.camera, this.composer);
+			this.shaderHolder.init(this.composer);
 
 			// initialize statistics
 			if (this.settings.stats_option >= 0) {
@@ -209,12 +214,13 @@ export class ContextHolder extends CComponent {
 			}
 
 			// initialize fancy text
-			this.textHolder = new FancyText(this.scene, this.camera.position, document.title);
+			this.showMessage(document.title);
 
+			// initialize colors if not done already
+			this.colorHolder.UpdateSettings();
+			
 			// initialize main geometry
 			this.geoHolder.init(this.scene, this.camera, resolve);
-
-			this.showMessage(document.title);
 		});
 	}
 
@@ -224,7 +230,7 @@ export class ContextHolder extends CComponent {
 	}
 
 	// update shader values
-	private update(ellapsed, deltaTime) {
+	private UpdateFrame(ellapsed, deltaTime) {
 		// update camera
 		const newXPos = this.clampCam(this.mouseX * this.settings.parallax_strength / 70);
 		const newYPos = this.clampCam(this.mouseY * this.settings.parallax_strength / -90);
@@ -238,7 +244,7 @@ export class ContextHolder extends CComponent {
 		if (this.settings.parallax_cam) {
 			// calculated point is position (parallax)
 			this.camera.position.set(transformPosition.x, transformPosition.y, transformPosition.z);
-			this.camera.lookAt(new THREE.Vector3(0, 0, -this.settings.level_depth / 2).add(this.scene.position));
+			this.camera.lookAt(new Vector3(0, 0, -this.settings.level_depth / 2).add(this.scene.position));
 		}
 		else {
 			// calculated point is look-at (inverted)
@@ -255,20 +261,12 @@ export class ContextHolder extends CComponent {
 	}
 
 	// called after any setting changed
-	public updateSettings(updateColor) {
+	public UpdateSettings(): Promise<void> {
 		// fix for centered camera on Parallax "none"
 		if (this.settings.parallax_option == 0) this.mouseX = this.mouseY = 0;
 		// set Cursor for "fixed" parallax mode
 		if (this.settings.parallax_option == 3) this.positionMouseAngle(this.settings.parallax_angle);
-
-		// update preview visbility after setting possibly changed
-		this.weicue.updatePreview();
-
-		// apply eventually updated settings to WASM Module
-		this.weas.updateSettings();
-
-		// apply changed color settings
-		if (updateColor) this.colorHolder.init();
+		return;
 	}
 
 
@@ -327,12 +325,16 @@ export class ContextHolder extends CComponent {
 		var delta = ellapsed * 60;
 
 		// render before updating
-		this.composer.render();
+		if (!this.settings.low_latency) this.composer.render(ellapsed);
 
 		// update objects
-		this.colorHolder.update(ellapsed, delta);
-		this.geoHolder.update(ellapsed, delta);
-		this.update(ellapsed, delta);
+		this.colorHolder.UpdateFrame(ellapsed, delta);
+		this.geoHolder.UpdateFrame(ellapsed, delta);
+		this.UpdateFrame(ellapsed, delta);
+
+		// render after updating
+		// this saves 1 frame (7-16 ms) audio delay but may cause stutter
+		if (this.settings.low_latency) this.composer.render(ellapsed);
 
 		// ICUE PROCESSING
 		this.weicue.updateCanvas(this.mainCanvas);
@@ -399,7 +401,9 @@ export class ContextHolder extends CComponent {
 	// shows a fancy text mesage
 	private showMessage(msg: string) {
 		// TODO test
-		this.textHolder = new FancyText(this.scene, new THREE.Vector3(0, 0, this.settings.level_depth / 2).add(this.camera.position), msg);
+		const cPos = this.camera.position
+		const tPos = new Vector3(0, 0, this.settings.level_depth).add(cPos);
+		this.textHolder = new FancyText(this.scene, tPos, cPos, msg);
 	}
 
 	// position Mouse with angle

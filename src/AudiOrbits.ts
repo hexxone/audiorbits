@@ -24,24 +24,24 @@
  * @todo
  * 
  * project.json
- * - add spiral
  * - update translations -> project.json -> steam
  * - update preview image?
  * - test prop text in WE
  * 
  * 
  * main code:
+ * - fix spiral level rotation
+ * - rotate camera instead of objects?
+ * - reuse wasc modules
+ * - optimize WEAS new allocations
  * - fix "min > max" saturation/light
  * - fix parallax
  * - fix custom fps
  * - add new re-init vars
  * - fix seizure warning text
- * - fix level generator
- * - fix weas frequency mapping
  * - use buffer for geometry size in WASM?
  * - wasc-loader worker debugging option ?
  * - wasc-loader worker option
- * - test spiral level rotation (45° per level)
  * 
  * 
  * low priority:
@@ -62,23 +62,18 @@ import { LogLevel, Smallog } from './we_utils/src/Smallog';
 import { ReloadHelper } from './we_utils/src/ReloadHelper';
 import { WarnHelper } from './we_utils/src/WarnHelper';
 import { CSettings } from "./we_utils/src/CSettings";
-import { Ready } from './we_utils/src/Ready';
 import { WEWWA } from './we_utils/src/WEWWA';
 import { CComponent } from './we_utils/src/CComponent';
+import WEventListener from './WEventListener';
 
-const Ignore: string[] = ["debugging", "img_overlay", "img_background", "mirror_invalid_val"];
+const Ignore: string[] = ["img_overlay", "img_background", "mirror_invalid_val"];
 
-const ReInit: string[] = ["geometry_type", "base_texture", "texture_size",
-	"scaling_factor", "num_levels", "level_depth", "level_shifting", "num_subsets_per_level",
-	"num_points_per_subset", "custom_fps", "bloom_filter", "lut_filter", "mirror_shader",
-	"mirror_invert", "fx_antialiasing", "blur_strength", "stats_option", "field_of_view",
-	"fog_thickness", "icue_mode", "shader_quality"];
-
-// custom logging function
-var debug: boolean = false;
+const ReInit: string[] = ["geometry_type", "base_texture", "texture_size", "scaling_factor", "num_levels",
+	"level_depth", "level_shifting", "level_spiralize", "num_subsets_per_level", "num_points_per_subset",
+	"custom_fps", "stats_option", "field_of_view", "fog_thickness", "icue_mode", "shader_quality", "random_seed"];
 
 // what's the wallpaper currently doing?
-enum RunState {
+export enum RunState {
 	None = 0,
 	Initializing = 1,
 	Running = 2,
@@ -87,7 +82,10 @@ enum RunState {
 }
 
 // type-safe settings
-class MainSettings extends CSettings {
+export class MainSettings extends CSettings {
+	// debugging
+	debugging: boolean = false;
+	// default scheme property
 	schemecolor: string = "0 0 0";
 	// Advanced
 	stats_option: number = -1;
@@ -99,75 +97,44 @@ class MainSettings extends CSettings {
 }
 
 // base object for wallpaper
-class AudiOrbits extends CComponent {
+export class AudiOrbits extends CComponent {
 	// holds default wallpaper settings
 	// these basically connect 1:1 to wallpaper engine settings.
 	// for more explanation on settings visit the Workshop-Item-Forum (link above)
 	public settings: MainSettings = new MainSettings();
-
 	// state of the Wallpaper
 	public state: RunState = RunState.None;
-
-	// debugging
-	private debugTimeout: any = null;
 	// Seconds & interval for reloading the wallpaper
-	private resetTimespan: number = 3;
-	private resetTimeout: any = null;
+	public resetTimespan: number = 3;
+	public resetTimeout: any = null;
+	// debugging
+	public debugTimeout: any = null;
+
+	// submodules
+	public ctxHolder: ContextHolder = new ContextHolder();
+	public warnHelper: WarnHelper = new WarnHelper();
+	public reloadHelper: ReloadHelper = new ReloadHelper();
+
 	// interval for swirlHandler
 	private swirlInterval: any = null;
 	private swirlStep: number = 0;
-	// important objects
-	private ctxHolder: ContextHolder = new ContextHolder();
-	private warnHelper: WarnHelper = new WarnHelper();
-
-	private reloadHelper: ReloadHelper = new ReloadHelper();
+	// Wallpaper Engine Event Listener
+	private weListener: WEventListener = null;
 
 	constructor() {
 		super();
 		Smallog.SetPrefix("[AudiOrbits] ");
 		Smallog.Info("initializing...");
 
+
 		this.children.push(this.ctxHolder);
 		this.children.push(this.warnHelper);
+		this.children.push(this.reloadHelper);
 
 		// will apply settings edited in Wallpaper Engine
 		// this will also cause initialization for the first time
-		window['wallpaperPropertyListener'] = {
-			applyGeneralProperties: (props) => {
-
-			},
-			applyUserProperties: (props) => {
-				var initFlag = this.applyCustomProps(props);
-				// very first initialization
-				if (this.state == RunState.None) {
-					this.state = RunState.Initializing;
-					Ready().then(() => this.initOnce());
-				}
-				else if (initFlag) {
-					this.state = RunState.ReInitializing;
-					Smallog.Debug("got reInit-flag from applying settings!");
-					if (this.resetTimeout) clearTimeout(this.resetTimeout);
-					this.resetTimeout = setTimeout(() => this.reInitSystem(), this.resetTimespan * 1000);
-					// show reloader
-					this.reloadHelper.Show();
-					// stop frame animation
-					this.ctxHolder.setRenderer(false);
-				}
-			},
-			setPaused: (isPaused: boolean) => {
-				if (this.state == RunState.Paused) {
-					if (isPaused) return;
-					this.state = RunState.Running;
-				}
-				else if (this.state == RunState.Running) {
-					if (!isPaused) return;
-					this.state = RunState.Paused;
-				}
-				Smallog.Debug("set pause: " + isPaused);
-				this.ctxHolder.setRenderer(isPaused);
-			}
-		};
-
+		this.weListener = new WEventListener(this);
+		window['wallpaperPropertyListener'] = this.weListener;
 	}
 
 	///////////////////////////////////////////////
@@ -175,48 +142,43 @@ class AudiOrbits extends CComponent {
 	///////////////////////////////////////////////
 
 	// Apply settings from the project.json "properties" object and takes certain actions
-	private applyCustomProps(props) {
+	public applyCustomProps(props) {
 		Smallog.Debug("applying settings: " + JSON.stringify(Object.keys(props)));
 
 		// possible apply-targets
-		const storages = this.GetSettings();
 		var reInitFlag = false;
 
 		// loop all settings for updated values
 		for (const setting in props) {
 			// ignore this setting or apply it manually
-			if (Ignore.indexOf(setting) > -1 || this.startsWith(setting, "HEADER_")) continue;
+			if (Ignore.indexOf(setting) > -1 || this.startsWith(setting, "HEADER_") || this.startsWith(setting, "SPACER_")) continue;
 			// get the updated setting
 			var prop = props[setting];
 			// check typing
-			if (!prop || !prop.type || prop.type == "text") continue;
+			if (!prop || !prop.type) continue;
 
 			var found = false;
-			// process all storages
-			for (const storage of storages) {
-				var fo = false;
-				// apply prop value
-				switch (prop.type) {
-					case "bool":
-						found ||= (fo = storage.apply(setting, prop.value == "True"));
-						break;
-					case "slider":
-					case "combo":
-						found ||= (fo = storage.apply(setting, parseFloat(prop.value)));
-						break;
-					default:
-						found ||= (fo = storage.apply(setting, prop.value || prop.text));
-						break;
-				}
-				// set re-init flag if value changed and included in list
-				if (fo) reInitFlag ||= ReInit.indexOf(setting) > -1;
+			// apply prop value
+			switch (prop.type) {
+				case "bool":
+					found = this.ApplySetting(setting, prop.value == "True");
+					break;
+				case "slider":
+				case "combo":
+					found = this.ApplySetting(setting, parseFloat(prop.value));
+					break;
+				default:
+					found = this.ApplySetting(setting, prop.value || prop.text);
+					break;
 			}
+			// set re-init flag if value changed and included in list
+			if (found) reInitFlag ||= ReInit.indexOf(setting) > -1;
 			// invalid?
-			if (!found) Smallog.Error("Unknown setting: " + setting + ". Are you using an old preset?");
+			else if (prop.type != "text") Smallog.Error("Unknown setting: " + setting + ". Are you using an old preset?");
 		}
 
-		// update parallax, weicue, colors, etc.
-		this.ctxHolder.updateSettings(props.color_mode || props.user_color_a || props.user_color_b);
+		// Update all modules
+		this.UpdateAll();
 
 		// Custom bg color
 		if (props.main_color) {
@@ -230,19 +192,6 @@ class AudiOrbits extends CComponent {
 			this.setImgSrc("#img_back", props.img_background.value);
 		if (props.img_overlay)
 			this.setImgSrc("#img_over", props.img_overlay.value);
-
-		// debug logging
-		if (props.debugging) {
-			debug = props.debugging.value == true;
-			Smallog.SetLevel(debug ? LogLevel.Debug : LogLevel.Info);
-		}
-		if (!debug && this.debugTimeout) {
-			clearTimeout(this.debugTimeout);
-			this.debugTimeout = null;
-		}
-		if (debug && !this.debugTimeout)
-			this.debugTimeout = setTimeout(() => this.applyCustomProps({ debugging: { value: false } }), 1000 * 60);
-		$("#debugwnd").css("visibility", debug ? "visible" : "hidden");
 
 		// have render-relevant settings been changed?
 		return reInitFlag;
@@ -262,13 +211,34 @@ class AudiOrbits extends CComponent {
 		});
 	}
 
+	// TODO
+	public UpdateSettings(): Promise<void> {
+		return new Promise(resolve => {
+
+			// debug logging
+			Smallog.SetLevel(this.settings.debugging ? LogLevel.Debug : LogLevel.Info);
+			if (!this.settings.debugging && this.debugTimeout) {
+				clearTimeout(this.debugTimeout);
+				this.debugTimeout = null;
+			}
+			if (this.settings.debugging && !this.debugTimeout)
+				this.debugTimeout = setTimeout(() => this.applyCustomProps({ debugging: { value: false } }), 1000 * 60);
+
+			// update visibility
+			if (this.settings.debugging) document.getElementById("debugwnd").classList.add("show");
+			else document.getElementById("debugwnd").classList.remove("show");
+
+			resolve();
+		});
+	}
+
 
 	///////////////////////////////////////////////
 	// INITIALIZE
 	///////////////////////////////////////////////
 
 	// do first init after page loaded
-	private initOnce() {
+	public initOnce() {
 		const initWrap = () => {
 			this.initSystem();
 		};
@@ -278,7 +248,7 @@ class AudiOrbits extends CComponent {
 	}
 
 	// re-initialies the walpaper after some time
-	private reInitSystem() {
+	public reInitSystem() {
 		Smallog.Info("re-initializing...");
 		// hide reloader
 		this.reloadHelper.Hide();

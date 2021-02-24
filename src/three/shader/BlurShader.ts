@@ -1,7 +1,7 @@
 /**
  * @author D.Thiele @https://hexx.one
  */
-import * as THREE from 'three';
+import { Vector2 } from 'three';
 import { BaseShader } from './BaseShader';
 
 export class BlurShader implements BaseShader {
@@ -11,9 +11,9 @@ export class BlurShader implements BaseShader {
 
     uniforms = {
         tDiffuse: { value: null },
-        iResolution: { value: new THREE.Vector2(1, 1) },
+        iResolution: { value: new Vector2(1, 1) },
         u_sigma: { value: 0.5 },
-        u_dir: { value: new THREE.Vector2(0.1, 0.1) }
+        u_dir: { value: new Vector2(0.1, 0.1) }
     };
 
     // Default vertex shader

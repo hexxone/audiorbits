@@ -21,7 +21,7 @@
  * - test other blending modes
  */
 
-import * as THREE from 'three';
+import { AdditiveBlending, BufferAttribute, BufferGeometry, Camera, Color, HSL, LineBasicMaterial, LineSegments, Material, Object3D, Points, PointsMaterial, Scene, Texture, TextureLoader } from 'three';
 
 import { ASUtil } from '@assemblyscript/loader';
 
@@ -45,9 +45,9 @@ interface Subset {
 	set: number;
 }
 
-class T3Object extends THREE.Object3D {
-	geometry: THREE.BufferGeometry & { attributes: { position: THREE.BufferAttribute } };
-	material: THREE.Material & { color: THREE.Color };
+class T3Object extends Object3D {
+	geometry: BufferGeometry & { attributes: { position: BufferAttribute } };
+	material: Material & { color: Color };
 }
 
 class LevelSettings extends CSettings {
@@ -98,6 +98,9 @@ class LevelSettings extends CSettings {
 	// mirrored on WEAS
 	audio_increase: number = 75;
 	audio_decrease: number = 35;
+	// seeded random for fractal generator
+	random_seed: number = 0; // user setting
+	real_seed: number = 0; // transfer settings
 }
 
 // settings required in worker
@@ -119,6 +122,8 @@ enum WasmSettings {
 	alg_d_max = 13,
 	alg_e_min = 14,
 	alg_e_max = 15,
+
+	real_seed = 16,
 }
 
 export class LevelHolder extends CComponent {
@@ -138,7 +143,7 @@ export class LevelHolder extends CComponent {
 	private colorHolder: ColorHelper = new ColorHelper();
 
 	// keep camera position for moving subsets around
-	private camera: THREE.Camera = null;
+	private camera: Camera = null;
 
 	// actions to perform after render
 	private afterRenderQueue = [];
@@ -153,7 +158,7 @@ export class LevelHolder extends CComponent {
 	}
 
 	// initialize geometry generator, data & objects
-	public async init(scene: THREE.Scene, cam: THREE.Camera, call) {
+	public async init(scene: Scene, cam: Camera, call) {
 		this.camera = cam;
 		var sett = this.settings;
 		// reset generator
@@ -161,7 +166,7 @@ export class LevelHolder extends CComponent {
 
 		// setup fractal generator -> get exported functions
 		this.levelBuilder = await wascWorker(this.getGeoModName());
-		await this.updateSettings();
+		await this.UpdateSettings();
 
 		// assert
 		if (this.levelBuilder) Smallog.Debug("Got Level Builder!")
@@ -170,16 +175,13 @@ export class LevelHolder extends CComponent {
 		// reset rendering
 		this.speedVelocity = 0;
 
-		// prepare colors
-		this.colorHolder.init();
-
 		// load texture sync and init geometry
-		var texture: THREE.Texture = null;
+		var texture: Texture = null;
 		if (sett.geometry_type == 0) {
 			// get texture path
 			const texPth = this.getBaseTexPath();
 			Smallog.Debug("loading Texture: " + texPth);
-			texture = new THREE.TextureLoader().load(texPth);
+			texture = new TextureLoader().load(texPth);
 		}
 
 		// initialize
@@ -202,7 +204,7 @@ export class LevelHolder extends CComponent {
 	}
 
 	// create WEBGL objects for each level and subset
-	private async initGeometries(scene: THREE.Scene, texture: THREE.Texture, resolve) {
+	private async initGeometries(scene: Scene, texture: Texture, resolve) {
 		const sett = this.settings;
 		const camZ = this.camera.position.z;
 
@@ -232,10 +234,10 @@ export class LevelHolder extends CComponent {
 			for (var s = 0; s < sett.num_subsets_per_level; s++) {
 
 				// create particle geometry from orbit vertex data
-				const geometry = new THREE.BufferGeometry();
+				const geometry = new BufferGeometry();
 				// position attribute (2 vertices per point, thats pretty illegal)
 				geometry.setAttribute('position',
-					new THREE.BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2)
+					new BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2)
 				);
 
 				// make the correct object and material for current settinfs
@@ -261,10 +263,7 @@ export class LevelHolder extends CComponent {
 					// split angle across subset and regard previous rotation, lel why not
 					object.rotation.z = - (l * deg45rad + (s * deg45rad / sett.num_subsets_per_level));
 				}
-				else {
-					// angle 45 deg in radians
-					object.rotation.z = -deg45rad;
-				}
+				//else object.rotation.z = -deg45rad;
 
 				// add to scene
 				scene.add(object);
@@ -305,24 +304,24 @@ export class LevelHolder extends CComponent {
 		// default fractal geometry
 		if (this.settings.geometry_type == 0) {
 			// create material
-			material = new THREE.PointsMaterial({
+			material = new PointsMaterial({
 				map: texture,
 				size: this.settings.texture_size,
-				blending: THREE.AdditiveBlending,
+				blending: AdditiveBlending,
 				depthTest: false,
 				transparent: true
 			});
 			// create particle system from geometry and material
-			object = new THREE.Points(geometry, material);
+			object = new Points(geometry, material);
 		}
 
 		// line geometry type
 		else if (this.settings.geometry_type == 1) {
-			material = new THREE.LineBasicMaterial({
+			material = new LineBasicMaterial({
 				linewidth: this.settings.texture_size,
 			});
 			// create lineloop system from geometry and material
-			object = new THREE.LineSegments(geometry, material);
+			object = new LineSegments(geometry, material);
 		}
 
 		return object;
@@ -332,28 +331,34 @@ export class LevelHolder extends CComponent {
 	// FRACTAL GENERATOR
 	///////////////////////////////////////////////
 
-	// CAVEAT: only available after init and module load
-	public async updateSettings() {
+	public UpdateSettings(): Promise<void> {
+		// CAVEAT: only available after init and module load
 		if (!this.levelBuilder) return;
 
+		// apply random seed
+		this.settings.real_seed = this.getSeed();
+
+		// transfer settings to worker
 		var keys = Object.keys(WasmSettings);
 		keys = keys.slice(keys.length / 2);
 		const sett = new Float32Array(keys.length);
 		for (let index = 0; index < keys.length; index++) {
 			const key = keys[index];
-			sett[WasmSettings[key]] = this.settings[key] || 0;
+			// hack for easily downscaling the algorithm params
+			const mlt = key.indexOf("alg_") == 0 ? 0.1 : 1;
+			// apply key value
+			sett[WasmSettings[key]] = this.settings[key] * mlt || 0;
 		}
 
 		// WRAP IN isolated Function ran inside worker
 		const { run } = this.levelBuilder;
-		await run(({ module, instance, importObject, params }) => {
+		return run(({ module, instance, importObject, params }) => {
 			const { exports } = instance;
 			const { data } = params[0];
 			const io = importObject as ASUtil;
-
-			const transfer = io.__getFloat32ArrayView(exports.levelSettings);
-			transfer.set(data);
-			// generate the data structure with updated settings
+			// get the direct view from the module memory and set the new buffer data
+			io.__getFloat32ArrayView(exports.levelSettings).set(data);
+			// generate new data structure with updated settings
 			exports.update();
 		}, {
 			// Data passed to worker
@@ -361,6 +366,16 @@ export class LevelHolder extends CComponent {
 		}).then(() => {
 			Smallog.Debug("Sent Settings to Generator: " + JSON.stringify(sett));
 		});
+	}
+
+	// returns randomized or predefined random-seed
+	private getSeed(): number {
+		if (this.settings.random_seed < 1) {
+			const useed = Math.floor(Math.random() * 233279);
+			Smallog.Info("Using random seed: " + useed);
+			return useed;
+		}
+		else return Math.abs(this.settings.random_seed) % 233280;
 	}
 
 	// queue worker event
@@ -374,21 +389,15 @@ export class LevelHolder extends CComponent {
 			const { exports } = instance;
 			const { level } = params[0];
 			const io = importObject as ASUtil;
-
 			// assembly level Building
 			// returns pointer to int32-array with float-references
 			const dataPtr = exports.build(level);
-			// will contain transferrable float-arrays
-			var resultObj = {};
 			// iterate over all pointers
 			const setPtrs = io.__getInt32Array(dataPtr);
-
-			for (let set = 0; set < setPtrs.length; set++) {
-				const setPtr = setPtrs[set];
-				const setArr = io.__getFloat32ArrayView(setPtr);
-
-				resultObj["set_" + set] = setArr;
-			}
+			// gather transferrable float-arrays
+			const resultObj = {};
+			// we make a hard-copy of the buffer so the data doesnt get lost.
+			setPtrs.forEach((ptr, i) => resultObj["set_" + i] = new Float32Array(io.__getFloat32ArrayView(ptr)));
 			return resultObj;
 		}, {
 			// Data passed to worker
@@ -423,11 +432,11 @@ export class LevelHolder extends CComponent {
 	// move geometry
 	///////////////////////////////////////////////
 
-	public update(ellapsed, deltaTime) {
+	public UpdateFrame(ellapsed, deltaTime) {
 		var sett = this.settings;
 
-		// calculate boost strength & step size if data given
 		var spvn = sett.zoom_val / 1.5 * deltaTime;
+		var rot = sett.rotation_val / 5000;
 		const reversed = sett.movement_type == 1;
 
 		// get targeted saturations
@@ -443,22 +452,25 @@ export class LevelHolder extends CComponent {
 		// audio stuff
 		const hasAudio = this.weas.hasAudio();
 		const flmult = (15 + sett.audio_multiplier) / 60;
+		// calculate boost strength & step size if data given
 		var lastAudio, boost, step, scaleBri, scaleSat;
 		if (hasAudio) {
-			spvn = (spvn + sett.audiozoom_val / 3) * deltaTime;
 			// get 
 			lastAudio = this.weas.lastAudio;
 			// calc audio boost
 			boost = lastAudio.intensity * flmult;
 			// calculate scale helper
-			scaleBri = (maxBri - minBri) * boost / 75;
-			scaleSat = (maxSat - minSat) * boost / 75;
+			// perceived brightness is not linear but exponential because of "additive" mixing mode!
+			// slightly lower sclaing multiplier should account for this...
+			scaleBri = (maxBri - minBri) * boost / 120;
+			scaleSat = (maxSat - minSat) * boost / 100;
 			// calculate step distance between levels
 			step = (sett.num_levels * sett.level_depth * 1.2) / 128;
 			// speed velocity calculation
-			if (sett.audiozoom_val > 0)
-				spvn += sett.zoom_val * boost / 150 + boost * sett.audiozoom_val / 200 * deltaTime;
-
+			if (sett.audiozoom_val > 0) {
+				spvn += boost * sett.audiozoom_val / 100 * deltaTime;
+				rot *= boost * sett.audiozoom_val / 200 * deltaTime;;
+			}
 		}
 
 		// speed / zoom smoothing
@@ -481,13 +493,10 @@ export class LevelHolder extends CComponent {
 		if (reversed) {
 			spvn *= -1;
 		}
-		// debug
+
+		// velocity and rotation finished
 		Smallog.Debug("Audio data: " + JSON.stringify([lastAudio, boost, step, this.speedVelocity, spvn]));
 		this.speedVelocity = spvn;
-
-		// rotation calculation
-		var rot = sett.rotation_val / 5000;
-		if (hasAudio) rot *= boost * 0.02;
 		rot *= deltaTime;
 
 		// move as many calculations out of loop as possible
@@ -503,7 +512,7 @@ export class LevelHolder extends CComponent {
 
 		// dont re-declare this shit every time... should be faster
 		// first the objects
-		var lv: number, level: Level, ss: number, prnt: Subset, hsl: THREE.HSL = { h: 0, s: 0, l: 0 };
+		var lv: number, level: Level, ss: number, prnt: Subset, hsl: HSL = { h: 0, s: 0, l: 0 };
 		// second the attributes
 		var dist, freqIdx, freqData, freqLvl, targetHue, setHue, setSat, setLight;
 
@@ -556,7 +565,7 @@ export class LevelHolder extends CComponent {
 					freqLvl = (freqData * flmult / 3) / lastAudio.average;
 					// uhoh ugly special case
 					if (color_mode == 4)
-						targetHue += (colObject.hslb - targetHue) * freqData / lastAudio.max;
+						targetHue += (colObject.hueB - targetHue) * freqData / lastAudio.max;
 					else if (color_mode == 0)
 						targetHue += freqLvl;
 					// quick maths
@@ -581,7 +590,7 @@ export class LevelHolder extends CComponent {
 						setLight += (defBri - setLight) / sixtyDelta;
 				}
 				// debug
-				Smallog.Debug("setHSL | child: " + (lv * level.sets.length + ss) + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
+				//Smallog.Debug("setHSL | child: " + (lv * level.sets.length + ss) + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
 
 				// update dat shit
 				prnt.object.material.color.setHSL(

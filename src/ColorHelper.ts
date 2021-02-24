@@ -11,15 +11,15 @@
  * 
  */
 
-import * as THREE from 'three';
+import { Color } from 'three';
 import { CComponent } from './we_utils/src/CComponent';
 
 import { CSettings } from './we_utils/src/CSettings';
 import { Smallog } from './we_utils/src/Smallog';
 
 interface ColorObject {
-	hsla: number;
-	hslb: number;
+	hueA: number;
+	hueB: number;
 	min: number;
 	max: number;
 	range: number;
@@ -42,54 +42,57 @@ export class ColorHelper extends CComponent {
 	public colorObject: ColorObject = null;
 	public hueValues: number[] = [];
 
-	// gets called when updating color picker
-	public init() {
+	// gets called after updating color picker
+	public UpdateSettings(): Promise<void> {
 		var sett = this.settings;
 		var cobj = this.colorObject = this.getColorObject();
-		Smallog.Debug("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb);
+		Smallog.Debug("initHueValues: a=" + cobj.hueA + ", b=" + cobj.hueB);
 		for (var s = 0; s < sett.num_subsets_per_level; s++) {
 			var col = Math.random(); // default: random
 			switch (sett.color_mode) {
 				// single color OR
 				// audio max = 2nd color, min = 1st color
 				case 1:
-				case 4: col = cobj.hsla; break;
+				case 4: col = cobj.hueA; break;
 				// level gradient
-				case 2: col = cobj.hsla + (s / sett.num_subsets_per_level * cobj.range); break;
+				case 2: col = cobj.hueA + (s / sett.num_subsets_per_level * cobj.range); break;
 				// random from range
-				case 3: col = cobj.hsla + (col * cobj.range); break;
+				case 3: col = cobj.hueA + (col * cobj.range); break;
 			}
 			this.hueValues[s] = col;
 		}
+		return;
 	}
 
 	// returns the processed user color object
 	private getColorObject(): ColorObject {
-		var sett = this.settings;
-		var a = this.rgbToHue(sett.user_color_a).h;
-		var b = this.rgbToHue(sett.user_color_b).h;
-		var mi = Math.min(a, b);
-		var ma = Math.max(a, b);
+		const a = this.rgbToHue(this.settings.user_color_a).h;
+		const b = this.rgbToHue(this.settings.user_color_b).h;
 		return {
-			hsla: a,
-			hslb: b,
-			min: mi,
-			max: ma,
+			hueA: a,
+			hueB: b,
+			min: Math.min(a, b),
+			max: Math.max(a, b),
 			range: b - a
 		};
 	}
 
 	// get HUE val
-	private rgbToHue(r_g_b) {
+	private rgbToHue(r_g_b: string) {
 		const arr = r_g_b.split(" ");
-		const tmp = new THREE.Color(arr[0], arr[1], arr[2]);
+		if (arr.length != 3) throw Error("Invalid color: " + r_g_b)
+		const tmp = new Color(
+			Number.parseFloat(arr[0]),
+			Number.parseFloat(arr[1]),
+			Number.parseFloat(arr[2])
+		);
 		var hsl = { h: 0, s: 0, l: 0 };
 		tmp.getHSL(hsl);
 		return hsl;
 	}
 
 	// shift hue values
-	public update(ellapsed, deltaTime) {
+	public UpdateFrame(ellapsed, deltaTime) {
 		var sett = this.settings;
 		if (sett.color_fade_speed > 0) {
 			var hueAdd = (sett.color_fade_speed / 6000) * deltaTime;

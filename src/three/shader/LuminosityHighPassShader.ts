@@ -4,7 +4,7 @@
  * Luminosity
  * http://en.wikipedia.org/wiki/Luminosity
  */
-import * as THREE from 'three';
+import { Color } from 'three';
 import { BaseShader } from './BaseShader';
 
 export class LuminosityHighPassShader implements BaseShader {
@@ -17,7 +17,7 @@ export class LuminosityHighPassShader implements BaseShader {
 		tDiffuse: { value: null },
 		luminosityThreshold: { value: 1.0 },
 		smoothWidth: { value: 1.0 },
-		defaultColor: { value: new THREE.Color(0x000000) },
+		defaultColor: { value: new Color(0x000000) },
 		defaultOpacity: { value: 0.0 }
 	};
 

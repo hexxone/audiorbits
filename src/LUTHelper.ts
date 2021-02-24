@@ -12,7 +12,7 @@
  * will locally preload the given textures and set metadata infos
  */
 
-import * as THREE from 'three';
+import { DataTexture, ImageLoader, LinearFilter, NearestFilter, RGBAFormat } from 'three';
 
 import { Smallog } from './we_utils/src/Smallog';
 
@@ -66,7 +66,7 @@ export class LUTHelper {
     }
 
     private makeLUTTexture(info) {
-        const imgLoader = new THREE.ImageLoader();
+        const imgLoader = new ImageLoader();
         const ctx = document.createElement("canvas").getContext("2d");
 
         var texture = null;
@@ -83,7 +83,7 @@ export class LUTHelper {
                 const imageData = ctx.getImageData(0, 0, width, height);
 
                 texture = this.makeIdentityLutTexture(imageData.data.buffer, width, height,
-                    info.filter ? THREE.LinearFilter : THREE.NearestFilter);
+                    info.filter ? LinearFilter : NearestFilter);
 
                 texture.needsUpdate = true;
             }, null, function (err) {
@@ -96,7 +96,7 @@ export class LUTHelper {
     }
 
     private makeIdentityLutTexture(data, wid, hig, filter) {
-        const texture = new THREE.DataTexture(data, wid, hig, THREE.RGBAFormat);
+        const texture = new DataTexture(data, wid, hig, RGBAFormat);
         texture.minFilter = filter;
         texture.magFilter = filter;
         texture.needsUpdate = true;

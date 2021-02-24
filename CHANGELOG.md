@@ -9,6 +9,9 @@
 - Add "Geometry Mode" Setting (default: Points)
 - Add Geometry Mode "Particles"
 - Add Geometry Mode "Experimental"
+- Add Geometry "Random-Seed"
+- Add Level Spiral
+- Add Low latency mode
 - improved level generation
 - shortened fade-in time and fixxed reload bar
 - when ran in browser, App will make itself available offline
