@@ -73,8 +73,7 @@ export class ContextHolder extends CComponent {
 	public settings: ContextSettings = new ContextSettings();
 
 	// html elements
-	private container = null;
-	private mainCanvas = null;
+	private mainCanvas: HTMLCanvasElement = null;
 
 	// mouse over canvas
 	private mouseX = 0;
@@ -146,27 +145,24 @@ export class ContextHolder extends CComponent {
 
 	// initialize three-js context
 	public init(): Promise<void> {
-		return new Promise(resolve => {
+		return new Promise(async resolve => {
 
-			// static element
-			this.container = document.getElementById("renderContainer");
+			// get canvas container
+			const cont = document.getElementById("renderContainer");
 
 			// destroy old context
 			if (this.renderer) this.renderer.forceContextLoss();
 			if (this.composer) this.composer.reset();
-			if (this.mainCanvas) {
-				this.container.removeChild(this.mainCanvas);
-				var cvs = document.createElement("canvas");
-				cvs.id = "mainCvs";
-				this.container.appendChild(cvs);
-			}
+			if (this.mainCanvas) cont.removeChild(this.mainCanvas);
 
 			// get canvases & contexts
 			// ensure the canvas sizes are set !!!
 			// these are independent from the style sizes
-			this.mainCanvas = document.getElementById("mainCvs");
+			this.mainCanvas = document.createElement("canvas");
+			this.mainCanvas.id = "mainCvs";
 			this.mainCanvas.width = window.innerWidth;
 			this.mainCanvas.height = window.innerHeight;
+			cont.appendChild(this.mainCanvas);
 
 			// dont use depth buffer on low quality
 			const qual = this.settings.shader_quality < 3 ? (this.settings.shader_quality < 2 ? "low" : "medium") : "high";
@@ -217,10 +213,11 @@ export class ContextHolder extends CComponent {
 			this.showMessage(document.title);
 
 			// initialize colors if not done already
-			this.colorHolder.UpdateSettings();
+			await this.colorHolder.UpdateSettings();
 			
 			// initialize main geometry
-			this.geoHolder.init(this.scene, this.camera, resolve);
+			await this.geoHolder.init(this.scene, this.camera);
+			resolve();
 		});
 	}
 
@@ -299,11 +296,11 @@ export class ContextHolder extends CComponent {
 			}
 			else Smallog.Error("not initialized!");
 			// show again
-			$("#mainCvs").addClass("show");
+			this.mainCanvas.classList.add("show");
 		}
 		else {
 			this.PAUSED = this.weicue.PAUSED = true;
-			$("#mainCvs").removeClass("show");
+			this.mainCanvas.classList.remove("show");
 		}
 	}
 
