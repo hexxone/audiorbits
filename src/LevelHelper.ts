@@ -158,7 +158,7 @@ export class LevelHolder extends CComponent {
 	}
 
 	// initialize geometry generator, data & objects
-	public async init(scene: Scene, cam: Camera, call) {
+	public async init(scene: Scene, cam: Camera) {
 		this.camera = cam;
 		var sett = this.settings;
 		// reset generator
@@ -185,7 +185,7 @@ export class LevelHolder extends CComponent {
 		}
 
 		// initialize
-		await this.initGeometries(scene, texture, call);
+		await this.initGeometries(scene, texture);
 	}
 
 	private getGeoModName() {
@@ -204,7 +204,7 @@ export class LevelHolder extends CComponent {
 	}
 
 	// create WEBGL objects for each level and subset
-	private async initGeometries(scene: Scene, texture: Texture, resolve) {
+	private async initGeometries(scene: Scene, texture: Texture) {
 		const sett = this.settings;
 		const camZ = this.camera.position.z;
 
@@ -294,7 +294,6 @@ export class LevelHolder extends CComponent {
 			this.generateLevel(l);
 		}
 		// return control flow
-		resolve();
 	}
 
 	// returns the correct object and Material for a Subset
@@ -344,10 +343,10 @@ export class LevelHolder extends CComponent {
 		const sett = new Float32Array(keys.length);
 		for (let index = 0; index < keys.length; index++) {
 			const key = keys[index];
-			// hack for easily downscaling the algorithm params
-			const mlt = key.indexOf("alg_") == 0 ? 0.1 : 1;
+			// hack for easily downscaling the algorithm params TODO
+			// const mlt = key.indexOf("alg_") == 0 ? 1 : 1;
 			// apply key value
-			sett[WasmSettings[key]] = this.settings[key] * mlt || 0;
+			sett[WasmSettings[key]] = this.settings[key] * 1 || 0;
 		}
 
 		// WRAP IN isolated Function ran inside worker
@@ -432,49 +431,47 @@ export class LevelHolder extends CComponent {
 	// move geometry
 	///////////////////////////////////////////////
 
-	public UpdateFrame(ellapsed, deltaTime) {
-		var sett = this.settings;
+	private UpdateWithAudio(ellapsed, deltaTime) {
+		const sett = this.settings;
 
-		var spvn = sett.zoom_val / 1.5 * deltaTime;
-		var rot = sett.rotation_val / 5000;
-		const reversed = sett.movement_type == 1;
-
-		// get targeted saturations
-		const defSat = sett.default_saturation / 100;
+		// calc audio boost
+		const flmult = (15 + sett.audio_multiplier) / 60;
+		const lastAudio = this.weas.lastAudio;
+		const boost = lastAudio.intensity * flmult;
+		
+		// get targeted saturation
 		const minSat = sett.minimum_saturation / 100;
 		const maxSat = sett.maximum_saturation / 100;
-		// get targeted brightness's
-		const defBri = sett.default_brightness / 100 * Math.min(5, sett.texture_size) / sett.texture_size;
+		// get targeted brightness
 		const minBri = sett.minimum_brightness / 100;
 		const maxBri = sett.maximum_brightness / 100;
 
+		// calculate scale helper
+		// perceived brightness is not linear but exponential because of "additive" mixing mode!
+		// slightly lower sclaing multiplier should account for this...
+		const scaleBri = (maxBri - minBri) * boost / 120;
+		const scaleSat = (maxSat - minSat) * boost / 100;
+		
+		// move as many calculations out of loop as possible
+		const colObject = this.colorHolder.colorObject;
+		const hues = this.colorHolder.hueValues;
+		const color_mode = this.colorHolder.settings.color_mode;
+		const camZ = this.camera.position.z;
 
-		// audio stuff
-		const hasAudio = this.weas.hasAudio();
-		const flmult = (15 + sett.audio_multiplier) / 60;
-		// calculate boost strength & step size if data given
-		var lastAudio, boost, step, scaleBri, scaleSat;
-		if (hasAudio) {
-			// get 
-			lastAudio = this.weas.lastAudio;
-			// calc audio boost
-			boost = lastAudio.intensity * flmult;
-			// calculate scale helper
-			// perceived brightness is not linear but exponential because of "additive" mixing mode!
-			// slightly lower sclaing multiplier should account for this...
-			scaleBri = (maxBri - minBri) * boost / 120;
-			scaleSat = (maxSat - minSat) * boost / 100;
-			// calculate step distance between levels
-			step = (sett.num_levels * sett.level_depth * 1.2) / 128;
-			// speed velocity calculation
-			if (sett.audiozoom_val > 0) {
-				spvn += boost * sett.audiozoom_val / 100 * deltaTime;
-				rot *= boost * sett.audiozoom_val / 200 * deltaTime;;
-			}
+		// calculate step distance between levels
+		const step = (sett.num_levels * sett.level_depth * 1.2) / 128;
+		const reversed = sett.movement_type == 1;
+
+		// speed velocity calculation
+		var spvn = sett.zoom_val / 1.5 * deltaTime;
+		var rot = sett.rotation_val / 5000;
+		if (sett.audiozoom_val > 0) {
+			spvn += boost * sett.audiozoom_val / 100 * deltaTime;
+			rot *= boost * sett.audiozoom_val / 200 * deltaTime;;
 		}
 
 		// speed / zoom smoothing
-		if (!hasAudio || sett.audiozoom_smooth) {
+		if (sett.audiozoom_smooth) {
 			var diff = spvn - this.speedVelocity;
 			var mlt = diff > 0 ? sett.audio_increase : sett.audio_decrease;
 			spvn -= diff * mlt / 300;
@@ -499,22 +496,10 @@ export class LevelHolder extends CComponent {
 		this.speedVelocity = spvn;
 		rot *= deltaTime;
 
-		// move as many calculations out of loop as possible
-		const sixtyDelta = deltaTime * 300;
-		const colObject = this.colorHolder.colorObject;
-		const hues = this.colorHolder.hueValues;
-		const color_mode = this.colorHolder.settings.color_mode;
-
-		// this is a bit hacky
-		const camZ = this.camera.position.z;
-		const orbitSize = sett.num_levels * sett.level_depth;
-		const backPos = camZ - orbitSize;
-
-		// dont re-declare this shit every time... should be faster
-		// first the objects
-		var lv: number, level: Level, ss: number, prnt: Subset, hsl: HSL = { h: 0, s: 0, l: 0 };
-		// second the attributes
-		var dist, freqIdx, freqData, freqLvl, targetHue, setHue, setSat, setLight;
+		// dont re-declare this every time
+		var lv: number, level: Level, ss: number, prnt: Subset;
+		var dist, freqIdx, freqData, freqLvl, 
+			targetHue, targetSat, targetLight;
 
 		// process all levels
 		for (lv = 0; lv < this.levels.length; lv++) {
@@ -526,79 +511,150 @@ export class LevelHolder extends CComponent {
 				// velocity & rotation
 				prnt.object.position.z += spvn;
 				prnt.object.rotation.z -= rot;
-
-				var moved = false;
-				if (prnt.object.position.z > camZ) {
-					// reset to back if behind cam
-					prnt.object.position.z -= orbitSize;
-					moved = true;
-				}
-				else if (prnt.object.position.z < backPos) {
-					// reset behind cam if too far away
-					prnt.object.position.z += orbitSize;
-					moved = true;
-				}
-				if (moved) {
-					this.moveBacks[prnt.level]++;
-					// update the child geometry only when it gets moved
-					if (prnt.hasNewData) {
-						prnt.hasNewData = false;
-						prnt.object.geometry.attributes.position.needsUpdate = true;
-					}
-					// process subset generation
-					if (Math.abs(this.moveBacks[prnt.level]) == sett.num_subsets_per_level) {
-						this.moveBacks[prnt.level] = 0;
-						this.generateLevel(prnt.level);
-					}
-				}
+				this.movedSet(prnt);
 
 				// targeted HUE
 				targetHue = Math.abs(hues[prnt.set]);
 
-				// HSL calculation with audio?
-				if (hasAudio) {
-					// use "obj"-to-"camera" distance with "step" to get "frequency" data
-					// then process it
-					dist = Math.round((camZ - prnt.object.position.z) / step);
-					freqIdx = Math.min(lastAudio.data.length, Math.max(0, dist - 2));
-					freqData = parseFloat(lastAudio.data[freqIdx]);
-					freqLvl = (freqData * flmult / 3) / lastAudio.average;
-					// uhoh ugly special case
-					if (color_mode == 4)
-						targetHue += (colObject.hueB - targetHue) * freqData / lastAudio.max;
-					else if (color_mode == 0)
-						targetHue += freqLvl;
-					// quick maths
-					setHue = targetHue;
-					setSat = minSat + freqLvl * scaleSat;
-					setLight = minBri + freqLvl * scaleBri;
-				}
-				else {
-					// get current HSL
-					prnt.object.material.color.getHSL(hsl);
-					setHue = hsl.h;
-					setSat = hsl.s;
-					setLight = hsl.l;
-					// targeted HUE
-					if (Math.abs(targetHue - setHue) > 0.01)
-						setHue += (targetHue - setHue) / sixtyDelta;
-					// targeted saturation
-					if (Math.abs(defSat - setSat) > 0.01)
-						setSat += (defSat - setSat) / sixtyDelta;
-					// targeted brightness
-					if (Math.abs(defBri - setLight) > 0.01)
-						setLight += (defBri - setLight) / sixtyDelta;
-				}
-				// debug
-				//Smallog.Debug("setHSL | child: " + (lv * level.sets.length + ss) + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
+				// use "obj"-to-"camera" distance with "step" to get "frequency" data
+				// then process it
+				dist = Math.round((camZ - prnt.object.position.z) / step);
+				freqIdx = Math.min(lastAudio.data.length, Math.max(0, dist - 2));
+				freqData = parseFloat(lastAudio.data[freqIdx]);
+				freqLvl = (freqData * flmult / 3) / lastAudio.average;
+				// uhoh ugly special case
+				if (color_mode == 4)
+					targetHue += (colObject.hueB - targetHue) * freqData / lastAudio.max;
+				else if (color_mode == 0)
+					targetHue += freqLvl;
+				// quick maths
+				targetSat = minSat + freqLvl * scaleSat;
+				targetLight = minBri + freqLvl * scaleBri;
 
 				// update dat shit
 				prnt.object.material.color.setHSL(
-					this.clamp(setHue, 0, 1, true),
-					this.clamp(setSat, 0, 1),
-					this.clamp(setLight, 0, 1));
+					this.clamp(targetHue, 0, 1, true),
+					this.clamp(targetSat, 0, 1),
+					this.clamp(targetLight, 0, 1));
 			}
 		}
+	}
+
+	private UpdateNoAudio(ellapsed, deltaTime) {
+		const sett = this.settings;
+		const reversed = sett.movement_type == 1;
+		// get targeted saturations & brightness
+		const defSat = sett.default_saturation / 100;
+		const defBri = sett.default_brightness / 100 * Math.min(5, sett.texture_size) / sett.texture_size;
+
+		var spvn = sett.zoom_val / 1.5 * deltaTime;
+		var rot = sett.rotation_val / 5000;
+
+		// speed / zoom smoothing
+		var diff = spvn - this.speedVelocity;
+		var mlt = diff > 0 ? sett.audio_increase : sett.audio_decrease;
+		spvn -= diff * mlt / 300;
+
+		switch (sett.reverse_type) {
+			case 1: // no negative zoom?
+				if (spvn < 0) spvn = 0;
+				break;
+			case 2: // convert negative zoom?
+				if (spvn < 0) spvn = Math.abs(spvn);
+				break;
+		}
+
+		// inverted movement type?
+		if (reversed) {
+			spvn *= -1;
+		}
+
+		// velocity and rotation finished
+		this.speedVelocity = spvn;
+		rot *= deltaTime;
+
+		// move as many calculations out of loop as possible
+		const sixtyDelta = deltaTime * 300;
+		const hues = this.colorHolder.hueValues;
+
+		// dont re-declare this every time... should be faster
+		var lv: number, level: Level, ss: number, prnt: Subset, hsl: HSL = { h: 0, s: 0, l: 0 }, targetHue;
+
+		// process all levels
+		for (lv = 0; lv < this.levels.length; lv++) {
+			level = this.levels[lv];
+			// process all subset childrens
+			for (ss = 0; ss < level.sets.length; ss++) {
+				prnt = level.sets[ss];
+
+				// velocity & rotation
+				prnt.object.position.z += spvn;
+				prnt.object.rotation.z -= rot;
+				this.movedSet(prnt);
+
+				// targeted HUE
+				targetHue = Math.abs(hues[prnt.set]);
+
+				// get current HSL
+				prnt.object.material.color.getHSL(hsl);
+				// targeted HUE
+				if (Math.abs(targetHue - hsl.h) > 0.01)
+					hsl.h += (targetHue - hsl.h) / sixtyDelta;
+				// targeted saturation
+				if (Math.abs(defSat - hsl.s) > 0.01)
+					hsl.s += (defSat - hsl.s) / sixtyDelta;
+				// targeted brightness
+				if (Math.abs(defBri - hsl.l) > 0.01)
+					hsl.l += (defBri - hsl.l) / sixtyDelta;
+
+				// update dat shit
+				prnt.object.material.color.setHSL(
+					this.clamp(hsl.h, 0, 1, true),
+					this.clamp(hsl.s, 0, 1),
+					this.clamp(hsl.l, 0, 1));
+			}
+		}
+	}
+
+	private movedSet(prnt: Subset) {
+
+		const camZ = this.camera.position.z;
+		const orbitSize = this.settings.num_levels * this.settings.level_depth;
+		const backPos = camZ - orbitSize;
+
+		var moved = false;
+		if (prnt.object.position.z > camZ) {
+			// reset to back if behind cam
+			prnt.object.position.z -= orbitSize;
+			moved = true;
+		}
+		else if (prnt.object.position.z < backPos) {
+			// reset behind cam if too far away
+			prnt.object.position.z += orbitSize;
+			moved = true;
+		}
+		if (moved) {
+			this.moveBacks[prnt.level]++;
+			// update the child geometry only when it gets moved
+			if (prnt.hasNewData) {
+				prnt.hasNewData = false;
+				prnt.object.geometry.attributes.position.needsUpdate = true;
+			}
+			// process subset generation
+			if (Math.abs(this.moveBacks[prnt.level]) == this.settings.num_subsets_per_level) {
+				this.moveBacks[prnt.level] = 0;
+				this.generateLevel(prnt.level);
+			}
+		}
+	}
+
+
+	public UpdateFrame(ellapsed, deltaTime) {
+
+		if (this.weas.hasAudio())
+			this.UpdateWithAudio(ellapsed, deltaTime);
+		else
+			this.UpdateNoAudio(ellapsed, deltaTime);
 
 		// randomly do one after-render-aqction
 		// yes this is intended: "()()"
