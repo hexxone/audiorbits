@@ -19,7 +19,13 @@ body {
     height: 100vh;
 }
 
+.show {
+    opacity: 1;
+    transition: 2s ease;
+}
+
 #img_back, #img_over {
+    opacity: 0;
     position: absolute;
     transition: 2s;
     left: 0;
@@ -43,7 +49,7 @@ body {
 }
 
 #mainCvs {
-    opacity: 0;
+    opacity: 0.1;
     transition: opacity 3s ease;
 }
 #mainCvs.show {
@@ -52,13 +58,9 @@ body {
 }
 
 #debugwnd {
+    opacity: 0;
     transition: 0s;
     position: absolute;
     right: 0;
-    opacity: 0;
     color: red;
-}
-#debugwnd.show {
-    opacity: 1;
-    transition: 2s ease;
 }

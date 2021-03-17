@@ -47,6 +47,7 @@ export class ColorHelper extends CComponent {
 		var sett = this.settings;
 		var cobj = this.colorObject = this.getColorObject();
 		Smallog.Debug("initHueValues: a=" + cobj.hueA + ", b=" + cobj.hueB);
+		this.hueValues = [];
 		for (var s = 0; s < sett.num_subsets_per_level; s++) {
 			var col = Math.random(); // default: random
 			switch (sett.color_mode) {

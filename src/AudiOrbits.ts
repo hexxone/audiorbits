@@ -189,9 +189,9 @@ export class AudiOrbits extends CComponent {
 
 		// Custom user images
 		if (props.img_background)
-			this.setImgSrc("#img_back", props.img_background.value);
+			this.setImgSrc("img_back", props.img_background.value);
 		if (props.img_overlay)
-			this.setImgSrc("#img_over", props.img_overlay.value);
+			this.setImgSrc("img_over", props.img_overlay.value);
 
 		// have render-relevant settings been changed?
 		return reInitFlag;
@@ -203,12 +203,14 @@ export class AudiOrbits extends CComponent {
 
 	// Set Image
 	private setImgSrc(imgID: string, srcVal: string) {
-		$(imgID).fadeOut(1000, () => {
-			if (srcVal && srcVal !== "") {
-				$(imgID).attr("src", "file:///" + srcVal);
-				$(imgID).fadeIn(1000);
-			}
-		});
+		const elmt = document.getElementById(imgID);
+		elmt.classList.remove("show");
+		if(!srcVal) return;
+		setTimeout(() => {
+			// "file:///" +
+			elmt.setAttribute("src", srcVal);
+			elmt.classList.add("show");
+		}, 1000);
 	}
 
 	// TODO
@@ -225,8 +227,9 @@ export class AudiOrbits extends CComponent {
 				this.debugTimeout = setTimeout(() => this.applyCustomProps({ debugging: { value: false } }), 1000 * 60);
 
 			// update visibility
-			if (this.settings.debugging) document.getElementById("debugwnd").classList.add("show");
-			else document.getElementById("debugwnd").classList.remove("show");
+			const dbgWnd = document.getElementById("debugwnd")
+			if (this.settings.debugging) dbgWnd.classList.add("show");
+			else dbgWnd.classList.remove("show");
 
 			resolve();
 		});
@@ -251,7 +254,7 @@ export class AudiOrbits extends CComponent {
 	public reInitSystem() {
 		Smallog.Info("re-initializing...");
 		// hide reloader
-		this.reloadHelper.Hide();
+		this.reloadHelper.Show(false);
 		// kill intervals
 		clearInterval(this.swirlInterval);
 		this.swirlStep = 0;
@@ -267,8 +270,8 @@ export class AudiOrbits extends CComponent {
 			// start auto parallax handler
 			this.swirlInterval = setInterval(() => this.swirlHandler(), 1000 / 60);
 			// start rendering
-			this.ctxHolder.setRenderer(true);
 			this.state = RunState.Running;
+			this.ctxHolder.setRenderer(true);
 			// print
 			Smallog.Info("initializing complete.");
 		});

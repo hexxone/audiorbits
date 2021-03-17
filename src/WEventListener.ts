@@ -14,7 +14,7 @@
  */
 
 import { AudiOrbits, RunState } from './AudiOrbits';
-import { Ready } from './we_utils/src/Ready';
+import { Ready } from './we_utils/src/Util';
 import { Smallog } from './we_utils/src/Smallog';
 
 export default class WEventListener {
@@ -42,7 +42,7 @@ export default class WEventListener {
             if (this.ao.resetTimeout) clearTimeout(this.ao.resetTimeout);
             this.ao.resetTimeout = setTimeout(() => this.ao.reInitSystem(), this.ao.resetTimespan * 1000);
             // show reloader
-            this.ao.reloadHelper.Show();
+            this.ao.reloadHelper.Show(true);
             // stop frame animation
             this.ao.ctxHolder.setRenderer(false);
         }
