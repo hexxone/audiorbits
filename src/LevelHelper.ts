@@ -1,37 +1,40 @@
+
 /**
- * @author D.Thiele @https://hexx.one
- *
- * @license
- * Copyright (c) 2020 D.Thiele All rights reserved.  
- * Licensed under the GNU GENERAL PUBLIC LICENSE.
- * See LICENSE file in the project root for full license information.  
- * 
- * @description
- * Contains and updates the Geometry for AudiOrbits.
- * 
- * @todo
- * - customize hue/color audio influence (slider)
- * - implement particle system
- * - implement ps4 experiment
- * - implement cloud experiment
- * 
- * - experimental: set buffergeometry drawrange on audio?
- * 
- * - add material side "both" switch for vr
- * - test other blending modes
- */
+* @author hexxone / https://hexx.one
+*
+* @license
+* Copyright (c) 2021 hexxone All rights reserved.
+* Licensed under the GNU GENERAL PUBLIC LICENSE.
+* See LICENSE file in the project root for full license information.
+*
+* @description
+* Contains and updates the Geometry for AudiOrbits.
+*
+* @todo
+* - customize hue/color audio influence (slider)
+* - implement particle system
+* - implement ps4 experiment
+* - implement cloud experiment
+*
+* - experimental: set buffergeometry drawrange on audio?
+*
+* - add material side "both" switch for vr
+* - test other blending modes
+*/
+/* eslint-disable no-unused-vars */
 
-import { AdditiveBlending, BufferAttribute, BufferGeometry, Camera, Color, HSL, LineBasicMaterial, LineSegments, Material, Object3D, Points, PointsMaterial, Scene, Texture, TextureLoader } from 'three';
+import {AdditiveBlending, BufferAttribute, BufferGeometry, Camera, Color, HSL, LineBasicMaterial, LineSegments, Material, Object3D, Points, PointsMaterial, Scene, Texture, TextureLoader} from 'three';
 
-import { ASUtil } from '@assemblyscript/loader';
+import {ASUtil} from '@assemblyscript/loader';
 
-import { ColorHelper } from './ColorHelper';
-import { WEAS } from './we_utils/src/weas/WEAS';
-import { Smallog } from './we_utils/src/Smallog';
-import { CSettings } from "./we_utils/src/CSettings";
-import { CComponent } from './we_utils/src/CComponent';
+import {ColorHelper} from './ColorHelper';
+import {WEAS} from './we_utils/src/WEAS';
+import {Smallog} from './we_utils/src/Smallog';
+import {CSettings} from './we_utils/src/CSettings';
+import {CComponent} from './we_utils/src/CComponent';
 
-import wascWorker from './we_utils/src/wasc-worker';
+import wascWorker from './we_utils/src/wasc-worker/WascWorker';
+import {WascInterface} from './we_utils/src/wasc-worker/WascInterface';
 
 interface Level {
 	level: number;
@@ -45,11 +48,17 @@ interface Subset {
 	set: number;
 }
 
+/**
+* Custom object helper
+*/
 class T3Object extends Object3D {
 	geometry: BufferGeometry & { attributes: { position: BufferAttribute } };
 	material: Material & { color: Color };
 }
 
+/**
+* Level generator settings
+*/
 class LevelSettings extends CSettings {
 	geometry_type: number = 0;
 	num_levels: number = 6;
@@ -126,8 +135,10 @@ enum WasmSettings {
 	real_seed = 16,
 }
 
+/**
+* Main Geometry component
+*/
 export class LevelHolder extends CComponent {
-
 	public settings: LevelSettings = new LevelSettings();
 
 	// main orbit data
@@ -136,51 +147,60 @@ export class LevelHolder extends CComponent {
 	// speed smoothing helper
 	private speedVelocity = 0;
 
-	// generator holder
-	private levelBuilder: any = null;
-
-	// color holder
-	private colorHolder: ColorHelper = new ColorHelper();
-
 	// keep camera position for moving subsets around
 	private camera: Camera = null;
 
 	// actions to perform after render
 	private afterRenderQueue = [];
 
+	// generator holder
+	private levelBuilder: WascInterface = null;
+
+	// color holder
+	private colorHolder: ColorHelper = null;
 	// audio provider
 	private weas: WEAS = null;
 
-	constructor(weas: WEAS) {
+	/**
+	 * construct component
+	 * @param {ColorHelper} colorHolder color provider
+	 * @param {WEAS} weas audio provider
+	 */
+	constructor(colorHolder: ColorHelper, weas: WEAS) {
 		super();
+		this.colorHolder = colorHolder;
 		this.weas = weas;
 		this.children.push(this.colorHolder);
 	}
 
-	// initialize geometry generator, data & objects
+	/**
+	 * initialize geometry generator, data & objects
+	 * @param {Scene} scene parent
+	 * @param {Camera} cam renderer
+	 */
 	public async init(scene: Scene, cam: Camera) {
 		this.camera = cam;
-		var sett = this.settings;
+		const sett = this.settings;
 		// reset generator
 		this.afterRenderQueue = [];
 
 		// setup fractal generator -> get exported functions
 		this.levelBuilder = await wascWorker(this.getGeoModName());
-		await this.UpdateSettings();
+		await this.updateSettings();
 
 		// assert
-		if (this.levelBuilder) Smallog.Debug("Got Level Builder!")
-		else Smallog.Error("Could not create WebAssembly Level Builder! [Null-Object]");
+		if (this.levelBuilder) Smallog.debug('Got Level Builder!');
+		else Smallog.Error('Could not create WebAssembly Level Builder! [Null-Object]');
 
 		// reset rendering
 		this.speedVelocity = 0;
 
 		// load texture sync and init geometry
-		var texture: Texture = null;
+		let texture: Texture = null;
 		if (sett.geometry_type == 0) {
 			// get texture path
 			const texPth = this.getBaseTexPath();
-			Smallog.Debug("loading Texture: " + texPth);
+			Smallog.debug('loading Texture: ' + texPth);
 			texture = new TextureLoader().load(texPth);
 		}
 
@@ -188,27 +208,39 @@ export class LevelHolder extends CComponent {
 		await this.initGeometries(scene, texture);
 	}
 
+	/**
+	* Get Web-assembly module path/name for given geometry type
+	* @return {string} path
+	*/
 	private getGeoModName() {
 		switch (this.settings.geometry_type) {
-			case 0: return "FractalGeometry.wasm";
-			case 1: return "BasicGeometry.wasm";
+		case 0: return 'FractalGeometry.wasm';
+		case 1: return 'BasicGeometry.wasm';
 		}
 	}
 
+	/**
+	* Get Base-texture path
+	* @return {string} path
+	*/
 	private getBaseTexPath() {
 		switch (this.settings.base_texture) {
-			case 0: return "./img/galaxy.png";
-			case 1: return "./img/cuboid.png";
-			case 2: return "./img/fractal.png";
+		case 0: return './img/galaxy.png';
+		case 1: return './img/cuboid.png';
+		case 2: return './img/fractal.png';
 		}
 	}
 
-	// create WEBGL objects for each level and subset
+	/**
+	* create WEBGL objects for each level and subset
+	* @param {Scene} scene sc
+	* @param {Texture} texture tx
+	*/
 	private async initGeometries(scene: Scene, texture: Texture) {
 		const sett = this.settings;
 		const camZ = this.camera.position.z;
 
-		Smallog.Debug("building geometries.");
+		Smallog.debug('building geometries.');
 
 		// reset Orbit data
 		this.levels = new Array<Level>(sett.num_levels);
@@ -222,22 +254,21 @@ export class LevelHolder extends CComponent {
 		const deg45rad = 0.785398;
 
 		// create levels
-		for (var l = 0; l < sett.num_levels; l++) {
+		for (let l = 0; l < sett.num_levels; l++) {
 			// create level object
 			this.levels[l] = {
 				level: l,
-				sets: []
+				sets: [],
 			};
 
 			const lDist = camZ - sett.level_depth * l;
 			// create all subsets
-			for (var s = 0; s < sett.num_subsets_per_level; s++) {
-
+			for (let s = 0; s < sett.num_subsets_per_level; s++) {
 				// create particle geometry from orbit vertex data
 				const geometry = new BufferGeometry();
 				// position attribute (2 vertices per point, thats pretty illegal)
 				geometry.setAttribute('position',
-					new BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2)
+					new BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2),
 				);
 
 				// make the correct object and material for current settinfs
@@ -255,15 +286,14 @@ export class LevelHolder extends CComponent {
 					object.position.z = lDist - (s * subsetDist * 2);
 					// offset every 2nd subset
 					if (l % 2 != 0) object.position.z -= subsetDist;
-				}
-				else object.position.z = lDist - (s * subsetDist);
+				} else object.position.z = lDist - (s * subsetDist);
 
-				// TODO TEST
+				// TODO move this to webassembly
 				if (sett.level_spiralize) {
 					// split angle across subset and regard previous rotation, lel why not
 					object.rotation.z = - (l * deg45rad + (s * deg45rad / sett.num_subsets_per_level));
 				}
-				//else object.rotation.z = -deg45rad;
+				// else object.rotation.z = -deg45rad;
 
 				// add to scene
 				scene.add(object);
@@ -271,14 +301,14 @@ export class LevelHolder extends CComponent {
 					hasNewData: false,
 					object: object,
 					level: l,
-					set: s
-				}
+					set: s,
+				};
 			}
 		}
 
 		// trigger level generation once
 		const firstWait: Promise<void>[] = [];
-		for (var l = 0; l < sett.num_levels; l++) {
+		for (let l = 0; l < sett.num_levels; l++) {
 			firstWait.push(this.generateLevel(l));
 		}
 		// wait for all generators to finish
@@ -290,15 +320,20 @@ export class LevelHolder extends CComponent {
 		}
 
 		// generate standby data for first move-back
-		for (var l = 0; l < sett.num_levels; l++) {
+		for (let l = 0; l < sett.num_levels; l++) {
 			this.generateLevel(l);
 		}
 		// return control flow
 	}
 
-	// returns the correct object and Material for a Subset
+	/**
+	 * returns the correct object and Material for a Subset
+	 * @param {BufferGeometry} geometry
+	 * @param {Texture} texture
+	 * @return {Object}
+	 */
 	private getSubsetObject(geometry, texture): T3Object {
-		var object, material;
+		let object; let material;
 
 		// default fractal geometry
 		if (this.settings.geometry_type == 0) {
@@ -308,14 +343,12 @@ export class LevelHolder extends CComponent {
 				size: this.settings.texture_size,
 				blending: AdditiveBlending,
 				depthTest: false,
-				transparent: true
+				transparent: true,
 			});
 			// create particle system from geometry and material
 			object = new Points(geometry, material);
-		}
-
-		// line geometry type
-		else if (this.settings.geometry_type == 1) {
+		} else if (this.settings.geometry_type == 1) {
+			// line geometry type
 			material = new LineBasicMaterial({
 				linewidth: this.settings.texture_size,
 			});
@@ -323,14 +356,24 @@ export class LevelHolder extends CComponent {
 			object = new LineSegments(geometry, material);
 		}
 
+		// Disable bounding Box generation
+		// Stops these errors:
+		// THREE.BufferGeometry.computeBoundingSphere(): Computed radius is NaN. The "position" attribute is likely to have NaN values.
+		// See here: https://github.com/mrdoob/three.js/issues/19735
+		object.frustumCulled = false;
+
 		return object;
 	}
 
-	///////////////////////////////////////////////
+	// /////////////////////////////////////////////
 	// FRACTAL GENERATOR
-	///////////////////////////////////////////////
+	// /////////////////////////////////////////////
 
-	public UpdateSettings(): Promise<void> {
+	/**
+	 * Sends the numeric worker settings to webassembly
+	 * @return {Promise} finished event
+	 */
+	public updateSettings(): Promise<void> {
 		// CAVEAT: only available after init and module load
 		if (!this.levelBuilder) return;
 
@@ -338,7 +381,7 @@ export class LevelHolder extends CComponent {
 		this.settings.real_seed = this.getSeed();
 
 		// transfer settings to worker
-		var keys = Object.keys(WasmSettings);
+		let keys = Object.keys(WasmSettings);
 		keys = keys.slice(keys.length / 2);
 		const sett = new Float32Array(keys.length);
 		for (let index = 0; index < keys.length; index++) {
@@ -350,10 +393,10 @@ export class LevelHolder extends CComponent {
 		}
 
 		// WRAP IN isolated Function ran inside worker
-		const { run } = this.levelBuilder;
-		return run(({ module, instance, importObject, params }) => {
-			const { exports } = instance;
-			const { data } = params[0];
+		const {run} = this.levelBuilder;
+		return run(({module, instance, importObject, params}) => {
+			const {exports} = instance;
+			const {data} = params[0];
 			const io = importObject as ASUtil;
 			// get the direct view from the module memory and set the new buffer data
 			io.__getFloat32ArrayView(exports.levelSettings).set(data);
@@ -361,32 +404,38 @@ export class LevelHolder extends CComponent {
 			exports.update();
 		}, {
 			// Data passed to worker
-			data: sett
+			data: sett,
 		}).then(() => {
-			Smallog.Debug("Sent Settings to Generator: " + JSON.stringify(sett));
+			Smallog.debug('Sent Settings to Generator: ' + JSON.stringify(sett));
 		});
 	}
 
-	// returns randomized or predefined random-seed
+	/**
+	 * Get randomized or predefined random-seed
+	 * @return {number} seed [0-233279]
+	 */
 	private getSeed(): number {
 		if (this.settings.random_seed < 1) {
 			const useed = Math.floor(Math.random() * 233279);
-			Smallog.Info("Using random seed: " + useed);
+			Smallog.info('Using random seed: ' + useed);
 			return useed;
-		}
-		else return Math.abs(this.settings.random_seed) % 233280;
+		} else return Math.abs(this.settings.random_seed) % 233280;
 	}
 
-	// queue worker event
+	/**
+	 * send worker event for generating a level
+	 * @param {number} level for what we are generating
+	 * @return {Promise} finiished event
+	 */
 	private generateLevel(level): Promise<void> {
-		Smallog.Debug("generating level: " + level);
+		Smallog.debug('generating level: ' + level);
 
 		const start = performance.now();
-		const { run } = this.levelBuilder;
+		const {run} = this.levelBuilder;
 		// isolated Function ran inside worker
-		return run(({ module, instance, importObject, params }) => {
-			const { exports } = instance;
-			const { level } = params[0];
+		return run(({module, instance, importObject, params}) => {
+			const {exports} = instance;
+			const {level} = params[0];
 			const io = importObject as ASUtil;
 			// assembly level Building
 			// returns pointer to int32-array with float-references
@@ -396,11 +445,11 @@ export class LevelHolder extends CComponent {
 			// gather transferrable float-arrays
 			const resultObj = {};
 			// we make a hard-copy of the buffer so the data doesnt get lost.
-			setPtrs.forEach((ptr, i) => resultObj["set_" + i] = new Float32Array(io.__getFloat32ArrayView(ptr)));
+			setPtrs.forEach((ptr, i) => resultObj['set_' + i] = new Float32Array(io.__getFloat32ArrayView(ptr)));
 			return resultObj;
 		}, {
 			// Data passed to worker
-			level: level
+			level: level,
 
 		}).then((result) => {
 			// worker result, back in main context
@@ -411,34 +460,36 @@ export class LevelHolder extends CComponent {
 				// apply actual last Data from worker
 				this.afterRenderQueue.push(() => {
 					// get & set xyzBuffer data, then update child
-					const data = new Float32Array(result["set_" + s]);
+					const data = new Float32Array(result['set_' + s]);
 					subbs[s].object.geometry.attributes.position.set(data, 0);
 					subbs[s].hasNewData = true;
 				});
 			}
 			// print info
-			Smallog.Debug("Generated Level=" + level + ", Time= " + (performance.now() - start));
-			return true;
-
-		}).catch(e => {
-			Smallog.Error("Generate Error at Level='" + level + "', Msg='" + e.toString() + "'");
-			return false;
+			Smallog.debug('Generated Level=' + level + ', Time= ' + (performance.now() - start));
+		}).catch((e) => {
+			Smallog.Error('Generate Error at Level=\'' + level + '\', Msg=\'' + e.toString() + '\'');
 		});
 	}
 
 
-	///////////////////////////////////////////////
+	// /////////////////////////////////////////////
 	// move geometry
-	///////////////////////////////////////////////
+	// /////////////////////////////////////////////
 
-	private UpdateWithAudio(ellapsed, deltaTime) {
+	/**
+	 * Update position & color with audio data
+	 * @param {number} ellapsed ms
+	 * @param {number} deltaTime multiplier
+	 */
+	private updateWithAudio(ellapsed, deltaTime) {
 		const sett = this.settings;
 
 		// calc audio boost
-		const flmult = (15 + sett.audio_multiplier) / 60;
+		const flmult = (15 + sett.audio_multiplier) / 120;
 		const lastAudio = this.weas.lastAudio;
 		const boost = lastAudio.intensity * flmult;
-		
+
 		// get targeted saturation
 		const minSat = sett.minimum_saturation / 100;
 		const maxSat = sett.maximum_saturation / 100;
@@ -451,7 +502,7 @@ export class LevelHolder extends CComponent {
 		// slightly lower sclaing multiplier should account for this...
 		const scaleBri = (maxBri - minBri) * boost / 120;
 		const scaleSat = (maxSat - minSat) * boost / 100;
-		
+
 		// move as many calculations out of loop as possible
 		const colObject = this.colorHolder.colorObject;
 		const hues = this.colorHolder.hueValues;
@@ -463,27 +514,27 @@ export class LevelHolder extends CComponent {
 		const reversed = sett.movement_type == 1;
 
 		// speed velocity calculation
-		var spvn = sett.zoom_val / 1.5 * deltaTime;
-		var rot = sett.rotation_val / 5000;
+		let spvn = sett.zoom_val / 2 * deltaTime;
+		let rot = sett.rotation_val / 5000;
 		if (sett.audiozoom_val > 0) {
 			spvn += boost * sett.audiozoom_val / 100 * deltaTime;
-			rot *= boost * sett.audiozoom_val / 200 * deltaTime;;
+			rot *= boost * sett.audiozoom_val / 200 * deltaTime; ;
 		}
 
 		// speed / zoom smoothing
 		if (sett.audiozoom_smooth) {
-			var diff = spvn - this.speedVelocity;
-			var mlt = diff > 0 ? sett.audio_increase : sett.audio_decrease;
+			const diff = spvn - this.speedVelocity;
+			const mlt = diff > 0 ? sett.audio_increase : sett.audio_decrease;
 			spvn -= diff * mlt / 300;
 		}
 
 		switch (sett.reverse_type) {
-			case 1: // no negative zoom?
-				if (spvn < 0) spvn = 0;
-				break;
-			case 2: // convert negative zoom?
-				if (spvn < 0) spvn = Math.abs(spvn);
-				break;
+		case 1: // no negative zoom?
+			if (spvn < 0) spvn = 0;
+			break;
+		case 2: // convert negative zoom?
+			if (spvn < 0) spvn = Math.abs(spvn);
+			break;
 		}
 
 		// inverted movement type?
@@ -492,14 +543,14 @@ export class LevelHolder extends CComponent {
 		}
 
 		// velocity and rotation finished
-		Smallog.Debug("Audio data: " + JSON.stringify([lastAudio, boost, step, this.speedVelocity, spvn]));
+		// Smallog.debug('Audio data: ' + JSON.stringify([lastAudio, boost, step, this.speedVelocity, spvn]));
 		this.speedVelocity = spvn;
 		rot *= deltaTime;
 
 		// dont re-declare this every time
-		var lv: number, level: Level, ss: number, prnt: Subset;
-		var dist, freqIdx, freqData, freqLvl, 
-			targetHue, targetSat, targetLight;
+		let lv: number; let level: Level; let ss: number; let prnt: Subset;
+		let dist; let freqIdx; let freqData; let freqLvl;
+		let targetHue; let targetSat; let targetLight;
 
 		// process all levels
 		for (lv = 0; lv < this.levels.length; lv++) {
@@ -523,45 +574,54 @@ export class LevelHolder extends CComponent {
 				freqData = parseFloat(lastAudio.data[freqIdx]);
 				freqLvl = (freqData * flmult / 3) / lastAudio.average;
 				// uhoh ugly special case
-				if (color_mode == 4)
+				if (color_mode == 4) {
 					targetHue += (colObject.hueB - targetHue) * freqData / lastAudio.max;
-				else if (color_mode == 0)
+				} else if (color_mode == 0) {
 					targetHue += freqLvl;
+				}
 				// quick maths
 				targetSat = minSat + freqLvl * scaleSat;
-				targetLight = minBri + freqLvl * scaleBri;
+				targetLight = minBri + freqLvl * scaleBri / 1.69;
 
 				// update dat shit
 				prnt.object.material.color.setHSL(
 					this.clamp(targetHue, 0, 1, true),
 					this.clamp(targetSat, 0, 1),
-					this.clamp(targetLight, 0, 1));
+					this.clamp(targetLight, 0, 0.8));
+
+				// @TODO TEST
+				(prnt.object.material as PointsMaterial).size = this.settings.texture_size * (0.4 + Math.abs(freqLvl) / 2);
 			}
 		}
 	}
 
-	private UpdateNoAudio(ellapsed, deltaTime) {
+	/**
+	 * Update position & color without audio
+	 * @param {number} ellapsed ms
+	 * @param {number} deltaTime multiplier
+	 */
+	private updateNoAudio(ellapsed, deltaTime) {
 		const sett = this.settings;
 		const reversed = sett.movement_type == 1;
 		// get targeted saturations & brightness
 		const defSat = sett.default_saturation / 100;
 		const defBri = sett.default_brightness / 100 * Math.min(5, sett.texture_size) / sett.texture_size;
 
-		var spvn = sett.zoom_val / 1.5 * deltaTime;
-		var rot = sett.rotation_val / 5000;
+		let spvn = sett.zoom_val / 1.5 * deltaTime;
+		let rot = sett.rotation_val / 5000;
 
 		// speed / zoom smoothing
-		var diff = spvn - this.speedVelocity;
-		var mlt = diff > 0 ? sett.audio_increase : sett.audio_decrease;
+		const diff = spvn - this.speedVelocity;
+		const mlt = diff > 0 ? sett.audio_increase : sett.audio_decrease;
 		spvn -= diff * mlt / 300;
 
 		switch (sett.reverse_type) {
-			case 1: // no negative zoom?
-				if (spvn < 0) spvn = 0;
-				break;
-			case 2: // convert negative zoom?
-				if (spvn < 0) spvn = Math.abs(spvn);
-				break;
+		case 1: // no negative zoom?
+			if (spvn < 0) spvn = 0;
+			break;
+		case 2: // convert negative zoom?
+			if (spvn < 0) spvn = Math.abs(spvn);
+			break;
 		}
 
 		// inverted movement type?
@@ -578,7 +638,7 @@ export class LevelHolder extends CComponent {
 		const hues = this.colorHolder.hueValues;
 
 		// dont re-declare this every time... should be faster
-		var lv: number, level: Level, ss: number, prnt: Subset, hsl: HSL = { h: 0, s: 0, l: 0 }, targetHue;
+		let lv: number; let level: Level; let ss: number; let prnt: Subset; const hsl: HSL = {h: 0, s: 0, l: 0}; let targetHue;
 
 		// process all levels
 		for (lv = 0; lv < this.levels.length; lv++) {
@@ -598,37 +658,45 @@ export class LevelHolder extends CComponent {
 				// get current HSL
 				prnt.object.material.color.getHSL(hsl);
 				// targeted HUE
-				if (Math.abs(targetHue - hsl.h) > 0.01)
+				if (Math.abs(targetHue - hsl.h) > 0.01) {
 					hsl.h += (targetHue - hsl.h) / sixtyDelta;
+				}
 				// targeted saturation
-				if (Math.abs(defSat - hsl.s) > 0.01)
+				if (Math.abs(defSat - hsl.s) > 0.01) {
 					hsl.s += (defSat - hsl.s) / sixtyDelta;
+				}
 				// targeted brightness
-				if (Math.abs(defBri - hsl.l) > 0.01)
+				if (Math.abs(defBri - hsl.l) > 0.01) {
 					hsl.l += (defBri - hsl.l) / sixtyDelta;
+				}
 
 				// update dat shit
 				prnt.object.material.color.setHSL(
 					this.clamp(hsl.h, 0, 1, true),
 					this.clamp(hsl.s, 0, 1),
 					this.clamp(hsl.l, 0, 1));
+
+				// @todo
+				(prnt.object.material as PointsMaterial).size = this.settings.texture_size;
 			}
 		}
 	}
 
+	/**
+	 * Check if a Subset has to be moved back or forth
+	 * @param {Subset} prnt Object to check
+	 */
 	private movedSet(prnt: Subset) {
-
 		const camZ = this.camera.position.z;
 		const orbitSize = this.settings.num_levels * this.settings.level_depth;
 		const backPos = camZ - orbitSize;
 
-		var moved = false;
+		let moved = false;
 		if (prnt.object.position.z > camZ) {
 			// reset to back if behind cam
 			prnt.object.position.z -= orbitSize;
 			moved = true;
-		}
-		else if (prnt.object.position.z < backPos) {
+		} else if (prnt.object.position.z < backPos) {
 			// reset behind cam if too far away
 			prnt.object.position.z += orbitSize;
 			moved = true;
@@ -648,28 +716,40 @@ export class LevelHolder extends CComponent {
 		}
 	}
 
-
-	public UpdateFrame(ellapsed, deltaTime) {
-
-		if (this.weas.hasAudio())
-			this.UpdateWithAudio(ellapsed, deltaTime);
-		else
-			this.UpdateNoAudio(ellapsed, deltaTime);
+	/**
+	 * Update managing function
+	 * @param {number} ellapsed ms
+	 * @param {number} deltaTime multiplier ~1
+	 */
+	public updateFrame(ellapsed, deltaTime) {
+		if (this.weas.hasAudio()) {
+			this.updateWithAudio(ellapsed, deltaTime);
+		} else {
+			this.updateNoAudio(ellapsed, deltaTime);
+		}
 
 		// randomly do one after-render-aqction
 		// yes this is intended: "()()"
 		if (this.afterRenderQueue.length > 0) {
-			if (this.speedVelocity > 5 || Math.random() > 0.4)
+			if (this.speedVelocity > 5 || Math.random() > 0.4) {
 				this.afterRenderQueue.shift()();
+			}
 		}
 	}
 
-	// correct colors to be safe
+	/**
+	 * correct colors to be safe
+	 * @param {number} val Origin value
+	 * @param {number} min Minimum allowed
+	 * @param {number} max Maximum allowed
+	 * @param {boolean} goround Wrap around, instead of limiting?
+	 * @return {number} corrected value
+	 */
 	private clamp(val: number, min: number, max: number, goround = false) {
 		if (goround) {
 			if (val < min) return max - val;
 			return val % max;
-		}
-		else return Math.max(Math.min(val, max), min);
+		} else return Math.max(Math.min(val, max), min);
 	}
 }
+

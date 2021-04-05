@@ -1,14 +1,15 @@
 /**
- * @author mrdoob / http://mrdoob.com
- * @author Mugen87 / https://github.com/Mugen87
- */
+* @author mrdoob / http://mrdoob.com
+* @author Mugen87 / https://github.com/Mugen87
+*/
+/* eslint-disable require-jsdoc */
 
 export class VRButton {
-
 	createButton(renderer) {
-		function showEnterVR( /*device*/) {
+		let button = null;
 
-			var currentSession = null;
+		function showEnterVR( /* device*/) {
+			let currentSession = null;
 
 			function onSessionStarted(session) {
 				session.addEventListener('end', onSessionEnded);
@@ -17,7 +18,7 @@ export class VRButton {
 				currentSession = session;
 			}
 
-			function onSessionEnded( /*event*/) {
+			function onSessionEnded( /* event*/) {
 				currentSession.removeEventListener('end', onSessionEnded);
 				button.textContent = 'ENTER VR';
 				currentSession = null;
@@ -30,15 +31,15 @@ export class VRButton {
 
 			button.textContent = 'ENTER VR';
 
-			button.onmouseenter = function () {
+			button.onmouseenter = function() {
 				button.style.opacity = '1.0';
 			};
 
-			button.onmouseleave = function () {
+			button.onmouseleave = function() {
 				button.style.opacity = '0.5';
 			};
 
-			button.onclick = function () {
+			button.onclick = function() {
 				if (currentSession === null) {
 					// WebXR's requestReferenceSpace only works if the corresponding feature
 					// was requested at session creation time. For simplicity, just ask for
@@ -46,7 +47,7 @@ export class VRButton {
 					// requestReferenceSpace call will fail if it turns out to be unavailable.
 					// ('local' is always available for immersive sessions and doesn't need to
 					// be requested separately.)
-					var sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor'] };
+					const sessionInit = {optionalFeatures: ['local-floor', 'bounded-floor']};
 					navigator['xr'].requestSession('immersive-vr', sessionInit).then(onSessionStarted);
 				} else {
 					currentSession.end();
@@ -86,22 +87,19 @@ export class VRButton {
 		}
 
 		if ('xr' in navigator) {
-
-			var button = document.createElement('button');
+			button = document.createElement('button');
 			button.style.display = 'none';
 
 			stylizeElement(button);
 
-			var nav = navigator as any;
-			nav['xr'].isSessionSupported('immersive-vr').then(function (supported) {
+			const nav = navigator as any;
+			nav['xr'].isSessionSupported('immersive-vr').then(function(supported) {
 				supported ? showEnterVR() : showWebXRNotFound();
 			});
 
 			return button;
-
 		} else {
-
-			var message = document.createElement('a');
+			const message = document.createElement('a');
 
 			if (window.isSecureContext === false) {
 				message.href = document.location.href.replace(/^http:/, 'https:');
@@ -112,8 +110,8 @@ export class VRButton {
 			}
 
 			// @todo set afterwards
-			//message.style.left = 'calc(50% - 90px)';
-			//message.style.width = '180px';
+			// message.style.left = 'calc(50% - 90px)';
+			// message.style.width = '180px';
 			message.style.textDecoration = 'none';
 			stylizeElement(message);
 			return message;

@@ -1,0 +1,25 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": [
+        "google"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "linebreak-style": 0,
+        "camelcase": 0,
+        "no-tabs": 0,
+        "max-len": 0,
+		"indent": [1, "tab"],
+		"require-jsdoc": 1,
+		"valid-jsdoc": 1
+    }
+}

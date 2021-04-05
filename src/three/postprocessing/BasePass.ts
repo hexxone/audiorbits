@@ -1,5 +1,7 @@
 /**
- * @author D.Thiele @https://hexx.one
+ * @author alteredq / http://alteredqualia.com/
+ *
+ * @author hexxone / https://hexx.one
  */
 
 export interface BasePass {

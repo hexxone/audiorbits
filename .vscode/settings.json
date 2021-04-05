@@ -1,0 +1,20 @@
+{
+	"editor.codeActionsOnSave": {
+        "source.fixAll": true
+    },
+	"tslint.enable": false,
+	"prettier.eslintIntegration": false,
+    "eslint.lintTask.enable": true,
+	"eslint.debug": true,
+    "eslint.packageManager": "yarn",
+	"eslint.workingDirectories": [{ "mode": "location" }],
+	"eslint.format.enable": true,
+	"eslint.alwaysShowStatus": true,
+	"eslint.lintTask.options": "./src/ ./public/ --ext js,ts,jsx,tsx,html,css -c ./.eslintrc.json --ignore-path ./.eslintignore",
+	"search.exclude":{
+		"**/node_modules": true,
+		"**/bower_components": true,
+		"**/*.code-search": true,
+		"**/docs": true
+	}
+}
