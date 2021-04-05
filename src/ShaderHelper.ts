@@ -1,33 +1,34 @@
 /**
- * @author D.Thiele @https://hexx.one
- *
- * @license
- * Copyright (c) 2020 D.Thiele All rights reserved.  
- * Licensed under the GNU GENERAL PUBLIC LICENSE.
- * See LICENSE file in the project root for full license information.  
- * 
- * @description
- * Contains all shader-relevant js-code
- * 
+* @author hexxone / https://hexx.one
+*
+* @license
+* Copyright (c) 2021 hexxone All rights reserved.
+* Licensed under the GNU GENERAL PUBLIC LICENSE.
+* See LICENSE file in the project root for full license information.
+*
+* @description
+*/
+
+import {Vector2} from 'three';
+
+import {LUTHelper} from './LUTHelper';
+import {ShaderPass} from './three/postprocessing/ShaderPass';
+import {UnrealBloomPass} from './three/postprocessing/UnrealBloomPass';
+
+import {LUTShader} from './three/shader/LUTShader';
+import {LUTShaderNearest} from './three/shader/LUTShaderNearest';
+
+import {BlurShader} from './three/shader/BlurShader';
+import {FXAAShader} from './three/shader/FXAAShader';
+import {FractalMirrorShader} from './three/shader/FractalMirrorShader';
+import {Smallog} from './we_utils/src/Smallog';
+import {EffectComposer} from './three/postprocessing/EffectComposer';
+import {CSettings} from './we_utils/src/CSettings';
+import {CComponent} from './we_utils/src/CComponent';
+
+/**
+ * Shder-relevant settings
  */
-
-import { Vector2 } from 'three';
-
-import { LUTHelper } from './LUTHelper';
-import { ShaderPass } from './three/postprocessing/ShaderPass';
-import { UnrealBloomPass } from './three/postprocessing/UnrealBloomPass';
-
-import { LUTShader } from './three/shader/LUTShader';
-import { LUTShaderNearest } from "./three/shader/LUTShaderNearest";
-
-import { BlurShader } from './three/shader/BlurShader';
-import { FXAAShader } from './three/shader/FXAAShader';
-import { FractalMirrorShader } from './three/shader/FractalMirrorShader';
-import { Smallog } from './we_utils/src/Smallog';
-import { EffectComposer } from './three/postprocessing/EffectComposer';
-import { CSettings } from "./we_utils/src/CSettings";
-import { CComponent } from './we_utils/src/CComponent';
-
 class ShaderSettings extends CSettings {
 	bloom_filter: boolean = false;
 	lut_filter: number = -1;
@@ -37,8 +38,10 @@ class ShaderSettings extends CSettings {
 	blur_strength: number = 0;
 }
 
+/**
+* Contains all shader-relevant js-code
+*/
 export class ShaderHolder extends CComponent {
-
 	public settings: ShaderSettings = new ShaderSettings();
 
 	private lutSetup: LUTHelper = new LUTHelper();
@@ -53,14 +56,17 @@ export class ShaderHolder extends CComponent {
 	private blurPassX: ShaderPass;
 	private blurPassY: ShaderPass;
 
-	// initialize shaders after composer
+	/**
+	 * initialize shaders on composer
+	 * @param {EffectComposer} composer Render-Manager
+	 */
 	public init(composer: EffectComposer) {
 		this.composer = composer;
 		const sett = this.settings;
 
 		// last added filter
-		var lastEffect = null;
-		Smallog.Debug("adding shaders to render chain.");
+		let lastEffect = null;
+		Smallog.debug('adding shaders to render chain.');
 
 		// bloom
 		if (sett.bloom_filter) {
@@ -122,11 +128,18 @@ export class ShaderHolder extends CComponent {
 		if (lastEffect) lastEffect.renderToScreen = true;
 	}
 
-	// update some uniforms values?
+	/**
+	 * update some uniforms values?
+	 * @param {number} e ellapsed ms
+	 * @param {number} d deltaTime ~1 multiplier
+	 */
 	public UpdateFrame(e, d) { }
 
-	// just destroy & rebuild completely... whatever lul
-	public UpdateSettings(): Promise<void> {
+	/**
+	 * just destroy & rebuild completely... whatever lul
+	 * @return {Promise} finished event
+	 */
+	public updateSettings(): Promise<void> {
 		if (!this.composer) return;
 		if (this.urBloomPass) this.urBloomPass.dispose();
 		if (this.lutPass) this.lutPass.dispose();
@@ -137,5 +150,6 @@ export class ShaderHolder extends CComponent {
 		if (this.blurPassY) this.blurPassY.dispose();
 		this.composer.reset();
 		this.init(this.composer);
+		return Promise.resolve();
 	}
 }

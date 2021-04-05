@@ -78,6 +78,7 @@
         "ui_user_color_a": "Farbe 1",
         "ui_user_color_b": "Farbe 2",
         "ui_color_fade_speed": "Farbwechsel-Geschw.",
+        "ui_color_audio_strength": "🔊 Farbreaktion",
         "ui_HEADER_SATURATION": "<h4>📊 <u>Sättigung</u></h4>",
         "ui_HEADER_BRIGHTNESS": "<h4>🔆 <u>Helligkeit</u></h4>",
         "ui_default": "Standard",
@@ -762,6 +763,16 @@
         "min": 0,
         "order": 530,
         "text": "ui_color_fade_speed",
+        "type": "slider",
+        "value": 2
+      },
+      "color_audio_strength": {
+        "condition": "HEADER_COLOR.value",
+        "editable": true,
+        "max": 20,
+        "min": 0,
+        "order": 535,
+        "text": "ui_color_audio_strength",
         "type": "slider",
         "value": 2
       },
