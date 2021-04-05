@@ -7,12 +7,11 @@
 ## About
 
 The Wallpaper is made for and maintained on the **Steam Workshop**.
-It is however basically a website and can be easily run in *most* browsers.
+It is however basically a website and can easily run in *most* browsers.
 
-Usually you need to own Wallpaper Engine in order to access it's Workshop Content (this Wallpaper).
-And so, in order to fullfill the Licenses on this Software, I published this repository.
+*Note*: Chromium-based browsers are preferred. Firefox seems to have performance problems at the moment?
 
-*But:* **Please address any [Issues](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/) or [Ideas](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/) on on Steam.**
+**Please address any [Issues](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/) or [Ideas](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/) on Steam.**
 
 
 ## License(s)
@@ -24,6 +23,19 @@ Users of any part of this Code must therefore abide by the conditions of all lic
 Aside from that, feel free to use this Wallpaper at your favourite party, event, video, stream, etc.
 Please just remember to include a link to THIS repository or the Steam-Page.
 Thanks 🙂
+
+
+## Using the code
+
+Prerequisites:
+- Git, NodeJs and NPM
+- yarn package manager (`npm install -g yarn`)
+
+Install steps:
+1. `git clone https://github.com/hexxone/audiorbits.git`
+2. `cd audiorbits`
+3. `yarn install`
+4. `build_debug.bat` or `build_debug.sh`
 
 
 ## Technologies
@@ -39,7 +51,6 @@ Thanks 🙂
 
 ## Libraries
 - [we_utils](https://github.com/hexxone/we_utils) utilities for TS-Wallpapers
-- [jQuery](https://jquery.com/) gui editing
 - [three.js](https://threejs.org/) & Examples for webgl rendering
 - [CookieConsent](https://github.com/osano/cookieconsent) thanks to EU laws
 - [worker_loader](https://github.com/webpack-contrib/worker-loader) for easy TS workers
