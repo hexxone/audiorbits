@@ -150,7 +150,7 @@ export class AudiOrbits extends CComponent {
 			// set re-init flag if value changed and included in list
 			if (found) reInitFlag ||= ReInit.indexOf(setting) > -1;
 			// invalid?
-			else if (prop.type != 'text') Smallog.Error('Unknown setting: ' + setting + '. Are you using an old preset?');
+			else if (prop.type != 'text') Smallog.error('Unknown setting: ' + setting + '. Are you using an old preset?');
 		}
 
 		// Update all modules

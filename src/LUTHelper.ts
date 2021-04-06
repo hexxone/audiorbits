@@ -94,7 +94,7 @@ export class LUTHelper {
 
 				texture.needsUpdate = true;
 			}, null, function(err) {
-				Smallog.Error('Error loading LUT: ' + err);
+				Smallog.error('Error loading LUT: ' + err);
 				throw err;
 			});
 		}
