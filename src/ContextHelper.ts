@@ -317,7 +317,7 @@ export class ContextHolder extends CComponent {
 				this.renderTimeout = setTimeout(() => this.renderLoop(), 1000 / this.settings.fps_value);
 			} else if (this.renderer) {
 				this.renderer.setAnimationLoop(() => this.renderLoop());
-			} else Smallog.Error('not initialized!');
+			} else Smallog.error('not initialized!');
 			// show again
 			this.mainCanvas.classList.add('show');
 		} else {

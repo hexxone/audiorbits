@@ -190,7 +190,7 @@ export class LevelHolder extends CComponent {
 
 		// assert
 		if (this.levelBuilder) Smallog.debug('Got Level Builder!');
-		else Smallog.Error('Could not create WebAssembly Level Builder! [Null-Object]');
+		else Smallog.error('Could not create WebAssembly Level Builder! [Null-Object]');
 
 		// reset rendering
 		this.speedVelocity = 0;
@@ -394,14 +394,14 @@ export class LevelHolder extends CComponent {
 
 		// WRAP IN isolated Function ran inside worker
 		const {run} = this.levelBuilder;
-		return run(({module, instance, importObject, params}) => {
-			const {exports} = instance;
+		return run(({module, instance, exports, params}) => {
+			const ex = instance.exports as any;
+			const io = exports as ASUtil;
 			const {data} = params[0];
-			const io = importObject as ASUtil;
 			// get the direct view from the module memory and set the new buffer data
-			io.__getFloat32ArrayView(exports.levelSettings).set(data);
+			io.__getFloat32ArrayView(ex.levelSettings).set(data);
 			// generate new data structure with updated settings
-			exports.update();
+			ex.update();
 		}, {
 			// Data passed to worker
 			data: sett,
@@ -433,15 +433,14 @@ export class LevelHolder extends CComponent {
 		const start = performance.now();
 		const {run} = this.levelBuilder;
 		// isolated Function ran inside worker
-		return run(({module, instance, importObject, params}) => {
-			const {exports} = instance;
+		return run(({module, instance, exports, params}) => {
+			const ex = instance.exports as any;
 			const {level} = params[0];
-			const io = importObject as ASUtil;
 			// assembly level Building
 			// returns pointer to int32-array with float-references
-			const dataPtr = exports.build(level);
+			const dataPtr = ex.build(level);
 			// iterate over all pointers
-			const setPtrs = io.__getInt32Array(dataPtr);
+			const setPtrs = exports.__getInt32Array(dataPtr);
 			// gather transferrable float-arrays
 			const resultObj = {};
 			// we make a hard-copy of the buffer so the data doesnt get lost.
@@ -468,7 +467,7 @@ export class LevelHolder extends CComponent {
 			// print info
 			Smallog.debug('Generated Level=' + level + ', Time= ' + (performance.now() - start));
 		}).catch((e) => {
-			Smallog.Error('Generate Error at Level=\'' + level + '\', Msg=\'' + e.toString() + '\'');
+			Smallog.error('Generate Error at Level=\'' + level + '\', Msg=\'' + e.toString() + '\'');
 		});
 	}
 

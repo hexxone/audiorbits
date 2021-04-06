@@ -10,7 +10,7 @@
     "pack-prod": "webpack --env production",
     "dev": "webpack serve",
     "dev-prod": "webpack serve --env production",
-    "lint": "eslint ./src/ ./public/ --ext js,ts,jsx,tsx,html,css"
+    "lint": "eslint ./src/ ./public/ --ext js,ts,jsx,tsx"
   },
   "repository": {
     "type": "git",
