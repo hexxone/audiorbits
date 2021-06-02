@@ -10,25 +10,13 @@
 */
 
 import {Vector2} from 'three';
-
 import {LUTHelper} from './LUTHelper';
-import {ShaderPass} from './three/postprocessing/ShaderPass';
-import {UnrealBloomPass} from './three/postprocessing/UnrealBloomPass';
-
-import {LUTShader} from './three/shader/LUTShader';
-import {LUTShaderNearest} from './three/shader/LUTShaderNearest';
-
-import {BlurShader} from './three/shader/BlurShader';
-import {FXAAShader} from './three/shader/FXAAShader';
-import {FractalMirrorShader} from './three/shader/FractalMirrorShader';
-import {Smallog} from './we_utils/src/Smallog';
-import {EffectComposer} from './three/postprocessing/EffectComposer';
-import {CSettings} from './we_utils/src/CSettings';
-import {CComponent} from './we_utils/src/CComponent';
+import {BlurShader, CComponent, ChromaticShader, CSettings, EffectComposer, FractalMirrorShader, FXAAShader, LUTShader, LUTShaderNearest, ShaderPass, Smallog, UnrealBloomPass, WEAS} from './we_utils';
 
 /**
- * Shder-relevant settings
- */
+* Shder-relevant settings
+* @public
+*/
 class ShaderSettings extends CSettings {
 	bloom_filter: boolean = false;
 	lut_filter: number = -1;
@@ -36,18 +24,23 @@ class ShaderSettings extends CSettings {
 	mirror_invert: boolean = false;
 	fx_antialiasing: boolean = true;
 	blur_strength: number = 0;
+	chroma_filter: number = 10;
+	audio_increase: number = 75;
 }
 
 /**
 * Contains all shader-relevant js-code
+* @extends {CComponent}
+* @public
 */
 export class ShaderHolder extends CComponent {
 	public settings: ShaderSettings = new ShaderSettings();
 
+	private weas: WEAS;
+
 	private lutSetup: LUTHelper = new LUTHelper();
 
 	private composer: EffectComposer;
-
 	private urBloomPass: UnrealBloomPass;
 	private lutPass: ShaderPass;
 	private lutNear: ShaderPass;
@@ -55,101 +48,141 @@ export class ShaderHolder extends CComponent {
 	private fxaaPass: ShaderPass;
 	private blurPassX: ShaderPass;
 	private blurPassY: ShaderPass;
+	private chrmPass: ShaderPass;
+
 
 	/**
-	 * initialize shaders on composer
-	 * @param {EffectComposer} composer Render-Manager
-	 */
-	public init(composer: EffectComposer) {
-		this.composer = composer;
-		const sett = this.settings;
-
-		// last added filter
-		let lastEffect = null;
-		Smallog.debug('adding shaders to render chain.');
+	* Construct the shaders
+	* @param {WEAS} weas optional audio supplier
+	*/
+	constructor(weas?: WEAS) {
+		super();
+		this.weas = weas;
+		Smallog.debug('creating shaders...');
 
 		// bloom
-		if (sett.bloom_filter) {
-			composer.addPass(lastEffect = this.urBloomPass = new UnrealBloomPass(new Vector2(512, 512), 3, 0, 0.1));
-		}
+		this.urBloomPass = new UnrealBloomPass(new Vector2(512, 512), 3, 0, 0.1);
 
-		// lookuptable filter
-		if (sett.lut_filter >= 0) {
-			// get normal LUT shader
-			composer.addPass(this.lutPass = new ShaderPass(new LUTShader()));
-			this.lutPass.material.transparent = true;
-			// get filtered LUT shader
-			composer.addPass(this.lutNear = new ShaderPass(new LUTShaderNearest()));
-			this.lutNear.material.transparent = true;
-			// add normal or filtered LUT shader
-			const lutInfo = this.lutSetup.Textures[sett.lut_filter];
-			lastEffect = lutInfo.filter ? this.lutNear : this.lutPass;
-			// set shader uniform values
-			lastEffect.uniforms.lutMap.value = lutInfo.texture;
-			lastEffect.uniforms.lutMapSize.value = lutInfo.size;
-		}
+		// get normal & filtered lookuptable shader
+		this.lutPass = new ShaderPass(new LUTShader());
+		this.lutNear = new ShaderPass(new LUTShaderNearest());
 
 		// mirror shader
-		if (sett.mirror_shader > 1) {
-			composer.addPass(lastEffect = this.mirrorPass = new ShaderPass(new FractalMirrorShader()));
-			this.mirrorPass.material.transparent = true;
-			// set shader uniform values
-			this.mirrorPass.uniforms.invert.value = sett.mirror_invert;
-			this.mirrorPass.uniforms.numSides.value = sett.mirror_shader;
-			this.mirrorPass.uniforms.iResolution.value = new Vector2(window.innerWidth, window.innerHeight);
-		}
+		this.mirrorPass = new ShaderPass(new FractalMirrorShader());
 
 		// Nvidia FX antialiasing
-		if (sett.fx_antialiasing) {
-			composer.addPass(lastEffect = this.fxaaPass = new ShaderPass(new FXAAShader()));
-			this.fxaaPass.material.transparent = true;
-			// set uniform
-			this.fxaaPass.uniforms.resolution.value = new Vector2(1 / window.innerWidth, 1 / window.innerHeight);
-		}
+		this.fxaaPass = new ShaderPass(new FXAAShader());
 
-		// TWO-PASS Blur using the same directional shader
-		if (sett.blur_strength > 0) {
-			const bs = sett.blur_strength / 5;
-			// X
-			composer.addPass(this.blurPassX = new ShaderPass(new BlurShader()));
-			this.blurPassX.material.transparent = true;
-			this.blurPassX.uniforms.u_dir.value = new Vector2(bs, 0);
-			this.blurPassX.uniforms.iResolution.value = new Vector2(window.innerWidth, window.innerHeight);
-			// Y
-			composer.addPass(this.blurPassY = new ShaderPass(new BlurShader()));
-			this.blurPassY.material.transparent = true;
-			this.blurPassY.uniforms.u_dir.value = new Vector2(0, bs);
-			this.blurPassY.uniforms.iResolution.value = new Vector2(window.innerWidth, window.innerHeight);
-			// chaining
-			lastEffect = this.blurPassY;
-		}
+		// TWO-PASS Blur (x,y) using the same directional shader
+		this.blurPassX = new ShaderPass(new BlurShader());
+		this.blurPassY = new ShaderPass(new BlurShader());
 
-		// only render last effect
-		if (lastEffect) lastEffect.renderToScreen = true;
+		// chromatic abberation
+		this.chrmPass = new ShaderPass(new ChromaticShader());
 	}
 
 	/**
-	 * update some uniforms values?
-	 * @param {number} e ellapsed ms
-	 * @param {number} d deltaTime ~1 multiplier
-	 */
-	public UpdateFrame(e, d) { }
+	* add shaders to composer
+	* @public
+	* @param {EffectComposer} composer Render-Manager
+	*/
+	public init(composer: EffectComposer) {
+		this.composer = composer;
+		this.updateSettings();
+		Smallog.debug('adding shaders to render chain.');
+
+		// bloom
+		composer.addPass(this.urBloomPass);
+		// get normal & filtered lookuptable shader
+		composer.addPass(this.lutPass);
+		composer.addPass(this.lutNear);
+		// mirror shader
+		composer.addPass(this.mirrorPass);
+		// Nvidia FX antialiasing
+		composer.addPass(this.fxaaPass);
+		// TWO-PASS Blur (x,y) using the same directional shader
+		composer.addPass(this.blurPassX);
+		composer.addPass(this.blurPassY);
+		// chromatic abberation
+		composer.addPass(this.chrmPass);
+	}
 
 	/**
-	 * just destroy & rebuild completely... whatever lul
-	 * @return {Promise} finished event
-	 */
+	* update some uniforms values?
+	* @public
+	* @param {number} e ellapsed ms
+	* @param {number} d deltaTime ~1 multiplier
+	*/
+	public updateFrame(e, d) {
+		const hasAudio = this.weas && this.weas.hasAudio();
+		const audioObj = this.weas.lastAudio || null;
+		const sett = this.settings;
+
+		if (hasAudio && sett.chroma_filter > 0) {
+			const flmult = (1 + sett.audio_increase) * 0.5;
+			const intensity = ((audioObj.bass * 2 - audioObj.mids + audioObj.highs) / 60 / audioObj.average) * flmult;
+
+			this.chrmPass.uniforms.strength = sett.chroma_filter * intensity;
+		} else {
+			this.chrmPass.uniforms.strength = sett.chroma_filter;
+		}
+	}
+
+	/**
+	* just destroy & rebuild completely... whatever lul
+	* @public
+	* @return {Promise} finished event
+	*/
 	public updateSettings(): Promise<void> {
 		if (!this.composer) return;
-		if (this.urBloomPass) this.urBloomPass.dispose();
-		if (this.lutPass) this.lutPass.dispose();
-		if (this.lutNear) this.lutNear.dispose();
-		if (this.mirrorPass) this.mirrorPass.dispose();
-		if (this.fxaaPass) this.fxaaPass.dispose();
-		if (this.blurPassX) this.blurPassX.dispose();
-		if (this.blurPassY) this.blurPassY.dispose();
-		this.composer.reset();
-		this.init(this.composer);
+		const sett = this.settings;
+
+		// bloom
+		this.urBloomPass.enabled = sett.bloom_filter;
+
+		// lookuptable filter
+		this.lutNear.enabled = this.lutPass.enabled = false;
+		if (sett.lut_filter >= 0) {
+			// add normal or filtered LUT shader
+			const lutInfo = this.lutSetup.Textures[sett.lut_filter];
+			const useEffect = lutInfo.filter ? this.lutNear : this.lutPass;
+			// set shader uniform values
+			useEffect.uniforms.lutMap.value = lutInfo.texture;
+			useEffect.uniforms.lutMapSize.value = lutInfo.size;
+			useEffect.enabled = true;
+		}
+
+		// mirror shader
+		const mirror = sett.mirror_shader > 1;
+		if (mirror) {
+			// set shader uniform values
+			this.mirrorPass.uniforms.invert.value = sett.mirror_invert;
+			this.mirrorPass.uniforms.numSides.value = sett.mirror_shader;
+		}
+		this.mirrorPass.enabled = mirror;
+
+		// Nvidia FX antialiasing
+		const fxaa = sett.fx_antialiasing;
+		if (fxaa) {
+			// set uniform
+			this.fxaaPass.uniforms.resolution.value = new Vector2(1 / window.innerWidth, 1 / window.innerHeight);
+		}
+		this.fxaaPass.enabled = fxaa;
+
+		// TWO-PASS Blur using the same directional shader
+		const blur = sett.blur_strength > 0;
+		if (sett.blur_strength > 0) {
+			const bs = sett.blur_strength / 15;
+			// X
+			this.blurPassX.uniforms.u_dir.value = new Vector2(bs, 0);
+			// Y
+			this.blurPassY.uniforms.u_dir.value = new Vector2(0, bs);
+		}
+		this.blurPassX.enabled = this.blurPassY.enabled = blur;
+
+		// chroma
+		this.chrmPass.enabled = sett.chroma_filter > 0;
+
 		return Promise.resolve();
 	}
 }

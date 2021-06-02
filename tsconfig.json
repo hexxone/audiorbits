@@ -1,12 +1,13 @@
 {
 	"compilerOptions": {
 		"outDir": "./dist/tsc",
-		"target": "ES6",
-		"module": "commonjs",
+		"target": "ES2020",
+		"module": "commonjs", // commonjs | esnext
 		"moduleResolution": "node",
-		"esModuleInterop": true,
+		"esModuleInterop": true, // TODO
 		"emitDecoratorMetadata": false,
 		"sourceMap": false,
+		"removeComments": true,
 		"baseUrl": ".",
 		"paths": {
 			"three": [
@@ -15,13 +16,14 @@
 		},
 		"lib": [
 			"dom",
-			"es2015"
+			"ES5"
 		]
 	},
 	"include": [
 		"./src/**/*.ts"
 	],
 	"exclude": [
-		"**/*.asc"
+		"**/*.asc",
+		"**/better-docs/**"
 	]
 }
