@@ -9,11 +9,12 @@
 
 import {DataTexture, ImageLoader, LinearFilter, NearestFilter, RGBAFormat} from 'three';
 
-import {Smallog} from './we_utils/src/Smallog';
+import {Smallog} from './we_utils';
 
 /**
 * LookUpTable Setup helper & holder
 * will locally preload the given textures and set metadata infos
+* @public
 */
 export class LUTHelper {
 	// set the size to 2 (the identity size). We'll restore it when the
@@ -44,8 +45,8 @@ export class LUTHelper {
 	];
 
 	/**
-	 * Preload Lookup Table Textures
-	 */
+	* Preload Lookup Table Textures
+	*/
 	constructor() {
 		this.Textures.forEach((info) => {
 			// if not size set get it from the filename
@@ -68,10 +69,10 @@ export class LUTHelper {
 	}
 
 	/**
-	 * Create a preloaded texture
-	 * @param {Object} info
-	 * @return {Texture}
-	 */
+	* Create a preloaded texture
+	* @param {Object} info
+	* @return {Texture}
+	*/
 	private makeLUTTexture(info) {
 		const imgLoader = new ImageLoader();
 		const ctx = document.createElement('canvas').getContext('2d');
@@ -103,13 +104,13 @@ export class LUTHelper {
 	}
 
 	/**
-	 * make filtered texture
-	 * @param {BufferSource} data
-	 * @param {number} wid
-	 * @param {number} hig
-	 * @param {TextureFilter} filter
-	 * @return {DataTexture}
-	 */
+		* make filtered texture
+		* @param {BufferSource} data
+		* @param {number} wid
+		* @param {number} hig
+		* @param {TextureFilter} filter
+		* @return {DataTexture}
+		*/
 	private makeIdentityLutTexture(data, wid, hig, filter) {
 		const texture = new DataTexture(data, wid, hig, RGBAFormat);
 		texture.minFilter = filter;

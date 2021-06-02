@@ -9,7 +9,14 @@ const path = require('path');
 const OfflinePlugin = require('./src/we_utils/src/offline/OfflinePlugin');
 const WascBuilderPlugin = require('./src/we_utils/src/wasc-worker/WascBuilderPlugin');
 
+const propertiesRenameTransformer = require('ts-transformer-properties-rename').default;
+
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+
 const TerserPlugin = require('terser-webpack-plugin');
+
+const ENTRY_FILE = './src/AudiOrbi.ts';
+const BUILD_PATH = path.resolve(__dirname, 'dist');
 
 module.exports = (env) => {
 	const prod = env.production || false;
@@ -17,30 +24,42 @@ module.exports = (env) => {
 	return {
 		mode: 'production',
 		entry: {
-			audiorbits: './dist/babel/AudiOrbits.js',
+			// audiorbits: './dist/tsc/AudiOrbits.js',
+			audiorbits: ENTRY_FILE,
 		},
 		output: {
 			chunkFilename: '[id].bundle.js',
-			path: path.resolve(__dirname, 'dist', 'pack'),
+			path: BUILD_PATH,
 		},
 		devServer: {
-			contentBase: path.resolve(__dirname, 'dist', 'pack'),
+			contentBase: BUILD_PATH,
 			port: 9000,
 			headers: {
 				'Access-Control-Allow-Origin': '*',
 				'https': true,
 			},
-			// dont use any live features...
-			// otherwise, it will recompile
-			hot: false,
-			inline: false,
-			liveReload: false,
 		},
 		resolve: {
 			extensions: ['.ts', '.js'],
 		},
 		module: {
 			rules: [
+				// TypeScript loader
+				{
+					test: /\.tsx?$/,
+					loader: require.resolve('awesome-typescript-loader'), // || ts-loader
+					options: {
+						compiler: 'ttypescript',
+						context: __dirname,
+						getCustomTransformers: (program) => {
+							return {
+								before: [
+									propertiesRenameTransformer(program, {entrySourceFiles: [ENTRY_FILE]}),
+								],
+							};
+						},
+					},
+				},
 				// use a specific loader for workers...
 				{
 					test: /\.worker\.(c|m)?js$/i,
@@ -63,6 +82,10 @@ module.exports = (env) => {
 			],
 		},
 		plugins: [
+			// The TS Syntax checking
+			new ForkTsCheckerWebpackPlugin({
+
+			}),
 			// manual wasm module build
 			// just so you don't have to modify the process everytime...
 			// this will compile all modules in 'rootpath' (recursive)
@@ -77,7 +100,7 @@ module.exports = (env) => {
 			// will create a list of all app-files.
 			// this list is used to cache the app offline in browser.
 			new OfflinePlugin({
-				staticdir: 'dist/pack/',
+				staticdir: 'dist/',
 				outfile: 'offlinefiles.json',
 				extrafiles: ['/'],
 				pretty: !prod,
@@ -89,13 +112,17 @@ module.exports = (env) => {
 				new TerserPlugin({
 					// https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
 					terserOptions: {
-						ecma: 7,
 						parse: {},
 						compress: {
 							unsafe: true,
+							pure_funcs: ['console.warn'], // ~40kb of three.js messages... errors will stil come through.
 						},
-						mangle: true,
-						module: true,
+						mangle: {
+							properties: {
+								regex: /^_(private|internal)_/, // the same prefixes like for custom transformer
+							},
+						},
+						module: false,
 						sourceMap: false,
 					},
 				}),

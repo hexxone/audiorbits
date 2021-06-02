@@ -23,24 +23,23 @@
 */
 /* eslint-disable no-unused-vars */
 
-import {AdditiveBlending, BufferAttribute, BufferGeometry, Camera, Color, HSL, LineBasicMaterial, LineSegments, Material, Object3D, Points, PointsMaterial, Scene, Texture, TextureLoader} from 'three';
-
-import {ASUtil} from '@assemblyscript/loader';
+import {BufferAttribute, BufferGeometry, Camera, Color, HSL, LineBasicMaterial, LineSegments, Material, NormalBlending, Object3D, Points, PointsMaterial, Scene, Texture, TextureLoader} from 'three';
 
 import {ColorHelper} from './ColorHelper';
-import {WEAS} from './we_utils/src/WEAS';
-import {Smallog} from './we_utils/src/Smallog';
-import {CSettings} from './we_utils/src/CSettings';
-import {CComponent} from './we_utils/src/CComponent';
+import {CComponent, CSettings, Smallog, WEAS, WascInterface, wascWorker} from './we_utils';
+import {NEAR_DIST} from './ContextHelper';
 
-import wascWorker from './we_utils/src/wasc-worker/WascWorker';
-import {WascInterface} from './we_utils/src/wasc-worker/WascInterface';
-
+/**
+* @public
+*/
 interface Level {
 	level: number;
 	sets: Subset[];
 }
 
+/**
+* @public
+*/
 interface Subset {
 	hasNewData: boolean;
 	object: T3Object;
@@ -50,6 +49,7 @@ interface Subset {
 
 /**
 * Custom object helper
+* @public
 */
 class T3Object extends Object3D {
 	geometry: BufferGeometry & { attributes: { position: BufferAttribute } };
@@ -58,6 +58,7 @@ class T3Object extends Object3D {
 
 /**
 * Level generator settings
+* @public
 */
 class LevelSettings extends CSettings {
 	geometry_type: number = 0;
@@ -99,20 +100,24 @@ class LevelSettings extends CSettings {
 	minimum_saturation: number = 10;
 	maximum_saturation: number = 90;
 	// Audio category
-	audio_multiplier: number = 2;
 	audiozoom_val: number = 2;
 	reverse_type: number = 0;
 	audiozoom_smooth: boolean = false;
 	// time-value smoothing ratio
 	// mirrored on WEAS
 	audio_increase: number = 75;
-	audio_decrease: number = 35;
+	audio_decrease: number = 25;
 	// seeded random for fractal generator
 	random_seed: number = 0; // user setting
 	real_seed: number = 0; // transfer settings
+	// VR mode
+	xr_mode: boolean = false;
 }
 
-// settings required in worker
+/**
+* settings required in worker
+* @public
+*/
 enum WasmSettings {
 	geometry_type = 0,
 	num_subsets_per_level = 1,
@@ -137,8 +142,10 @@ enum WasmSettings {
 
 /**
 * Main Geometry component
+* @extends {CComponent}
+* @public
 */
-export class LevelHolder extends CComponent {
+export class GeometryHolder extends CComponent {
 	public settings: LevelSettings = new LevelSettings();
 
 	// main orbit data
@@ -148,49 +155,54 @@ export class LevelHolder extends CComponent {
 	private speedVelocity = 0;
 
 	// keep camera position for moving subsets around
-	private camera: Camera = null;
+	private camera: Camera;
 
 	// actions to perform after render
 	private afterRenderQueue = [];
 
 	// generator holder
-	private levelBuilder: WascInterface = null;
+	private levelBuilder: WascInterface;
 
 	// color holder
-	private colorHolder: ColorHelper = null;
+	private colorHelpr: ColorHelper;
 	// audio provider
-	private weas: WEAS = null;
+	private weas: WEAS;
 
 	/**
-	 * construct component
-	 * @param {ColorHelper} colorHolder color provider
-	 * @param {WEAS} weas audio provider
-	 */
-	constructor(colorHolder: ColorHelper, weas: WEAS) {
+	* construct component
+	* @param {ColorHelper} colorHelp color provider
+	* @param {WEAS} weas audio provider
+	*/
+	constructor(colorHelp: ColorHelper, weas: WEAS) {
 		super();
-		this.colorHolder = colorHolder;
+		this.colorHelpr = colorHelp;
 		this.weas = weas;
-		this.children.push(this.colorHolder);
 	}
 
 	/**
-	 * initialize geometry generator, data & objects
-	 * @param {Scene} scene parent
-	 * @param {Camera} cam renderer
-	 */
+	* initialize geometry generator, data & objects
+	* @public
+	* @param {Scene} scene parent
+	* @param {Camera} cam renderer
+	*/
 	public async init(scene: Scene, cam: Camera) {
 		this.camera = cam;
+
 		const sett = this.settings;
 		// reset generator
 		this.afterRenderQueue = [];
 
 		// setup fractal generator -> get exported functions
 		this.levelBuilder = await wascWorker(this.getGeoModName());
-		await this.updateSettings();
 
 		// assert
 		if (this.levelBuilder) Smallog.debug('Got Level Builder!');
-		else Smallog.error('Could not create WebAssembly Level Builder! [Null-Object]');
+		else {
+			Smallog.error('Could not create WebAssembly Level Builder! [Null-Object]');
+			return;
+		}
+
+		await this.updateSettings();
 
 		// reset rendering
 		this.speedVelocity = 0;
@@ -249,9 +261,10 @@ export class LevelHolder extends CComponent {
 		this.moveBacks = new Int32Array(sett.num_levels);
 		this.moveBacks.fill(0);
 
-		const hues = this.colorHolder.hueValues;
+		const hues = this.colorHelpr.hueValues;
 		const subsetDist = sett.level_depth / sett.num_subsets_per_level;
 		const deg45rad = 0.785398;
+		const hlfDepth = sett.num_levels * sett.level_depth / 2;
 
 		// create levels
 		for (let l = 0; l < sett.num_levels; l++) {
@@ -287,6 +300,9 @@ export class LevelHolder extends CComponent {
 					// offset every 2nd subset
 					if (l % 2 != 0) object.position.z -= subsetDist;
 				} else object.position.z = lDist - (s * subsetDist);
+
+				// centered around camera?
+				if (sett.xr_mode) object.position.z += hlfDepth;
 
 				// TODO move this to webassembly
 				if (sett.level_spiralize) {
@@ -327,11 +343,11 @@ export class LevelHolder extends CComponent {
 	}
 
 	/**
-	 * returns the correct object and Material for a Subset
-	 * @param {BufferGeometry} geometry
-	 * @param {Texture} texture
-	 * @return {Object}
-	 */
+	* returns the correct object and Material for a Subset
+	* @param {BufferGeometry} geometry
+	* @param {Texture} texture
+	* @return {Object}
+	*/
 	private getSubsetObject(geometry, texture): T3Object {
 		let object; let material;
 
@@ -341,7 +357,7 @@ export class LevelHolder extends CComponent {
 			material = new PointsMaterial({
 				map: texture,
 				size: this.settings.texture_size,
-				blending: AdditiveBlending,
+				blending: NormalBlending, // AdditiveBlending,
 				depthTest: false,
 				transparent: true,
 			});
@@ -356,11 +372,12 @@ export class LevelHolder extends CComponent {
 			object = new LineSegments(geometry, material);
 		}
 
+		// !!! @TODO !!!
 		// Disable bounding Box generation
 		// Stops these errors:
 		// THREE.BufferGeometry.computeBoundingSphere(): Computed radius is NaN. The "position" attribute is likely to have NaN values.
 		// See here: https://github.com/mrdoob/three.js/issues/19735
-		object.frustumCulled = false;
+		// object.frustumCulled = false;
 
 		return object;
 	}
@@ -370,9 +387,10 @@ export class LevelHolder extends CComponent {
 	// /////////////////////////////////////////////
 
 	/**
-	 * Sends the numeric worker settings to webassembly
-	 * @return {Promise} finished event
-	 */
+	* Sends the numeric worker settings to webassembly
+	* @public
+	* @return {Promise} finished event
+	*/
 	public updateSettings(): Promise<void> {
 		// CAVEAT: only available after init and module load
 		if (!this.levelBuilder) return;
@@ -386,8 +404,6 @@ export class LevelHolder extends CComponent {
 		const sett = new Float32Array(keys.length);
 		for (let index = 0; index < keys.length; index++) {
 			const key = keys[index];
-			// hack for easily downscaling the algorithm params TODO
-			// const mlt = key.indexOf("alg_") == 0 ? 1 : 1;
 			// apply key value
 			sett[WasmSettings[key]] = this.settings[key] * 1 || 0;
 		}
@@ -396,10 +412,9 @@ export class LevelHolder extends CComponent {
 		const {run} = this.levelBuilder;
 		return run(({module, instance, exports, params}) => {
 			const ex = instance.exports as any;
-			const io = exports as ASUtil;
 			const {data} = params[0];
 			// get the direct view from the module memory and set the new buffer data
-			io.__getFloat32ArrayView(ex.levelSettings).set(data);
+			exports.__getFloat32ArrayView(ex.levelSettings).set(data);
 			// generate new data structure with updated settings
 			ex.update();
 		}, {
@@ -411,9 +426,9 @@ export class LevelHolder extends CComponent {
 	}
 
 	/**
-	 * Get randomized or predefined random-seed
-	 * @return {number} seed [0-233279]
-	 */
+	* Get randomized or predefined random-seed
+	* @return {number} seed [0-233279]
+	*/
 	private getSeed(): number {
 		if (this.settings.random_seed < 1) {
 			const useed = Math.floor(Math.random() * 233279);
@@ -423,10 +438,10 @@ export class LevelHolder extends CComponent {
 	}
 
 	/**
-	 * send worker event for generating a level
-	 * @param {number} level for what we are generating
-	 * @return {Promise} finiished event
-	 */
+	* send worker event for generating a level
+	* @param {number} level for what we are generating
+	* @return {Promise} finiished event
+	*/
 	private generateLevel(level): Promise<void> {
 		Smallog.debug('generating level: ' + level);
 
@@ -444,7 +459,7 @@ export class LevelHolder extends CComponent {
 			// gather transferrable float-arrays
 			const resultObj = {};
 			// we make a hard-copy of the buffer so the data doesnt get lost.
-			setPtrs.forEach((ptr, i) => resultObj['set_' + i] = new Float32Array(io.__getFloat32ArrayView(ptr)));
+			setPtrs.forEach((ptr, i) => resultObj['set_' + i] = new Float32Array(exports.__getFloat32ArrayView(ptr)));
 			return resultObj;
 		}, {
 			// Data passed to worker
@@ -465,7 +480,7 @@ export class LevelHolder extends CComponent {
 				});
 			}
 			// print info
-			Smallog.debug('Generated Level=' + level + ', Time= ' + (performance.now() - start));
+			Smallog.debug(`Generated Level=${level}, Time= ${(performance.now() - start)} ms`);
 		}).catch((e) => {
 			Smallog.error('Generate Error at Level=\'' + level + '\', Msg=\'' + e.toString() + '\'');
 		});
@@ -477,24 +492,24 @@ export class LevelHolder extends CComponent {
 	// /////////////////////////////////////////////
 
 	/**
-	 * Update position & color with audio data
-	 * @param {number} ellapsed ms
-	 * @param {number} deltaTime multiplier
-	 */
+	* Update position & color with audio data
+	* @param {number} ellapsed ms
+	* @param {number} deltaTime multiplier
+	*/
 	private updateWithAudio(ellapsed, deltaTime) {
 		const sett = this.settings;
 
 		// calc audio boost
-		const flmult = (15 + sett.audio_multiplier) / 120;
 		const lastAudio = this.weas.lastAudio;
+		const flmult = (20 + sett.audio_increase) / 120;
 		const boost = lastAudio.intensity * flmult;
 
 		// get targeted saturation
-		const minSat = sett.minimum_saturation / 100;
+		const minSat = sett.minimum_saturation / 120;
 		const maxSat = sett.maximum_saturation / 100;
 		// get targeted brightness
-		const minBri = sett.minimum_brightness / 100;
-		const maxBri = sett.maximum_brightness / 100;
+		const minBri = sett.minimum_brightness / 177.77777;
+		const maxBri = sett.maximum_brightness / 166.6666;
 
 		// calculate scale helper
 		// perceived brightness is not linear but exponential because of "additive" mixing mode!
@@ -503,21 +518,22 @@ export class LevelHolder extends CComponent {
 		const scaleSat = (maxSat - minSat) * boost / 100;
 
 		// move as many calculations out of loop as possible
-		const colObject = this.colorHolder.colorObject;
-		const hues = this.colorHolder.hueValues;
-		const color_mode = this.colorHolder.settings.color_mode;
-		const camZ = this.camera.position.z;
+		const colObject = this.colorHelpr.colorObject;
+		const hues = this.colorHelpr.hueValues;
+		const color_mode = this.colorHelpr.settings.color_mode;
+		const camZ = this.camera.position.z + NEAR_DIST;
 
 		// calculate step distance between levels
-		const step = (sett.num_levels * sett.level_depth * 1.2) / 128;
+		const orbtSize = (sett.num_levels * sett.level_depth) - NEAR_DIST;
+		const step = orbtSize * 1.2 / 128;
 		const reversed = sett.movement_type == 1;
 
 		// speed velocity calculation
-		let spvn = sett.zoom_val / 2 * deltaTime;
+		let spvn = sett.zoom_val / 4 * deltaTime;
 		let rot = sett.rotation_val / 5000;
 		if (sett.audiozoom_val > 0) {
-			spvn += boost * sett.audiozoom_val / 100 * deltaTime;
-			rot *= boost * sett.audiozoom_val / 200 * deltaTime; ;
+			spvn += boost * sett.audiozoom_val / 42 * deltaTime;
+			rot *= boost * sett.audiozoom_val / 150 * deltaTime; ;
 		}
 
 		// speed / zoom smoothing
@@ -548,7 +564,7 @@ export class LevelHolder extends CComponent {
 
 		// dont re-declare this every time
 		let lv: number; let level: Level; let ss: number; let prnt: Subset;
-		let dist; let freqIdx; let freqData; let freqLvl;
+		let stepDist; let freqIdx; let freqData; let freqLvl;
 		let targetHue; let targetSat; let targetLight;
 
 		// process all levels
@@ -561,16 +577,17 @@ export class LevelHolder extends CComponent {
 				// velocity & rotation
 				prnt.object.position.z += spvn;
 				prnt.object.rotation.z -= rot;
-				this.movedSet(prnt);
+				this.checkPosition(prnt);
 
 				// targeted HUE
 				targetHue = Math.abs(hues[prnt.set]);
 
 				// use "obj"-to-"camera" distance with "step" to get "frequency" data
 				// then process it
-				dist = Math.round((camZ - prnt.object.position.z) / step);
-				freqIdx = Math.min(lastAudio.data.length, Math.max(0, dist - 2));
-				freqData = parseFloat(lastAudio.data[freqIdx]);
+				const dist = camZ - prnt.object.position.z;
+				stepDist = Math.round(dist / step);
+				freqIdx = Math.min(lastAudio.data.length, Math.max(0, stepDist - 2));
+				freqData = lastAudio.data[freqIdx];
 				freqLvl = (freqData * flmult / 3) / lastAudio.average;
 				// uhoh ugly special case
 				if (color_mode == 4) {
@@ -588,25 +605,31 @@ export class LevelHolder extends CComponent {
 					this.clamp(targetSat, 0, 1),
 					this.clamp(targetLight, 0, 0.8));
 
-				// @TODO TEST
-				(prnt.object.material as PointsMaterial).size = this.settings.texture_size * (0.4 + Math.abs(freqLvl) / 2);
+				// variable sizing
+				const pm = (prnt.object.material as PointsMaterial);
+				const distScale = Math.pow(1.1 - (dist / orbtSize), 3) / 2;
+				const audiScale = 0.3 + Math.abs(freqLvl) / 3;
+				pm.size = this.settings.texture_size * distScale * audiScale;
 			}
 		}
 	}
 
 	/**
-	 * Update position & color without audio
-	 * @param {number} ellapsed ms
-	 * @param {number} deltaTime multiplier
-	 */
+		* Update position & color without audio
+		* @param {number} ellapsed ms
+		* @param {number} deltaTime multiplier
+		*/
 	private updateNoAudio(ellapsed, deltaTime) {
 		const sett = this.settings;
 		const reversed = sett.movement_type == 1;
 		// get targeted saturations & brightness
 		const defSat = sett.default_saturation / 100;
-		const defBri = sett.default_brightness / 100 * Math.min(5, sett.texture_size) / sett.texture_size;
+		const defBri = sett.default_brightness / 142 * Math.min(5, sett.texture_size) / sett.texture_size;
 
-		let spvn = sett.zoom_val / 1.5 * deltaTime;
+		const orbtSize = sett.num_levels * sett.level_depth;
+		const camZ = this.camera.position.z;
+
+		let spvn = sett.zoom_val / 4 * deltaTime;
 		let rot = sett.rotation_val / 5000;
 
 		// speed / zoom smoothing
@@ -634,7 +657,7 @@ export class LevelHolder extends CComponent {
 
 		// move as many calculations out of loop as possible
 		const sixtyDelta = deltaTime * 300;
-		const hues = this.colorHolder.hueValues;
+		const hues = this.colorHelpr.hueValues;
 
 		// dont re-declare this every time... should be faster
 		let lv: number; let level: Level; let ss: number; let prnt: Subset; const hsl: HSL = {h: 0, s: 0, l: 0}; let targetHue;
@@ -649,7 +672,7 @@ export class LevelHolder extends CComponent {
 				// velocity & rotation
 				prnt.object.position.z += spvn;
 				prnt.object.rotation.z -= rot;
-				this.movedSet(prnt);
+				this.checkPosition(prnt);
 
 				// targeted HUE
 				targetHue = Math.abs(hues[prnt.set]);
@@ -675,27 +698,37 @@ export class LevelHolder extends CComponent {
 					this.clamp(hsl.s, 0, 1),
 					this.clamp(hsl.l, 0, 1));
 
-				// @todo
-				(prnt.object.material as PointsMaterial).size = this.settings.texture_size;
+				// fixed sizing
+				const dist = Math.abs(camZ - prnt.object.position.z);
+				const pm = (prnt.object.material as PointsMaterial);
+				const distScale = 1.2 - (dist / orbtSize);
+				pm.size = this.settings.texture_size * distScale;
 			}
 		}
 	}
 
 	/**
-	 * Check if a Subset has to be moved back or forth
-	 * @param {Subset} prnt Object to check
-	 */
-	private movedSet(prnt: Subset) {
-		const camZ = this.camera.position.z;
+			* Check if a Subset has to be moved back or forth
+			* @param {Subset} prnt Object to check
+			*/
+	private checkPosition(prnt: Subset) {
 		const orbitSize = this.settings.num_levels * this.settings.level_depth;
-		const backPos = camZ - orbitSize;
+		const hlfSize = orbitSize / 2;
+
+		let maxPos = this.camera.position.z;
+		let minPos = maxPos - orbitSize;
+		// ceentered around camera movement
+		if (this.settings.xr_mode) {
+			maxPos += hlfSize;
+			minPos += hlfSize;
+		}
 
 		let moved = false;
-		if (prnt.object.position.z > camZ) {
+		if (prnt.object.position.z > maxPos) {
 			// reset to back if behind cam
 			prnt.object.position.z -= orbitSize;
 			moved = true;
-		} else if (prnt.object.position.z < backPos) {
+		} else if (prnt.object.position.z < minPos) {
 			// reset behind cam if too far away
 			prnt.object.position.z += orbitSize;
 			moved = true;
@@ -716,10 +749,11 @@ export class LevelHolder extends CComponent {
 	}
 
 	/**
-	 * Update managing function
-	 * @param {number} ellapsed ms
-	 * @param {number} deltaTime multiplier ~1
-	 */
+			* Update managing function
+			* @public
+			* @param {number} ellapsed ms
+			* @param {number} deltaTime multiplier ~1
+			*/
 	public updateFrame(ellapsed, deltaTime) {
 		if (this.weas.hasAudio()) {
 			this.updateWithAudio(ellapsed, deltaTime);
@@ -737,13 +771,13 @@ export class LevelHolder extends CComponent {
 	}
 
 	/**
-	 * correct colors to be safe
-	 * @param {number} val Origin value
-	 * @param {number} min Minimum allowed
-	 * @param {number} max Maximum allowed
-	 * @param {boolean} goround Wrap around, instead of limiting?
-	 * @return {number} corrected value
-	 */
+			* correct colors to be safe
+			* @param {number} val Origin value
+			* @param {number} min Minimum allowed
+			* @param {number} max Maximum allowed
+			* @param {boolean} goround Wrap around, instead of limiting?
+			* @return {number} corrected value
+			*/
 	private clamp(val: number, min: number, max: number, goround = false) {
 		if (goround) {
 			if (val < min) return max - val;
@@ -751,4 +785,5 @@ export class LevelHolder extends CComponent {
 		} else return Math.max(Math.min(val, max), min);
 	}
 }
+
 

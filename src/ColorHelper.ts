@@ -1,19 +1,17 @@
 /**
- * @author hexxone / https://hexx.one
- *
- * @license
- * Copyright (c) 2021 hexxone All rights reserved.
- * Licensed under the GNU GENERAL PUBLIC LICENSE.
- * See LICENSE file in the project root for full license information.
+* @author hexxone / https://hexx.one
+*
+* @license
+* Copyright (c) 2021 hexxone All rights reserved.
+* Licensed under the GNU GENERAL PUBLIC LICENSE.
+* See LICENSE file in the project root for full license information.
+*/
+
+import {CComponent, CSettings, Smallog} from './we_utils';
+
+/**
+ * @public
  */
-
-import {Color} from 'three';
-import {CComponent} from './we_utils/src/CComponent';
-
-import {CSettings} from './we_utils/src/CSettings';
-import {Smallog} from './we_utils/src/Smallog';
-
-
 interface ColorObject {
 	hueA: number;
 	hueB: number;
@@ -23,8 +21,9 @@ interface ColorObject {
 }
 
 /**
- * ColorHelper settings
- */
+* ColorHelper settings
+* @public
+*/
 class ColorSettings extends CSettings {
 	num_subsets_per_level: number = 16;
 	// Color category
@@ -35,8 +34,9 @@ class ColorSettings extends CSettings {
 }
 
 /**
- * Contains color settings and objects for audiOrbits
- */
+* Contains color settings and objects for audiOrbits
+* @public
+*/
 export class ColorHelper extends CComponent {
 	// settings
 	public settings: ColorSettings = new ColorSettings();
@@ -47,6 +47,7 @@ export class ColorHelper extends CComponent {
 
 	/**
 	* gets called after updating color picker
+	* @public
 	* @return {Promise} complete
 	*/
 	public updateSettings(): Promise<void> {
@@ -78,9 +79,9 @@ export class ColorHelper extends CComponent {
 	}
 
 	/**
-	 * returns the processed user color object
-	 * @return {ColorObject} processed
-	 */
+	* returns the processed user color object
+	* @return {ColorObject} processed
+	*/
 	private getColorObject(): ColorObject {
 		const a = this.rgbToHue(this.settings.user_color_a).h;
 		const b = this.rgbToHue(this.settings.user_color_b).h;
@@ -94,28 +95,52 @@ export class ColorHelper extends CComponent {
 	}
 
 	/**
-	 * Convert helper
-	 * @param {string} r_g_b format: "r g b" where each is float 0-1
-	 * @return {Object} {h,s,l} with float 0-1
-	 */
+	* Convert helper
+	* @param {string} r_g_b format: "r g b" where each is float 0-1
+	* @return {Object} {h,s,l} with float 0-1
+	*/
 	private rgbToHue(r_g_b: string) {
 		const arr = r_g_b.split(' ');
 		if (arr.length != 3) throw Error('Invalid color: ' + r_g_b);
-		const tmp = new Color(
+		const tmp = [
 			Number.parseFloat(arr[0]),
 			Number.parseFloat(arr[1]),
 			Number.parseFloat(arr[2]),
-		);
+		];
 		const hsl = {h: 0, s: 0, l: 0};
-		tmp.getHSL(hsl);
+		const ma = Math.max(tmp[0], tmp[1], tmp[2]);
+		const mi = Math.min(tmp[0], tmp[1], tmp[2]);
+		const h = (mi + ma) / 2;
+		let o; let a;
+		if (mi === ma) {
+			o = 0,
+			a = 0;
+		} else {
+			const t = ma - mi;
+			switch (a = h <= .5 ? t / (ma + mi) : t / (2 - ma - mi), ma) {
+			case tmp[0]:
+				o = (tmp[1] - tmp[2]) / t + (tmp[1] < tmp[2] ? 6 : 0);
+				break;
+			case tmp[1]:
+				o = (tmp[2] - tmp[0]) / t + 2;
+				break;
+			case tmp[2]:
+				o = (tmp[0] - tmp[1]) / t + 4;
+			}
+			o /= 6;
+		}
+		hsl.h = o;
+		hsl.s = a;
+		hsl.l = h;
 		return hsl;
 	}
 
 	/**
-	 * shift hue values
-	 * @param {number} ellapsed passed ms float
-	 * @param {number} deltaTime alternative multiplier
-	 */
+	* shift hue values
+	* @public
+	* @param {number} ellapsed passed ms float
+	* @param {number} deltaTime alternative multiplier
+	*/
 	public updateFrame(ellapsed, deltaTime) {
 		const sett = this.settings;
 		if (sett.color_fade_speed > 0) {
@@ -129,3 +154,5 @@ export class ColorHelper extends CComponent {
 		}
 	}
 }
+
+

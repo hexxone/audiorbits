@@ -1,1331 +1,1302 @@
 {
-  "approved": true,
-  "contentrating": "Everyone",
-  "description": "This Wallpaper is using WebGL, WebAudio and a Fractal Algorithm for \"Orbit\" generation. It reacts to music by projecting the audio-spectrum onto the Orbits in form of color, saturation and brightness.\n\n[h1]Usage[/h1]\nAt the moment the wallpaper may look the best with music that has some bass in it (most EDM).\nYou can however tweak it to perfectly fit your preference with over 50 settings.\n\n[h1]Features[/h1]\n╠═ 3 Parallax modes with customizable efffect strength\n╠╦═ dynamic fractal orbit generator\n║╠══ default brightness & saturation settings (when no audio is playing)\n║╠══ zoom speed setting\n║╠══ rotation speed setting\n║╠══ color fade speed setting\n║╚══ custom render timing (See Guide for more Details)\n╠╦═ color-settings\n║╠══ Main background color\n║╠══ 5 different color modes\n║╠══ customizable fade speed\n║╚══ customizable main & secondary color\n╠╦═ filter-settings\n║╠══ bloom filter\n║╠══ 3 different (L)ook (U)p (T)able filters\n║╠══ fractal mirror filter\n║╠══ FXAA filter\n║╚══ blur Filter\n╠╦═ audio processing & mapping\n║╠══ minimum volume setting\n║╠══ minimum brightness setting\n║╠══ minimum saturation setting\n║╠══ volume multiplier\n║╠══ peak filter\n║╠══ time smoothing\n║╠══ value smoothing\n║╠══ audio zoom multiplier\n║╚══ audio zoom smoothing\n╠═ \"tunnel generator\" (avoids particles in front of camera)\n╠═ optional overlay and background images\n╠═ customizable algorithm parameters\n╠╦═ advanced settings\n║╠══ 3 choosable base textures\n║╠══ texture size setting\n║╠══ rendering stats\n║╠══ FOV setting\n║╠══ Scaling factor\n║╠══ orbit level amount\n║╠══ orbit level depth\n║╠══ orbit subset per level amount\n║╠══ orbit point per subset amount\n║╠══ fog thickness setting\n║╚══ level shifting\n╠╦═ iCUE Integration\n║╠══ single color mode\n║╚══ projection mode\n╠═ smooth fade-in\n╠═ seizure warning\n╚═ debug logging\n\n[h1]About[/h1]\nFor me this is a fun side-project with a lot to learn and I'm willing to keep it up-to-date in my freetime. \n\nThis was once a [url=https://orbits.hexx.one/]web-only version[/url] and is my first Wallpaper-Engine Wallpaper, so things might not be perfect.\n\nThe source-code can be found [url=https://github.com/hexxone/audiorbits]here[/url]. Please remember to respect the License and give credit where due.\n\n\n[h1]Need help?[/h1]\nIf your PC or applications are lagging, please take a look at the [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Settings Guide forum[/url].\n\nFor bugs and other issues please take a look at the [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Bugreport Thread[/url].\n\nFor new feature suggestions, please visit [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Planning to implement[/url].\n\n\n[h1]Patchnotes[/h1]\nCan be viewed in the \"Changes\"-tab above.\n\n\n[spoiler]Thanks for over 80k users O:[/spoiler]\n\n\n[h1]WARNINGS[/h1]\nThis \"Wallpaper\" may potentially trigger seizures for people with photosensitive epilepsy.\nLooking at it for too long might result in headaches, short-term visual perception changes and more.\nViewer discretion is advised.\n\nThis \"Wallpaper\" can use quite a lot of RAM, CPU & GPU resources, depending on settings.\nBe aware!",
-  "file": "index.html",
-  "general": {
-    "localization": {
-      "de-de": {
-        "ui_spacer": "======================<br><br>",
-        "ui_splitt": "--------------------------------------",
-        "ui_RELOAD_INFO": "<h4><small>🔃 Nach dem ändern dieser Einstellungen lädt das Wallpaper automatisch neu 🔃</small></h4>",
-        "ui_HEADER_GEOMETRY": "<h4>📐 <u>Geometrie</u></h4>",
-        "ui_geometry_type": "Geometrie-Variante 🔃",
-        "ui_geometry_type_0": "Textur",
-        "ui_geometry_type_1": "Partikel",
-        "ui_geometry_type_2": "Test 1",
-        "ui_geometry_type_3": "Test 2",
-        "ui_base_texture": "Basis Textur 🔃",
-        "ui_base_texture_0": "Galaxy",
-        "ui_base_texture_1": "Cuboid",
-        "ui_base_texture_2": "Fractal",
-        "ui_texture_size": "Textur Größe 🔃",
-        "ui_HEADER_PARAMS": "🧬 <u>Parameter anzeigen</u>",
-        "ui_alg_a_max": "Param A Maximum",
-        "ui_alg_a_min": "Param A Minimum",
-        "ui_alg_b_max": "Param B Maximum",
-        "ui_alg_b_min": "Param B Minimum",
-        "ui_alg_c_max": "Param C Maximum",
-        "ui_alg_c_min": "Param C Minimum",
-        "ui_alg_d_max": "Param D Maximum",
-        "ui_alg_d_min": "Param D Minimum",
-        "ui_alg_e_max": "Param E Maximum",
-        "ui_alg_e_min": "Param E Minimum",
-        "ui_generate_tunnel": "⭕️ <u>Tunnel generieren</u>",
-        "ui_tunnel_inner_radius": "Tunnel Größe",
-        "ui_tunnel_outer_radius": "Tunnel Wand",
-        "ui_scaling_factor": "Skalierung 🔃",
-        "ui_num_levels": "Level 🔃",
-        "ui_level_depth": "Level Größe 🔃",
-        "ui_level_shifting": "Level Verschiebung 🔃",
-        "ui_level_spiralize": "Level Spirale 🔃",
-        "ui_num_points_per_subset": "Punkte/Subset 🔃",
-        "ui_num_subsets_per_level": "Subsets/Level 🔃",
-        "ui_random_seed": "Random-Seed 🔃",
-        "ui_HEADER_PRLX": "<h4>🎥 <u>Kamera</u></h4>",
-        "ui_parallax_angle": "Rotations-winkel",
-        "ui_parallax_option": "Position",
-        "ui_parallax_option_0": "Aus",
-        "ui_parallax_option_1": "Cursor",
-        "ui_parallax_option_2": "Automatisch",
-        "ui_parallax_option_3": "Fest",
-        "ui_parallax_cam": "Parallax",
-        "ui_parallax_strength": "Stärke",
-        "ui_auto_parallax_speed": "Geschwindigkeit",
-        "ui_custom_fps": "VSYNC Deaktivieren 🔃",
-        "ui_fps_value": "FPS Ziel",
-        "ui_field_of_view": "Sichtbereich",
-        "ui_fog_thickness": "Nebeldichte",
-        "ui_HEADER_MOVEMENT": "<h4>⏫ <u>Bewegung</u></h4>",
-        "ui_movement_type": "Bewegungs-Richtung",
-        "ui_movement_type_0": "Vorwärts",
-        "ui_movement_type_1": "Rückwärts",
-        "ui_zoom_val": "Geschwindigkeit",
-        "ui_rotation_val": "Rotations-geschw.",
-        "ui_reverse_type": "🔊 Negativ-Zoom",
-        "ui_reverse_type_0": "Aktiviert",
-        "ui_reverse_type_1": "Deaktiviert",
-        "ui_reverse_type_2": "konvertieren",
-        "ui_HEADER_COLOR": "<h4>🌈 <u>Farben</u></h4>",
-        "ui_main_color": "Hintergrund",
-        "ui_color_mode": "Farbmodus",
-        "ui_color_mode_0": "Zufällig",
-        "ui_color_mode_1": "Einfarbig",
-        "ui_color_mode_2": "Farbverlauf",
-        "ui_color_mode_3": "Zufällig Farbbereich",
-        "ui_color_mode_4": "🔊 Farbbereich",
-        "ui_color_mode_5": "Levelteilung",
-        "ui_user_color_a": "Farbe 1",
-        "ui_user_color_b": "Farbe 2",
-        "ui_color_fade_speed": "Farbwechsel-Geschw.",
-        "ui_color_audio_strength": "🔊 Farbreaktion",
-        "ui_HEADER_SATURATION": "<h4>📊 <u>Sättigung</u></h4>",
-        "ui_HEADER_BRIGHTNESS": "<h4>🔆 <u>Helligkeit</u></h4>",
-        "ui_default": "Standard",
-        "ui_minimum": "🔊 Minimum",
-        "ui_maximum": "🔊 Maximum",
-        "ui_HEADER_FILTER": "<h4>🕶 <u>Shader</u></h4>",
-        "ui_bloom_filter": "Bloom",
-        "ui_blur_strength": "Blur",
-        "ui_fx_antialiasing": "FXAA",
-        "ui_mirror_shader": "Spiegel",
-        "ui_mirror_invert": "Spiegel invertiert",
-        "ui_mirror_invalid_val": "<h4><small>Der Wert Darf nicht 1 sein! Nehme bitte 0 oder mindestens 2!</small></h4>",
-        "ui_lut_filter": "LookUpTable",
-        "ui_lut_filter_0": "Aus",
-        "ui_lut_filter_1": "Posterisieren",
-        "ui_lut_filter_2": "Invers",
-        "ui_lut_filter_3": "Negativ",
-        "ui_HEADER_IMGS": "<h4>🖼 <u>Bilder laden</u></h4>",
-        "ui_img_background": "Hintergrund",
-        "ui_img_overlay": "Vordergrund",
-        "ui_HEADER_AUDIO": "<h4>🔊 <u>Audio</u></h4>",
-        "ui_HEADER_NO_AUDIO": "<h4>🔇 <u>Audio ist deaktiviert!</u></h4>",
-        "ui_equalize": "Equalizer",
-        "ui_mono_audio": "Mono Audio",
-        "ui_audio_direction": "Audio-Richtung",
-        "ui_audio_direction_0": "Tiefen nah, Höhen fern",
-        "ui_audio_direction_1": "Höhen nah, Tiefen fern",
-        "ui_minimum_volume": "Minimum Lautstärke",
-        "ui_audio_multiplier": "Lautstärke",
-        "ui_audio_increase": "Zunahme",
-        "ui_audio_decrease": "Abnahme",
-        "ui_audiozoom_smooth": "Zoomglättung",
-        "ui_audiozoom_val": "Audio-zoom",
-        "ui_value_smoothing": "Wertglättung",
-        "ui_peak_filter": "Spitzenwerte",
-        "ui_HEADER_ICUE": "<h4>💡 <u>LED / iCUE</u></h4>",
-        "ui_icue_area_blur": "Weichzeichner",
-        "ui_icue_area_decay": "Farbverlust",
-        "ui_icue_area_height": "Projektion Höhe",
-        "ui_icue_area_preview": "Vorschaufenster",
-        "ui_icue_area_width": "Projektion Breite",
-        "ui_icue_area_xoff": "Projektion X Abstand",
-        "ui_icue_area_yoff": "Projektion Y Abstand",
-        "ui_icue_main_color": "LED Farbe",
-        "ui_icue_mode": "LED Modus",
-        "ui_icue_mode_0": "Aus",
-        "ui_icue_mode_1": "Projektion",
-        "ui_icue_mode_2": "Farbe",
-        "ui_HEADER_ADVANCED": "<h4>⚙️ <u>Erweitert</u></h4>",
-        "ui_stats_option": "Statistiken 🔃",
-        "ui_stats_option_0": "Keine",
-        "ui_stats_option_1": "FPS",
-        "ui_stats_option_2": "MS",
-        "ui_stats_option_3": "MB",
-        "ui_shader_quality": "Qualität 🔃",
-        "ui_shader_quality_1": "Niedrig",
-        "ui_shader_quality_2": "Mittel",
-        "ui_shader_quality_3": "Hoch",
-        "ui_low_latency": "Low-Latency 🔃",
-        "ui_debugging": "Debug logging",
-        "ui_seizure_warning": "Epilepsiewarnung",
-        "ui_HEADER_THANKS": "<hr><h4><small>Danke fürs benutzen :)</small></h4>",
-        "ui_seizure_text": "Dieses \"Hintergrundbild\" kann bei Menschen mit lichtempfindlicher Epilepsie möglicherweise Anfälle auslösen.\r\nEin zu langes Betrachten kann zu Kopfschmerzen, kurzlebigen Veränderungen der visuellen Wahrnehmung und vielem mehr führen.\r\nDie Diskretion des Betrachters wird empfohlen.\r\n\r\nDieses \"Hintergrundbild\" kann, je nach Einstellungen, viel RAM-, CPU- und GPU-Resourcen nutzen.\r\nAchtung!"
-      },
-      "en-us": {},
-      "es-es": {},
-      "fr-fr": {},
-      "it-it": {},
-      "ja-jp": {},
-      "nl-nl": {},
-      "pl-pl": {},
-      "ru-ru": {},
-      "zh-chs": {}
-    },
-    "properties": {
-      "schemecolor": {
-        "order": 0,
-        "text": "ui_browse_properties_scheme_color",
-        "type": "color",
-        "value": "0 0 0"
-      },
-      "HEADER_NO_AUDIO": {
-        "condition": "!audioprocessing.value",
-        "order": 5,
-        "text": "ui_HEADER_NO_AUDIO",
-        "type": "text",
-        "value": false
-      },
-      "banner_reload": {
-        "order": 10,
-        "text": "ui_RELOAD_INFO",
-        "type": "text"
-      },
-      "SPACER_01": {
-        "order": 20,
-        "text": "ui_spacer",
-        "type": "text",
-        "value": false
-      },
-      "HEADER_GEOMETRY": {
-        "order": 30,
-        "text": "ui_HEADER_GEOMETRY",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_02": {
-        "condition": "HEADER_GEOMETRY.value",
-        "order": 40,
-        "text": "ui_splitt",
-        "type": "text",
-        "value": false
-      },
-      "geometry_type": {
-        "condition": "HEADER_GEOMETRY.value",
-        "options": [
-          {
-            "label": "ui_geometry_type_0",
-            "value": 0
-          },
-          {
-            "label": "ui_geometry_type_1",
-            "value": 1
-          },
-          {
-            "label": "ui_geometry_type_2",
-            "value": 2
-          },
-          {
-            "label": "ui_geometry_type_3",
-            "value": 3
-          }
-        ],
-        "order": 50,
-        "text": "ui_geometry_type",
-        "type": "combo",
-        "value": 0
-      },
-      "base_texture": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value == 0",
-        "options": [
-          {
-            "label": "ui_base_texture_0",
-            "value": 0
-          },
-          {
-            "label": "ui_base_texture_1",
-            "value": 1
-          },
-          {
-            "label": "ui_base_texture_2",
-            "value": 2
-          }
-        ],
-        "order": 51,
-        "text": "ui_base_texture",
-        "type": "combo",
-        "value": 0
-      },
-      "texture_size": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
-        "editable": false,
-        "max": 25,
-        "min": 1,
-        "order": 52,
-        "text": "ui_texture_size",
-        "type": "slider",
-        "value": 6
-      },
-      "SPACER_03": {
-        "condition": "HEADER_GEOMETRY.value",
-        "order": 53,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "HEADER_PARAMS": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
-        "order": 60,
-        "text": "ui_HEADER_PARAMS",
-        "type": "bool",
-        "value": false
-      },
-      "alg_a_min": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 70,
-        "text": "ui_alg_a_min",
-        "type": "slider",
-        "value": -25
-      },
-      "alg_a_max": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 80,
-        "text": "ui_alg_a_max",
-        "type": "slider",
-        "value": 25
-      },
-      "alg_b_min": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 90,
-        "text": "ui_alg_b_min",
-        "type": "slider",
-        "value": 0.25
-      },
-      "alg_b_max": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 100,
-        "text": "ui_alg_b_max",
-        "type": "slider",
-        "value": 1.7
-      },
-      "alg_c_min": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 110,
-        "text": "ui_alg_c_min",
-        "type": "slider",
-        "value": 5
-      },
-      "alg_c_max": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 120,
-        "text": "ui_alg_c_max",
-        "type": "slider",
-        "value": 16
-      },
-      "alg_d_min": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 130,
-        "text": "ui_alg_d_min",
-        "type": "slider",
-        "value": 1
-      },
-      "alg_d_max": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 140,
-        "text": "ui_alg_d_max",
-        "type": "slider",
-        "value": 9
-      },
-      "alg_e_min": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 150,
-        "text": "ui_alg_e_min",
-        "type": "slider",
-        "value": 1
-      },
-      "alg_e_max": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
-        "editable": true,
-        "max": 80,
-        "min": -80,
-        "order": 160,
-        "text": "ui_alg_e_max",
-        "type": "slider",
-        "value": 10
-      },
-      "SPACER_04": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
-        "order": 170,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "generate_tunnel": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
-        "order": 180,
-        "text": "ui_generate_tunnel",
-        "type": "bool",
-        "value": true
-      },
-      "tunnel_inner_radius": {
-        "condition": "HEADER_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
-        "editable": false,
-        "max": 25,
-        "min": 1,
-        "order": 190,
-        "text": "ui_tunnel_inner_radius",
-        "type": "slider",
-        "value": 2
-      },
-      "tunnel_outer_radius": {
-        "condition": "HEADER_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
-        "editable": false,
-        "max": 25,
-        "min": 1,
-        "order": 200,
-        "text": "ui_tunnel_outer_radius",
-        "type": "slider",
-        "value": 2
-      },
-      "SPACER_06": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
-        "order": 240,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "scaling_factor": {
-        "condition": "HEADER_GEOMETRY.value",
-        "editable": false,
-        "max": 4000,
-        "min": 100,
-        "order": 250,
-        "text": "ui_scaling_factor",
-        "type": "slider",
-        "value": 1500
-      },
-      "num_levels": {
-        "condition": "HEADER_GEOMETRY.value",
-        "editable": false,
-        "max": 32,
-        "min": 2,
-        "order": 260,
-        "text": "ui_num_levels",
-        "type": "slider",
-        "value": 6
-      },
-      "level_depth": {
-        "condition": "HEADER_GEOMETRY.value",
-        "editable": false,
-        "max": 10000,
-        "min": 100,
-        "order": 270,
-        "text": "ui_level_depth",
-        "type": "slider",
-        "value": 1200
-      },
-      "level_shifting": {
-        "condition": "HEADER_GEOMETRY.value",
-        "order": 280,
-        "text": "ui_level_shifting",
-        "type": "bool",
-        "value": true
-      },
-      "level_spiralize": {
-        "condition": "HEADER_GEOMETRY.value",
-        "order": 285,
-        "text": "ui_level_spiralize",
-        "type": "bool",
-        "value": false
-      },
-      "num_subsets_per_level": {
-        "condition": "HEADER_GEOMETRY.value",
-        "editable": true,
-        "max": 64,
-        "min": 2,
-        "order": 290,
-        "text": "ui_num_subsets_per_level",
-        "type": "slider",
-        "value": 12
-      },
-      "num_points_per_subset": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
-        "editable": false,
-        "max": 32768,
-        "min": 512,
-        "order": 300,
-        "text": "ui_num_points_per_subset",
-        "type": "slider",
-        "value": 8192
-      },
-      "random_seed": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value == 0",
-        "editable": true,
-        "max": 233280,
-        "min": 0,
-        "order": 305,
-        "text": "ui_random_seed",
-        "type": "slider",
-        "value": 0
-      },
-      "SPACER_07": {
-        "condition": "HEADER_GEOMETRY.value",
-        "order": 310,
-        "text": "ui_spacer",
-        "type": "text",
-        "value": false
-      },
-      "HEADER_PRLX": {
-        "order": 320,
-        "text": "ui_HEADER_PRLX",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_08": {
-        "condition": "HEADER_PRLX.value",
-        "order": 330,
-        "text": "ui_splitt",
-        "type": "text",
-        "value": false
-      },
-      "parallax_option": {
-        "condition": "HEADER_PRLX.value",
-        "options": [
-          {
-            "label": "ui_parallax_option_0",
-            "value": 0
-          },
-          {
-            "label": "ui_parallax_option_1",
-            "value": 1
-          },
-          {
-            "label": "ui_parallax_option_2",
-            "value": 2
-          },
-          {
-            "label": "ui_parallax_option_3",
-            "value": 3
-          }
-        ],
-        "order": 340,
-        "text": "ui_parallax_option",
-        "type": "combo",
-        "value": 0
-      },
-      "parallax_cam": {
-        "condition": "HEADER_PRLX.value",
-        "order": 345,
-        "text": "ui_parallax_cam",
-        "type": "bool",
-        "value": true
-      },
-      "parallax_strength": {
-        "condition": "HEADER_PRLX.value && parallax_option.value > 0",
-        "editable": false,
-        "max": 20,
-        "min": 1,
-        "order": 350,
-        "text": "ui_parallax_strength",
-        "type": "slider",
-        "value": 3
-      },
-      "parallax_angle": {
-        "condition": "HEADER_PRLX.value && parallax_option.value == 3",
-        "editable": false,
-        "max": 360,
-        "min": 0,
-        "order": 360,
-        "text": "ui_parallax_angle",
-        "type": "slider",
-        "value": 0
-      },
-      "auto_parallax_speed": {
-        "condition": "HEADER_PRLX.value && parallax_option.value == '2'",
-        "editable": true,
-        "max": 10,
-        "min": -10,
-        "order": 370,
-        "text": "ui_auto_parallax_speed",
-        "type": "slider",
-        "value": 2
-      },
-      "field_of_view": {
-        "condition": "HEADER_PRLX.value",
-        "editable": true,
-        "max": 130,
-        "min": 50,
-        "order": 373,
-        "text": "ui_field_of_view",
-        "type": "slider",
-        "value": 70
-      },
-      "fog_thickness": {
-        "condition": "HEADER_PRLX.value",
-        "editable": false,
-        "max": 95,
-        "min": 5,
-        "order": 376,
-        "text": "ui_fog_thickness",
-        "type": "slider",
-        "value": 20
-      },
-      "SPACER_09": {
-        "condition": "HEADER_PRLX.value",
-        "order": 380,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_MOVEMENT": {
-        "order": 390,
-        "text": "ui_HEADER_MOVEMENT",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_10": {
-        "condition": "HEADER_MOVEMENT.value",
-        "order": 400,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "movement_type": {
-        "condition": "HEADER_MOVEMENT.value",
-        "options": [
-          {
-            "label": "ui_movement_type_0",
-            "value": 0
-          },
-          {
-            "label": "ui_movement_type_1",
-            "value": 1
-          }
-        ],
-        "order": 410,
-        "text": "ui_movement_type",
-        "type": "combo",
-        "value": 0
-      },
-      "zoom_val": {
-        "condition": "HEADER_MOVEMENT.value",
-        "editable": true,
-        "max": 20,
-        "min": 0,
-        "order": 420,
-        "text": "ui_zoom_val",
-        "type": "slider",
-        "value": 1
-      },
-      "audiozoom_val": {
-        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
-        "editable": true,
-        "max": 15,
-        "min": 0,
-        "order": 422,
-        "text": "ui_audiozoom_val",
-        "type": "slider",
-        "value": 2
-      },
-      "audiozoom_smooth": {
-        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
-        "order": 424,
-        "text": "ui_audiozoom_smooth",
-        "type": "bool",
-        "value": false
-      },
-      "reverse_type": {
-        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
-        "order": 426,
-        "text": "ui_reverse_type",
-        "options": [
-          {
-            "label": "ui_reverse_type_0",
-            "value": 0
-          },
-          {
-            "label": "ui_reverse_type_1",
-            "value": 1
-          },
-          {
-            "label": "ui_reverse_type_2",
-            "value": 2
-          }
-        ],
-        "type": "combo",
-        "value": 0
-      },
-      "rotation_val": {
-        "condition": "HEADER_MOVEMENT.value",
-        "editable": true,
-        "max": 10,
-        "min": -10,
-        "order": 430,
-        "text": "ui_rotation_val",
-        "type": "slider",
-        "value": 0
-      },
-      "custom_fps": {
-        "condition": "HEADER_MOVEMENT.value",
-        "order": 440,
-        "text": "ui_custom_fps",
-        "type": "bool",
-        "value": false
-      },
-      "fps_value": {
-        "condition": "HEADER_MOVEMENT.value && custom_fps.value",
-        "max": 240,
-        "min": 1,
-        "order": 450,
-        "text": "ui_fps_value",
-        "type": "slider",
-        "value": 60
-      },
-      "SPACER_11": {
-        "condition": "HEADER_MOVEMENT.value",
-        "order": 460,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_COLOR": {
-        "order": 470,
-        "text": "ui_HEADER_COLOR",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_12": {
-        "condition": "HEADER_COLOR.value",
-        "order": 480,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "main_color": {
-        "condition": "HEADER_COLOR.value",
-        "order": 490,
-        "text": "ui_main_color",
-        "type": "color",
-        "value": "0 0 0"
-      },
-      "color_mode": {
-        "condition": "HEADER_COLOR.value",
-        "options": [
-          {
-            "label": "ui_color_mode_0",
-            "value": 0
-          },
-          {
-            "label": "ui_color_mode_1",
-            "value": 1
-          },
-          {
-            "label": "ui_color_mode_2",
-            "value": 2
-          },
-          {
-            "label": "ui_color_mode_3",
-            "value": 3
-          },
-          {
-            "label": "ui_color_mode_4",
-            "value": 4
-          },
-          {
-            "label": "ui_color_mode_5",
-            "value": 5
-          }
-        ],
-        "order": 500,
-        "text": "ui_color_mode",
-        "type": "combo",
-        "value": 0
-      },
-      "user_color_a": {
-        "condition": "HEADER_COLOR.value && color_mode.value >0",
-        "order": 510,
-        "text": "ui_user_color_a",
-        "type": "color",
-        "value": "1 0.5 0"
-      },
-      "user_color_b": {
-        "condition": "HEADER_COLOR.value && color_mode.value >1",
-        "order": 520,
-        "text": "ui_user_color_b",
-        "type": "color",
-        "value": "0 0.5 1"
-      },
-      "color_fade_speed": {
-        "condition": "HEADER_COLOR.value",
-        "editable": true,
-        "max": 20,
-        "min": 0,
-        "order": 530,
-        "text": "ui_color_fade_speed",
-        "type": "slider",
-        "value": 2
-      },
-      "color_audio_strength": {
-        "condition": "HEADER_COLOR.value",
-        "editable": true,
-        "max": 20,
-        "min": 0,
-        "order": 535,
-        "text": "ui_color_audio_strength",
-        "type": "slider",
-        "value": 2
-      },
-      "SPACER_13": {
-        "condition": "HEADER_COLOR.value",
-        "order": 540,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_BRIGHTNESS": {
-        "order": 550,
-        "text": "ui_HEADER_BRIGHTNESS",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_14": {
-        "condition": "HEADER_BRIGHTNESS.value",
-        "order": 560,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "default_brightness": {
-        "condition": "HEADER_BRIGHTNESS.value",
-        "editable": false,
-        "max": 100,
-        "min": 1,
-        "order": 570,
-        "text": "ui_default",
-        "type": "slider",
-        "value": 60
-      },
-      "minimum_brightness": {
-        "condition": "HEADER_BRIGHTNESS.value && audioprocessing.value",
-        "editable": false,
-        "max": 100,
-        "min": 1,
-        "order": 580,
-        "text": "ui_minimum",
-        "type": "slider",
-        "value": 10
-      },
-      "maximum_brightness": {
-        "condition": "HEADER_BRIGHTNESS.value && audioprocessing.value",
-        "editable": false,
-        "max": 100,
-        "min": 1,
-        "order": 590,
-        "text": "ui_maximum",
-        "type": "slider",
-        "value": 80
-      },
-      "SPACER_15": {
-        "condition": "HEADER_BRIGHTNESS.value",
-        "order": 600,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_SATURATION": {
-        "order": 610,
-        "text": "ui_HEADER_SATURATION",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_16": {
-        "condition": "HEADER_SATURATION.value",
-        "order": 620,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "default_saturation": {
-        "condition": "HEADER_SATURATION.value",
-        "editable": false,
-        "max": 100,
-        "min": 1,
-        "order": 630,
-        "text": "ui_default",
-        "type": "slider",
-        "value": 75
-      },
-      "minimum_saturation": {
-        "condition": "HEADER_SATURATION.value && audioprocessing.value",
-        "editable": false,
-        "max": 100,
-        "min": 1,
-        "order": 640,
-        "text": "ui_minimum",
-        "type": "slider",
-        "value": 10
-      },
-      "maximum_saturation": {
-        "condition": "HEADER_SATURATION.value && audioprocessing.value",
-        "editable": false,
-        "max": 100,
-        "min": 1,
-        "order": 650,
-        "text": "ui_maximum",
-        "type": "slider",
-        "value": 80
-      },
-      "SPACER_17": {
-        "condition": "HEADER_SATURATION.value",
-        "order": 660,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_FILTER": {
-        "order": 670,
-        "text": "ui_HEADER_FILTER",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_18": {
-        "condition": "HEADER_FILTER.value",
-        "order": 680,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "bloom_filter": {
-        "condition": "HEADER_FILTER.value",
-        "order": 700,
-        "text": "ui_bloom_filter",
-        "type": "bool",
-        "value": false
-      },
-      "lut_filter": {
-        "condition": "HEADER_FILTER.value",
-        "options": [
-          {
-            "label": "ui_lut_filter_0",
-            "value": -1
-          },
-          {
-            "label": "ui_lut_filter_1",
-            "value": 0
-          },
-          {
-            "label": "ui_lut_filter_2",
-            "value": 1
-          },
-          {
-            "label": "ui_lut_filter_3",
-            "value": 2
-          }
-        ],
-        "order": 710,
-        "text": "ui_lut_filter",
-        "type": "combo",
-        "value": -1
-      },
-      "mirror_shader": {
-        "condition": "HEADER_FILTER.value",
-        "editable": false,
-        "max": 16,
-        "min": 0,
-        "order": 720,
-        "text": "ui_mirror_shader",
-        "type": "slider",
-        "value": 0
-      },
-      "mirror_invalid_val": {
-        "condition": "mirror_shader.value == 1",
-        "order": 730,
-        "text": "ui_mirror_invalid_val",
-        "type": "text"
-      },
-      "mirror_invert": {
-        "condition": "HEADER_FILTER.value && mirror_shader.value>1",
-        "order": 740,
-        "text": "ui_mirror_invert",
-        "type": "bool",
-        "value": false
-      },
-      "fx_antialiasing": {
-        "condition": "HEADER_FILTER.value",
-        "order": 750,
-        "text": "ui_fx_antialiasing",
-        "type": "bool",
-        "value": false
-      },
-      "blur_strength": {
-        "condition": "HEADER_FILTER.value",
-        "editable": false,
-        "max": 20,
-        "min": 0,
-        "order": 760,
-        "text": "ui_blur_strength",
-        "type": "slider",
-        "value": 0
-      },
-      "SPACER_19": {
-        "condition": "HEADER_FILTER.value",
-        "order": 770,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_IMGS": {
-        "order": 780,
-        "text": "ui_HEADER_IMGS",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_20": {
-        "condition": "HEADER_IMGS.value",
-        "order": 790,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "img_overlay": {
-        "condition": "HEADER_IMGS.value",
-        "order": 800,
-        "text": "ui_img_overlay",
-        "type": "file"
-      },
-      "img_background": {
-        "condition": "HEADER_IMGS.value",
-        "order": 810,
-        "text": "ui_img_background",
-        "type": "file"
-      },
-      "SPACER_21": {
-        "condition": "HEADER_IMGS.value",
-        "order": 820,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_AUDIO": {
-        "condition": "audioprocessing.value",
-        "order": 830,
-        "text": "ui_HEADER_AUDIO",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_22": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "order": 840,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "equalize": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "order": 850,
-        "text": "ui_equalize",
-        "type": "bool",
-        "value": true
-      },
-      "mono_audio": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "order": 860,
-        "text": "ui_mono_audio",
-        "type": "bool",
-        "value": true
-      },
-      "audio_direction": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "options": [
-          {
-            "label": "ui_audio_direction_0",
-            "value": 0
-          },
-          {
-            "label": "ui_audio_direction_1",
-            "value": 1
-          }
-        ],
-        "order": 870,
-        "text": "ui_audio_direction",
-        "type": "combo",
-        "value": 0
-      },
-      "audio_multiplier": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "editable": true,
-        "max": 100,
-        "min": 1,
-        "order": 880,
-        "text": "ui_audio_multiplier",
-        "type": "slider",
-        "value": 35
-      },
-      "peak_filter": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "editable": false,
-        "max": 5,
-        "min": 0,
-        "order": 890,
-        "text": "ui_peak_filter",
-        "type": "slider",
-        "value": 1
-      },
-      "value_smoothing": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "editable": false,
-        "max": 5,
-        "min": 0,
-        "order": 900,
-        "text": "ui_value_smoothing",
-        "type": "slider",
-        "value": 2
-      },
-      "audio_increase": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "editable": false,
-        "max": 95,
-        "min": 5,
-        "order": 910,
-        "text": "ui_audio_increase",
-        "type": "slider",
-        "value": 75
-      },
-      "audio_decrease": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "editable": false,
-        "max": 95,
-        "min": 5,
-        "order": 920,
-        "text": "ui_audio_decrease",
-        "type": "slider",
-        "value": 35
-      },
-      "minimum_volume": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "editable": false,
-        "max": 20,
-        "min": 1,
-        "order": 960,
-        "text": "ui_minimum_volume",
-        "type": "slider",
-        "value": 1
-      },
-      "SPACER_23": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
-        "order": 970,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_ICUE": {
-        "order": 980,
-        "text": "ui_HEADER_ICUE",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_24": {
-        "condition": "HEADER_ICUE.value",
-        "order": 990,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "icue_mode": {
-        "condition": "HEADER_ICUE.value",
-        "options": [
-          {
-            "label": "ui_icue_mode_0",
-            "value": 0
-          },
-          {
-            "label": "ui_icue_mode_1",
-            "value": 1
-          },
-          {
-            "label": "ui_icue_mode_2",
-            "value": 2
-          }
-        ],
-        "order": 1000,
-        "text": "ui_icue_mode",
-        "type": "combo",
-        "value": 1
-      },
-      "icue_area_xoff": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 100,
-        "min": 5,
-        "order": 1010,
-        "text": "ui_icue_area_xoff",
-        "type": "slider",
-        "value": 50
-      },
-      "icue_area_yoff": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 100,
-        "min": 5,
-        "order": 1020,
-        "text": "ui_icue_area_yoff",
-        "type": "slider",
-        "value": 90
-      },
-      "icue_area_width": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 100,
-        "min": 5,
-        "order": 1030,
-        "text": "ui_icue_area_width",
-        "type": "slider",
-        "value": 75
-      },
-      "icue_area_height": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 100,
-        "min": 5,
-        "order": 1040,
-        "text": "ui_icue_area_height",
-        "type": "slider",
-        "value": 30
-      },
-      "icue_area_blur": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 5,
-        "min": 0,
-        "order": 1050,
-        "text": "ui_icue_area_blur",
-        "type": "slider",
-        "value": 1
-      },
-      "icue_area_decay": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "editable": false,
-        "max": 100,
-        "min": 0,
-        "order": 1060,
-        "text": "ui_icue_area_decay",
-        "type": "slider",
-        "value": 20
-      },
-      "icue_area_preview": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
-        "order": 1070,
-        "text": "ui_icue_area_preview",
-        "type": "bool",
-        "value": false
-      },
-      "icue_main_color": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 2",
-        "order": 1080,
-        "text": "ui_icue_main_color",
-        "type": "color",
-        "value": "0 0.8 0"
-      },
-      "SPACER_25": {
-        "condition": "HEADER_ICUE.value",
-        "order": 1090,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_ADVANCED": {
-        "order": 1100,
-        "text": "ui_HEADER_ADVANCED",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_26": {
-        "condition": "HEADER_ADVANCED.value",
-        "order": 1110,
-        "text": "ui_splitt",
-        "type": "text"
-      },
-      "stats_option": {
-        "condition": "HEADER_ADVANCED.value",
-        "options": [
-          {
-            "label": "ui_stats_option_0",
-            "value": -1
-          },
-          {
-            "label": "ui_stats_option_1",
-            "value": 0
-          },
-          {
-            "label": "ui_stats_option_2",
-            "value": 1
-          },
-          {
-            "label": "ui_stats_option_3",
-            "value": 2
-          }
-        ],
-        "order": 1130,
-        "text": "ui_stats_option",
-        "type": "combo",
-        "value": -1
-      },
-      "shader_quality": {
-        "condition": "HEADER_ADVANCED.value",
-        "options": [
-          {
-            "label": "ui_shader_quality_1",
-            "value": 1
-          },
-          {
-            "label": "ui_shader_quality_2",
-            "value": 2
-          },
-          {
-            "label": "ui_shader_quality_3",
-            "value": 3
-          }
-        ],
-        "order": 1140,
-        "text": "ui_shader_quality",
-        "type": "combo",
-        "value": 2
-      },
-      "low_latency": {
-        "condition": "HEADER_ADVANCED.value",
-        "order": 1150,
-        "text": "ui_low_latency",
-        "type": "bool",
-        "value": false
-      },
-      "seizure_warning": {
-        "condition": "HEADER_ADVANCED.value",
-        "order": 1180,
-        "text": "ui_seizure_warning",
-        "type": "bool",
-        "value": true
-      },
-      "debugging": {
-        "condition": "HEADER_ADVANCED.value",
-        "order": 1190,
-        "text": "ui_debugging",
-        "type": "bool",
-        "value": false
-      },
-      "SPACER_27": {
-        "condition": "HEADER_ADVANCED.value",
-        "order": 1200,
-        "text": "ui_spacer",
-        "type": "text"
-      },
-      "HEADER_THANKS": {
-        "order": 1210,
-        "text": "ui_HEADER_THANKS",
-        "type": "text"
-      },
-      "seizure_text": {
-        "condition": "false",
-        "order": 1220,
-        "text": "ui_seizure_text",
-        "type": "text"
-      }
-    },
-    "supportsaudioprocessing": true
-  },
-  "preview": "img/preview.jpg",
-  "tags": [
-    "Abstract"
-  ],
-  "title": "AudiOrbits 2.4",
-  "type": "web",
-  "visibility": "public",
-  "workshopid": "1396475780"
+	"approved": true,
+	"contentrating": "Everyone",
+	"description": "This Wallpaper is using WebGL, WebAudio and a Fractal Algorithm for \"Orbit\" generation. It reacts to music by projecting the audio-spectrum onto the Orbits in form of color, saturation and brightness.\n\n[h1]Usage[/h1]\nAt the moment the wallpaper may look the best with music that has some bass in it (most EDM).\nYou can however tweak it to perfectly fit your preference with over 50 settings.\n\n[h1]Features[/h1]\n╠═ 3 Parallax modes with customizable efffect strength\n╠╦═ dynamic fractal orbit generator\n║╠══ default brightness & saturation settings (when no audio is playing)\n║╠══ zoom speed setting\n║╠══ rotation speed setting\n║╠══ color fade speed setting\n║╚══ custom render timing (See Guide for more Details)\n╠╦═ color-settings\n║╠══ Main background color\n║╠══ 5 different color modes\n║╠══ customizable fade speed\n║╚══ customizable main & secondary color\n╠╦═ filter-settings\n║╠══ bloom filter\n║╠══ 3 different (L)ook (U)p (T)able filters\n║╠══ fractal mirror filter\n║╠══ FXAA filter\n║╚══ blur Filter\n╠╦═ audio processing & mapping\n║╠══ minimum volume setting\n║╠══ minimum brightness setting\n║╠══ minimum saturation setting\n║╠══ volume multiplier\n║╠══ peak filter\n║╠══ time smoothing\n║╠══ value smoothing\n║╠══ audio zoom multiplier\n║╚══ audio zoom smoothing\n╠═ \"tunnel generator\" (avoids particles in front of camera)\n╠═ optional overlay and background images\n╠═ customizable algorithm parameters\n╠╦═ advanced settings\n║╠══ 3 choosable base textures\n║╠══ texture size setting\n║╠══ rendering stats\n║╠══ FOV setting\n║╠══ Scaling factor\n║╠══ orbit level amount\n║╠══ orbit level depth\n║╠══ orbit subset per level amount\n║╠══ orbit point per subset amount\n║╠══ fog thickness setting\n║╚══ level shifting\n╠╦═ iCUE Integration\n║╠══ single color mode\n║╚══ projection mode\n╠═ smooth fade-in\n╠═ seizure warning\n╚═ debug logging\n\n[h1]About[/h1]\nFor me this is a fun side-project with a lot to learn and I'm willing to keep it up-to-date in my freetime. \n\nThis was once a [url=https://orbits.hexx.one/]web-only version[/url] and is my first Wallpaper-Engine Wallpaper, so things might not be perfect.\n\nThe source-code can be found [url=https://github.com/hexxone/audiorbits]here[/url]. Please remember to respect the License and give credit where due.\n\n\n[h1]Need help?[/h1]\nIf your PC or applications are lagging, please take a look at the [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Settings Guide forum[/url].\n\nFor bugs and other issues please take a look at the [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Bugreport Thread[/url].\n\nFor new feature suggestions, please visit [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Planning to implement[/url].\n\n\n[h1]Patchnotes[/h1]\nCan be viewed in the \"Changes\"-tab above.\n\n\n[spoiler]Thanks for over 80k users O:[/spoiler]\n\n\n[h1]WARNINGS[/h1]\nThis \"Wallpaper\" may potentially trigger seizures for people with photosensitive epilepsy.\nLooking at it for too long might result in headaches, short-term visual perception changes and more.\nViewer discretion is advised.\n\nThis \"Wallpaper\" can use quite a lot of RAM, CPU & GPU resources, depending on settings.\nBe aware!",
+	"file": "index.html",
+	"general": {
+		"localization": {
+			"de-de": {
+				"ui_spacer": "======================<br><br>",
+				"ui_splitt": "--------------------------------------",
+				"ui_RELOAD_INFO": "<h4><small>🔃 Nach dem ändern dieser Einstellungen lädt das Wallpaper automatisch neu 🔃</small></h4>",
+				"ui_HEADER_GEOMETRY": "<h4>📐 <u>Geometrie</u></h4>",
+				"ui_geometry_type": "Geometrie-Variante 🔃",
+				"ui_geometry_type_0": "Textur",
+				"ui_geometry_type_1": "Partikel",
+				"ui_geometry_type_2": "Test 1",
+				"ui_geometry_type_3": "Test 2",
+				"ui_base_texture": "Basis Textur 🔃",
+				"ui_base_texture_0": "Galaxy",
+				"ui_base_texture_1": "Cuboid",
+				"ui_base_texture_2": "Fractal",
+				"ui_texture_size": "Textur Größe 🔃",
+				"ui_HEADER_PARAMS": "🧬 <u>Parameter anzeigen</u>",
+				"ui_alg_a_max": "Param A Maximum",
+				"ui_alg_a_min": "Param A Minimum",
+				"ui_alg_b_max": "Param B Maximum",
+				"ui_alg_b_min": "Param B Minimum",
+				"ui_alg_c_max": "Param C Maximum",
+				"ui_alg_c_min": "Param C Minimum",
+				"ui_alg_d_max": "Param D Maximum",
+				"ui_alg_d_min": "Param D Minimum",
+				"ui_alg_e_max": "Param E Maximum",
+				"ui_alg_e_min": "Param E Minimum",
+				"ui_generate_tunnel": "⭕️ <u>Tunnel generieren</u>",
+				"ui_tunnel_inner_radius": "Tunnel Größe",
+				"ui_tunnel_outer_radius": "Tunnel Wand",
+				"ui_scaling_factor": "Skalierung 🔃",
+				"ui_num_levels": "Level 🔃",
+				"ui_level_depth": "Level Größe 🔃",
+				"ui_level_shifting": "Level Verschiebung 🔃",
+				"ui_level_spiralize": "Level Spirale 🔃",
+				"ui_num_points_per_subset": "Punkte/Subset 🔃",
+				"ui_num_subsets_per_level": "Subsets/Level 🔃",
+				"ui_random_seed": "Random-Seed 🔃",
+				"ui_HEADER_PRLX": "<h4>🎥 <u>Kamera</u></h4>",
+				"ui_parallax_angle": "Rotations-winkel",
+				"ui_parallax_option": "Position",
+				"ui_parallax_option_0": "Aus",
+				"ui_parallax_option_1": "Cursor",
+				"ui_parallax_option_2": "Automatisch",
+				"ui_parallax_option_3": "Fest",
+				"ui_parallax_cam": "Parallax",
+				"ui_parallax_strength": "Stärke",
+				"ui_auto_parallax_speed": "Geschwindigkeit",
+				"ui_field_of_view": "Sichtbereich",
+				"ui_fog_thickness": "Nebeldichte",
+				"ui_custom_fps": "VSYNC Deaktivieren 🔃",
+				"ui_fps_value": "FPS Ziel",
+				"ui_HEADER_MOVEMENT": "<h4>⏫ <u>Bewegung</u></h4>",
+				"ui_movement_type": "Bewegungs-Richtung",
+				"ui_movement_type_0": "Vorwärts",
+				"ui_movement_type_1": "Rückwärts",
+				"ui_zoom_val": "Geschwindigkeit",
+				"ui_rotation_val": "Rotations-geschw.",
+				"ui_reverse_type": "🔊 Negativ-Zoom",
+				"ui_reverse_type_0": "Aktiviert",
+				"ui_reverse_type_1": "Deaktiviert",
+				"ui_reverse_type_2": "konvertieren",
+				"ui_HEADER_COLOR": "<h4>🌈 <u>Farben</u></h4>",
+				"ui_main_color": "Hintergrund",
+				"ui_color_mode": "Farbmodus",
+				"ui_color_mode_0": "Zufällig",
+				"ui_color_mode_1": "Einfarbig",
+				"ui_color_mode_2": "Farbverlauf",
+				"ui_color_mode_3": "Zufällig Farbbereich",
+				"ui_color_mode_4": "🔊 Farbbereich",
+				"ui_color_mode_5": "Levelteilung",
+				"ui_user_color_a": "Farbe 1",
+				"ui_user_color_b": "Farbe 2",
+				"ui_color_fade_speed": "Farbwechsel-Geschw.",
+				"ui_color_audio_strength": "🔊 Farbreaktion",
+				"ui_HEADER_SATURATION": "<h4>📊 <u>Sättigung</u></h4>",
+				"ui_HEADER_BRIGHTNESS": "<h4>🔆 <u>Helligkeit</u></h4>",
+				"ui_default": "Standard",
+				"ui_minimum": "🔊 Minimum",
+				"ui_maximum": "🔊 Maximum",
+				"ui_HEADER_FILTER": "<h4>🕶 <u>Shader</u></h4>",
+				"ui_bloom_filter": "Bloom",
+				"ui_mirror_invalid_val": "<h4><small>Der Wert Darf nicht 1 sein! Nehme bitte 0 oder mindestens 2!</small></h4>",
+				"ui_lut_filter": "LookUpTable",
+				"ui_lut_filter_0": "Aus",
+				"ui_lut_filter_1": "Posterisieren",
+				"ui_lut_filter_2": "Invers",
+				"ui_lut_filter_3": "Negativ",
+				"ui_mirror_shader": "Spiegel",
+				"ui_mirror_invert": "Spiegel invertiert",
+				"ui_fx_antialiasing": "FXAA",
+				"ui_blur_strength": "Blur",
+				"ui_chroma_filter": "ChromA",
+				"ui_HEADER_IMGS": "<h4>🖼 <u>Bilder laden</u></h4>",
+				"ui_img_background": "Hintergrund",
+				"ui_img_overlay": "Vordergrund",
+				"ui_HEADER_AUDIO": "<h4>🔊 <u>Audio</u></h4>",
+				"ui_HEADER_NO_AUDIO": "<h4>🔇 <u>Audio ist deaktiviert!</u></h4>",
+				"ui_equalize": "Dynamik EQ",
+				"ui_mono_audio": "Mono Audio",
+				"ui_audio_direction": "Audio-Richtung",
+				"ui_audio_direction_0": "Tiefen nah, Höhen fern",
+				"ui_audio_direction_1": "Höhen nah, Tiefen fern",
+				"ui_minimum_volume": "Minimum Lautstärke",
+				"ui_audio_increase": "Stärke",
+				"ui_audio_decrease": "Reaktion",
+				"ui_audiozoom_smooth": "Zoomglättung",
+				"ui_audiozoom_val": "Audio-zoom",
+				"ui_value_smoothing": "Glättung",
+				"ui_peak_filter": "Spitzenwerte",
+				"ui_HEADER_ICUE": "<h4>💡 <u>LED / iCUE</u></h4>",
+				"ui_icue_area_blur": "Weichzeichner",
+				"ui_icue_area_decay": "Farbverlust",
+				"ui_icue_area_height": "Projektion Höhe",
+				"ui_icue_area_width": "Projektion Breite",
+				"ui_icue_area_xoff": "Projektion X Abstand",
+				"ui_icue_area_yoff": "Projektion Y Abstand",
+				"ui_icue_main_color": "LED Farbe",
+				"ui_icue_mode": "LED Modus",
+				"ui_icue_mode_0": "Aus",
+				"ui_icue_mode_1": "Projektion",
+				"ui_icue_mode_2": "Farbe",
+				"ui_HEADER_ADVANCED": "<h4>⚙️ <u>Erweitert</u></h4>",
+				"ui_shader_quality": "Qualität 🔃",
+				"ui_shader_quality_1": "Niedrig",
+				"ui_shader_quality_2": "Mittel",
+				"ui_shader_quality_3": "Hoch",
+				"ui_low_latency": "Low-Latency 🔃",
+				"ui_xr_mode": "VR Mode (BETA)",
+				"ui_debugging": "Debugging",
+				"ui_seizure_warning": "Epilepsiewarnung",
+				"ui_HEADER_THANKS": "<hr><h4><small>Danke fürs benutzen :)</small></h4>",
+				"ui_seizure_text": "Dieses \"Hintergrundbild\" kann bei Menschen mit lichtempfindlicher Epilepsie möglicherweise Anfälle auslösen.\r\nEin zu langes Betrachten kann zu Kopfschmerzen, kurzlebigen Veränderungen der visuellen Wahrnehmung und vielem mehr führen.\r\nDie Diskretion des Betrachters wird empfohlen.\r\n\r\nDieses \"Hintergrundbild\" kann, je nach Einstellungen, viel RAM-, CPU- und GPU-Resourcen nutzen.\r\nAchtung!"
+			},
+			"en-us": {},
+			"es-es": {},
+			"fr-fr": {},
+			"it-it": {},
+			"ja-jp": {},
+			"nl-nl": {},
+			"pl-pl": {},
+			"ru-ru": {},
+			"zh-chs": {}
+		},
+		"properties": {
+			"schemecolor": {
+				"order": 0,
+				"text": "ui_browse_properties_scheme_color",
+				"type": "color",
+				"value": "0 0 0"
+			},
+			"HEADER_NO_AUDIO": {
+				"condition": "!audioprocessing.value",
+				"order": 5,
+				"text": "ui_HEADER_NO_AUDIO",
+				"type": "text"
+			},
+			"banner_reload": {
+				"order": 10,
+				"text": "ui_RELOAD_INFO",
+				"type": "text"
+			},
+			"SPACER_01": {
+				"order": 20,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_GEOMETRY": {
+				"order": 30,
+				"text": "ui_HEADER_GEOMETRY",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_02": {
+				"condition": "HEADER_GEOMETRY.value",
+				"order": 40,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"geometry_type": {
+				"condition": "HEADER_GEOMETRY.value",
+				"options": [
+					{
+						"label": "ui_geometry_type_0",
+						"value": 0
+					},
+					{
+						"label": "ui_geometry_type_1",
+						"value": 1
+					},
+					{
+						"label": "ui_geometry_type_2",
+						"value": 2
+					},
+					{
+						"label": "ui_geometry_type_3",
+						"value": 3
+					}
+				],
+				"order": 50,
+				"text": "ui_geometry_type",
+				"type": "combo",
+				"value": 0
+			},
+			"base_texture": {
+				"condition": "HEADER_GEOMETRY.value && geometry_type.value == 0",
+				"options": [
+					{
+						"label": "ui_base_texture_0",
+						"value": 0
+					},
+					{
+						"label": "ui_base_texture_1",
+						"value": 1
+					},
+					{
+						"label": "ui_base_texture_2",
+						"value": 2
+					}
+				],
+				"order": 51,
+				"text": "ui_base_texture",
+				"type": "combo",
+				"value": 0
+			},
+			"texture_size": {
+				"condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+				"editable": false,
+				"max": 25,
+				"min": 1,
+				"order": 52,
+				"text": "ui_texture_size",
+				"type": "slider",
+				"value": 6
+			},
+			"SPACER_03": {
+				"condition": "HEADER_GEOMETRY.value",
+				"order": 53,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"HEADER_PARAMS": {
+				"condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+				"order": 60,
+				"text": "ui_HEADER_PARAMS",
+				"type": "bool",
+				"value": false
+			},
+			"alg_a_min": {
+				"condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+				"editable": true,
+				"max": 80,
+				"min": -80,
+				"order": 70,
+				"text": "ui_alg_a_min",
+				"type": "slider",
+				"value": -25
+			},
+			"alg_a_max": {
+				"condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+				"editable": true,
+				"max": 80,
+				"min": -80,
+				"order": 80,
+				"text": "ui_alg_a_max",
+				"type": "slider",
+				"value": 25
+			},
+			"alg_b_min": {
+				"condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+				"editable": true,
+				"max": 80,
+				"min": -80,
+				"order": 90,
+				"text": "ui_alg_b_min",
+				"type": "slider",
+				"value": 0.25
+			},
+			"alg_b_max": {
+				"condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+				"editable": true,
+				"max": 80,
+				"min": -80,
+				"order": 100,
+				"text": "ui_alg_b_max",
+				"type": "slider",
+				"value": 1.7
+			},
+			"alg_c_min": {
+				"condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+				"editable": true,
+				"max": 80,
+				"min": -80,
+				"order": 110,
+				"text": "ui_alg_c_min",
+				"type": "slider",
+				"value": 5
+			},
+			"alg_c_max": {
+				"condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+				"editable": true,
+				"max": 80,
+				"min": -80,
+				"order": 120,
+				"text": "ui_alg_c_max",
+				"type": "slider",
+				"value": 16
+			},
+			"alg_d_min": {
+				"condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+				"editable": true,
+				"max": 80,
+				"min": -80,
+				"order": 130,
+				"text": "ui_alg_d_min",
+				"type": "slider",
+				"value": 1
+			},
+			"alg_d_max": {
+				"condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+				"editable": true,
+				"max": 80,
+				"min": -80,
+				"order": 140,
+				"text": "ui_alg_d_max",
+				"type": "slider",
+				"value": 9
+			},
+			"alg_e_min": {
+				"condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+				"editable": true,
+				"max": 80,
+				"min": -80,
+				"order": 150,
+				"text": "ui_alg_e_min",
+				"type": "slider",
+				"value": 1
+			},
+			"alg_e_max": {
+				"condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+				"editable": true,
+				"max": 80,
+				"min": -80,
+				"order": 160,
+				"text": "ui_alg_e_max",
+				"type": "slider",
+				"value": 10
+			},
+			"SPACER_04": {
+				"condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+				"order": 170,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"generate_tunnel": {
+				"condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+				"order": 180,
+				"text": "ui_generate_tunnel",
+				"type": "bool",
+				"value": true
+			},
+			"tunnel_inner_radius": {
+				"condition": "HEADER_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
+				"editable": false,
+				"max": 25,
+				"min": 1,
+				"order": 190,
+				"text": "ui_tunnel_inner_radius",
+				"type": "slider",
+				"value": 2
+			},
+			"tunnel_outer_radius": {
+				"condition": "HEADER_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
+				"editable": false,
+				"max": 25,
+				"min": 1,
+				"order": 200,
+				"text": "ui_tunnel_outer_radius",
+				"type": "slider",
+				"value": 2
+			},
+			"SPACER_06": {
+				"condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+				"order": 240,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"scaling_factor": {
+				"condition": "HEADER_GEOMETRY.value",
+				"editable": false,
+				"max": 4000,
+				"min": 100,
+				"order": 250,
+				"text": "ui_scaling_factor",
+				"type": "slider",
+				"value": 1500
+			},
+			"num_levels": {
+				"condition": "HEADER_GEOMETRY.value",
+				"editable": false,
+				"max": 32,
+				"min": 2,
+				"order": 260,
+				"text": "ui_num_levels",
+				"type": "slider",
+				"value": 6
+			},
+			"level_depth": {
+				"condition": "HEADER_GEOMETRY.value",
+				"editable": false,
+				"max": 10000,
+				"min": 100,
+				"order": 270,
+				"text": "ui_level_depth",
+				"type": "slider",
+				"value": 1200
+			},
+			"level_shifting": {
+				"condition": "HEADER_GEOMETRY.value",
+				"order": 280,
+				"text": "ui_level_shifting",
+				"type": "bool",
+				"value": true
+			},
+			"level_spiralize": {
+				"condition": "HEADER_GEOMETRY.value",
+				"order": 285,
+				"text": "ui_level_spiralize",
+				"type": "bool",
+				"value": false
+			},
+			"num_subsets_per_level": {
+				"condition": "HEADER_GEOMETRY.value",
+				"editable": false,
+				"max": 16,
+				"min": 2,
+				"order": 290,
+				"text": "ui_num_subsets_per_level",
+				"type": "slider",
+				"value": 12
+			},
+			"num_points_per_subset": {
+				"condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+				"editable": false,
+				"max": 32768,
+				"min": 512,
+				"order": 300,
+				"text": "ui_num_points_per_subset",
+				"type": "slider",
+				"value": 8192
+			},
+			"random_seed": {
+				"condition": "HEADER_GEOMETRY.value && geometry_type.value == 0",
+				"editable": true,
+				"max": 233280,
+				"min": 0,
+				"order": 305,
+				"text": "ui_random_seed",
+				"type": "slider",
+				"value": 0
+			},
+			"SPACER_07": {
+				"condition": "HEADER_GEOMETRY.value",
+				"order": 310,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_PRLX": {
+				"order": 320,
+				"text": "ui_HEADER_PRLX",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_08": {
+				"condition": "HEADER_PRLX.value",
+				"order": 330,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"parallax_option": {
+				"condition": "HEADER_PRLX.value",
+				"options": [
+					{
+						"label": "ui_parallax_option_0",
+						"value": 0
+					},
+					{
+						"label": "ui_parallax_option_1",
+						"value": 1
+					},
+					{
+						"label": "ui_parallax_option_2",
+						"value": 2
+					},
+					{
+						"label": "ui_parallax_option_3",
+						"value": 3
+					}
+				],
+				"order": 340,
+				"text": "ui_parallax_option",
+				"type": "combo",
+				"value": 0
+			},
+			"parallax_cam": {
+				"condition": "HEADER_PRLX.value",
+				"order": 345,
+				"text": "ui_parallax_cam",
+				"type": "bool",
+				"value": true
+			},
+			"parallax_strength": {
+				"condition": "HEADER_PRLX.value && parallax_option.value > 0",
+				"editable": false,
+				"max": 20,
+				"min": 1,
+				"order": 350,
+				"text": "ui_parallax_strength",
+				"type": "slider",
+				"value": 3
+			},
+			"parallax_angle": {
+				"condition": "HEADER_PRLX.value && parallax_option.value == 3",
+				"editable": false,
+				"max": 360,
+				"min": 0,
+				"order": 360,
+				"text": "ui_parallax_angle",
+				"type": "slider",
+				"value": 0
+			},
+			"auto_parallax_speed": {
+				"condition": "HEADER_PRLX.value && parallax_option.value == '2'",
+				"editable": true,
+				"max": 10,
+				"min": -10,
+				"order": 370,
+				"text": "ui_auto_parallax_speed",
+				"type": "slider",
+				"value": 2
+			},
+			"SPACER_42": {
+				"condition": "HEADER_PRLX.value",
+				"order": 371,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"field_of_view": {
+				"condition": "HEADER_PRLX.value",
+				"editable": true,
+				"max": 130,
+				"min": 50,
+				"order": 373,
+				"text": "ui_field_of_view",
+				"type": "slider",
+				"value": 70
+			},
+			"fog_thickness": {
+				"condition": "HEADER_PRLX.value",
+				"editable": false,
+				"max": 95,
+				"min": 5,
+				"order": 376,
+				"text": "ui_fog_thickness",
+				"type": "slider",
+				"value": 20
+			},
+			"custom_fps": {
+				"condition": "HEADER_PRLX.value",
+				"order": 377,
+				"text": "ui_custom_fps",
+				"type": "bool",
+				"value": false
+			},
+			"fps_value": {
+				"condition": "HEADER_PRLX.value && custom_fps.value",
+				"max": 240,
+				"min": 1,
+				"order": 378,
+				"text": "ui_fps_value",
+				"type": "slider",
+				"value": 60
+			},
+			"SPACER_09": {
+				"condition": "HEADER_PRLX.value",
+				"order": 380,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_MOVEMENT": {
+				"order": 390,
+				"text": "ui_HEADER_MOVEMENT",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_10": {
+				"condition": "HEADER_MOVEMENT.value",
+				"order": 400,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"movement_type": {
+				"condition": "HEADER_MOVEMENT.value",
+				"options": [
+					{
+						"label": "ui_movement_type_0",
+						"value": 0
+					},
+					{
+						"label": "ui_movement_type_1",
+						"value": 1
+					}
+				],
+				"order": 410,
+				"text": "ui_movement_type",
+				"type": "combo",
+				"value": 0
+			},
+			"zoom_val": {
+				"condition": "HEADER_MOVEMENT.value",
+				"editable": true,
+				"max": 20,
+				"min": 0,
+				"order": 420,
+				"text": "ui_zoom_val",
+				"type": "slider",
+				"value": 1
+			},
+			"audiozoom_val": {
+				"condition": "HEADER_MOVEMENT.value && audioprocessing.value",
+				"editable": true,
+				"max": 15,
+				"min": 0,
+				"order": 422,
+				"text": "ui_audiozoom_val",
+				"type": "slider",
+				"value": 2
+			},
+			"audiozoom_smooth": {
+				"condition": "HEADER_MOVEMENT.value && audioprocessing.value",
+				"order": 424,
+				"text": "ui_audiozoom_smooth",
+				"type": "bool",
+				"value": false
+			},
+			"reverse_type": {
+				"condition": "HEADER_MOVEMENT.value && audioprocessing.value",
+				"order": 426,
+				"text": "ui_reverse_type",
+				"options": [
+					{
+						"label": "ui_reverse_type_0",
+						"value": 0
+					},
+					{
+						"label": "ui_reverse_type_1",
+						"value": 1
+					},
+					{
+						"label": "ui_reverse_type_2",
+						"value": 2
+					}
+				],
+				"type": "combo",
+				"value": 0
+			},
+			"rotation_val": {
+				"condition": "HEADER_MOVEMENT.value",
+				"editable": true,
+				"max": 10,
+				"min": -10,
+				"order": 430,
+				"text": "ui_rotation_val",
+				"type": "slider",
+				"value": 0
+			},
+			"SPACER_11": {
+				"condition": "HEADER_MOVEMENT.value",
+				"order": 460,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_COLOR": {
+				"order": 470,
+				"text": "ui_HEADER_COLOR",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_12": {
+				"condition": "HEADER_COLOR.value",
+				"order": 480,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"main_color": {
+				"condition": "HEADER_COLOR.value",
+				"order": 490,
+				"text": "ui_main_color",
+				"type": "color",
+				"value": "0 0 0"
+			},
+			"color_mode": {
+				"condition": "HEADER_COLOR.value",
+				"options": [
+					{
+						"label": "ui_color_mode_0",
+						"value": 0
+					},
+					{
+						"label": "ui_color_mode_1",
+						"value": 1
+					},
+					{
+						"label": "ui_color_mode_2",
+						"value": 2
+					},
+					{
+						"label": "ui_color_mode_3",
+						"value": 3
+					},
+					{
+						"label": "ui_color_mode_4",
+						"value": 4
+					},
+					{
+						"label": "ui_color_mode_5",
+						"value": 5
+					}
+				],
+				"order": 500,
+				"text": "ui_color_mode",
+				"type": "combo",
+				"value": 0
+			},
+			"user_color_a": {
+				"condition": "HEADER_COLOR.value && color_mode.value >0",
+				"order": 510,
+				"text": "ui_user_color_a",
+				"type": "color",
+				"value": "1 0.5 0"
+			},
+			"user_color_b": {
+				"condition": "HEADER_COLOR.value && color_mode.value >1",
+				"order": 520,
+				"text": "ui_user_color_b",
+				"type": "color",
+				"value": "0 0.5 1"
+			},
+			"color_fade_speed": {
+				"condition": "HEADER_COLOR.value",
+				"editable": true,
+				"max": 10,
+				"min": 0,
+				"order": 530,
+				"text": "ui_color_fade_speed",
+				"type": "slider",
+				"value": 2
+			},
+			"color_audio_strength": {
+				"condition": "HEADER_COLOR.value",
+				"editable": true,
+				"max": 20,
+				"min": 0,
+				"order": 535,
+				"text": "ui_color_audio_strength",
+				"type": "slider",
+				"value": 2
+			},
+			"SPACER_13": {
+				"condition": "HEADER_COLOR.value",
+				"order": 540,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_BRIGHTNESS": {
+				"order": 550,
+				"text": "ui_HEADER_BRIGHTNESS",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_14": {
+				"condition": "HEADER_BRIGHTNESS.value",
+				"order": 560,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"default_brightness": {
+				"condition": "HEADER_BRIGHTNESS.value",
+				"editable": false,
+				"max": 100,
+				"min": 1,
+				"order": 570,
+				"text": "ui_default",
+				"type": "slider",
+				"value": 60
+			},
+			"minimum_brightness": {
+				"condition": "HEADER_BRIGHTNESS.value && audioprocessing.value",
+				"editable": false,
+				"max": 100,
+				"min": 1,
+				"order": 580,
+				"text": "ui_minimum",
+				"type": "slider",
+				"value": 10
+			},
+			"maximum_brightness": {
+				"condition": "HEADER_BRIGHTNESS.value && audioprocessing.value",
+				"editable": false,
+				"max": 100,
+				"min": 1,
+				"order": 590,
+				"text": "ui_maximum",
+				"type": "slider",
+				"value": 80
+			},
+			"SPACER_15": {
+				"condition": "HEADER_BRIGHTNESS.value",
+				"order": 600,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_SATURATION": {
+				"order": 610,
+				"text": "ui_HEADER_SATURATION",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_16": {
+				"condition": "HEADER_SATURATION.value",
+				"order": 620,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"default_saturation": {
+				"condition": "HEADER_SATURATION.value",
+				"editable": false,
+				"max": 100,
+				"min": 1,
+				"order": 630,
+				"text": "ui_default",
+				"type": "slider",
+				"value": 75
+			},
+			"minimum_saturation": {
+				"condition": "HEADER_SATURATION.value && audioprocessing.value",
+				"editable": false,
+				"max": 100,
+				"min": 1,
+				"order": 640,
+				"text": "ui_minimum",
+				"type": "slider",
+				"value": 10
+			},
+			"maximum_saturation": {
+				"condition": "HEADER_SATURATION.value && audioprocessing.value",
+				"editable": false,
+				"max": 100,
+				"min": 1,
+				"order": 650,
+				"text": "ui_maximum",
+				"type": "slider",
+				"value": 80
+			},
+			"SPACER_17": {
+				"condition": "HEADER_SATURATION.value",
+				"order": 660,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_FILTER": {
+				"order": 670,
+				"text": "ui_HEADER_FILTER",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_18": {
+				"condition": "HEADER_FILTER.value",
+				"order": 680,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"bloom_filter": {
+				"condition": "HEADER_FILTER.value",
+				"order": 700,
+				"text": "ui_bloom_filter",
+				"type": "bool",
+				"value": false
+			},
+			"lut_filter": {
+				"condition": "HEADER_FILTER.value",
+				"options": [
+					{
+						"label": "ui_lut_filter_0",
+						"value": -1
+					},
+					{
+						"label": "ui_lut_filter_1",
+						"value": 0
+					},
+					{
+						"label": "ui_lut_filter_2",
+						"value": 1
+					},
+					{
+						"label": "ui_lut_filter_3",
+						"value": 2
+					}
+				],
+				"order": 710,
+				"text": "ui_lut_filter",
+				"type": "combo",
+				"value": -1
+			},
+			"mirror_shader": {
+				"condition": "HEADER_FILTER.value",
+				"editable": false,
+				"max": 16,
+				"min": 0,
+				"order": 720,
+				"text": "ui_mirror_shader",
+				"type": "slider",
+				"value": 0
+			},
+			"mirror_invalid_val": {
+				"condition": "mirror_shader.value == 1",
+				"order": 730,
+				"text": "ui_mirror_invalid_val",
+				"type": "text"
+			},
+			"mirror_invert": {
+				"condition": "HEADER_FILTER.value && mirror_shader.value>1",
+				"order": 740,
+				"text": "ui_mirror_invert",
+				"type": "bool",
+				"value": false
+			},
+			"fx_antialiasing": {
+				"condition": "HEADER_FILTER.value",
+				"order": 750,
+				"text": "ui_fx_antialiasing",
+				"type": "bool",
+				"value": false
+			},
+			"blur_strength": {
+				"condition": "HEADER_FILTER.value",
+				"editable": false,
+				"max": 20,
+				"min": 0,
+				"order": 760,
+				"text": "ui_blur_strength",
+				"type": "slider",
+				"value": 0
+			},
+			"chroma_filter": {
+				"condition": "HEADER_FILTER.value",
+				"editable": false,
+				"max": 30,
+				"min": 0,
+				"order": 765,
+				"text": "ui_chroma_filter",
+				"type": "slider",
+				"value": 0
+			},
+			"SPACER_19": {
+				"condition": "HEADER_FILTER.value",
+				"order": 770,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_IMGS": {
+				"order": 780,
+				"text": "ui_HEADER_IMGS",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_20": {
+				"condition": "HEADER_IMGS.value",
+				"order": 790,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"img_overlay": {
+				"condition": "HEADER_IMGS.value",
+				"order": 800,
+				"text": "ui_img_overlay",
+				"type": "file"
+			},
+			"img_background": {
+				"condition": "HEADER_IMGS.value",
+				"order": 810,
+				"text": "ui_img_background",
+				"type": "file"
+			},
+			"SPACER_21": {
+				"condition": "HEADER_IMGS.value",
+				"order": 820,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_AUDIO": {
+				"condition": "audioprocessing.value",
+				"order": 830,
+				"text": "ui_HEADER_AUDIO",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_22": {
+				"condition": "HEADER_AUDIO.value && audioprocessing.value",
+				"order": 840,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"equalize": {
+				"condition": "HEADER_AUDIO.value && audioprocessing.value",
+				"order": 850,
+				"text": "ui_equalize",
+				"type": "bool",
+				"value": true
+			},
+			"mono_audio": {
+				"condition": "HEADER_AUDIO.value && audioprocessing.value && false",
+				"order": 860,
+				"text": "ui_mono_audio",
+				"type": "bool",
+				"value": true
+			},
+			"audio_direction": {
+				"condition": "HEADER_AUDIO.value && audioprocessing.value",
+				"options": [
+					{
+						"label": "ui_audio_direction_0",
+						"value": 0
+					},
+					{
+						"label": "ui_audio_direction_1",
+						"value": 1
+					}
+				],
+				"order": 870,
+				"text": "ui_audio_direction",
+				"type": "combo",
+				"value": 0
+			},
+			"peak_filter": {
+				"condition": "HEADER_AUDIO.value && audioprocessing.value",
+				"editable": false,
+				"max": 5,
+				"min": 0,
+				"order": 890,
+				"text": "ui_peak_filter",
+				"type": "slider",
+				"value": 1
+			},
+			"value_smoothing": {
+				"condition": "HEADER_AUDIO.value && audioprocessing.value",
+				"editable": false,
+				"max": 10,
+				"min": 0,
+				"order": 900,
+				"text": "ui_value_smoothing",
+				"type": "slider",
+				"value": 2
+			},
+			"audio_increase": {
+				"condition": "HEADER_AUDIO.value && audioprocessing.value",
+				"editable": false,
+				"max": 100,
+				"min": 20,
+				"order": 910,
+				"text": "ui_audio_increase",
+				"type": "slider",
+				"value": 75
+			},
+			"audio_decrease": {
+				"condition": "HEADER_AUDIO.value && audioprocessing.value",
+				"editable": false,
+				"max": 60,
+				"min": 5,
+				"order": 920,
+				"text": "ui_audio_decrease",
+				"type": "slider",
+				"value": 25
+			},
+			"minimum_volume": {
+				"condition": "HEADER_AUDIO.value && audioprocessing.value && false",
+				"editable": false,
+				"max": 20,
+				"min": 1,
+				"order": 960,
+				"text": "ui_minimum_volume",
+				"type": "slider",
+				"value": 10
+			},
+			"SPACER_23": {
+				"condition": "HEADER_AUDIO.value && audioprocessing.value",
+				"order": 970,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_ICUE": {
+				"order": 980,
+				"text": "ui_HEADER_ICUE",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_24": {
+				"condition": "HEADER_ICUE.value",
+				"order": 990,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"icue_mode": {
+				"condition": "HEADER_ICUE.value",
+				"options": [
+					{
+						"label": "ui_icue_mode_0",
+						"value": 0
+					},
+					{
+						"label": "ui_icue_mode_1",
+						"value": 1
+					},
+					{
+						"label": "ui_icue_mode_2",
+						"value": 2
+					}
+				],
+				"order": 1000,
+				"text": "ui_icue_mode",
+				"type": "combo",
+				"value": 1
+			},
+			"icue_area_xoff": {
+				"condition": "HEADER_ICUE.value && icue_mode.value == 1",
+				"editable": false,
+				"max": 100,
+				"min": 5,
+				"order": 1010,
+				"text": "ui_icue_area_xoff",
+				"type": "slider",
+				"value": 50
+			},
+			"icue_area_yoff": {
+				"condition": "HEADER_ICUE.value && icue_mode.value == 1",
+				"editable": false,
+				"max": 100,
+				"min": 5,
+				"order": 1020,
+				"text": "ui_icue_area_yoff",
+				"type": "slider",
+				"value": 90
+			},
+			"icue_area_width": {
+				"condition": "HEADER_ICUE.value && icue_mode.value == 1",
+				"editable": false,
+				"max": 100,
+				"min": 5,
+				"order": 1030,
+				"text": "ui_icue_area_width",
+				"type": "slider",
+				"value": 75
+			},
+			"icue_area_height": {
+				"condition": "HEADER_ICUE.value && icue_mode.value == 1",
+				"editable": false,
+				"max": 100,
+				"min": 5,
+				"order": 1040,
+				"text": "ui_icue_area_height",
+				"type": "slider",
+				"value": 30
+			},
+			"icue_area_blur": {
+				"condition": "HEADER_ICUE.value && icue_mode.value == 1",
+				"editable": false,
+				"max": 5,
+				"min": 0,
+				"order": 1050,
+				"text": "ui_icue_area_blur",
+				"type": "slider",
+				"value": 1
+			},
+			"icue_area_decay": {
+				"condition": "HEADER_ICUE.value && icue_mode.value == 1",
+				"editable": false,
+				"max": 100,
+				"min": 0,
+				"order": 1060,
+				"text": "ui_icue_area_decay",
+				"type": "slider",
+				"value": 20
+			},
+			"icue_main_color": {
+				"condition": "HEADER_ICUE.value && icue_mode.value == 2",
+				"order": 1080,
+				"text": "ui_icue_main_color",
+				"type": "color",
+				"value": "0 0.8 0"
+			},
+			"SPACER_25": {
+				"condition": "HEADER_ICUE.value",
+				"order": 1090,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_ADVANCED": {
+				"order": 1100,
+				"text": "ui_HEADER_ADVANCED",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_26": {
+				"condition": "HEADER_ADVANCED.value",
+				"order": 1110,
+				"text": "ui_splitt",
+				"type": "text"
+			},
+			"shader_quality": {
+				"condition": "HEADER_ADVANCED.value",
+				"options": [
+					{
+						"label": "ui_shader_quality_1",
+						"value": 1
+					},
+					{
+						"label": "ui_shader_quality_2",
+						"value": 2
+					},
+					{
+						"label": "ui_shader_quality_3",
+						"value": 3
+					}
+				],
+				"order": 1140,
+				"text": "ui_shader_quality",
+				"type": "combo",
+				"value": 3
+			},
+			"low_latency": {
+				"condition": "HEADER_ADVANCED.value",
+				"order": 1150,
+				"text": "ui_low_latency",
+				"type": "bool",
+				"value": false
+			},
+			"xr_mode": {
+				"condition": "HEADER_ADVANCED.value",
+				"order": 1160,
+				"text": "ui_xr_mode",
+				"type": "bool",
+				"value": false
+			},
+			"seizure_warning": {
+				"condition": "HEADER_ADVANCED.value",
+				"order": 1180,
+				"text": "ui_seizure_warning",
+				"type": "bool",
+				"value": true
+			},
+			"debugging": {
+				"condition": "HEADER_ADVANCED.value",
+				"order": 1190,
+				"text": "ui_debugging",
+				"type": "bool",
+				"value": false
+			},
+			"SPACER_27": {
+				"condition": "HEADER_ADVANCED.value",
+				"order": 1200,
+				"text": "ui_spacer",
+				"type": "text"
+			},
+			"HEADER_THANKS": {
+				"order": 1210,
+				"text": "ui_HEADER_THANKS",
+				"type": "text"
+			},
+			"seizure_text": {
+				"condition": "false",
+				"order": 1220,
+				"text": "ui_seizure_text",
+				"type": "text"
+			}
+		},
+		"supportsaudioprocessing": true
+	},
+	"preview": "img/preview.jpg",
+	"tags": [
+		"Abstract"
+	],
+	"title": "AudiOrbits 2.4",
+	"type": "web",
+	"visibility": "public",
+	"workshopid": "1396475780"
 }

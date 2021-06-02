@@ -8,11 +8,12 @@
 */
 
 import {Font, Mesh, MeshPhongMaterial, TextGeometry} from 'three';
-import {myFetch} from './we_utils/src/wasc-worker/WascRT';
+import {myFetch} from './we_utils';
 
 /**
 * @todo FIX
 * Fancy Shorthand 3D Text Renderer for THREE js
+* @public
 */
 export class FancyText {
 	private scene: THREE.Scene;
@@ -21,13 +22,13 @@ export class FancyText {
 	/**
 	* Fancy Shorthand 3D Text Renderer for THREE js
 	* @param {THREE.Scene} scene Where to append the text
-	* @param {THREE.Vector3} CPos Position for camera
+	* @param {THREE.Vector3} CPos Position for mesh
 	* @param {THREE.Vector3} lookAt Position to look at
 	* @param {string} text message to show
 	* @param {number} hideAfter seconds to remove msg after (default = 30)
 	* @param {string} fontPath custom font (default = Hexagon)
 	*/
-	constructor(scene: THREE.Scene, CPos: THREE.Vector3, lookAt: THREE.Vector3, text: string, hideAfter = 30, fontPath = './css/HEXAGON_cup_font.json') {
+	constructor(scene: THREE.Scene, CPos: THREE.Vector3, lookAt: THREE.Vector3, text: string, hideAfter = 30, fontPath = '/css/HEXAGON_cup_font.json') {
 		this.scene = scene;
 
 		myFetch(fontPath, 'json').then((fDat) => {
@@ -55,18 +56,20 @@ export class FancyText {
 			scene.add(textMesh);
 
 			// hide again
-			// setTimeout(() => this.Hide(), hideAfter * 1000);
+			setTimeout(() => this.hide(), hideAfter * 1000);
 		});
 	}
 
 	/**
-	 * Remove message
-	 */
-	public Hide() {
+		* Remove message
+		* @public
+		*/
+	public hide() {
 		if (this.mesh) {
 			this.scene.remove(this.mesh);
 			this.mesh = null;
 		}
 	}
 }
+
 
