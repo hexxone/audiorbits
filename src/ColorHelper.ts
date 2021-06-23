@@ -7,7 +7,7 @@
 * See LICENSE file in the project root for full license information.
 */
 
-import {CComponent, CSettings, Smallog} from './we_utils';
+import {CComponent, CSettings, rgbToHSL, Smallog} from './we_utils';
 
 /**
  * @public
@@ -83,8 +83,8 @@ export class ColorHelper extends CComponent {
 	* @return {ColorObject} processed
 	*/
 	private getColorObject(): ColorObject {
-		const a = this.rgbToHue(this.settings.user_color_a).h;
-		const b = this.rgbToHue(this.settings.user_color_b).h;
+		const a = rgbToHSL(this.settings.user_color_a).h;
+		const b = rgbToHSL(this.settings.user_color_b).h;
 		return {
 			hueA: a,
 			hueB: b,
@@ -94,46 +94,6 @@ export class ColorHelper extends CComponent {
 		};
 	}
 
-	/**
-	* Convert helper
-	* @param {string} r_g_b format: "r g b" where each is float 0-1
-	* @return {Object} {h,s,l} with float 0-1
-	*/
-	private rgbToHue(r_g_b: string) {
-		const arr = r_g_b.split(' ');
-		if (arr.length != 3) throw Error('Invalid color: ' + r_g_b);
-		const tmp = [
-			Number.parseFloat(arr[0]),
-			Number.parseFloat(arr[1]),
-			Number.parseFloat(arr[2]),
-		];
-		const hsl = {h: 0, s: 0, l: 0};
-		const ma = Math.max(tmp[0], tmp[1], tmp[2]);
-		const mi = Math.min(tmp[0], tmp[1], tmp[2]);
-		const h = (mi + ma) / 2;
-		let o; let a;
-		if (mi === ma) {
-			o = 0,
-			a = 0;
-		} else {
-			const t = ma - mi;
-			switch (a = h <= .5 ? t / (ma + mi) : t / (2 - ma - mi), ma) {
-			case tmp[0]:
-				o = (tmp[1] - tmp[2]) / t + (tmp[1] < tmp[2] ? 6 : 0);
-				break;
-			case tmp[1]:
-				o = (tmp[2] - tmp[0]) / t + 2;
-				break;
-			case tmp[2]:
-				o = (tmp[0] - tmp[1]) / t + 4;
-			}
-			o /= 6;
-		}
-		hsl.h = o;
-		hsl.s = a;
-		hsl.l = h;
-		return hsl;
-	}
 
 	/**
 	* shift hue values
