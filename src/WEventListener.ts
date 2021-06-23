@@ -11,7 +11,7 @@
 * AudiOrbits Eventlistener Object
 * @see https://docs.wallpaperengine.io/en/web/api/propertylistener.html
 */
-interface WEventListener {
+export interface WEventListener {
 
 	/**
 	* Apply system settings
@@ -50,5 +50,3 @@ interface WEventListener {
 	 */
 	userDirectoryFilesRemoved(propertyName: string, removedFiles: []): void;
 }
-
-export default WEventListener;

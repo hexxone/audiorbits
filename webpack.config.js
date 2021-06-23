@@ -8,6 +8,7 @@ const path = require('path');
 
 const OfflinePlugin = require('./src/we_utils/src/offline/OfflinePlugin');
 const WascBuilderPlugin = require('./src/we_utils/src/wasc-worker/WascBuilderPlugin');
+const RenamerPlugin = require('./src/we_utils/src/renamer/RenamerPlugin');
 
 const propertiesRenameTransformer = require('ts-transformer-properties-rename').default;
 
@@ -28,6 +29,7 @@ module.exports = (env) => {
 			audiorbits: ENTRY_FILE,
 		},
 		output: {
+			// libraryTarget: 'commonjs2',
 			chunkFilename: '[id].bundle.js',
 			path: BUILD_PATH,
 		},
@@ -81,6 +83,9 @@ module.exports = (env) => {
 				},
 			],
 		},
+		// compile target
+		target: ['es2020'],
+		// plugins
 		plugins: [
 			// The TS Syntax checking
 			new ForkTsCheckerWebpackPlugin({
@@ -105,13 +110,22 @@ module.exports = (env) => {
 				extrafiles: ['/'],
 				pretty: !prod,
 			}),
+			// custom renamer
+			new RenamerPlugin({
+				regex: /[a-z0-9_]*_webpack_[a-z0-9_]*/gi,
+			}),
 		],
 		// remove dead code in production
 		optimization: prod ? {
+			minimize: true,
+			mangleExports: true,
+			usedExports: true,
+			nodeEnv: 'production',
 			minimizer: [
 				new TerserPlugin({
 					// https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
 					terserOptions: {
+						ecma: 2020,
 						parse: {},
 						compress: {
 							unsafe: true,
@@ -119,10 +133,11 @@ module.exports = (env) => {
 						},
 						mangle: {
 							properties: {
-								regex: /^_(private|internal)_/, // the same prefixes like for custom transformer
+								regex: /_(private|internal|webpack|WEBPACK)_/, // the same prefixes like for custom transformer
 							},
 						},
 						module: false,
+						toplevel: true,
 						sourceMap: false,
 					},
 				}),

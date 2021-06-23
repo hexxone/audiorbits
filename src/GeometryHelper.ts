@@ -23,11 +23,13 @@
 */
 /* eslint-disable no-unused-vars */
 
-import {BufferAttribute, BufferGeometry, Camera, Color, HSL, LineBasicMaterial, LineSegments, Material, NormalBlending, Object3D, Points, PointsMaterial, Scene, Texture, TextureLoader} from 'three';
+import {AdditiveBlending, BufferAttribute, BufferGeometry, Camera, Color, HSL, LineBasicMaterial, LineSegments, Material, NormalBlending, Object3D, Points, PointsMaterial, Scene, Texture, TextureLoader} from 'three';
 
 import {ColorHelper} from './ColorHelper';
 import {CComponent, CSettings, Smallog, WEAS, WascInterface, wascWorker} from './we_utils';
 import {NEAR_DIST} from './ContextHelper';
+
+export const GEO_DIMS = 3;
 
 /**
 * @public
@@ -138,6 +140,7 @@ enum WasmSettings {
 	alg_e_max = 15,
 
 	real_seed = 16,
+	level_depth = 17,
 }
 
 /**
@@ -184,8 +187,9 @@ export class GeometryHolder extends CComponent {
 	* @public
 	* @param {Scene} scene parent
 	* @param {Camera} cam renderer
+	* @param {Promise} waitFor (optional)
 	*/
-	public async init(scene: Scene, cam: Camera) {
+	public async init(scene: Scene, cam: Camera, waitFor?: Promise<void>) {
 		this.camera = cam;
 
 		const sett = this.settings;
@@ -217,7 +221,7 @@ export class GeometryHolder extends CComponent {
 		}
 
 		// initialize
-		await this.initGeometries(scene, texture);
+		await this.initGeometries(scene, texture, waitFor);
 	}
 
 	/**
@@ -247,8 +251,9 @@ export class GeometryHolder extends CComponent {
 	* create WEBGL objects for each level and subset
 	* @param {Scene} scene sc
 	* @param {Texture} texture tx
+	* @param {Promise} waitFor (optional) promise to wait for
 	*/
-	private async initGeometries(scene: Scene, texture: Texture) {
+	private async initGeometries(scene: Scene, texture: Texture, waitFor?: Promise<void>) {
 		const sett = this.settings;
 		const camZ = this.camera.position.z;
 
@@ -279,9 +284,11 @@ export class GeometryHolder extends CComponent {
 			for (let s = 0; s < sett.num_subsets_per_level; s++) {
 				// create particle geometry from orbit vertex data
 				const geometry = new BufferGeometry();
-				// position attribute (2 vertices per point, thats pretty illegal)
+				// position attribute (2|3 itemSize)
 				geometry.setAttribute('position',
-					new BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2),
+					new BufferAttribute(
+						new Float32Array(sett.num_points_per_subset * GEO_DIMS),
+						GEO_DIMS),
 				);
 
 				// make the correct object and material for current settinfs
@@ -323,23 +330,27 @@ export class GeometryHolder extends CComponent {
 		}
 
 		// trigger level generation once
-		const firstWait: Promise<void>[] = [];
-		for (let l = 0; l < sett.num_levels; l++) {
-			firstWait.push(this.generateLevel(l));
-		}
-		// wait for all generators to finish
-		await Promise.all(firstWait);
+		await Promise.all(this.levels.map((o, l) => this.generateLevel(l)));
 
-		// apply data manually
+		// apply data
 		while (this.afterRenderQueue.length > 0) {
 			this.afterRenderQueue.shift()();
 		}
 
 		// generate standby data for first move-back
-		for (let l = 0; l < sett.num_levels; l++) {
-			this.generateLevel(l);
+		const stndBy = Promise.all(this.levels.map((o, l) => this.generateLevel(l)));
+
+		// wait for something else?
+		if (waitFor) {
+			// wait for data
+			await stndBy;
+			// apply data
+			while (this.afterRenderQueue.length > 0) {
+				this.afterRenderQueue.shift()();
+			}
+			// wait for control flow
+			await waitFor;
 		}
-		// return control flow
 	}
 
 	/**
@@ -357,7 +368,7 @@ export class GeometryHolder extends CComponent {
 			material = new PointsMaterial({
 				map: texture,
 				size: this.settings.texture_size,
-				blending: NormalBlending, // AdditiveBlending,
+				blending: NormalBlending, // AdditiveBlending, NormalBlending
 				depthTest: false,
 				transparent: true,
 			});
@@ -377,7 +388,7 @@ export class GeometryHolder extends CComponent {
 		// Stops these errors:
 		// THREE.BufferGeometry.computeBoundingSphere(): Computed radius is NaN. The "position" attribute is likely to have NaN values.
 		// See here: https://github.com/mrdoob/three.js/issues/19735
-		// object.frustumCulled = false;
+		object.frustumCulled = this.settings.xr_mode;
 
 		return object;
 	}
@@ -413,13 +424,14 @@ export class GeometryHolder extends CComponent {
 		return run(({module, instance, exports, params}) => {
 			const ex = instance.exports as any;
 			const {data} = params[0];
+			const arrData = new Float32Array(data);
 			// get the direct view from the module memory and set the new buffer data
-			exports.__getFloat32ArrayView(ex.levelSettings).set(data);
+			exports.__getFloat32ArrayView(ex.levelSettings).set(arrData);
 			// generate new data structure with updated settings
 			ex.update();
 		}, {
 			// Data passed to worker
-			data: sett,
+			data: sett.buffer,
 		}).then(() => {
 			Smallog.debug('Sent Settings to Generator: ' + JSON.stringify(sett));
 		});
@@ -442,7 +454,7 @@ export class GeometryHolder extends CComponent {
 	* @param {number} level for what we are generating
 	* @return {Promise} finiished event
 	*/
-	private generateLevel(level): Promise<void> {
+	private generateLevel(level: number): Promise<void> {
 		Smallog.debug('generating level: ' + level);
 
 		const start = performance.now();
@@ -459,7 +471,7 @@ export class GeometryHolder extends CComponent {
 			// gather transferrable float-arrays
 			const resultObj = {};
 			// we make a hard-copy of the buffer so the data doesnt get lost.
-			setPtrs.forEach((ptr, i) => resultObj['set_' + i] = new Float32Array(exports.__getFloat32ArrayView(ptr)));
+			setPtrs.forEach((ptr, i) => resultObj['set_' + i] = new Float32Array(exports.__getFloat32ArrayView(ptr)).buffer);
 			return resultObj;
 		}, {
 			// Data passed to worker
@@ -501,7 +513,7 @@ export class GeometryHolder extends CComponent {
 
 		// calc audio boost
 		const lastAudio = this.weas.lastAudio;
-		const flmult = (20 + sett.audio_increase) / 120;
+		const flmult = (20 + sett.audio_increase) / 110;
 		const boost = lastAudio.intensity * flmult;
 
 		// get targeted saturation
@@ -521,7 +533,7 @@ export class GeometryHolder extends CComponent {
 		const colObject = this.colorHelpr.colorObject;
 		const hues = this.colorHelpr.hueValues;
 		const color_mode = this.colorHelpr.settings.color_mode;
-		const camZ = this.camera.position.z + NEAR_DIST;
+		const camZ = this.camera.position.z;
 
 		// calculate step distance between levels
 		const orbtSize = (sett.num_levels * sett.level_depth) - NEAR_DIST;
@@ -532,7 +544,7 @@ export class GeometryHolder extends CComponent {
 		let spvn = sett.zoom_val / 4 * deltaTime;
 		let rot = sett.rotation_val / 5000;
 		if (sett.audiozoom_val > 0) {
-			spvn += boost * sett.audiozoom_val / 42 * deltaTime;
+			spvn += boost * sett.audiozoom_val / 33 * deltaTime;
 			rot *= boost * sett.audiozoom_val / 150 * deltaTime; ;
 		}
 

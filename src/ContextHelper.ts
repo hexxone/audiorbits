@@ -7,14 +7,14 @@
 * See LICENSE file in the project root for full license information.
 */
 
-import {Clock, FogExp2, PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRFrame} from 'three';
+import {Clock, Color, Fog, PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRFrame} from 'three';
 
 import {ColorHelper} from './ColorHelper';
 import {GeometryHolder} from './GeometryHelper';
 import {ShaderHolder} from './ShaderHelper';
 import {FancyText} from './FancyText';
 
-import {CComponent, CSettings, EffectComposer, FPStats, Smallog, WEAS, WEICUE, XRHelper} from './we_utils';
+import {CComponent, CSettings, EffectComposer, FPStats, rgbToObj, Smallog, WEAS, WEICUE, XRHelper} from './we_utils';
 
 export const NEAR_DIST = 3;
 
@@ -35,6 +35,9 @@ class ContextSettings extends CSettings {
 	shader_quality: number = 1;
 	xr_mode: boolean = false;
 
+	// AudiOrbits bg Color; used as "fog"-color aswell
+	public main_color: string = '0 0 0';
+
 	// offtopic
 	fog_thickness: number = 20;
 
@@ -53,8 +56,11 @@ class ContextSettings extends CSettings {
 * @public
 */
 export class ContextHelper extends CComponent {
-	// global state
+	/** @public global state */
 	public PAUSED = false;
+
+	/** @public */
+	public settings: ContextSettings = new ContextSettings();
 
 	// webvr user input data
 	private userData = {
@@ -62,8 +68,6 @@ export class ContextHelper extends CComponent {
 		controller1: null,
 		controller2: null,
 	};
-
-	public settings: ContextSettings = new ContextSettings();
 
 	// html elements
 	private mainCanvas: HTMLCanvasElement = null;
@@ -153,14 +157,23 @@ export class ContextHelper extends CComponent {
 	/**
 	* initialize three-js context
 	* @public
+	* @param {Promise} waitFor (optional) wait for this promise before rendering
 	* @return {Promise} finish event
 	*/
-	public init(): Promise<void> {
+	public init(waitFor?: Promise<void>): Promise<void> {
 		return new Promise(async (resolve) => {
 			Smallog.debug('init Context...');
 
 			// get canvas container
 			const cont = document.getElementById('renderContainer');
+			// distance
+			const viewDist = this.settings.num_levels * this.settings.level_depth * (this.settings.xr_mode ? 1 : 2);
+			// color
+			const colObj = rgbToObj(this.settings.main_color);
+			const fogCol = new Color(colObj.r, colObj.g, colObj.b).getHexString();
+			// precision
+			const prec = this.getPrecisionPref();
+
 
 			// destroy old context
 			if (this.renderer) this.renderer.forceContextLoss();
@@ -176,50 +189,46 @@ export class ContextHelper extends CComponent {
 			this.mainCanvas.height = window.innerHeight;
 			cont.appendChild(this.mainCanvas);
 
-			// dont use depth buffer on low quality
-			const qual = this.settings.shader_quality < 3 ? (this.settings.shader_quality < 2 ? 'low' : 'medium') : 'high';
-			const dBuffer = this.settings.shader_quality > 1;
-			const shaderP = qual + 'p';
-
 			// create camera
-			const viewDist = this.settings.num_levels * this.settings.level_depth * (this.settings.xr_mode ? 1 : 2);
 			this.camera = new PerspectiveCamera(this.settings.field_of_view, window.innerWidth / window.innerHeight, NEAR_DIST, viewDist);
 
 			// create scene
 			this.scene = new Scene();
-
-			// create distance fog
-			this.scene.fog = new FogExp2(0x000000, 0.00001 + this.settings.fog_thickness / viewDist / 69);
+			// this.scene.fog = new FogExp2(fogCol, 0.00001 + this.settings.fog_thickness / viewDist / 69);
+			this.scene.fog = new Fog(fogCol, NEAR_DIST, this.settings.fog_thickness / viewDist / 21);
 
 			// create render-context
 			this.renderer = new WebGLRenderer({
 				alpha: true,
 				antialias: false,
 				canvas: this.mainCanvas,
-				logarithmicDepthBuffer: dBuffer,
+				logarithmicDepthBuffer: true,
 				powerPreference: this.getPowerPreference(),
-				precision: shaderP,
+				precision: prec,
 			});
-			this.renderer.setClearColor(0x000000, 0);
+			this.renderer.setClearColor(fogCol, 0);
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 
 			// initialize VR mode
 			this.initWebXR();
 
 			// initialize shader composer
-			this.composer = new EffectComposer(this.scene, this.camera, this.renderer, shaderP);
+			this.composer = new EffectComposer(this.scene, this.camera, this.renderer, prec, fogCol);
 
 			// add shaders
 			this.shaderHolder.init(this.composer);
-
-			// show fancy text
-			this.showMessage(document.title);
 
 			// initialize colors if not done already
 			await this.colorHolder.updateSettings();
 
 			// initialize main geometry
-			await this.lvlHolder.init(this.scene, this.camera);
+			await this.lvlHolder.init(this.scene, this.camera, waitFor);
+
+			// precompile shaders
+			this.composer.precompile();
+
+			// show fancy text
+			this.showMessage(document.title);
 
 			// start rendering
 			this.setRenderer(true);
@@ -463,6 +472,18 @@ export class ContextHelper extends CComponent {
 		case 1: return 'low-power';
 		case 3: return 'high-performance';
 		default: return 'default';
+		}
+	}
+
+	/**
+	* use overall "quality" setting to determine three.js "power" mode
+	* @return {string} three.js power mode
+	*/
+	private getPrecisionPref() {
+		switch (this.settings.shader_quality) {
+		case 1: return 'lowp';
+		case 3: return 'highp';
+		default: return 'mediump';
 		}
 	}
 

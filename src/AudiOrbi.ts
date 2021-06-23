@@ -22,9 +22,9 @@
 /* eslint-disable no-unused-vars */
 
 import {ContextHelper} from './ContextHelper';
-import WEventListener from './WEventListener';
+import {WEventListener} from './WEventListener';
 
-import {CComponent, CSettings, ReloadHelper, Smallog, waitReady, WarnHelper, WEWWA} from './we_utils';
+import {CComponent, CSettings, ReloadHelper, rgbToObj, Smallog, waitReady, WarnHelper, WEWWA} from './we_utils';
 
 const Ignore: string[] = ['img_overlay', 'img_background', 'mirror_invalid_val'];
 
@@ -192,9 +192,8 @@ export class AudiOrbits extends CComponent {
 
 		// Custom bg color
 		if (props.main_color) {
-			const spl = props.main_color.value.split(' ');
-			for (let i = 0; i < spl.length; i++) spl[i] *= 255;
-			document.body.style.backgroundColor = 'rgb(' + spl.join(', ') + ')';
+			const cO = rgbToObj(props.main_color.value);
+			document.body.style.backgroundColor = `rgb(${cO.r},${cO.g},${cO.b})`;
 		}
 
 		// Custom user images
@@ -251,9 +250,8 @@ export class AudiOrbits extends CComponent {
 	* @public
 	*/
 	public initOnce() {
-		// show seizure warning before initializing
-		this.warnHelper.show()
-			.then(() => this.initSystem());
+		// initializing and wait for seizure warning
+		this.initSystem(this.warnHelper.show());
 	}
 
 	/**
@@ -273,11 +271,12 @@ export class AudiOrbits extends CComponent {
 	/**
 	* initialize the geometric & grpahics system
 	* => starts rendering loop afterwards
+	* @param {Promise} waitFor wait for this promise if given
 	*/
-	private initSystem() {
+	private initSystem(waitFor?: Promise<void>) {
 		Smallog.debug('initializing...');
 		// initialize three js and add geometry to returned scene
-		this.ctxHolder.init().then(() => {
+		this.ctxHolder.init(waitFor).then(() => {
 			// start auto parallax handler
 			this.swirlInterval = window.setInterval(() => this.swirlHandler(), 1000 / 60);
 			// start rendering
