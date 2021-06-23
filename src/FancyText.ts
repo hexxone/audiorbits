@@ -8,7 +8,7 @@
 */
 
 import {Font, Mesh, MeshPhongMaterial, TextGeometry} from 'three';
-import {myFetch} from './we_utils';
+import {WascUtil} from './we_utils';
 
 /**
 * @todo FIX
@@ -31,7 +31,7 @@ export class FancyText {
 	constructor(scene: THREE.Scene, CPos: THREE.Vector3, lookAt: THREE.Vector3, text: string, hideAfter = 30, fontPath = '/css/HEXAGON_cup_font.json') {
 		this.scene = scene;
 
-		myFetch(fontPath, 'json').then((fDat) => {
+		WascUtil.myFetch(fontPath, 'json').then((fDat) => {
 			const textFont = new Font(fDat);
 			const textGeo = new TextGeometry(text, {
 				font: textFont,

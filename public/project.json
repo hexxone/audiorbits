@@ -794,7 +794,7 @@
 				"condition": "HEADER_BRIGHTNESS.value",
 				"editable": false,
 				"max": 100,
-				"min": 1,
+				"min": 10,
 				"order": 570,
 				"text": "ui_default",
 				"type": "slider",
@@ -804,17 +804,17 @@
 				"condition": "HEADER_BRIGHTNESS.value && audioprocessing.value",
 				"editable": false,
 				"max": 100,
-				"min": 1,
+				"min": 10,
 				"order": 580,
 				"text": "ui_minimum",
 				"type": "slider",
-				"value": 10
+				"value": 40
 			},
 			"maximum_brightness": {
 				"condition": "HEADER_BRIGHTNESS.value && audioprocessing.value",
 				"editable": false,
 				"max": 100,
-				"min": 1,
+				"min": 10,
 				"order": 590,
 				"text": "ui_maximum",
 				"type": "slider",
@@ -842,7 +842,7 @@
 				"condition": "HEADER_SATURATION.value",
 				"editable": false,
 				"max": 100,
-				"min": 1,
+				"min": 10,
 				"order": 630,
 				"text": "ui_default",
 				"type": "slider",
@@ -852,21 +852,21 @@
 				"condition": "HEADER_SATURATION.value && audioprocessing.value",
 				"editable": false,
 				"max": 100,
-				"min": 1,
+				"min": 10,
 				"order": 640,
 				"text": "ui_minimum",
 				"type": "slider",
-				"value": 10
+				"value": 30
 			},
 			"maximum_saturation": {
 				"condition": "HEADER_SATURATION.value && audioprocessing.value",
 				"editable": false,
 				"max": 100,
-				"min": 1,
+				"min": 10,
 				"order": 650,
 				"text": "ui_maximum",
 				"type": "slider",
-				"value": 80
+				"value": 90
 			},
 			"SPACER_17": {
 				"condition": "HEADER_SATURATION.value",

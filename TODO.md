@@ -1,5 +1,7 @@
 # Todo's
 
+# b4 707 KiB
+
 project.json
 - update translations -> project.json -> steam
 - update preview image?
@@ -7,6 +9,8 @@ project.json
 
 
 main code:
+- fix rgba color onpit converz 
+- make coordinates 3d
 - fix "min > max" saturation/light
 - fix shaders (lut, blur, chroma)
 - check new re-init vars
