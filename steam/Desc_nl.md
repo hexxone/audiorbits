@@ -1,88 +1,89 @@
-Dit behang maakt gebruik van WebGL, WebAudio en een Fractal Algoritme voor "Orbit" generatie. Het reageert op muziek door het audiospectrum op de Orbit te projecteren in de vorm van kleur, verzadiging en helderheid.
+Deze wallpaper gebruikt WebGL, WebAudio en een fractal algoritme voor het genereren van "banen". Het reageert op muziek door het audiospectrum in termen van kleur, verzadiging en helderheid op de "banen" te projecteren.
 
-[h1]Gebruik[/h1]
-Op dit moment ziet het behang er misschien wel het beste uit met muziek die wat bas heeft (de meeste EDM).
-U kunt het echter aanpassen aan uw voorkeur met meer dan 50 instellingen.
+[h1]🧬 Usage 🧬[/h1]
+Op dit moment ziet het behang er het beste uit met muziek met wat bas erin.
+U kunt het echter perfect aan uw voorkeuren aanpassen met meer dan 50 instellingen!
 
-[h1]Functies[/h1]
-╠═ 3 Parallax modi met aanpasbare efffectsterkte
-╠╦═ dynamische fractal orbit generator
-║╠════ standaard instellingen voor helderheid en verzadiging (wanneer er geen audio wordt afgespeeld)
-║╠════ zoomsnelheidsinstelling
-║╠════ rotatiesnelheid instelling
-║╠════ kleurvervaging snelheid instelling
-║╚════ aangepaste rendertiming (zie de handleiding voor meer details)
-╠╦═ kleurstellingen
-║╠════ Belangrijkste achtergrondkleur
-║╠════ 5 verschillende kleurmodi
-║╠════ aanpasbare fade snelheid
-║╚════ aanpasbare hoofd & secundaire kleur
-╠╦═ filterinstellingen
-║╠════ bloeifilter
-║╠════ 3 verschillende (L)ook (U)p (T)bekwame filters
-║╠════ fractal mirror filter
-║╠════ FXAA-filter
-║╚════ vervagen Filter
-╠╦═ audioverwerking & -mapping
-║╠════ minimum volume-instelling
-║╠════ minimale helderheidsinstelling
-║╠════ minimale verzadiging instelling
-║╠════ volumemultiplicator
-║╠════ piek filter
-║╠════ tijd gladstrijken
-║╠════ waardeafvlakking
-║╠════ audio zoom vermenigvuldiger
-║╚════ audio zoom gladstrijken
-╠═ "tunnelgenerator" (vermijdt deeltjes voor de camera)
-╠═ optionele overlay en achtergrondafbeeldingen
-╠═ aanpasbare algoritme parameters
-╠╦═ geavanceerde instellingen
-║╠════ 3 kiesbare basistexturen
-║╠════ textuur grootte instelling
-║╠════ weergave van statistieken
-║╠════ shader kwaliteit
-║╠════ FOV instelling
-║╠════ Schaalfactor
-║╠════ baanniveau bedrag
-║╠════ baanniveau diepte
-║╠════ orbit subset per niveau bedrag
-║╠════ baanpunt per deelverzameling bedrag
-║╠════ mistdikte instelling
-║╚════ niveauverschuiving
-╠╦═ iCUE Integratie
-║╠════ enkele kleurmodus
-║╚════ projectiemodus
-╠═ gladde fade-in
-╠═ waarschuwing voor inbeslagname
-╚═ debuggenregistratie
-
-Over...
-Voor mij is dit een leuk nevenproject met veel te leren en ik ben bereid om het up-to-date te houden in mijn vrije tijd. 
-
-Dit was ooit een [url=https://orbits.hexx.one/] web-only versie [/url] en is mijn eerste Wallpaper-Engine Wallpaper, dus dingen zijn misschien niet perfect.
-
-De broncode kan worden gevonden [url=https://github.com/hexxone/audiorbits] hier [/url]. Vergeet niet om de licentie te respecteren en krediet te geven waar nodig.
+[h1]⚙️ Features ⚙️[/h1]
+╠╦═ 📐 Meetkunde
+║╠══ Variant
+║╠══ Textuur & Grootte
+║╠══ Tunnelgenerator
+║╠══ Aantal, Schaal, Diepte, Hoeveelheid.
+║╚══ Willekeurig zaad
+╠╦═ 🎥 Camera
+║╠══ Cursor/Automatisch/Vaste positie
+║╠══ Parallax
+║╠══ Sterkte, FOV, Mist
+║╚══ VSYNC opheffen (FPS)
+╠╦═ ⏫ Beweging
+║╠══ Richting
+║╠══ Snelheid
+║╠══ Audio Zoom Sterkte, Afvlakking
+║╚══ Rotatie
+╠╦═ 🌈 Kleuren
+║╠══ Achtergrond
+║╠══ 6x kleurmodi
+║╠══ Kleurverandering
+║╚══ Audio-responsiekracht
+╠╦═ 🔆 Helderheid
+║╚══ Standaard, Audio min & max
+╠╦═ 📊 Verzadiging
+║╚══ Standaard, audio min & max
+╠╦═ 🕶 Filter
+║╠══ Bloom
+║╠══ Opzoektabel
+║╠══ Spiegel
+║╠══ FXAA
+║╠══ BLUR
+║╚══ ChromeA
+╠╦═ 🖼 Foto's
+║╠══ Voorgrond
+║╚══ Achtergrond
+╠╦═ 🔊 Audio
+║╠══ Dynamische equalizer
+║╠══ Mono/stereo omschakeling
+║╠══ Kaartrichting
+║╠══ Pieken, Afvlakking, Sterkte, Reactie
+║╚══ Minimumvolume
+╠╦═ 💡 LED / iCUE
+║╠══ Projectie-/kleurenmodus
+║╠══ Bereik-/kleuraanpassing
+║╚══ Onscherpte, kleurverlies
+╠═ ⚙️ Geavanceerd
+╠══ Kwaliteit (laag, gemiddeld, hoog)
+╠══ Lage latentie
+╠══ VR-modus (experimenteel)
+╠══ Waarschuwing voor epilepsie
+╚══ Debuggen
 
 
-[h1] hulp nodig? [/h1]
-Als uw PC of toepassingen achterblijven, neem dan een kijkje op de [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Settings Guide forum [/url].
+[h1]ℹ️ Over ℹ️[/h1]
+Voor mij is dit een cool nevenproject waar nog veel te leren valt, en ik ben bereid om het in mijn vrije tijd bij te werken. 
 
-Voor bugs en andere problemen kunt u een kijkje nemen op de [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Bugreportdraad [/url].
+Dit was ooit een [url=https://orbits.hexx.one/]web-only versie[/url] en is mijn eerste wallpaper engine wallpaper, dus alles is misschien niet perfect.
 
-Voor suggesties voor nieuwe functies, bezoek [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Plannen om te implementeren [/url].
-
-
-[h1] Patchnotes [/h1].
-Kan worden bekeken in het "Veranderingen"-tabblad hierboven.
+De [url=https://github.com/hexxone/audiorbits]broncode kan hier gevonden worden[/url]. Respecteer de licentie en vermeld de bron :)
 
 
-[spoiler] Bedankt voor meer dan 100k gebruikers O:[/spoiler]
+[h1]❓ Hulp nodig ❓[/h1]]
+Als uw PC of toepassingen haperen, kijk dan eens naar de [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1729828401678316327/] Instellingen Gids[/url].
+
+Voor bugs en andere problemen, is er de [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Bugreport draad [/url].
+
+Suggesties voor nieuwe functies [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1698300679759373495/] zijn hier [/url].
 
 
-[h1] WAARSCHUWINGEN [/h1]
-Dit "Wallpaper" kan mogelijk aanvallen uitlokken voor mensen met lichtgevoelige epilepsie.
-Als u er te lang naar kijkt, kan dit leiden tot hoofdpijn, kortstondige visuele waarnemingsveranderingen en nog veel meer.
-De discretie van de kijker wordt geadviseerd.
+[h1]🗒 Patchnotes 🗒[/h1]
+Details zijn te vinden in het tabblad "Wijzigingen" hierboven.
 
-Deze "Wallpaper" kan veel RAM, CPU & GPU bronnen gebruiken, afhankelijk van de instellingen.
-Let op!
+
+❤️ Dank u voor meer dan 200000 gebruikers ❤️
+
+
+[h1]⚠️ WAARSCHUWINGEN ⚠️[/h1]
+Dit "behang" kan mogelijk aanvallen veroorzaken bij mensen met lichtgevoelige epilepsie.
+Te lang kijken kan leiden tot hoofdpijn, korte-termijn veranderingen in visuele perceptie, en meer.
+Discretie van de kijker is gewenst.
+
+Deze "wallpaper" kan veel RAM, CPU en GPU bronnen in beslag nemen, afhankelijk van de instellingen.
