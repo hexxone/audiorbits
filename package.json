@@ -4,10 +4,12 @@
   "description": "Web Wallpaper for Wallpaper Engine",
   "main": "index.js",
   "scripts": {
-    "pack": "webpack",
-    "pack-prod": "webpack --env production",
-    "dev": "webpack serve",
-    "dev-prod": "webpack serve --env production",
+    "prep": "rm -rf ./dist && cp -R public dist",
+    "prep-win": "del \"dist\\*.*\" /Q /S && xcopy \"public\\*.*\" \"dist\\\" /e /i /y /s",
+    "dbg": "yarn prep && webpack && webpack serve",
+    "dbg-win": "yarn prep-win && webpack && webpack serve",
+    "prod": "yarn prep && webpack --env production && webpack serve --env production",
+    "prod-win": "yarn prep-win && webpack --env production && webpack serve --env production",
     "lint": "eslint ./src/ --ext js,ts,jsx,tsx"
   },
   "repository": {
@@ -25,6 +27,7 @@
     "@types/three": "^0.126.1",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
+    "@yushijinhun/three-minifier-webpack": "^0.3.0-alpha.0",
     "assemblyscript": "^0.18.15",
     "awesome-typescript-loader": "^5.2.1",
     "better-docs": "^2.3.2",
@@ -43,9 +46,9 @@
     "ts-transformer-properties-rename": "^0.11.0",
     "ttypescript": "^1.5.12",
     "typescript": "^4.2.3",
-    "uglify-js": "^3.13.9",
     "webpack": "^5.27.1",
-    "webpack-cli": "^4.5.0",
+    "webpack-bundle-analyzer": "^4.4.2",
+    "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^3.11.2",
     "worker-loader": "^3.0.8"
   }
