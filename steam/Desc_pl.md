@@ -1,88 +1,89 @@
-Ta tapeta wykorzystuje WebGL, WebAudio i Fractal Algorytm dla generacji "Orbita". Reaguje na muzykę poprzez rzutowanie widma audio na orbity w postaci koloru, nasycenia i jasności.
+Ta tapeta wykorzystuje WebGL, WebAudio i algorytm fraktalny do generowania "orbit". Reaguje on na muzykę poprzez wyświetlanie spektrum dźwięku w zakresie koloru, nasycenia i jasności na "orbitach".
 
-[h1]Użycie[/h1]
-W tej chwili tapeta może wyglądać najlepiej z muzyką, która ma w sobie trochę basu (większość EDM).
-Można ją jednak dopasować do swoich preferencji za pomocą ponad 50 ustawień.
+[h1]🧬 Wykorzystanie 🧬[/h1]
+W tej chwili tapeta wygląda najlepiej z muzyką, która ma w sobie trochę basu.
+Możesz jednak dostosować go idealnie do swoich preferencji dzięki ponad 50 ustawieniom!
 
-[h1]Cechy[/h1]
-╠═ 3 Tryby paralaksy z konfigurowalną siłą nacisku.
-╠╦═ Dynamiczny generator orbity fraktalnej
-║╠══ domyślne ustawienia jasności i nasycenia (gdy nie jest odtwarzany dźwięk)
-║╠══ Ustawienie prędkości powiększenia
-║╠══ Ustawienie prędkości obrotowej
-║╠══ Ustawianie szybkości zaniku koloru
-║╚══ Czas renderowania na zamówienie (Więcej szczegółów w Przewodniku)
-╠╦═ Zestawienia kolorów
-║╠══ Główny kolor tła
-║╠══ 5 różnych trybów kolorystycznych
-║╠══ Szybkość zaniku z możliwością dostosowania.
-║╚══ z możliwością dostosowania głównego i dodatkowego koloru.
-╠╦═ Zestawy filtrów
-║╠══ Filtr kwiatów
-║╠══ 3 różne filtry (L)i (U)p (T)zdolne do filtrowania
-║╠══ Fraktalny filtr lustrzany
-║╠══ Filtr FXAA
-║╚══ Rozmycie filtru
-╠╦═ Przetwarzanie i mapowanie dźwięku
-║╠══ Minimalny poziom głośności
-║╠══ Minimalne ustawienie jasności
-║╠══ Minimalne ustawienie nasycenia
-║╠══ mnożnik tomów
-║╠══ Filtr szczytowy
-║╠══ wygładzanie czasu
-║╠══ wygładzanie wartości
-║╠══ Mnożnik zoomu audio
-║╚══ wygładzanie powiększenia dźwięku
-╠═ "generator tunelu" (unika cząstek przed kamerą)
-╠═ opcjonalne nakładki i obrazy tła
-╠═ konfigurowalne parametry algorytmu
-╠╦═ ustawienia zaawansowane
-║╠══ 3 możliwe do wyboru tekstury bazowe
-║╠══ Ustawienie rozmiaru tekstury
-║╠══ Statystyki renderowania statystyk
-║╠══ Jakość shaderów
-║╠══ Ustawienie FOV
-║╠══ Współczynnik skalowania
-║╠══ Kwota na poziomie orbity
-║╠══ Głębokość poziomu orbity
-║╠══ podzestaw orbitalny na poziomie kwoty
-║╠══ Punkt orbity za podzbiór kwoty
-║╠══ Ustalanie grubości mgły
-║╚══ Zmiana poziomu
-╠╦═ iCUE Integracja
-║╠══ Tryb jednokolorowy
-║╚══ Tryb projekcji
-╠═ smooth fade-in
-╠═ ostrzeżenie o zajęciu
-╚═ logowanie debugów
-
-[h1]Około[/h1]
-Dla mnie jest to zabawny projekt poboczny z dużą ilością nauki i jestem gotów na bieżąco informować o nim w wolnym czasie. 
-
-To był kiedyś [url=https://orbits.hexx.one/]web-only version[/url] i jest to moja pierwsza tapeta - tapeta silnika, więc rzeczy mogą nie być idealne.
-
-Kod źródłowy można znaleźć [url=https://github.com/hexxone/audiorbits]tutaj[/url]. Proszę pamiętać o przestrzeganiu licencji i udzieleniu kredytu tam, gdzie to konieczne.
+[h1]⚙️ Cechy ⚙️[/h1]
+╠╦═ 📐 Geometria
+║╠══ Wariant
+║╠══ Tekstura i rozmiar
+║╠══ Generator tunelowy
+║╠══ Liczba, skala, głębokość, ilość.
+║╚══ Ziarno losowe
+╠╦═ 🎥 Kamera
+║╠══ Kursor/Automatyczny/Stałe położenie
+║╠══ Paralaksa
+║╠══ Wytrzymałość, FOV, mgła
+║╚══ Zastąp VSYNC (FPS)
+╠╦═ ⏫ Motion
+║╠══ Kierunek
+║╠══ Prędkość
+║╠══ Wzmocnienie zoomu dźwiękowego, wygładzanie
+║╚══ Obrót
+╠╦═ 🌈 Kolory
+║╠══ Kontekst
+║╠══ 6x tryby kolorów
+║╠══ Zmiana koloru
+║╚══ Siła reakcji dźwięku
+╠╦═ 🔆 Jasność
+║╚══ Standard, dźwięk min. i maks.
+╠╦═ 📊 Nasycenie
+║╚══ Domyślnie, dźwięk min. i maks.
+╠╦═ 🕶 Filtr
+║╠═══ Bloom
+║╠══ Tablica informacyjna
+║╠══ Lustro
+║╠══ FXAA
+║╠═══ BLUR
+║╚═══ ChromeA
+╠╦═ 🖼 Zdjęcia
+║╠═══ Pierwszy plan
+║╚═══ Kontekst
+╠╦═ 🔊 Audio
+║╠══ Korektor dynamiczny
+║╠══ Przełączanie trybu mono/stereo
+║╠══ Kierunek odwzorowania
+║╠══ Szczyty, wygładzanie, siła, reakcja
+║╚══ Minimalna objętość
+╠╦═ 💡 LED / iCUE
+║╠══ Tryb projekcji/koloru
+║╠══ Regulacja zakresu/koloru
+║╚══ Rozmycie, utrata kolorów
+╠═ ⚙️ Zaawansowane
+╠══ Jakość (niska, średnia, wysoka)
+╠══ Niskie opóźnienia
+╠══ Tryb VR (eksperymentalny)
+╠══ Ostrzeżenie o epilepsji Toggle
+╚══ Debugowanie.
 
 
-[h1]Potrzebujesz pomocy?[/h1]
-Jeśli Twój komputer lub aplikacje są opóźnione, zajrzyj do [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Settings Guide forum[/url].
+[h1]ℹ️ O ℹ️[/h1]
+Dla mnie jest to fajny projekt poboczny, w którym można się wiele nauczyć i jestem gotów aktualizować go w wolnym czasie. 
 
-W przypadku błędów i innych problemów, proszę spojrzeć na [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Wątek Bugreport[/url].
+To była kiedyś [url=https://orbits.hexx.one/]wersja web-only[/url] i jest to moja pierwsza tapeta na silniku, więc wszystko może nie być idealne.
 
-Więcej informacji na temat nowych funkcji można znaleźć w [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Planowanie wdrożenia[/url].
-
-
-[h1]Patchnote[/h1]
-Można je zobaczyć w zakładce "Zmiany" powyżej.
+Kod [url=https://github.com/hexxone/audiorbits]źródłowy można znaleźć tutaj[/url]. Proszę pamiętać o przestrzeganiu licencji i podawaniu źródła :)
 
 
-[spoiler] Dzięki dla ponad 100k użytkowników O:[/spoiler]
+[h1]❓ Potrzebna pomoc ❓[/h1]
+Jeśli Twój komputer lub aplikacje zawodzą, proszę spójrz na [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1729828401678316327/] Przewodnik po ustawieniach[/url].
+
+W przypadku błędów i innych problemów, istnieje [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Bugreport thread [/url].
+
+Propozycje nowych funkcji [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1698300679759373495/] są tutaj [/url].
 
 
-[h1]OSTRZEŻENIA[/h1]
-Ta "tapeta" może potencjalnie wywoływać napady u osób z padaczką światłoczułą.
-Zbyt długie patrzenie na nią może powodować bóle głowy, krótkotrwałe zmiany w percepcji wzrokowej i inne.
-Zalecana jest dyskrecja widza.
+[h1]🗒 Patchnotes 🗒[/h1]
+Szczegóły można znaleźć w zakładce "Zmiany" powyżej.
 
-Ta "tapeta" może wykorzystywać całkiem sporo zasobów pamięci RAM, CPU i GPU, w zależności od ustawień.
-Bądź świadomy!
+
+❤️ Dziękujemy za ponad 200000 użytkowników ❤️
+
+
+[h1]⚠️ OSTRZEŻENIA ⚠️[/h1]
+Ta "tapeta" może potencjalnie powodować ataki u osób z epilepsją wrażliwą na światło.
+Zbyt długie oglądanie go może powodować bóle głowy, krótkotrwałe zmiany w percepcji wzrokowej i inne.
+Wymagana dyskrecja widzów.
+
+Ta "tapeta" może zajmować dużo pamięci RAM, zasobów CPU i GPU w zależności od ustawień.
