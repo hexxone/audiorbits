@@ -14,12 +14,15 @@
         "@typescript-eslint"
     ],
     "rules": {
-        "linebreak-style": 0,
-        "camelcase": 0,
-        "no-tabs": 0,
-        "max-len": 0,
+        "linebreak-style": "off",
+        "camelcase": "off",
+        "no-tabs": "off",
+        "max-len": "off",
+		"prefer-spread":"warn",
+		"guard-for-in":"warn",
+		"no-invalid-this": "warn",
 		"indent": [1, "tab"],
-		"require-jsdoc": 1,
-		"valid-jsdoc": 1
+		"require-jsdoc": "warn",
+		"valid-jsdoc": "warn"
     }
 }

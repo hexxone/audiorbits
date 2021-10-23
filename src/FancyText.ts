@@ -7,8 +7,7 @@
 * See LICENSE file in the project root for full license information.
 */
 
-import {Font, Mesh, MeshPhongMaterial, TextGeometry} from 'three';
-import {WascUtil} from './we_utils';
+import {FontLoader, Mesh, MeshPhongMaterial, TextGeometry} from 'three';
 
 /**
 * @todo FIX
@@ -16,29 +15,24 @@ import {WascUtil} from './we_utils';
 * @public
 */
 export class FancyText {
-	private scene: THREE.Scene;
-	private mesh: THREE.Mesh;
-
 	/**
 	* Fancy Shorthand 3D Text Renderer for THREE js
 	* @param {THREE.Scene} scene Where to append the text
 	* @param {THREE.Vector3} CPos Position for mesh
-	* @param {THREE.Vector3} lookAt Position to look at
 	* @param {string} text message to show
-	* @param {number} hideAfter seconds to remove msg after (default = 30)
-	* @param {string} fontPath custom font (default = Hexagon)
+	* @param {THREE.Vector3} lookAt text front facing Position (null)
+	* @param {number} hideAfter seconds to remove msg after (30)
+	* @param {string} fontPath custom font (Hexagon_cup)
 	*/
-	constructor(scene: THREE.Scene, CPos: THREE.Vector3, lookAt: THREE.Vector3, text: string, hideAfter = 30, fontPath = '/css/HEXAGON_cup_font.json') {
-		this.scene = scene;
-
-		WascUtil.myFetch(fontPath, 'json').then((fDat) => {
-			const textFont = new Font(fDat);
+	constructor(scene: THREE.Scene, CPos: THREE.Vector3, text: string, lookAt: THREE.Vector3 = null, hideAfter: number = 30, fontPath: string = '/css/HEXAGON_cup_font.json') {
+		const loader = new FontLoader();
+		loader.load(fontPath, (fDat) => {
 			const textGeo = new TextGeometry(text, {
-				font: textFont,
+				font: fDat,
 				size: 200,
-				height: 5,
+				height: 200,
 				curveSegments: 12,
-				bevelEnabled: true,
+				bevelEnabled: false,
 				bevelThickness: 10,
 				bevelSize: 8,
 				bevelOffset: 0,
@@ -51,24 +45,15 @@ export class FancyText {
 
 			const textMesh = new Mesh(textGeo, textMaterial);
 			textMesh.position.set(CPos.x, CPos.y, CPos.z);
-			textMesh.lookAt(lookAt);
-			this.mesh = textMesh;
+
+			if (lookAt) textMesh.lookAt(lookAt);
 			scene.add(textMesh);
 
 			// hide again
-			setTimeout(() => this.hide(), hideAfter * 1000);
+			setTimeout(() => {
+				scene.remove(textMesh);
+			}, hideAfter * 1000);
 		});
-	}
-
-	/**
-		* Remove message
-		* @public
-		*/
-	public hide() {
-		if (this.mesh) {
-			this.scene.remove(this.mesh);
-			this.mesh = null;
-		}
 	}
 }
 

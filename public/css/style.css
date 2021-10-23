@@ -55,8 +55,8 @@ body {
 }
 
 #mainCvs {
-    opacity: 0.1;
-    transition: opacity 3s ease;
+    opacity: 0.9;
+    transition: opacity 1s ease;
 }
 
 #debugwnd {

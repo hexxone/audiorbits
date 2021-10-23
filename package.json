@@ -3,6 +3,7 @@
   "version": "2.4.0",
   "description": "Web Wallpaper for Wallpaper Engine",
   "main": "index.js",
+  "sideEffects": "false",
   "scripts": {
     "prep": "rm -rf ./dist && cp -R public dist",
     "prep-win": "del \"dist\\*.*\" /Q /S && xcopy \"public\\*.*\" \"dist\\\" /e /i /y /s",
@@ -10,7 +11,7 @@
     "dbg-win": "yarn prep-win && webpack && webpack serve",
     "prod": "yarn prep && webpack --env production && webpack serve --env production",
     "prod-win": "yarn prep-win && webpack --env production && webpack serve --env production",
-    "lint": "eslint ./src/ --ext js,ts,jsx,tsx"
+    "lint": "eslint ./src/we_utils/src/cthree/ --ext js,ts,jsx,tsx --fix"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,8 @@
     "circular-dependency-plugin": "^5.2.2",
     "eslint": "^7.25.0",
     "eslint-config-google": "^0.14.0",
+    "eslint-config-mdcs": "^5.0.0",
+    "eslint-plugin-html": "^6.2.0",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6.2.5",
     "ink-docstrap": "^1.3.2",

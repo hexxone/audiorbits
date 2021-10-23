@@ -7,7 +7,7 @@
 * See LICENSE file in the project root for full license information.
 */
 
-import {Clock, Color, Fog, PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRFrame} from 'three';
+import {Clock, Color, Group, PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRFrame} from 'three';
 
 import {ColorHelper} from './ColorHelper';
 import {GeometryHolder} from './GeometryHelper';
@@ -36,10 +36,7 @@ class ContextSettings extends CSettings {
 	xr_mode: boolean = false;
 
 	// AudiOrbits bg Color; used as "fog"-color aswell
-	public main_color: string = '0 0 0';
-
-	// offtopic
-	fog_thickness: number = 20;
+	main_color: string = '0 0 0';
 
 	// mirrored setting
 	scaling_factor: number = 1500;
@@ -65,8 +62,8 @@ export class ContextHelper extends CComponent {
 	// webvr user input data
 	private userData = {
 		isSelecting: false,
-		controller1: null,
-		controller2: null,
+		controller1: null as Group,
+		controller2: null as Group,
 	};
 
 	// html elements
@@ -139,9 +136,9 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-	 * apply resizing
-	 * @param {UIEvent} event
-	 */
+	* apply resizing
+	* @param {UIEvent} event
+	*/
 	private onResize(event): void {
 		const iW = window.innerWidth;
 		const iH = window.innerHeight;
@@ -161,19 +158,15 @@ export class ContextHelper extends CComponent {
 	* @return {Promise} finish event
 	*/
 	public init(waitFor?: Promise<void>): Promise<void> {
-		return new Promise(async (resolve) => {
+		return new Promise(async (res, rej) => {
 			Smallog.debug('init Context...');
 
 			// get canvas container
 			const cont = document.getElementById('renderContainer');
 			// distance
 			const viewDist = this.settings.num_levels * this.settings.level_depth * (this.settings.xr_mode ? 1 : 2);
-			// color
-			const colObj = rgbToObj(this.settings.main_color);
-			const fogCol = new Color(colObj.r, colObj.g, colObj.b).getHexString();
 			// precision
 			const prec = this.getPrecisionPref();
-
 
 			// destroy old context
 			if (this.renderer) this.renderer.forceContextLoss();
@@ -194,8 +187,8 @@ export class ContextHelper extends CComponent {
 
 			// create scene
 			this.scene = new Scene();
-			// this.scene.fog = new FogExp2(fogCol, 0.00001 + this.settings.fog_thickness / viewDist / 69);
-			this.scene.fog = new Fog(fogCol, NEAR_DIST, this.settings.fog_thickness / viewDist / 21);
+			// this.scene.fog = new FogExp2(this.getColor().getHexString(), 0.00001 + this.settings.fog_thickness / viewDist / 15);
+			// this.scene.fog = new Fog(fogCol, NEAR_DIST, this.settings.fog_thickness / viewDist / 7);
 
 			// create render-context
 			this.renderer = new WebGLRenderer({
@@ -206,34 +199,34 @@ export class ContextHelper extends CComponent {
 				powerPreference: this.getPowerPreference(),
 				precision: prec,
 			});
-			this.renderer.setClearColor(fogCol, 0);
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
+			this.renderer.setClearColor(0x000000, 0);
 
 			// initialize VR mode
 			this.initWebXR();
 
 			// initialize shader composer
-			this.composer = new EffectComposer(this.scene, this.camera, this.renderer, prec, fogCol);
+			this.composer = new EffectComposer(this.scene, this.camera, this.renderer, prec, 0x000000);
 
 			// add shaders
 			this.shaderHolder.init(this.composer);
 
-			// initialize colors if not done already
-			await this.colorHolder.updateSettings();
-
-			// initialize main geometry
-			await this.lvlHolder.init(this.scene, this.camera, waitFor);
-
 			// precompile shaders
 			this.composer.precompile();
 
-			// show fancy text
-			this.showMessage(document.title);
+			// initialize colors if not done already
+			this.colorHolder.updateSettings();
 
-			// start rendering
-			this.setRenderer(true);
-
-			resolve();
+			// initialize main geometry
+			this.lvlHolder.init(this.scene, this.camera, waitFor)
+				.then(() => {
+					// show fancy text
+					this.showMessage(document.title);
+					// start rendering
+					this.setRenderer(true);
+					// resolve promise
+					res();
+				}).catch(rej);
 		});
 	}
 
@@ -244,6 +237,15 @@ export class ContextHelper extends CComponent {
 	*/
 	private clampCam(axis) {
 		return Math.min(this.settings.scaling_factor / 2, Math.max(-this.settings.scaling_factor / 2, axis));
+	}
+
+	/**
+	* @param {string} r_g_b (optional)
+	* @return {Color}
+	*/
+	private getColor(r_g_b = this.settings.main_color) {
+		const a = rgbToObj(r_g_b);
+		return new Color(a.r, a.g, a.b);
 	}
 
 	/**
@@ -292,6 +294,7 @@ export class ContextHelper extends CComponent {
 		if (this.settings.parallax_option == 0) this.mouseX = this.mouseY = 0;
 		// set Cursor for "fixed" parallax mode
 		if (this.settings.parallax_option == 3) this.positionMouseAngle(this.settings.parallax_angle);
+
 		return Promise.resolve();
 	}
 
@@ -409,24 +412,32 @@ export class ContextHelper extends CComponent {
 		this.xrHelper.enableSession((xrs) => {
 			const enable = xrs !== null;
 			this.renderer.xr.setSession(xrs);
-			this.renderer.xr.enabled = true;
+			this.renderer.xr.enabled = true; // TODO this correct?
 
 			if (enable) {
-				this.userData.controller1 = this.renderer.xr.getController(0);
-				this.userData.controller1.addEventListener('selectstart', this.onVRSelectStart);
-				this.userData.controller1.addEventListener('selectend', this.onVRSelectEnd);
-				this.scene.add(this.userData.controller1);
-
-				this.userData.controller2 = this.renderer.xr.getController(1);
-				this.userData.controller2.addEventListener('selectstart', this.onVRSelectStart);
-				this.userData.controller2.addEventListener('selectend', this.onVRSelectEnd);
-				this.scene.add(this.userData.controller2);
+				const regCon = (con: Group) => {
+					con.addEventListener('selectstart', this.onVRSelectStart);
+					con.addEventListener('selectend', this.onVRSelectEnd);
+					this.scene.add(con);
+				};
+				// get first controller
+				const c1 = this.renderer.xr.getController(0);
+				if (c1) {
+					regCon(c1);
+					this.userData.controller1 = c1;
+					// only need to check for a 2nd controller if there is a first?
+					const c2 = this.renderer.xr.getController(1);
+					if (c2) {
+						regCon(c2);
+						this.userData.controller2 = c2;
+					}
+				}
 			} else {
 				if (this.userData.controller1) this.scene.remove(this.userData.controller1);
 				if (this.userData.controller2) this.scene.remove(this.userData.controller2);
 			}
 		}).then((succ) => {
-			if (succ) Smallog.debug('Initialized WebXR !');
+			if (succ) Smallog.info('Initialized WebXR!');
 			else Smallog.error('Initializing WebXR failed.');
 		});
 	}
@@ -494,9 +505,8 @@ export class ContextHelper extends CComponent {
 	*/
 	private showMessage(msg: string) {
 		// TODO Fix
-		const cPos = this.camera.position;
-		const tPos = new Vector3(0, 0, this.settings.level_depth).add(cPos);
-		this.textHolder = new FancyText(this.scene, tPos, cPos, msg);
+		const tPos = this.camera.position.sub(new Vector3(0, 0, this.settings.level_depth));
+		this.textHolder = new FancyText(this.scene, tPos, msg);
 	}
 
 	/**

@@ -1,16 +1,17 @@
 {
-    "name": "AudiOrbits",
+    "name": "AudiOrbits Wallpaper",
     "short_name": "AudiOrbits",
     "description": "Fractal Web Wallpaper for Wallpaper Engine",
     "start_url": "/?source=manifest",
     "display": "minimal-ui",
     "scope": "/",
-    "theme_color": "#111",
-    "background_color": "#000",
+    "theme_color": "#FBAE31",
+    "background_color": "#000000",
     "icons": [{
-      "src": "img/preview.jpg",
+      "src": "img/preview.png",
       "sizes": "512x512",
-      "type": "image/jpg"
+      "type": "image/png",
+	  "purpose": "any maskable"
     }],
     "related_applications": [{
       "platform": "webapps",

@@ -23,13 +23,18 @@
 */
 /* eslint-disable no-unused-vars */
 
-import {AdditiveBlending, BufferAttribute, BufferGeometry, Camera, Color, HSL, LineBasicMaterial, LineSegments, Material, NormalBlending, Object3D, Points, PointsMaterial, Scene, Texture, TextureLoader} from 'three';
+import {AdditiveBlending, BufferAttribute, BufferGeometry, Camera, Color, HSL, LineBasicMaterial, LineSegments, Material, NormalBlending, Object3D, Points, PointsMaterial, Scene, Texture, TextureLoader}
+	from 'three'; // from './we_utils/src/three.ts';
+
+import {CComponent, CSettings, Smallog, WEAS, WascInterface, wascWorker}
+	from './we_utils';
 
 import {ColorHelper} from './ColorHelper';
-import {CComponent, CSettings, Smallog, WEAS, WascInterface, wascWorker} from './we_utils';
 import {NEAR_DIST} from './ContextHelper';
 
 export const GEO_DIMS = 3;
+
+const cachedBuilders = [];
 
 /**
 * @public
@@ -64,18 +69,31 @@ class T3Object extends Object3D {
 */
 class LevelSettings extends CSettings {
 	geometry_type: number = 0;
+
+	// <GeneralGeometry>
+	num_spread: number = 50; // relation (max 32K points per subset) <--> (min 4K points per subset)
+	num_point: number = 16; // (x1024² points) inferrs num_levels & num_subsets_per_level & num_points_per_subset
+	num_depth: number = 50; // (orbit depth) inferrs level_depth = x256 / num_levels
+	num_scale: number = 50; // (orbit x-y size) inferrs scaling_factor -> x32
+
 	num_levels: number = 6;
 	level_depth: number = 1200;
-	level_shifting: boolean = false;
-	level_spiralize: boolean = false;
 	num_subsets_per_level: number = 12;
 	num_points_per_subset: number = 4096;
-	base_texture: number = 0;
-	texture_size: number = 7;
+	scaling_factor: number = 1500;
+
+	level_shifting: boolean = false;
+	level_spiralize: boolean = false;
 	// Tunnel generator
+	// @todo remove bool & make tunnel bigger
 	generate_tunnel: boolean = false;
 	tunnel_inner_radius: number = 5;
 	tunnel_outer_radius: number = 5;
+	// </GeneralGeometry>
+
+	// <FractalGeometry>
+	base_texture: number = 0;
+	texture_size: number = 7;
 	// Algorithm params
 	alg_a_min: number = -25;
 	alg_a_max: number = 25;
@@ -87,12 +105,16 @@ class LevelSettings extends CSettings {
 	alg_d_max: number = 9;
 	alg_e_min: number = 1;
 	alg_e_max: number = 10;
-	// mirrored setting
-	scaling_factor: number = 1500;
+	// </FractalGeometry>
+
+	// Camera category
+	fog_thickness: number = 80;
 	// Movement category
 	movement_type: number = 0;
 	zoom_val: number = 1;
 	rotation_val: number = 0;
+	// Color category
+	color_audio_strength: number = 0;
 	// Brightness category
 	default_brightness: number = 60;
 	minimum_brightness: number = 10;
@@ -101,17 +123,18 @@ class LevelSettings extends CSettings {
 	default_saturation: number = 10;
 	minimum_saturation: number = 10;
 	maximum_saturation: number = 90;
+
 	// Audio category
 	audiozoom_val: number = 2;
 	reverse_type: number = 0;
 	audiozoom_smooth: boolean = false;
-	// time-value smoothing ratio
-	// mirrored on WEAS
+	// do dynamic processing?
+	equalize: boolean = true;
+	// time-value smoothing ratios mirrored from WEAS
 	audio_increase: number = 75;
 	audio_decrease: number = 25;
 	// seeded random for fractal generator
 	random_seed: number = 0; // user setting
-	real_seed: number = 0; // transfer settings
 	// VR mode
 	xr_mode: boolean = false;
 }
@@ -128,6 +151,7 @@ enum WasmSettings {
 
 	tunnel_inner_radius = 4,
 	tunnel_outer_radius = 5,
+
 	alg_a_min = 6,
 	alg_a_max = 7,
 	alg_b_min = 8,
@@ -188,51 +212,61 @@ export class GeometryHolder extends CComponent {
 	* @param {Scene} scene parent
 	* @param {Camera} cam renderer
 	* @param {Promise} waitFor (optional)
+	* @return {Promise}
 	*/
-	public async init(scene: Scene, cam: Camera, waitFor?: Promise<void>) {
-		this.camera = cam;
+	public init(scene: Scene, cam: Camera, waitFor?: Promise<void>): Promise<void> {
+		return new Promise((res, rej) => {
+			this.camera = cam;
 
-		const sett = this.settings;
-		// reset generator
-		this.afterRenderQueue = [];
+			const sett = this.settings;
+			// reset generator
+			this.afterRenderQueue = [];
+			// reset rendering
+			this.speedVelocity = 0;
 
-		// setup fractal generator -> get exported functions
-		this.levelBuilder = await wascWorker(this.getGeoModName());
+			// load texture
+			let texture: Texture = null;
+			if (sett.geometry_type == 0) {
+				// get texture path
+				const texPth = this.getBaseTexPath();
+				Smallog.debug('loading Texture: ' + texPth);
+				texture = new TextureLoader().load(texPth);
+			}
 
-		// assert
-		if (this.levelBuilder) Smallog.debug('Got Level Builder!');
-		else {
-			Smallog.error('Could not create WebAssembly Level Builder! [Null-Object]');
-			return;
-		}
-
-		await this.updateSettings();
-
-		// reset rendering
-		this.speedVelocity = 0;
-
-		// load texture sync and init geometry
-		let texture: Texture = null;
-		if (sett.geometry_type == 0) {
-			// get texture path
-			const texPth = this.getBaseTexPath();
-			Smallog.debug('loading Texture: ' + texPth);
-			texture = new TextureLoader().load(texPth);
-		}
-
-		// initialize
-		await this.initGeometries(scene, texture, waitFor);
+			// setup fractal generator, get exported functions, push settings & init geometry
+			this.getGeoBuilder()
+				.then((bldr) => this.levelBuilder = bldr)
+				.then(() => this.updateSettings())
+				.then(() => this.initGeometries(scene, texture, waitFor))
+				.then(() => {
+					Smallog.debug('Got WebAssembly Level Builder!');
+					res();
+				})
+				.catch(rej);
+		});
 	}
 
 	/**
 	* Get Web-assembly module path/name for given geometry type
 	* @return {string} path
 	*/
-	private getGeoModName() {
-		switch (this.settings.geometry_type) {
-		case 0: return 'FractalGeometry.wasm';
-		case 1: return 'BasicGeometry.wasm';
-		}
+	private async getGeoBuilder(): Promise<WascInterface> {
+		return new Promise(async (res, rej) => {
+			const builderString = (() => {
+				switch (this.settings.geometry_type) {
+				case 0: return 'FractalGeometry.wasm';
+				case 1: return 'BasicGeometry.wasm';
+				};
+			})();
+			// use from cache?
+			if (cachedBuilders[builderString]) res(cachedBuilders[builderString]);
+			// initialize new module
+			else {
+				wascWorker(builderString)
+					.then((bldr) => res(cachedBuilders[builderString] = bldr))
+					.catch(rej);
+			}
+		});
 	}
 
 	/**
@@ -354,11 +388,11 @@ export class GeometryHolder extends CComponent {
 	}
 
 	/**
-	* returns the correct object and Material for a Subset
-	* @param {BufferGeometry} geometry
-	* @param {Texture} texture
-	* @return {Object}
-	*/
+		* returns the correct object and Material for a Subset
+		* @param {BufferGeometry} geometry
+		* @param {Texture} texture
+		* @return {Object}
+		*/
 	private getSubsetObject(geometry, texture): T3Object {
 		let object; let material;
 
@@ -398,16 +432,18 @@ export class GeometryHolder extends CComponent {
 	// /////////////////////////////////////////////
 
 	/**
-	* Sends the numeric worker settings to webassembly
-	* @public
-	* @return {Promise} finished event
-	*/
+		* Sends the numeric worker settings to webassembly
+		* @public
+		* @return {Promise} finished event
+		*/
 	public updateSettings(): Promise<void> {
 		// CAVEAT: only available after init and module load
 		if (!this.levelBuilder) return;
 
-		// apply random seed
-		this.settings.real_seed = this.getSeed();
+		// apply seed & settings
+		let tempSettings = Object.assign({real_seed: this.getSeed()}, this.settings);
+		// apply algorithm params
+		tempSettings = Object.assign(tempSettings, this.getParameters());
 
 		// transfer settings to worker
 		let keys = Object.keys(WasmSettings);
@@ -416,31 +452,32 @@ export class GeometryHolder extends CComponent {
 		for (let index = 0; index < keys.length; index++) {
 			const key = keys[index];
 			// apply key value
-			sett[WasmSettings[key]] = this.settings[key] * 1 || 0;
+			sett[WasmSettings[key]] = tempSettings[key] * 1 || 0;
 		}
 
+		// params Data pass to worker
+		const args = {
+			data: sett.buffer,
+		};
 		// WRAP IN isolated Function ran inside worker
-		const {run} = this.levelBuilder;
-		return run(({module, instance, exports, params}) => {
+		return this.levelBuilder.run(({module, instance, exports, params}) => {
 			const ex = instance.exports as any;
+			// Data passed in worker
 			const {data} = params[0];
 			const arrData = new Float32Array(data);
 			// get the direct view from the module memory and set the new buffer data
 			exports.__getFloat32ArrayView(ex.levelSettings).set(arrData);
 			// generate new data structure with updated settings
 			ex.update();
-		}, {
-			// Data passed to worker
-			data: sett.buffer,
-		}).then(() => {
+		}, args).then(() => {
 			Smallog.debug('Sent Settings to Generator: ' + JSON.stringify(sett));
 		});
 	}
 
 	/**
-	* Get randomized or predefined random-seed
-	* @return {number} seed [0-233279]
-	*/
+		* Get randomized or predefined random-seed
+		* @return {number} seed [0-233279]
+		*/
 	private getSeed(): number {
 		if (this.settings.random_seed < 1) {
 			const useed = Math.floor(Math.random() * 233279);
@@ -450,10 +487,30 @@ export class GeometryHolder extends CComponent {
 	}
 
 	/**
-	* send worker event for generating a level
-	* @param {number} level for what we are generating
-	* @return {Promise} finiished event
-	*/
+	 * Calculate & return algorithm parameters
+	 * @return {Object}
+	 */
+	private getParameters(): Object {
+		// @TODO
+		return {
+			alg_a_min: 6,
+			alg_a_max: 7,
+			alg_b_min: 8,
+			alg_b_max: 9,
+			alg_c_min: 10,
+			alg_c_max: 11,
+			alg_d_min: 12,
+			alg_d_max: 13,
+			alg_e_min: 14,
+			alg_e_max: 15,
+		};
+	}
+
+	/**
+		* send worker event for generating a level
+		* @param {number} level for what we are generating
+		* @return {Promise} finiished event
+		*/
 	private generateLevel(level: number): Promise<void> {
 		Smallog.debug('generating level: ' + level);
 
@@ -504,24 +561,24 @@ export class GeometryHolder extends CComponent {
 	// /////////////////////////////////////////////
 
 	/**
-	* Update position & color with audio data
-	* @param {number} ellapsed ms
-	* @param {number} deltaTime multiplier
-	*/
+		* Update position & color with audio data
+		* @param {number} ellapsed ms
+		* @param {number} deltaTime multiplier
+		*/
 	private updateWithAudio(ellapsed, deltaTime) {
 		const sett = this.settings;
 
 		// calc audio boost
 		const lastAudio = this.weas.lastAudio;
-		const flmult = (20 + sett.audio_increase) / 110;
-		const boost = lastAudio.intensity * flmult;
+		const strengthMult = (20 + sett.audio_increase) / 110;
+		const boost = lastAudio.intensity * strengthMult * (sett.equalize ? 4 : 1);
 
 		// get targeted saturation
 		const minSat = sett.minimum_saturation / 120;
 		const maxSat = sett.maximum_saturation / 100;
 		// get targeted brightness
 		const minBri = sett.minimum_brightness / 177.77777;
-		const maxBri = sett.maximum_brightness / 166.6666;
+		const maxBri = sett.maximum_brightness / 122.22222;
 
 		// calculate scale helper
 		// perceived brightness is not linear but exponential because of "additive" mixing mode!
@@ -534,6 +591,9 @@ export class GeometryHolder extends CComponent {
 		const hues = this.colorHelpr.hueValues;
 		const color_mode = this.colorHelpr.settings.color_mode;
 		const camZ = this.camera.position.z;
+		// opacity
+		const P = sett.fog_thickness / 100;
+
 
 		// calculate step distance between levels
 		const orbtSize = (sett.num_levels * sett.level_depth) - NEAR_DIST;
@@ -544,7 +604,7 @@ export class GeometryHolder extends CComponent {
 		let spvn = sett.zoom_val / 4 * deltaTime;
 		let rot = sett.rotation_val / 5000;
 		if (sett.audiozoom_val > 0) {
-			spvn += boost * sett.audiozoom_val / 33 * deltaTime;
+			spvn += boost * sett.audiozoom_val / 30 * deltaTime;
 			rot *= boost * sett.audiozoom_val / 150 * deltaTime; ;
 		}
 
@@ -576,8 +636,10 @@ export class GeometryHolder extends CComponent {
 
 		// dont re-declare this every time
 		let lv: number; let level: Level; let ss: number; let prnt: Subset;
-		let stepDist; let freqIdx; let freqData; let freqLvl;
+		let stepDist; let freqIdx; let freqVal; let freqLvl;
 		let targetHue; let targetSat; let targetLight;
+
+		const isEQ = this.weas.settings.equalize;
 
 		// process all levels
 		for (lv = 0; lv < this.levels.length; lv++) {
@@ -599,13 +661,13 @@ export class GeometryHolder extends CComponent {
 				const dist = camZ - prnt.object.position.z;
 				stepDist = Math.round(dist / step);
 				freqIdx = Math.min(lastAudio.data.length, Math.max(0, stepDist - 2));
-				freqData = lastAudio.data[freqIdx];
-				freqLvl = (freqData * flmult / 3) / lastAudio.average;
+				freqVal = lastAudio.data[freqIdx];
+				freqLvl = (freqVal * strengthMult / 3) / lastAudio.average;
 				// uhoh ugly special case
 				if (color_mode == 4) {
-					targetHue += (colObject.hueB - targetHue) * freqData / lastAudio.max;
+					targetHue += (colObject.hueB - targetHue) * freqVal / lastAudio.max;
 				} else if (color_mode == 0) {
-					targetHue += freqLvl;
+					targetHue += freqLvl * sett.color_audio_strength / 30;
 				}
 				// quick maths
 				targetSat = minSat + freqLvl * scaleSat;
@@ -614,23 +676,29 @@ export class GeometryHolder extends CComponent {
 				// update dat shit
 				prnt.object.material.color.setHSL(
 					this.clamp(targetHue, 0, 1, true),
-					this.clamp(targetSat, 0, 1),
-					this.clamp(targetLight, 0, 0.8));
+					this.clamp(targetSat, 0, 2),
+					this.clamp(targetLight, 0, 0.9));
+
+				// distance scaling
+				const distScale = Math.pow(1.1 - (dist / orbtSize), 3) / 2;
+				prnt.object.scale.z = distScale * 1.5;
 
 				// variable sizing
 				const pm = (prnt.object.material as PointsMaterial);
-				const distScale = Math.pow(1.1 - (dist / orbtSize), 3) / 2;
-				const audiScale = 0.3 + Math.abs(freqLvl) / 3;
-				pm.size = this.settings.texture_size * distScale * audiScale;
+				pm.size = this.settings.texture_size * distScale * 0.75 + freqLvl / (isEQ ? 1.5 : 3);
+
+				// opacity fading (replaces exp fog)
+				const X = (dist / orbtSize) + (P / 5) - 0.2 + 0.4 * P;
+				pm.opacity = Math.max(Math.min( 1 - X + (0.1337 + P * 0.1) * Math.sin(2 * Math.PI * X), 1), 0);
 			}
 		}
 	}
 
 	/**
-		* Update position & color without audio
-		* @param {number} ellapsed ms
-		* @param {number} deltaTime multiplier
-		*/
+			* Update position & color without audio
+			* @param {number} ellapsed ms
+			* @param {number} deltaTime multiplier
+			*/
 	private updateNoAudio(ellapsed, deltaTime) {
 		const sett = this.settings;
 		const reversed = sett.movement_type == 1;
@@ -671,6 +739,9 @@ export class GeometryHolder extends CComponent {
 		const sixtyDelta = deltaTime * 300;
 		const hues = this.colorHelpr.hueValues;
 
+		// Opacity
+		const P = sett.fog_thickness / 100;
+
 		// dont re-declare this every time... should be faster
 		let lv: number; let level: Level; let ss: number; let prnt: Subset; const hsl: HSL = {h: 0, s: 0, l: 0}; let targetHue;
 
@@ -710,24 +781,33 @@ export class GeometryHolder extends CComponent {
 					this.clamp(hsl.s, 0, 1),
 					this.clamp(hsl.l, 0, 1));
 
-				// fixed sizing
+				// helper
 				const dist = Math.abs(camZ - prnt.object.position.z);
-				const pm = (prnt.object.material as PointsMaterial);
 				const distScale = 1.2 - (dist / orbtSize);
+
+				// sizing
+				const pm = (prnt.object.material as PointsMaterial);
 				pm.size = this.settings.texture_size * distScale;
+
+				// scaling
+				prnt.object.scale.z = distScale * 2;
+
+				// opacity fading (replaces exp fog)
+				const X = (dist / orbtSize) + (P / 5) - 0.2 + 0.5 * P;
+				pm.opacity = Math.max(Math.min( -X + 1 + (0.1337 + P * 0.1) * Math.sin(2 * Math.PI * X), 1), 0);
 			}
 		}
 	}
 
 	/**
-			* Check if a Subset has to be moved back or forth
-			* @param {Subset} prnt Object to check
-			*/
+				* Check if a Subset has to be moved back or forth
+				* @param {Subset} prnt Object to check
+				*/
 	private checkPosition(prnt: Subset) {
 		const orbitSize = this.settings.num_levels * this.settings.level_depth;
 		const hlfSize = orbitSize / 2;
 
-		let maxPos = this.camera.position.z;
+		let maxPos = this.camera.position.z + this.settings.level_depth;
 		let minPos = maxPos - orbitSize;
 		// ceentered around camera movement
 		if (this.settings.xr_mode) {
@@ -761,11 +841,11 @@ export class GeometryHolder extends CComponent {
 	}
 
 	/**
-			* Update managing function
-			* @public
-			* @param {number} ellapsed ms
-			* @param {number} deltaTime multiplier ~1
-			*/
+				* Update managing function
+				* @public
+				* @param {number} ellapsed ms
+				* @param {number} deltaTime multiplier ~1
+				*/
 	public updateFrame(ellapsed, deltaTime) {
 		if (this.weas.hasAudio()) {
 			this.updateWithAudio(ellapsed, deltaTime);
@@ -783,13 +863,13 @@ export class GeometryHolder extends CComponent {
 	}
 
 	/**
-			* correct colors to be safe
-			* @param {number} val Origin value
-			* @param {number} min Minimum allowed
-			* @param {number} max Maximum allowed
-			* @param {boolean} goround Wrap around, instead of limiting?
-			* @return {number} corrected value
-			*/
+				* correct colors to be safe
+				* @param {number} val Origin value
+				* @param {number} min Minimum allowed
+				* @param {number} max Maximum allowed
+				* @param {boolean} goround Wrap around, instead of limiting?
+				* @return {number} corrected value
+				*/
 	private clamp(val: number, min: number, max: number, goround = false) {
 		if (goround) {
 			if (val < min) return max - val;

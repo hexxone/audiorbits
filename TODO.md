@@ -1,26 +1,25 @@
 # Todo's
 
-# b4 707 KiB
-
 project.json
-- update translations -> project.json -> steam
+- rework algorithm params
+~ update translations -> project.json -> steam
 - update preview image?
-- replace algorithm params
+- convert .pngs to webp ?
 
 
 main code:
-- fix rgba color onpit converz 
-- make coordinates 3d
-- fix "min > max" saturation/light
+- Starcloud mode
+
+- fix rgba color 
 - fix shaders (lut, blur, chroma)
 - check new re-init vars
-- wasc-loader worker debugging option ?
-- wasc-loader worker option
+- disable debug loggin by default
+- wewa: Pause unfocus save
 - finish implementing Web-XR
-		- "camera centered" checkbox for vr
-		-  "vr-cam" mode, with relative controls
+	- controls
 
 
 other:
-- highlight seizure text on white BG
+- spotify integration?
+- music recognition?
 - record "how to debug"-video? 
