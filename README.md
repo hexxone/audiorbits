@@ -56,7 +56,7 @@ Therefore this web-app needs to be served with the following html headers:
 ## References
 - [HTML5](https://html5test.com/) WebGL & WebAudio
 - [TypeScript](https://www.typescriptlang.org/) typization
-- [yarn](https://yarnpkg.com/) beter package manager
+- [yarn](https://yarnpkg.com/) better package manager
 - [three.js](https://threejs.org/) THREE.js & Examples for webgl rendering
 - [WebPack](https://webpack.js.org/) bundling & testing everything
 - [WebAssembly](https://webassembly.org/) more efficient processing
