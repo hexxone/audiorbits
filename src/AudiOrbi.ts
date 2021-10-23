@@ -26,12 +26,23 @@ import {WEventListener} from './WEventListener';
 
 import {CComponent, CSettings, ReloadHelper, rgbToObj, Smallog, waitReady, WarnHelper, WEWWA} from './we_utils';
 
-const Ignore: string[] = ['img_overlay', 'img_background', 'mirror_invalid_val'];
+const Ignore: string[] = ['img_overlay', 'img_background', 'mirror_invalid_val',
+	'wec_brs', 'wec_con', 'wec_e', 'wec_hue', 'wec_sa', '_d0'];
 
-const ReInit: string[] = ['geometry_type', 'base_texture', 'texture_size', 'scaling_factor', 'num_levels',
+const ReInit: string[] = ['geometry_type', 'base_texture', 'scaling_factor', 'num_levels',
 	'level_depth', 'level_shifting', 'level_spiralize', 'num_subsets_per_level', 'num_points_per_subset',
-	'custom_fps', 'field_of_view', 'fog_thickness', 'icue_mode', 'shader_quality', 'random_seed',
-	'low_latency', 'xr_mode'];
+	'custom_fps', 'field_of_view', 'icue_mode', 'shader_quality', 'random_seed', 'low_latency', 'xr_mode'];
+
+
+// temporary properties
+let temProps = null;
+window['wallpaperPropertyListener'] = {
+	applyUserProperties: (p) => {
+		console.log('Before', p);
+		temProps = p;
+	},
+};
+
 
 /**
 * what's the wallpaper currently doing?
@@ -49,7 +60,7 @@ export enum RunState {
 * Root Settings
 * @public
 */
-export class MainSettings extends CSettings {
+class MainSettings extends CSettings {
 	debugging: boolean = false;
 	// default scheme property
 	schemecolor: string = '0 0 0';
@@ -64,7 +75,7 @@ export class MainSettings extends CSettings {
 * Root Class
 * @public
 */
-export class AudiOrbits extends CComponent {
+class AudiOrbits extends CComponent {
 	// holds default wallpaper settings
 	// these basically connect 1:1 to wallpaper engine settings.
 	// for more explanation on settings visit the Workshop-Item-Forum (link above)
@@ -141,6 +152,8 @@ export class AudiOrbits extends CComponent {
 			userDirectoryFilesAddedOrChanged: (p, f) => {},
 			userDirectoryFilesRemoved: (p, f) => {},
 		};
+
+		if (temProps) this.weListener.applyUserProperties(temProps);
 	}
 
 	// /////////////////////////////////////////////
@@ -247,18 +260,16 @@ export class AudiOrbits extends CComponent {
 
 	/**
 	* do first init after page loaded
-	* @public
 	*/
-	public initOnce() {
+	private initOnce() {
 		// initializing and wait for seizure warning
 		this.initSystem(this.warnHelper.show());
 	}
 
 	/**
 	* re-initialies the walpaper after some time
-	* @public
 	*/
-	public reInitSystem() {
+	private reInitSystem() {
 		// hide reloader
 		this.reloadHelper.show(false);
 		// kill intervals
@@ -283,6 +294,10 @@ export class AudiOrbits extends CComponent {
 			this.state = RunState.Running;
 			// print
 			Smallog.info('initializing complete.');
+		}).catch((err) => {
+			const m = `Fatal Error when creating main-context!\r\n\r\nMsg: ${err}`;
+			Smallog.error(m);
+			alert(m);
 		});
 	}
 
