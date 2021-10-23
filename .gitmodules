@@ -1,3 +1,0 @@
-[submodule "we_utils"]
-	path = src/we_utils
-	url = https://github.com/hexxone/we_utils.git
