@@ -2785,7 +2785,7 @@
         "type": "color",
         "value": "0 0 0"
       },
-      "HEADER_NO_AUDIO": {
+      "HDR_NO_AUDIO": {
         "condition": "!audioprocessing.value",
         "order": 20,
         "text": "ui_ao_0020",
@@ -2796,25 +2796,25 @@
         "text": "ui_ao_0030",
         "type": "text"
       },
-      "SPACER_01": {
+      "SPCR_01": {
         "order": 40,
         "text": "ui_ao_0040",
         "type": "text"
       },
-      "HEADER_GEOMETRY": {
+      "HDR_GEOMETRY": {
         "order": 50,
         "text": "ui_ao_0050",
         "type": "bool",
         "value": false
       },
-      "SPACER_02": {
-        "condition": "HEADER_GEOMETRY.value",
+      "SPCR_02": {
+        "condition": "HDR_GEOMETRY.value",
         "order": 60,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "geometry_type": {
-        "condition": "HEADER_GEOMETRY.value",
+        "condition": "HDR_GEOMETRY.value",
         "options": [
           {
             "label": "ui_ao_0070_1",
@@ -2839,7 +2839,7 @@
         "value": 0
       },
       "base_texture": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value == 0",
+        "condition": "HDR_GEOMETRY.value && geometry_type.value == 0",
         "options": [
           {
             "label": "ui_ao_0080_1",
@@ -2860,7 +2860,7 @@
         "value": 0
       },
       "texture_size": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
         "editable": false,
         "max": 25,
         "min": 1,
@@ -2869,21 +2869,21 @@
         "type": "slider",
         "value": 6
       },
-      "SPACER_03": {
-        "condition": "HEADER_GEOMETRY.value",
+      "SPCR_03": {
+        "condition": "HDR_GEOMETRY.value",
         "order": 100,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_PARAMS": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+      "HDR_PARAMS": {
+        "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
         "order": 110,
         "text": "ui_ao_0110",
         "type": "bool",
         "value": false
       },
       "alg_a_min": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
         "editable": true,
         "max": 80,
         "min": -80,
@@ -2893,7 +2893,7 @@
         "value": -25
       },
       "alg_a_max": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
         "editable": true,
         "max": 80,
         "min": -80,
@@ -2903,7 +2903,7 @@
         "value": 25
       },
       "alg_b_min": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
         "editable": true,
         "max": 80,
         "min": -80,
@@ -2913,7 +2913,7 @@
         "value": 0.25
       },
       "alg_b_max": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
         "editable": true,
         "max": 80,
         "min": -80,
@@ -2923,7 +2923,7 @@
         "value": 1.7
       },
       "alg_c_min": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
         "editable": true,
         "max": 80,
         "min": -80,
@@ -2933,7 +2933,7 @@
         "value": 5
       },
       "alg_c_max": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
         "editable": true,
         "max": 80,
         "min": -80,
@@ -2943,7 +2943,7 @@
         "value": 16
       },
       "alg_d_min": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
         "editable": true,
         "max": 80,
         "min": -80,
@@ -2953,7 +2953,7 @@
         "value": 1
       },
       "alg_d_max": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
         "editable": true,
         "max": 80,
         "min": -80,
@@ -2963,7 +2963,7 @@
         "value": 9
       },
       "alg_e_min": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
         "editable": true,
         "max": 80,
         "min": -80,
@@ -2973,7 +2973,7 @@
         "value": 1
       },
       "alg_e_max": {
-        "condition": "HEADER_GEOMETRY.value && HEADER_PARAMS.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
         "editable": true,
         "max": 80,
         "min": -80,
@@ -2982,21 +2982,21 @@
         "type": "slider",
         "value": 10
       },
-      "SPACER_04": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+      "SPCR_04": {
+        "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
         "order": 220,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "generate_tunnel": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
         "order": 230,
         "text": "ui_ao_0230",
         "type": "bool",
         "value": true
       },
       "tunnel_inner_radius": {
-        "condition": "HEADER_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
         "editable": false,
         "max": 25,
         "min": 1,
@@ -3006,7 +3006,7 @@
         "value": 2
       },
       "tunnel_outer_radius": {
-        "condition": "HEADER_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
         "editable": false,
         "max": 25,
         "min": 1,
@@ -3015,14 +3015,14 @@
         "type": "slider",
         "value": 2
       },
-      "SPACER_06": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+      "SPCR_06": {
+        "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
         "order": 260,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "scaling_factor": {
-        "condition": "HEADER_GEOMETRY.value",
+        "condition": "HDR_GEOMETRY.value",
         "editable": false,
         "max": 4000,
         "min": 100,
@@ -3032,7 +3032,7 @@
         "value": 1500
       },
       "num_levels": {
-        "condition": "HEADER_GEOMETRY.value",
+        "condition": "HDR_GEOMETRY.value",
         "editable": false,
         "max": 32,
         "min": 2,
@@ -3042,7 +3042,7 @@
         "value": 6
       },
       "level_depth": {
-        "condition": "HEADER_GEOMETRY.value",
+        "condition": "HDR_GEOMETRY.value",
         "editable": false,
         "max": 10000,
         "min": 100,
@@ -3052,21 +3052,21 @@
         "value": 1200
       },
       "level_shifting": {
-        "condition": "HEADER_GEOMETRY.value",
+        "condition": "HDR_GEOMETRY.value",
         "order": 300,
         "text": "ui_ao_0300",
         "type": "bool",
         "value": true
       },
       "level_spiralize": {
-        "condition": "HEADER_GEOMETRY.value",
+        "condition": "HDR_GEOMETRY.value",
         "order": 310,
         "text": "ui_ao_0310",
         "type": "bool",
         "value": false
       },
       "num_subsets_per_level": {
-        "condition": "HEADER_GEOMETRY.value",
+        "condition": "HDR_GEOMETRY.value",
         "editable": false,
         "max": 16,
         "min": 2,
@@ -3076,7 +3076,7 @@
         "value": 12
       },
       "num_points_per_subset": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value < 2",
+        "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
         "editable": false,
         "max": 32768,
         "min": 512,
@@ -3086,7 +3086,7 @@
         "value": 8192
       },
       "random_seed": {
-        "condition": "HEADER_GEOMETRY.value && geometry_type.value == 0",
+        "condition": "HDR_GEOMETRY.value && geometry_type.value == 0",
         "editable": true,
         "max": 233280,
         "min": 0,
@@ -3095,26 +3095,26 @@
         "type": "slider",
         "value": 0
       },
-      "SPACER_07": {
-        "condition": "HEADER_GEOMETRY.value",
+      "SPCR_07": {
+        "condition": "HDR_GEOMETRY.value",
         "order": 350,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_PRLX": {
+      "HDR_PRLX": {
         "order": 360,
         "text": "ui_ao_0360",
         "type": "bool",
         "value": false
       },
-      "SPACER_08": {
-        "condition": "HEADER_PRLX.value",
+      "SPCR_08": {
+        "condition": "HDR_PRLX.value",
         "order": 370,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "parallax_option": {
-        "condition": "HEADER_PRLX.value",
+        "condition": "HDR_PRLX.value",
         "options": [
           {
             "label": "ui_ao_0380_1",
@@ -3139,14 +3139,14 @@
         "value": 0
       },
       "parallax_cam": {
-        "condition": "HEADER_PRLX.value",
+        "condition": "HDR_PRLX.value",
         "order": 390,
         "text": "ui_ao_0390",
         "type": "bool",
         "value": true
       },
       "parallax_strength": {
-        "condition": "HEADER_PRLX.value && parallax_option.value > 0",
+        "condition": "HDR_PRLX.value && parallax_option.value > 0",
         "editable": false,
         "max": 20,
         "min": 1,
@@ -3156,7 +3156,7 @@
         "value": 3
       },
       "parallax_angle": {
-        "condition": "HEADER_PRLX.value && parallax_option.value == 3",
+        "condition": "HDR_PRLX.value && parallax_option.value == 3",
         "editable": false,
         "max": 360,
         "min": 0,
@@ -3166,7 +3166,7 @@
         "value": 0
       },
       "auto_parallax_speed": {
-        "condition": "HEADER_PRLX.value && parallax_option.value == '2'",
+        "condition": "HDR_PRLX.value && parallax_option.value == '2'",
         "editable": true,
         "max": 10,
         "min": -10,
@@ -3175,14 +3175,14 @@
         "type": "slider",
         "value": 2
       },
-      "SPACER_42": {
-        "condition": "HEADER_PRLX.value",
+      "SPCR_42": {
+        "condition": "HDR_PRLX.value",
         "order": 430,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "field_of_view": {
-        "condition": "HEADER_PRLX.value",
+        "condition": "HDR_PRLX.value",
         "editable": true,
         "max": 130,
         "min": 50,
@@ -3192,7 +3192,7 @@
         "value": 70
       },
       "fog_thickness": {
-        "condition": "HEADER_PRLX.value",
+        "condition": "HDR_PRLX.value",
         "editable": false,
         "max": 99,
         "min": 1,
@@ -3202,14 +3202,14 @@
         "value": 69
       },
       "custom_fps": {
-        "condition": "HEADER_PRLX.value",
+        "condition": "HDR_PRLX.value",
         "order": 460,
         "text": "ui_ao_0460",
         "type": "bool",
         "value": false
       },
       "fps_value": {
-        "condition": "HEADER_PRLX.value && custom_fps.value",
+        "condition": "HDR_PRLX.value && custom_fps.value",
         "max": 240,
         "min": 1,
         "order": 470,
@@ -3217,26 +3217,26 @@
         "type": "slider",
         "value": 60
       },
-      "SPACER_09": {
-        "condition": "HEADER_PRLX.value",
+      "SPCR_09": {
+        "condition": "HDR_PRLX.value",
         "order": 480,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_MOVEMENT": {
+      "HDR_MOVEMENT": {
         "order": 490,
         "text": "ui_ao_0490",
         "type": "bool",
         "value": false
       },
-      "SPACER_10": {
-        "condition": "HEADER_MOVEMENT.value",
+      "SPCR_10": {
+        "condition": "HDR_MOVEMENT.value",
         "order": 500,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "movement_type": {
-        "condition": "HEADER_MOVEMENT.value",
+        "condition": "HDR_MOVEMENT.value",
         "options": [
           {
             "label": "ui_ao_0510_1",
@@ -3253,7 +3253,7 @@
         "value": 0
       },
       "zoom_val": {
-        "condition": "HEADER_MOVEMENT.value",
+        "condition": "HDR_MOVEMENT.value",
         "editable": true,
         "max": 20,
         "min": 0,
@@ -3263,7 +3263,7 @@
         "value": 1
       },
       "audiozoom_val": {
-        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
+        "condition": "HDR_MOVEMENT.value && audioprocessing.value",
         "editable": true,
         "max": 15,
         "min": 0,
@@ -3273,14 +3273,14 @@
         "value": 2
       },
       "audiozoom_smooth": {
-        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
+        "condition": "HDR_MOVEMENT.value && audioprocessing.value",
         "order": 540,
         "text": "ui_ao_0540",
         "type": "bool",
         "value": false
       },
       "reverse_type": {
-        "condition": "HEADER_MOVEMENT.value && audioprocessing.value",
+        "condition": "HDR_MOVEMENT.value && audioprocessing.value",
         "order": 550,
         "text": "ui_ao_0550",
         "options": [
@@ -3301,7 +3301,7 @@
         "value": 0
       },
       "rotation_val": {
-        "condition": "HEADER_MOVEMENT.value",
+        "condition": "HDR_MOVEMENT.value",
         "editable": true,
         "max": 10,
         "min": -10,
@@ -3310,33 +3310,33 @@
         "type": "slider",
         "value": 0
       },
-      "SPACER_11": {
-        "condition": "HEADER_MOVEMENT.value",
+      "SPCR_11": {
+        "condition": "HDR_MOVEMENT.value",
         "order": 570,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_COLOR": {
+      "HDR_COLOR": {
         "order": 580,
         "text": "ui_ao_0580",
         "type": "bool",
         "value": false
       },
-      "SPACER_12": {
-        "condition": "HEADER_COLOR.value",
+      "SPCR_12": {
+        "condition": "HDR_COLOR.value",
         "order": 590,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "main_color": {
-        "condition": "HEADER_COLOR.value",
+        "condition": "HDR_COLOR.value",
         "order": 600,
         "text": "ui_ao_0600",
         "type": "color",
         "value": "0 0 0"
       },
       "color_mode": {
-        "condition": "HEADER_COLOR.value",
+        "condition": "HDR_COLOR.value",
         "options": [
           {
             "label": "ui_ao_0610_1",
@@ -3369,21 +3369,21 @@
         "value": 0
       },
       "user_color_a": {
-        "condition": "HEADER_COLOR.value && color_mode.value >0",
+        "condition": "HDR_COLOR.value && color_mode.value >0",
         "order": 620,
         "text": "ui_ao_0620",
         "type": "color",
         "value": "1 0.5 0"
       },
       "user_color_b": {
-        "condition": "HEADER_COLOR.value && color_mode.value >1",
+        "condition": "HDR_COLOR.value && color_mode.value >1",
         "order": 630,
         "text": "ui_ao_0630",
         "type": "color",
         "value": "0 0.5 1"
       },
       "color_fade_speed": {
-        "condition": "HEADER_COLOR.value",
+        "condition": "HDR_COLOR.value",
         "editable": true,
         "max": 10,
         "min": 0,
@@ -3393,7 +3393,7 @@
         "value": 2
       },
       "color_audio_strength": {
-        "condition": "HEADER_COLOR.value",
+        "condition": "HDR_COLOR.value",
         "editable": true,
         "max": 20,
         "min": 0,
@@ -3402,26 +3402,26 @@
         "type": "slider",
         "value": 2
       },
-      "SPACER_13": {
-        "condition": "HEADER_COLOR.value",
+      "SPCR_13": {
+        "condition": "HDR_COLOR.value",
         "order": 660,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_BRIGHTNESS": {
+      "HDR_BRIGHTNESS": {
         "order": 670,
         "text": "ui_ao_0670",
         "type": "bool",
         "value": false
       },
-      "SPACER_14": {
-        "condition": "HEADER_BRIGHTNESS.value",
+      "SPCR_14": {
+        "condition": "HDR_BRIGHTNESS.value",
         "order": 680,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "default_brightness": {
-        "condition": "HEADER_BRIGHTNESS.value",
+        "condition": "HDR_BRIGHTNESS.value",
         "editable": false,
         "max": 100,
         "min": 10,
@@ -3431,7 +3431,7 @@
         "value": 60
       },
       "minimum_brightness": {
-        "condition": "HEADER_BRIGHTNESS.value && audioprocessing.value",
+        "condition": "HDR_BRIGHTNESS.value && audioprocessing.value",
         "editable": false,
         "max": 100,
         "min": 10,
@@ -3441,7 +3441,7 @@
         "value": 40
       },
       "maximum_brightness": {
-        "condition": "HEADER_BRIGHTNESS.value && audioprocessing.value",
+        "condition": "HDR_BRIGHTNESS.value && audioprocessing.value",
         "editable": false,
         "max": 100,
         "min": 10,
@@ -3450,26 +3450,26 @@
         "type": "slider",
         "value": 80
       },
-      "SPACER_15": {
-        "condition": "HEADER_BRIGHTNESS.value",
+      "SPCR_15": {
+        "condition": "HDR_BRIGHTNESS.value",
         "order": 720,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_SATURATION": {
+      "HDR_SATURATION": {
         "order": 730,
         "text": "ui_ao_0730",
         "type": "bool",
         "value": false
       },
-      "SPACER_16": {
-        "condition": "HEADER_SATURATION.value",
+      "SPCR_16": {
+        "condition": "HDR_SATURATION.value",
         "order": 740,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "default_saturation": {
-        "condition": "HEADER_SATURATION.value",
+        "condition": "HDR_SATURATION.value",
         "editable": false,
         "max": 100,
         "min": 10,
@@ -3479,7 +3479,7 @@
         "value": 75
       },
       "minimum_saturation": {
-        "condition": "HEADER_SATURATION.value && audioprocessing.value",
+        "condition": "HDR_SATURATION.value && audioprocessing.value",
         "editable": false,
         "max": 100,
         "min": 10,
@@ -3489,7 +3489,7 @@
         "value": 30
       },
       "maximum_saturation": {
-        "condition": "HEADER_SATURATION.value && audioprocessing.value",
+        "condition": "HDR_SATURATION.value && audioprocessing.value",
         "editable": false,
         "max": 100,
         "min": 10,
@@ -3498,33 +3498,33 @@
         "type": "slider",
         "value": 90
       },
-      "SPACER_17": {
-        "condition": "HEADER_SATURATION.value",
+      "SPCR_17": {
+        "condition": "HDR_SATURATION.value",
         "order": 780,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_FILTER": {
+      "HDR_FILTER": {
         "order": 790,
         "text": "ui_ao_0790",
         "type": "bool",
         "value": false
       },
-      "SPACER_18": {
-        "condition": "HEADER_FILTER.value",
+      "SPCR_18": {
+        "condition": "HDR_FILTER.value",
         "order": 800,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "bloom_filter": {
-        "condition": "HEADER_FILTER.value",
+        "condition": "HDR_FILTER.value",
         "order": 810,
         "text": "ui_ao_0810",
         "type": "bool",
         "value": false
       },
       "lut_filter": {
-        "condition": "HEADER_FILTER.value",
+        "condition": "HDR_FILTER.value",
         "options": [
           {
             "label": "ui_ao_0820_1",
@@ -3549,7 +3549,7 @@
         "value": -1
       },
       "mirror_shader": {
-        "condition": "HEADER_FILTER.value",
+        "condition": "HDR_FILTER.value",
         "editable": false,
         "max": 16,
         "min": 0,
@@ -3565,21 +3565,21 @@
         "type": "text"
       },
       "mirror_invert": {
-        "condition": "HEADER_FILTER.value && mirror_shader.value>1",
+        "condition": "HDR_FILTER.value && mirror_shader.value>1",
         "order": 850,
         "text": "ui_ao_0850",
         "type": "bool",
         "value": false
       },
       "fx_antialiasing": {
-        "condition": "HEADER_FILTER.value",
+        "condition": "HDR_FILTER.value",
         "order": 860,
         "text": "ui_ao_0860",
         "type": "bool",
         "value": false
       },
       "blur_strength": {
-        "condition": "HEADER_FILTER.value",
+        "condition": "HDR_FILTER.value",
         "editable": false,
         "max": 20,
         "min": 0,
@@ -3589,7 +3589,7 @@
         "value": 0
       },
       "chroma_filter": {
-        "condition": "HEADER_FILTER.value",
+        "condition": "HDR_FILTER.value",
         "editable": false,
         "max": 30,
         "min": 0,
@@ -3598,71 +3598,71 @@
         "type": "slider",
         "value": 0
       },
-      "SPACER_19": {
-        "condition": "HEADER_FILTER.value",
+      "SPCR_19": {
+        "condition": "HDR_FILTER.value",
         "order": 890,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_IMGS": {
+      "HDR_IMGS": {
         "order": 900,
         "text": "ui_ao_0900",
         "type": "bool",
         "value": false
       },
-      "SPACER_20": {
-        "condition": "HEADER_IMGS.value",
+      "SPCR_20": {
+        "condition": "HDR_IMGS.value",
         "order": 910,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "img_overlay": {
-        "condition": "HEADER_IMGS.value",
+        "condition": "HDR_IMGS.value",
         "order": 920,
         "text": "ui_ao_0920",
         "type": "file"
       },
       "img_background": {
-        "condition": "HEADER_IMGS.value",
+        "condition": "HDR_IMGS.value",
         "order": 930,
         "text": "ui_ao_0930",
         "type": "file"
       },
-      "SPACER_21": {
-        "condition": "HEADER_IMGS.value",
+      "SPCR_21": {
+        "condition": "HDR_IMGS.value",
         "order": 940,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_AUDIO": {
+      "HDR_AUDIO": {
         "condition": "audioprocessing.value",
         "order": 950,
         "text": "ui_ao_0950",
         "type": "bool",
         "value": false
       },
-      "SPACER_22": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
+      "SPCR_22": {
+        "condition": "HDR_AUDIO.value && audioprocessing.value",
         "order": 960,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "equalize": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
+        "condition": "HDR_AUDIO.value && audioprocessing.value",
         "order": 970,
         "text": "ui_ao_0970",
         "type": "bool",
         "value": true
       },
       "mono_audio": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value && false",
+        "condition": "HDR_AUDIO.value && audioprocessing.value && false",
         "order": 980,
         "text": "ui_ao_0980",
         "type": "bool",
         "value": true
       },
       "audio_direction": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
+        "condition": "HDR_AUDIO.value && audioprocessing.value",
         "options": [
           {
             "label": "ui_ao_0990_1",
@@ -3679,7 +3679,7 @@
         "value": 0
       },
       "peak_filter": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
+        "condition": "HDR_AUDIO.value && audioprocessing.value",
         "editable": false,
         "max": 5,
         "min": 0,
@@ -3689,7 +3689,7 @@
         "value": 1
       },
       "value_smoothing": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
+        "condition": "HDR_AUDIO.value && audioprocessing.value",
         "editable": false,
         "max": 10,
         "min": 0,
@@ -3699,7 +3699,7 @@
         "value": 2
       },
       "audio_increase": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
+        "condition": "HDR_AUDIO.value && audioprocessing.value",
         "editable": false,
         "max": 100,
         "min": 20,
@@ -3709,7 +3709,7 @@
         "value": 75
       },
       "audio_decrease": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
+        "condition": "HDR_AUDIO.value && audioprocessing.value",
         "editable": false,
         "max": 60,
         "min": 5,
@@ -3719,7 +3719,7 @@
         "value": 25
       },
       "minimum_volume": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value && false",
+        "condition": "HDR_AUDIO.value && audioprocessing.value && false",
         "editable": false,
         "max": 20,
         "min": 1,
@@ -3728,26 +3728,26 @@
         "type": "slider",
         "value": 10
       },
-      "SPACER_23": {
-        "condition": "HEADER_AUDIO.value && audioprocessing.value",
+      "SPCR_23": {
+        "condition": "HDR_AUDIO.value && audioprocessing.value",
         "order": 1050,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_ICUE": {
+      "HDR_ICUE": {
         "order": 1060,
         "text": "ui_ao_1060",
         "type": "bool",
         "value": false
       },
-      "SPACER_24": {
-        "condition": "HEADER_ICUE.value",
+      "SPCR_24": {
+        "condition": "HDR_ICUE.value",
         "order": 1070,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "icue_mode": {
-        "condition": "HEADER_ICUE.value",
+        "condition": "HDR_ICUE.value",
         "options": [
           {
             "label": "ui_ao_1080_1",
@@ -3768,7 +3768,7 @@
         "value": 1
       },
       "icue_area_xoff": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "condition": "HDR_ICUE.value && icue_mode.value == 1",
         "editable": false,
         "max": 100,
         "min": 5,
@@ -3778,7 +3778,7 @@
         "value": 50
       },
       "icue_area_yoff": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "condition": "HDR_ICUE.value && icue_mode.value == 1",
         "editable": false,
         "max": 100,
         "min": 5,
@@ -3788,7 +3788,7 @@
         "value": 90
       },
       "icue_area_width": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "condition": "HDR_ICUE.value && icue_mode.value == 1",
         "editable": false,
         "max": 100,
         "min": 5,
@@ -3798,7 +3798,7 @@
         "value": 75
       },
       "icue_area_height": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "condition": "HDR_ICUE.value && icue_mode.value == 1",
         "editable": false,
         "max": 100,
         "min": 5,
@@ -3808,7 +3808,7 @@
         "value": 30
       },
       "icue_area_blur": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "condition": "HDR_ICUE.value && icue_mode.value == 1",
         "editable": false,
         "max": 5,
         "min": 0,
@@ -3818,7 +3818,7 @@
         "value": 1
       },
       "icue_area_decay": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 1",
+        "condition": "HDR_ICUE.value && icue_mode.value == 1",
         "editable": false,
         "max": 100,
         "min": 0,
@@ -3828,32 +3828,32 @@
         "value": 20
       },
       "icue_main_color": {
-        "condition": "HEADER_ICUE.value && icue_mode.value == 2",
+        "condition": "HDR_ICUE.value && icue_mode.value == 2",
         "order": 1150,
         "text": "ui_ao_1150",
         "type": "color",
         "value": "0 0.8 0"
       },
-      "SPACER_25": {
-        "condition": "HEADER_ICUE.value",
+      "SPCR_25": {
+        "condition": "HDR_ICUE.value",
         "order": 1160,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_ADVANCED": {
+      "HDR_ADVANCED": {
         "order": 1170,
         "text": "ui_ao_1170",
         "type": "bool",
         "value": false
       },
-      "SPACER_26": {
-        "condition": "HEADER_ADVANCED.value",
+      "SPCR_26": {
+        "condition": "HDR_ADVANCED.value",
         "order": 1180,
         "text": "ui_ao_0060",
         "type": "text"
       },
       "shader_quality": {
-        "condition": "HEADER_ADVANCED.value",
+        "condition": "HDR_ADVANCED.value",
         "options": [
           {
             "label": "ui_ao_1190_1",
@@ -3874,40 +3874,40 @@
         "value": 3
       },
       "low_latency": {
-        "condition": "HEADER_ADVANCED.value",
+        "condition": "HDR_ADVANCED.value",
         "order": 1200,
         "text": "ui_ao_1200",
         "type": "bool",
         "value": false
       },
       "xr_mode": {
-        "condition": "HEADER_ADVANCED.value",
+        "condition": "HDR_ADVANCED.value",
         "order": 1210,
         "text": "ui_ao_1210",
         "type": "bool",
         "value": false
       },
       "seizure_warning": {
-        "condition": "HEADER_ADVANCED.value",
+        "condition": "HDR_ADVANCED.value",
         "order": 1220,
         "text": "ui_ao_1220",
         "type": "bool",
         "value": true
       },
       "debugging": {
-        "condition": "HEADER_ADVANCED.value",
+        "condition": "HDR_ADVANCED.value",
         "order": 1230,
         "text": "ui_ao_1230",
         "type": "bool",
         "value": false
       },
-      "SPACER_27": {
-        "condition": "HEADER_ADVANCED.value",
+      "SPCR_27": {
+        "condition": "HDR_ADVANCED.value",
         "order": 1240,
         "text": "ui_ao_0060",
         "type": "text"
       },
-      "HEADER_THANKS": {
+      "HDR_THANKS": {
         "order": 1250,
         "text": "ui_ao_1250",
         "type": "text"

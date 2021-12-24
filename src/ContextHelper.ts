@@ -1,63 +1,83 @@
 /**
-* @author hexxone / https://hexx.one
-*
-* @license
-* Copyright (c) 2021 hexxone All rights reserved.
-* Licensed under the GNU GENERAL PUBLIC LICENSE.
-* See LICENSE file in the project root for full license information.
-*/
+ * @author hexxone / https://hexx.one
+ *
+ * @license
+ * Copyright (c) 2021 hexxone All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE.
+ * See LICENSE file in the project root for full license information.
+ */
 
-import {Clock, Color, Group, PerspectiveCamera, Scene, Vector3, WebGLRenderer, XRFrame} from 'three';
+import { ColorHelper } from "./ColorHelper";
+import { GeometryHolder } from "./GeometryHelper";
+import { ShaderHolder } from "./ShaderHelper";
+import { FancyText } from "./FancyText";
 
-import {ColorHelper} from './ColorHelper';
-import {GeometryHolder} from './GeometryHelper';
-import {ShaderHolder} from './ShaderHelper';
-import {FancyText} from './FancyText';
-
-import {CComponent, CSettings, EffectComposer, FPStats, rgbToObj, Smallog, WEAS, WEICUE, XRHelper} from './we_utils';
+import {
+	CComponent,
+	CSettings,
+	EffectComposer,
+	FPStats,
+	rgbToObj,
+	Smallog,
+	WEAS,
+	WEICUE,
+	WebGLRenderer,
+	Group,
+	PerspectiveCamera,
+	Scene,
+	Clock,
+	Color,
+	Vector3,
+	XRHelper,
+	LoadHelper,
+	FogExp2,
+} from "./we_utils/src";
 
 export const NEAR_DIST = 3;
 
 /**
-* Renderer Settings
-* @public
-*/
+ * Renderer Settings
+ * @public
+ */
 class ContextSettings extends CSettings {
 	// Camera category
-	parallax_option: number = 0;
-	parallax_angle: number = 180;
-	parallax_strength: number = 3;
-	auto_parallax_speed: number = 2;
-	parallax_cam: boolean = true;
-	field_of_view: number = 90;
-	custom_fps: boolean = false;
-	fps_value: number = 60;
-	shader_quality: number = 1;
-	xr_mode: boolean = false;
+	parallax_option = 0;
+	parallax_angle = 180;
+	parallax_strength = 3;
+	auto_parallax_speed = 2;
+	parallax_cam = true;
+	field_of_view = 90;
+	custom_fps = false;
+	fps_value = 60;
+	shader_quality = 1;
+	xr_mode = false;
 
 	// AudiOrbits bg Color; used as "fog"-color aswell
-	main_color: string = '0 0 0';
+	main_color = "0 0 0";
 
 	// mirrored setting
-	scaling_factor: number = 1500;
-	level_depth: number = 1200;
-	num_levels: number = 8000;
+	fog_thickness = 20;
+	scaling_factor = 1500;
+	level_depth = 1200;
+	num_levels = 8000;
 
 	// use low latency audio?
-	low_latency: boolean = false;
-	debugging: boolean = false;
+	low_latency = false;
+	debugging = false;
 }
 
 /**
-* Contains main rendering context for AudiOrbits
-* @public
-*/
+ * Contains main rendering context for AudiOrbits
+ * @public
+ */
 export class ContextHelper extends CComponent {
 	/** @public global state */
 	public PAUSED = false;
 
 	/** @public */
 	public settings: ContextSettings = new ContextSettings();
+
+	private loadHelper: LoadHelper;
 
 	// webvr user input data
 	private userData = {
@@ -76,6 +96,7 @@ export class ContextHelper extends CComponent {
 	// Three.js objects
 	private renderer: WebGLRenderer = null;
 	private camera: PerspectiveCamera = null;
+	private cameraPosition: Vector3;
 	private scene: Scene = null;
 
 	private composer: EffectComposer = null;
@@ -93,18 +114,25 @@ export class ContextHelper extends CComponent {
 	// important objects
 	private weas: WEAS = new WEAS();
 	private colorHolder: ColorHelper = new ColorHelper();
-	private lvlHolder: GeometryHolder = new GeometryHolder(this.colorHolder, this.weas);
 	private shaderHolder: ShaderHolder = new ShaderHolder(this.weas);
 	private weicue: WEICUE = new WEICUE(this.weas);
 	private stats: FPStats = new FPStats(this.weas);
 	private xrHelper: XRHelper = new XRHelper();
 
+	private geoHolder: GeometryHolder;
 
 	/**
-	* add global listeners
-	*/
-	constructor() {
+     * add global listeners
+     * @param {LoadHelper} loadHelper LoadHelper
+     */
+	constructor(loadHelper: LoadHelper) {
 		super();
+		this.loadHelper = loadHelper;
+		this.geoHolder = new GeometryHolder(
+			this.colorHolder,
+			this.weas,
+			this.loadHelper
+		);
 
 		// mouse listener
 		const mouseUpdate = (event) => {
@@ -118,27 +146,28 @@ export class ContextHelper extends CComponent {
 				this.mouseY = event.clientY - this.windowHalfY;
 			}
 		};
-		document.addEventListener('touchstart', mouseUpdate, false);
-		document.addEventListener('touchmove', mouseUpdate, false);
-		document.addEventListener('mousemove', mouseUpdate, false);
+		document.addEventListener("touchstart", mouseUpdate, false);
+		document.addEventListener("touchmove", mouseUpdate, false);
+		document.addEventListener("mousemove", mouseUpdate, false);
 
 		// scaling listener
-		window.addEventListener('resize', (e) => this.onResize(e), false);
+		window.addEventListener("resize", (e) => this.onResize(e), false);
 
 		// keep track of children settings
-		this._internal_children.push(this.weas);
-		this._internal_children.push(this.colorHolder);
-		this._internal_children.push(this.shaderHolder);
-		this._internal_children.push(this.weicue);
-		this._internal_children.push(this.stats);
-		this._internal_children.push(this.lvlHolder);
-		this._internal_children.push(this.xrHelper);
+		this.children.push(this.weas);
+		this.children.push(this.colorHolder);
+		this.children.push(this.shaderHolder);
+		this.children.push(this.weicue);
+		this.children.push(this.stats);
+		this.children.push(this.geoHolder);
+		this.children.push(this.xrHelper);
 	}
 
 	/**
-	* apply resizing
-	* @param {UIEvent} event
-	*/
+     * apply resizing
+     * @param {UIEvent} event resize event
+	 * @return {void}
+     */
 	private onResize(event): void {
 		const iW = window.innerWidth;
 		const iH = window.innerHeight;
@@ -152,19 +181,22 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-	* initialize three-js context
-	* @public
-	* @param {Promise} waitFor (optional) wait for this promise before rendering
-	* @return {Promise} finish event
-	*/
+     * initialize three-js context
+     * @public
+     * @param {Promise} waitFor (optional) wait for this promise before rendering
+     * @return {Promise} finish event
+     */
 	public init(waitFor?: Promise<void>): Promise<void> {
-		return new Promise(async (res, rej) => {
-			Smallog.debug('init Context...');
+		return new Promise((res, rej) => {
+			Smallog.debug("init Context...");
 
 			// get canvas container
-			const cont = document.getElementById('renderContainer');
+			const cont = document.getElementById("renderContainer");
 			// distance
-			const viewDist = this.settings.num_levels * this.settings.level_depth * (this.settings.xr_mode ? 1 : 2);
+			const viewDist =
+                this.settings.num_levels *
+                this.settings.level_depth *
+                (this.settings.xr_mode ? 1 : 2);
 			// precision
 			const prec = this.getPrecisionPref();
 
@@ -176,18 +208,24 @@ export class ContextHelper extends CComponent {
 			// get canvases & contexts
 			// ensure the canvas sizes are set !!!
 			// these are independent from the style sizes
-			this.mainCanvas = document.createElement('canvas');
-			this.mainCanvas.id = 'mainCvs';
+			this.mainCanvas = document.createElement("canvas");
+			this.mainCanvas.id = "mainCvs";
 			this.mainCanvas.width = window.innerWidth;
 			this.mainCanvas.height = window.innerHeight;
 			cont.appendChild(this.mainCanvas);
 
 			// create camera
-			this.camera = new PerspectiveCamera(this.settings.field_of_view, window.innerWidth / window.innerHeight, NEAR_DIST, viewDist);
+			this.camera = new PerspectiveCamera(
+				this.settings.field_of_view,
+				window.innerWidth / window.innerHeight,
+				NEAR_DIST,
+				viewDist
+			);
+			this.cameraPosition = this.camera.position;
 
 			// create scene
 			this.scene = new Scene();
-			// this.scene.fog = new FogExp2(this.getColor().getHexString(), 0.00001 + this.settings.fog_thickness / viewDist / 15);
+			this.scene.fog = new FogExp2(this.colorHolder.colorObject.main.getHexString(), 0.00001 + this.settings.fog_thickness / viewDist / 15);
 			// this.scene.fog = new Fog(fogCol, NEAR_DIST, this.settings.fog_thickness / viewDist / 7);
 
 			// create render-context
@@ -206,110 +244,142 @@ export class ContextHelper extends CComponent {
 			this.initWebXR();
 
 			// initialize shader composer
-			this.composer = new EffectComposer(this.scene, this.camera, this.renderer, prec, 0x000000);
+			this.composer = new EffectComposer(
+				this.scene,
+				this.camera,
+				this.renderer,
+				prec,
+				0x000000
+			);
 
 			// add shaders
 			this.shaderHolder.init(this.composer);
 
-			// precompile shaders
-			this.composer.precompile();
-
 			// initialize colors if not done already
 			this.colorHolder.updateSettings();
 
+			// eslint-disable-next-line no-async-promise-executor
+			const newWait = new Promise<void>(async (resolve) => {
+				// precompile shaders
+				this.composer.precompile();
+
+				// initialize weas
+				if (this.weas.init) await this.weas.init();
+				this.loadHelper.setProgress(this.loadHelper.progress + 5);
+
+				// wait for seizure warning
+				if (waitFor) await waitFor;
+
+				// return Controlflow
+				resolve();
+			});
+
+			this.loadHelper.setText("Objects");
+			this.loadHelper.setProgress(10);
+
 			// initialize main geometry
-			this.lvlHolder.init(this.scene, this.camera, waitFor)
+			this.geoHolder
+				.init(this.scene, this.camera, newWait)
 				.then(() => {
+					this.loadHelper.show(false);
 					// show fancy text
 					this.showMessage(document.title);
 					// start rendering
 					this.setRenderer(true);
 					// resolve promise
 					res();
-				}).catch(rej);
+				})
+				.catch(rej);
 		});
 	}
 
 	/**
-	* clamp camera position
-	* @param {number} axis current value
-	* @return {number} clamped value
-	*/
+     * clamp camera position
+     * @param {number} axis current value
+     * @return {number} clamped value
+     */
 	private clampCam(axis) {
-		return Math.min(this.settings.scaling_factor / 2, Math.max(-this.settings.scaling_factor / 2, axis));
+		return Math.min(
+			this.settings.scaling_factor / 2,
+			Math.max(-this.settings.scaling_factor / 2, axis)
+		);
 	}
 
 	/**
-	* @param {string} r_g_b (optional)
-	* @return {Color}
-	*/
-	private getColor(r_g_b = this.settings.main_color) {
-		const a = rgbToObj(r_g_b);
-		return new Color(a.r, a.g, a.b);
-	}
-
-	/**
-	* update camera values
-	* @param {number} ellapsed ms
-	* @param {number} deltaTime multiplier ~1
-	*/
+     * update camera values
+     * @param {number} ellapsed ms
+     * @param {number} deltaTime multiplier ~1
+	 * @return {void}
+     */
 	private updateFrame(ellapsed, deltaTime) {
-		// update camera
-		const newXPos = this.clampCam(this.mouseX * this.settings.parallax_strength / 70);
-		const newYPos = this.clampCam(this.mouseY * this.settings.parallax_strength / -90);
-
-		const transformPosition = this.settings.parallax_cam ? this.camera.position : this.scene.position;
-		if (transformPosition.x != newXPos) {
-			transformPosition.x += (newXPos - transformPosition.x) * deltaTime * 0.05;
-		}
-		if (transformPosition.y != newYPos) {
-			transformPosition.y += (newYPos - transformPosition.y) * deltaTime * 0.05;
-		}
-
-		if (this.settings.parallax_cam) {
-			// calculated point is position (parallax)
-			this.camera.position.set(transformPosition.x, transformPosition.y, transformPosition.z);
-			this.camera.lookAt(new Vector3(0, 0, -this.settings.level_depth / 2).add(this.scene.position));
-		} else {
-			// calculated point is look-at (inverted)
-			const pShort = this.scene.position;
-			this.camera.position.set(pShort.x, pShort.y, pShort.z);
-			this.camera.lookAt(transformPosition);
-		}
-
-		// WEBVR PROCESSING
 		if (this.settings.xr_mode) {
+			// WEBVR PROCESSING
+			// will automagically update the camera, no need to do it manually
 			this.handleVRController(this.userData.controller1);
 			this.handleVRController(this.userData.controller1);
+
+		} else {
+			// NORMAL PROCESSING
+			// constantly use/control mouse position to make it smooth
+
+			const newXPos = this.clampCam(
+				(this.mouseX * this.settings.parallax_strength) / 70
+			);
+			const newYPos = this.clampCam(
+				(this.mouseY * this.settings.parallax_strength) / -90
+			);
+			// lerp to new position
+			const cPos = this.camera.position;
+			if (cPos.x != newXPos) {
+				cPos.x += (newXPos - cPos.x) * deltaTime * 0.05;
+			}
+			if (cPos.y != newYPos) {
+				cPos.y += (newYPos - cPos.y) * deltaTime * 0.05;
+			}
+
+			const depthVector = new Vector3(
+				0,
+				0,
+				-this.settings.level_depth / 2
+			);
+
+			if (this.settings.parallax_cam) {
+				// target is center origin - depth (parallax)
+				this.camera.lookAt(depthVector.add(this.cameraPosition));
+			} else {
+				// target is camera position - depth (no parallax)
+				this.camera.lookAt(depthVector.add(cPos));
+			}
 		}
 	}
 
 	/**
-	* called after any setting changed
-	* @public
-	* @return {Promise} finish event
-	*/
+     * called after any setting changed
+     * @public
+     * @return {Promise} finish event
+     */
 	public updateSettings(): Promise<void> {
 		// fix for centered camera on Parallax "none"
 		if (this.settings.parallax_option == 0) this.mouseX = this.mouseY = 0;
 		// set Cursor for "fixed" parallax mode
-		if (this.settings.parallax_option == 3) this.positionMouseAngle(this.settings.parallax_angle);
+		if (this.settings.parallax_option == 3)
+			this.positionMouseAngle(this.settings.parallax_angle);
 
 		return Promise.resolve();
 	}
-
 
 	// /////////////////////////////////////////////
 	// RENDERING
 	// /////////////////////////////////////////////
 
 	/**
-	* start or stop rendering
-	* @public
-	* @param {boolean} render Start | Stop
-	*/
+     * start or stop rendering
+     * @public
+     * @param {boolean} render Start | Stop
+	 * @return {void}
+     */
 	public setRenderer(render: boolean) {
-		Smallog.debug('setRender: ' + render);
+		Smallog.debug("setRender: " + render);
 
 		// clear all old renderers
 		if (this.renderer) {
@@ -319,29 +389,36 @@ export class ContextHelper extends CComponent {
 			clearTimeout(this.renderTimeout);
 			this.renderTimeout = null;
 		}
+
 		// call new renderer ?
 		if (render) {
 			// set state to running
 			this.PAUSED = this.weicue.PAUSED = false;
 			// initialize rendering
 			if (this.settings.custom_fps) {
-				this.renderTimeout = setTimeout(() => this.renderLoop(), 1000 / this.settings.fps_value);
+				this.renderTimeout = setTimeout(
+					() => this.renderLoop(),
+					1000 / this.settings.fps_value
+				);
 			} else if (this.renderer) {
 				this.renderer.setAnimationLoop((t, f) => this.renderLoop(t, f));
-			} else Smallog.error('not initialized!');
+			} else {
+				Smallog.error("not initialized!");
+			}
 			// show again
-			this.mainCanvas.classList.add('show');
+			this.mainCanvas.classList.add("show");
 		} else {
 			this.PAUSED = this.weicue.PAUSED = true;
-			this.mainCanvas.classList.remove('show');
+			this.mainCanvas.classList.remove("show");
 		}
 	}
 
 	/**
-	* repeated render frame call
-	* @param {number} time
-	* @param {XRFrame} frame XR Frame
-	*/
+     * repeated render frame call
+     * @param {number} time second fraction
+     * @param {XRFrame} frame XR Frame
+	 * @return {void}
+     */
 	private renderLoop(time?: number, frame?: XRFrame) {
 		// paused - stop render
 		if (this.PAUSED) return;
@@ -349,7 +426,10 @@ export class ContextHelper extends CComponent {
 
 		// custom rendering needs manual re-call
 		if (this.renderTimeout) {
-			this.renderTimeout = setTimeout(() => this.renderLoop(), 1000 / sett.fps_value);
+			this.renderTimeout = setTimeout(
+				() => this.renderLoop(),
+				1000 / sett.fps_value
+			);
 		}
 
 		// Figure out how much time passed since the last animation and calc delta
@@ -365,7 +445,7 @@ export class ContextHelper extends CComponent {
 
 		// update objects
 		this.colorHolder.updateFrame(ellapsed, delta);
-		this.lvlHolder.updateFrame(ellapsed, delta);
+		this.geoHolder.updateFrame(ellapsed, delta);
 		this.shaderHolder.updateFrame(ellapsed, delta);
 		this.updateFrame(ellapsed, delta);
 
@@ -381,13 +461,17 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-	* Render timing wrapper
-	* @param {number} ellapsed
-	* @param {XRFrame} frame
-	*/
+     * Render timing wrapper 
+     * @param {number} ellapsed time
+     * @param {XRFrame} frame XR Frame
+	 * @return {void}
+     */
 	private timeRender(ellapsed: number, frame: XRFrame) {
 		// track GPU
 		this.stats.begin(false);
+
+		// render without effects
+		//this.renderer.render(this.scene, this.camera);
 
 		// render with effects
 		this.composer.render(ellapsed, frame);
@@ -398,69 +482,79 @@ export class ContextHelper extends CComponent {
 		this.stats.end(false);
 	}
 
-
 	// /////////////////////////////////////////////
 	// WEB-VR INTEGRATION
 	// /////////////////////////////////////////////
 
 	/**
-	* will initialize webvr components and rendering
-	*/
+     * will initialize webvr components and rendering
+	 * @return {void}
+     */
 	private initWebXR() {
 		if (!this.settings.xr_mode) return;
 
-		this.xrHelper.enableSession((xrs) => {
-			const enable = xrs !== null;
-			this.renderer.xr.setSession(xrs);
-			this.renderer.xr.enabled = true; // TODO this correct?
+		this.xrHelper
+			.enableSession((xrs) => {
+				const enable = xrs !== null;
+				this.renderer.xr.setSession(xrs);
+				this.renderer.xr.enabled = true; // TODO this correct?
 
-			if (enable) {
-				const regCon = (con: Group) => {
-					con.addEventListener('selectstart', this.onVRSelectStart);
-					con.addEventListener('selectend', this.onVRSelectEnd);
-					this.scene.add(con);
-				};
-				// get first controller
-				const c1 = this.renderer.xr.getController(0);
-				if (c1) {
-					regCon(c1);
-					this.userData.controller1 = c1;
-					// only need to check for a 2nd controller if there is a first?
-					const c2 = this.renderer.xr.getController(1);
-					if (c2) {
-						regCon(c2);
-						this.userData.controller2 = c2;
+				if (enable) {
+					const regCon = (con: Group) => {
+						con.addEventListener(
+							"selectstart",
+							this.onVRSelectStart
+						);
+						con.addEventListener("selectend", this.onVRSelectEnd);
+						this.scene.add(con);
+					};
+					// get first controller
+					const c1 = this.renderer.xr.getController(0);
+					if (c1) {
+						regCon(c1);
+						this.userData.controller1 = c1;
+						// only need to check for a 2nd controller if there is a first?
+						const c2 = this.renderer.xr.getController(1);
+						if (c2) {
+							regCon(c2);
+							this.userData.controller2 = c2;
+						}
 					}
+				} else {
+					if (this.userData.controller1)
+						this.scene.remove(this.userData.controller1);
+					if (this.userData.controller2)
+						this.scene.remove(this.userData.controller2);
 				}
-			} else {
-				if (this.userData.controller1) this.scene.remove(this.userData.controller1);
-				if (this.userData.controller2) this.scene.remove(this.userData.controller2);
-			}
-		}).then((succ) => {
-			if (succ) Smallog.info('Initialized WebXR!');
-			else Smallog.error('Initializing WebXR failed.');
-		});
+			})
+			.then((succ) => {
+				if (succ) Smallog.info("Initialized WebXR!");
+				else Smallog.error("Initializing WebXR failed.");
+			});
 	}
 
 	/**
-	* VR controller starts selecting
-	*/
+     * VR controller starts selecting
+	 * @return {void}
+     */
 	private onVRSelectStart() {
 		this.userData.isSelecting = true;
 	}
 
 	/**
-	* VR controller stops selecting
-	*/
+     * VR controller stops selecting
+	 * @return {void}
+     */
 	private onVRSelectEnd() {
 		this.userData.isSelecting = false;
 	}
 
 	/**
-	* @todo
-	* use VR controller like mouse & parallax
-	* @param {Object} controller left or right
-	*/
+     * @todo
+     * use VR controller like mouse & parallax
+     * @param {Object} controller left or right
+	 * @return {void}
+     */
 	private handleVRController(controller) {
 		/*
 		controller.userData.isSelecting
@@ -469,53 +563,62 @@ export class ContextHelper extends CComponent {
 		*/
 	}
 
-
 	// /////////////////////////////////////////////
 	// HELPER
 	// /////////////////////////////////////////////
 
 	/**
-	* use overall "quality" setting to determine three.js "power" mode
-	* @return {string} three.js power mode
-	*/
+     * use overall "quality" setting to determine three.js "power" mode
+     * @return {string} three.js power mode
+     */
 	private getPowerPreference() {
 		switch (this.settings.shader_quality) {
-		case 1: return 'low-power';
-		case 3: return 'high-performance';
-		default: return 'default';
+		case 1:
+			return "low-power";
+		case 3:
+			return "high-performance";
+		default:
+			return "default";
 		}
 	}
 
 	/**
-	* use overall "quality" setting to determine three.js "power" mode
-	* @return {string} three.js power mode
-	*/
+     * use overall "quality" setting to determine three.js "power" mode
+     * @return {string} three.js power mode
+     */
 	private getPrecisionPref() {
 		switch (this.settings.shader_quality) {
-		case 1: return 'lowp';
-		case 3: return 'highp';
-		default: return 'mediump';
+		case 1:
+			return "lowp";
+		case 3:
+			return "highp";
+		default:
+			return "mediump";
 		}
 	}
 
 	/**
-	* @todo
-	* shows a fancy text mesage
-	* @param {string} msg text to show
-	*/
+     * @todo
+     * shows a fancy text mesage
+     * @param {string} msg text to show
+	 * @return {void}
+     */
 	private showMessage(msg: string) {
-		// TODO Fix
-		const tPos = this.camera.position.sub(new Vector3(0, 0, this.settings.level_depth));
+		// @TODO Fix
+		const tPos = new Vector3(0, 0, this.settings.level_depth).add(
+			this.camera.position
+		);
 		this.textHolder = new FancyText(this.scene, tPos, msg);
 	}
 
 	/**
-	* position Mouse with angle
-	* @public
-	* @param {number} degrees angle
-	*/
+     * position Mouse with angle
+     * @public
+     * @param {number} degrees angle
+	 * @return {void}
+     */
 	public positionMouseAngle(degrees) {
-		const ang = degrees * Math.PI / 180;
+		const ang = (degrees * Math.PI) / 180;
 		let w = window.innerHeight;
 		if (window.innerWidth < w) w = window.innerWidth;
 		w /= 2;

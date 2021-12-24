@@ -24,7 +24,7 @@
 import {ContextHelper} from './ContextHelper';
 import {WEventListener} from './WEventListener';
 
-import {CComponent, CSettings, ReloadHelper, rgbToObj, Smallog, waitReady, WarnHelper, WEWWA} from './we_utils';
+import {CComponent, CSettings, ReloadHelper, rgbToObj, Smallog, waitReady, WarnHelper, WEWWA, LoadHelper} from './we_utils/src';
 
 const Ignore: string[] = ['img_overlay', 'img_background', 'mirror_invalid_val',
 	'wec_brs', 'wec_con', 'wec_e', 'wec_hue', 'wec_sa', '_d0'];
@@ -46,9 +46,8 @@ window['wallpaperPropertyListener'] = {
 
 /**
 * what's the wallpaper currently doing?
-* @public
 */
-export enum RunState {
+enum RunState {
 	None = 0,
 	Initializing = 1,
 	Running = 2,
@@ -61,19 +60,18 @@ export enum RunState {
 * @public
 */
 class MainSettings extends CSettings {
-	debugging: boolean = false;
+	debugging = false;
 	// default scheme property
-	schemecolor: string = '0 0 0';
+	schemecolor = '0 0 0';
 	// Misc category
-	seizure_warning: boolean = true;
+	seizure_warning = true;
 	// mirrored setting
-	parallax_option: number = 0;
-	auto_parallax_speed: number = 1;
+	parallax_option = 0;
+	auto_parallax_speed = 1;
 }
 
 /**
 * Root Class
-* @public
 */
 class AudiOrbits extends CComponent {
 	// holds default wallpaper settings
@@ -81,21 +79,24 @@ class AudiOrbits extends CComponent {
 	// for more explanation on settings visit the Workshop-Item-Forum (link above)
 	public settings: MainSettings = new MainSettings();
 
+	// update loading status here
+	private loadHelper: LoadHelper = new LoadHelper();
+
 	// state of the Wallpaper
 	private state: RunState = RunState.None;
 
 	// Seconds & interval for reloading the wallpaper
-	private resetTimespan: number = 3;
+	private resetTimespan = 3;
 	private resetTimeout: any = null;
 
 	// submodules
-	private ctxHolder: ContextHelper = new ContextHelper();
+	private ctxHolder: ContextHelper = new ContextHelper(this.loadHelper);
 	private reloadHelper: ReloadHelper = new ReloadHelper();
 	private warnHelper: WarnHelper = new WarnHelper();
 
 	// interval for swirlHandler
 	private swirlInterval: any = null;
-	private swirlStep: number = 0;
+	private swirlStep = 0;
 	// Wallpaper Engine Event Listener
 	private weListener: WEventListener = null;
 
@@ -107,9 +108,9 @@ class AudiOrbits extends CComponent {
 		Smallog.setPrefix('[AudiOrbits] ');
 		Smallog.debug('constructing...');
 
-		this._internal_children.push(this.ctxHolder);
-		this._internal_children.push(this.warnHelper);
-		this._internal_children.push(this.reloadHelper);
+		this.children.push(this.ctxHolder);
+		this.children.push(this.warnHelper);
+		this.children.push(this.reloadHelper);
 
 		// will apply settings edited in Wallpaper Engine
 		// this will also cause initialization for the first time
@@ -148,9 +149,9 @@ class AudiOrbits extends CComponent {
 			},
 
 			// currently not used
-			applyGeneralProperties: (props) => {},
-			userDirectoryFilesAddedOrChanged: (p, f) => {},
-			userDirectoryFilesRemoved: (p, f) => {},
+			applyGeneralProperties: (props) => { return; },
+			userDirectoryFilesAddedOrChanged: (p, f) => { return; },
+			userDirectoryFilesRemoved: (p, f) => { return; },
 		};
 
 		if (temProps) this.weListener.applyUserProperties(temProps);
@@ -174,7 +175,7 @@ class AudiOrbits extends CComponent {
 		// loop all settings for updated values
 		for (const setting in props) {
 			// ignore this setting or apply it manually
-			if (Ignore.indexOf(setting) > -1 || setting.indexOf('HEADER_') === 0 || setting.indexOf('SPACER_') === 0) continue;
+			if (Ignore.indexOf(setting) > -1 || setting.indexOf('HDR_') === 0 || setting.indexOf('SPCR_') === 0) continue;
 			// get the updated setting
 			const prop = props[setting];
 			// check typing
@@ -286,12 +287,19 @@ class AudiOrbits extends CComponent {
 	*/
 	private initSystem(waitFor?: Promise<void>) {
 		Smallog.debug('initializing...');
+		// show loader
+		this.loadHelper.setText('3D');
+		this.loadHelper.setProgress(5);
+		this.loadHelper.show(true);
+
 		// initialize three js and add geometry to returned scene
 		this.ctxHolder.init(waitFor).then(() => {
 			// start auto parallax handler
 			this.swirlInterval = window.setInterval(() => this.swirlHandler(), 1000 / 60);
 			// start rendering
 			this.state = RunState.Running;
+			// hide loader
+			this.loadHelper.show(false);
 			// print
 			Smallog.info('initializing complete.');
 		}).catch((err) => {

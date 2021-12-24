@@ -7,25 +7,54 @@
 * See LICENSE file in the project root for full license information.
 */
 
+export type WEPropType = 'combo' | 'text' | 'slider' | 'bool' | 'color';
+
+/**
+ * Options list for 'combo'-type user settings
+ * @public
+ */
+export interface WEPropOption {
+	label: string;
+	value: string;
+}
+
+/**
+ * Interfacing with Wallpaper-settings, cant be renamed
+ * project.json -> general -> properties
+ * @public
+ */
+export interface WEProperty {
+	condition: string;
+	editable: boolean;
+	max: number;
+	min: number;
+	options: WEPropOption[];
+	order: number;
+	text: string;
+	type: WEPropType;
+	value: string | number | boolean;
+}
+
 /**
 * AudiOrbits Eventlistener Object
 * @see https://docs.wallpaperengine.io/en/web/api/propertylistener.html
+* @public
 */
 export interface WEventListener {
 
 	/**
 	* Apply system settings
-	* @param {Object} props Wallpaper Engine general properties
+	* @param {WEProperty[]} props Wallpaper Engine general properties
 	* @see https://docs.wallpaperengine.io/en/web/performance/fps.html
 	*/
-	applyGeneralProperties(props): void;
+	applyGeneralProperties(props: WEProperty[]): void;
 
 	/**
 	* Apply custom settings
-	* @param {Object} props Wallpaper Custom properties
+	* @param {WEProperty[]} props Wallpaper Custom properties
 	* @see https://docs.wallpaperengine.io/en/web/customization/properties.html
 	*/
-	applyUserProperties(props): void;
+	applyUserProperties(props: WEProperty[]): void;
 
 	/**
 	* Set paused

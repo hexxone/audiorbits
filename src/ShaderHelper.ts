@@ -9,9 +9,9 @@
 * @description
 */
 
-import {Vector2} from 'three';
 import {LUTHelper} from './LUTHelper';
-import {BlurShader, CComponent, ChromaticShader, CSettings, EffectComposer, FractalMirrorShader, FXAAShader, LUTShader, LUTShaderNearest, ShaderPass, Smallog, UnrealBloomPass, WEAS} from './we_utils';
+import {BlurShader, CComponent, ChromaticShader, CSettings, EffectComposer, FractalMirrorShader, FXAAShader, LUTShader, LUTShaderNearest, ShaderPass, Smallog, UnrealBloomPass, WEAS} from './we_utils/src';
+import {Vector2} from './we_utils/src/three.ts/src/math/Vector2';
 
 /**
 * Shder-relevant settings

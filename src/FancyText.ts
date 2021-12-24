@@ -7,7 +7,7 @@
 * See LICENSE file in the project root for full license information.
 */
 
-import {FontLoader, Mesh, MeshPhongMaterial, TextGeometry} from 'three';
+import {Color, FontLoader, Mesh, MeshPhongMaterial, Scene, TextGeometry, Vector3} from './we_utils/src';
 
 /**
 * @todo FIX
@@ -17,14 +17,14 @@ import {FontLoader, Mesh, MeshPhongMaterial, TextGeometry} from 'three';
 export class FancyText {
 	/**
 	* Fancy Shorthand 3D Text Renderer for THREE js
-	* @param {THREE.Scene} scene Where to append the text
-	* @param {THREE.Vector3} CPos Position for mesh
+	* @param {Scene} scene Where to append the text
+	* @param {Vector3} CPos Position for mesh
 	* @param {string} text message to show
-	* @param {THREE.Vector3} lookAt text front facing Position (null)
+	* @param {Vector3} lookAt text front facing Position (null)
 	* @param {number} hideAfter seconds to remove msg after (30)
 	* @param {string} fontPath custom font (Hexagon_cup)
 	*/
-	constructor(scene: THREE.Scene, CPos: THREE.Vector3, text: string, lookAt: THREE.Vector3 = null, hideAfter: number = 30, fontPath: string = '/css/HEXAGON_cup_font.json') {
+	constructor(scene: Scene, CPos: Vector3, text: string, lookAt: Vector3 = null, hideAfter = 30, fontPath = '/css/HEXAGON_cup_font.json') {
 		const loader = new FontLoader();
 		loader.load(fontPath, (fDat) => {
 			const textGeo = new TextGeometry(text, {
@@ -39,9 +39,9 @@ export class FancyText {
 				bevelSegments: 5,
 			});
 
-			const textMaterial = new MeshPhongMaterial(
-				{color: 0xffddbb, specular: 0xffffff},
-			);
+			const textMaterial = new MeshPhongMaterial();
+			textMaterial.color = new Color(0xffddbb);
+			textMaterial.specular = new Color(0xffffff);
 
 			const textMesh = new Mesh(textGeo, textMaterial);
 			textMesh.position.set(CPos.x, CPos.y, CPos.z);
