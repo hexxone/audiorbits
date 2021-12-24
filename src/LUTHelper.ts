@@ -7,9 +7,7 @@
 * See LICENSE file in the project root for full license information.
 */
 
-import {DataTexture, ImageLoader, LinearFilter, NearestFilter, RGBAFormat} from 'three';
-
-import {Smallog} from './we_utils';
+import {DataTexture, ImageLoader, Smallog, LinearFilter, NearestFilter, RGBAFormat} from './we_utils/src';
 
 /**
 * LookUpTable Setup helper & holder
