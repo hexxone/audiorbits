@@ -23,11 +23,9 @@
 */
 /* eslint-disable no-unused-vars */
 
-import {AdditiveBlending, BufferAttribute, BufferGeometry, Camera, Color, HSL, LineBasicMaterial, LineSegments, Material, NormalBlending, Object3D, Points, PointsMaterial, Scene, Texture, TextureLoader}
-	from 'three'; // from './we_utils/src/three.ts';
 
-import {CComponent, CSettings, Smallog, WEAS, WascInterface, wascWorker}
-	from './we_utils';
+import {CComponent, CSettings, Smallog, WEAS, WascInterface, wascWorker, BufferGeometry, HSL, Object3D, Camera, Scene, Texture, TextureLoader, BufferAttribute, PointsMaterial, NormalBlending, Points, LineBasicMaterial, LineSegments, Float32BufferAttribute, ASUtil, WascLoader, LoadHelper}
+	from './we_utils/src';
 
 import {ColorHelper} from './ColorHelper';
 import {NEAR_DIST} from './ContextHelper';
@@ -39,7 +37,7 @@ const cachedBuilders = [];
 /**
 * @public
 */
-interface Level {
+type Level = {
 	level: number;
 	sets: Subset[];
 }
@@ -47,20 +45,11 @@ interface Level {
 /**
 * @public
 */
-interface Subset {
+type Subset = {
 	hasNewData: boolean;
-	object: T3Object;
+	object: Object3D;
 	level: number;
 	set: number;
-}
-
-/**
-* Custom object helper
-* @public
-*/
-class T3Object extends Object3D {
-	geometry: BufferGeometry & { attributes: { position: BufferAttribute } };
-	material: Material & { color: Color };
 }
 
 /**
@@ -68,75 +57,75 @@ class T3Object extends Object3D {
 * @public
 */
 class LevelSettings extends CSettings {
-	geometry_type: number = 0;
+	geometry_type = 0;
 
 	// <GeneralGeometry>
-	num_spread: number = 50; // relation (max 32K points per subset) <--> (min 4K points per subset)
-	num_point: number = 16; // (x1024² points) inferrs num_levels & num_subsets_per_level & num_points_per_subset
-	num_depth: number = 50; // (orbit depth) inferrs level_depth = x256 / num_levels
-	num_scale: number = 50; // (orbit x-y size) inferrs scaling_factor -> x32
+	num_spread = 50; // relation (max 32K points per subset) <--> (min 4K points per subset)
+	num_point = 16; // (x1024² points) inferrs num_levels & num_subsets_per_level & num_points_per_subset
+	num_depth = 50; // (orbit depth) inferrs level_depth = x256 / num_levels
+	num_scale = 50; // (orbit x-y size) inferrs scaling_factor -> x32
 
-	num_levels: number = 6;
-	level_depth: number = 1200;
-	num_subsets_per_level: number = 12;
-	num_points_per_subset: number = 4096;
-	scaling_factor: number = 1500;
+	num_levels = 6;
+	level_depth = 1200;
+	num_subsets_per_level = 12;
+	num_points_per_subset = 4096;
+	scaling_factor = 1500;
 
-	level_shifting: boolean = false;
-	level_spiralize: boolean = false;
+	level_shifting = false;
+	level_spiralize = false;
 	// Tunnel generator
 	// @todo remove bool & make tunnel bigger
-	generate_tunnel: boolean = false;
-	tunnel_inner_radius: number = 5;
-	tunnel_outer_radius: number = 5;
+	generate_tunnel = false;
+	tunnel_inner_radius = 5;
+	tunnel_outer_radius = 5;
 	// </GeneralGeometry>
 
 	// <FractalGeometry>
-	base_texture: number = 0;
-	texture_size: number = 7;
+	base_texture = 0;
+	texture_size = 7;
 	// Algorithm params
-	alg_a_min: number = -25;
-	alg_a_max: number = 25;
-	alg_b_min: number = 0.3;
-	alg_b_max: number = 1.7;
-	alg_c_min: number = 5;
-	alg_c_max: number = 16;
-	alg_d_min: number = 1;
-	alg_d_max: number = 9;
-	alg_e_min: number = 1;
-	alg_e_max: number = 10;
+	alg_a_min = -25;
+	alg_a_max = 25;
+	alg_b_min = 0.3;
+	alg_b_max = 1.7;
+	alg_c_min = 5;
+	alg_c_max = 16;
+	alg_d_min = 1;
+	alg_d_max = 9;
+	alg_e_min = 1;
+	alg_e_max = 10;
 	// </FractalGeometry>
 
 	// Camera category
-	fog_thickness: number = 80;
+	fog_thickness = 80;
 	// Movement category
-	movement_type: number = 0;
-	zoom_val: number = 1;
-	rotation_val: number = 0;
+	movement_type = 0;
+	zoom_val = 1;
+	rotation_val = 0;
 	// Color category
-	color_audio_strength: number = 0;
+	color_audio_strength = 0;
 	// Brightness category
-	default_brightness: number = 60;
-	minimum_brightness: number = 10;
-	maximum_brightness: number = 90;
+	default_brightness = 60;
+	minimum_brightness = 10;
+	maximum_brightness = 90;
 	// Saturation category
-	default_saturation: number = 10;
-	minimum_saturation: number = 10;
-	maximum_saturation: number = 90;
+	default_saturation = 10;
+	minimum_saturation = 10;
+	maximum_saturation = 90;
 
 	// Audio category
-	audiozoom_val: number = 2;
-	reverse_type: number = 0;
-	audiozoom_smooth: boolean = false;
+	audiozoom_val = 2;
+	reverse_type = 0;
+	audiozoom_smooth = false;
 	// do dynamic processing?
-	equalize: boolean = true;
+	equalize = true;
 	// time-value smoothing ratios mirrored from WEAS
-	audio_increase: number = 75;
-	audio_decrease: number = 25;
+	audio_increase = 75;
+	audio_decrease = 25;
 	// seeded random for fractal generator
-	random_seed: number = 0; // user setting
+	random_seed = 0; // user setting
 	// VR mode
-	xr_mode: boolean = false;
+	xr_mode = false;
 }
 
 /**
@@ -165,6 +154,8 @@ enum WasmSettings {
 
 	real_seed = 16,
 	level_depth = 17,
+	level_spiralize = 18,
+	num_levels = 19,
 }
 
 /**
@@ -195,15 +186,21 @@ export class GeometryHolder extends CComponent {
 	// audio provider
 	private weas: WEAS;
 
+	private loadHelper: LoadHelper;
+
+	sharedASUtils: ASUtil;
+
 	/**
 	* construct component
 	* @param {ColorHelper} colorHelp color provider
 	* @param {WEAS} weas audio provider
+	* @param {LoadHelper} loadHelper load helper
 	*/
-	constructor(colorHelp: ColorHelper, weas: WEAS) {
+	constructor(colorHelp: ColorHelper, weas: WEAS, loadHelper: LoadHelper) {
 		super();
 		this.colorHelpr = colorHelp;
 		this.weas = weas;
+		this.loadHelper = loadHelper;
 	}
 
 	/**
@@ -212,7 +209,7 @@ export class GeometryHolder extends CComponent {
 	* @param {Scene} scene parent
 	* @param {Camera} cam renderer
 	* @param {Promise} waitFor (optional)
-	* @return {Promise}
+	* @return {Promise} res
 	*/
 	public init(scene: Scene, cam: Camera, waitFor?: Promise<void>): Promise<void> {
 		return new Promise((res, rej) => {
@@ -224,6 +221,9 @@ export class GeometryHolder extends CComponent {
 			// reset rendering
 			this.speedVelocity = 0;
 
+			this.loadHelper.setText('Texture');
+			this.loadHelper.setProgress(15);
+
 			// load texture
 			let texture: Texture = null;
 			if (sett.geometry_type == 0) {
@@ -233,13 +233,17 @@ export class GeometryHolder extends CComponent {
 				texture = new TextureLoader().load(texPth);
 			}
 
+			this.loadHelper.setText('Generator');
+			this.loadHelper.setProgress(20);
+
 			// setup fractal generator, get exported functions, push settings & init geometry
 			this.getGeoBuilder()
-				.then((bldr) => this.levelBuilder = bldr)
+				.then((builder) => this.levelBuilder = builder)
 				.then(() => this.updateSettings())
 				.then(() => this.initGeometries(scene, texture, waitFor))
 				.then(() => {
-					Smallog.debug('Got WebAssembly Level Builder!');
+					Smallog.debug('Finished building geometries!');
+					this.loadHelper.setProgress(this.loadHelper.progress + 5);
 					res();
 				})
 				.catch(rej);
@@ -251,7 +255,7 @@ export class GeometryHolder extends CComponent {
 	* @return {string} path
 	*/
 	private async getGeoBuilder(): Promise<WascInterface> {
-		return new Promise(async (res, rej) => {
+		return new Promise((res, rej) => {
 			const builderString = (() => {
 				switch (this.settings.geometry_type) {
 				case 0: return 'FractalGeometry.wasm';
@@ -262,8 +266,17 @@ export class GeometryHolder extends CComponent {
 			if (cachedBuilders[builderString]) res(cachedBuilders[builderString]);
 			// initialize new module
 			else {
-				wascWorker(builderString)
-					.then((bldr) => res(cachedBuilders[builderString] = bldr))
+				const iso = window['crossOriginIsolated'] === true;
+				wascWorker(builderString, 4096, iso)
+					.then((myModule) => {
+						// @todo test
+						if (myModule.sharedMemory) {
+							this.sharedASUtils = new WascLoader().postInstantiate({}, {exports: {memory: myModule.sharedMemory}} as any);
+							Smallog.debug('Got shared memory access to WebAssembly builder!');
+							// console.log(this.sharedASUtils);
+						}
+						res(cachedBuilders[builderString] = myModule);
+					})
 					.catch(rej);
 			}
 		});
@@ -291,7 +304,9 @@ export class GeometryHolder extends CComponent {
 		const sett = this.settings;
 		const camZ = this.camera.position.z;
 
-		Smallog.debug('building geometries.');
+		Smallog.debug('building levels.');
+		this.loadHelper.setText('Levels');
+		this.loadHelper.setProgress(25);
 
 		// reset Orbit data
 		this.levels = new Array<Level>(sett.num_levels);
@@ -346,10 +361,10 @@ export class GeometryHolder extends CComponent {
 				if (sett.xr_mode) object.position.z += hlfDepth;
 
 				// TODO move this to webassembly
-				if (sett.level_spiralize) {
-					// split angle across subset and regard previous rotation, lel why not
-					object.rotation.z = - (l * deg45rad + (s * deg45rad / sett.num_subsets_per_level));
-				}
+				// if (sett.level_spiralize) {
+				// 	// split angle across subset and regard previous rotation, lel why not
+				// 	object.rotation.z = - (l * deg45rad + (s * deg45rad / sett.num_subsets_per_level));
+				// }
 				// else object.rotation.z = -deg45rad;
 
 				// add to scene
@@ -366,22 +381,28 @@ export class GeometryHolder extends CComponent {
 		// trigger level generation once
 		await Promise.all(this.levels.map((o, l) => this.generateLevel(l)));
 
+		this.loadHelper.setText('Level Data');
+
 		// apply data
 		while (this.afterRenderQueue.length > 0) {
 			this.afterRenderQueue.shift()();
 		}
+
+		this.loadHelper.setProgress(this.loadHelper.progress + 5);
 
 		// generate standby data for first move-back
 		const stndBy = Promise.all(this.levels.map((o, l) => this.generateLevel(l)));
 
 		// wait for something else?
 		if (waitFor) {
-			// wait for data
-			await stndBy;
+			// wait for 2nd data?
+			// await stndBy;
+
 			// apply data
-			while (this.afterRenderQueue.length > 0) {
-				this.afterRenderQueue.shift()();
-			}
+			// while (this.afterRenderQueue.length > 0) {
+			// 	this.afterRenderQueue.shift()();
+			// }
+
 			// wait for control flow
 			await waitFor;
 		}
@@ -393,26 +414,26 @@ export class GeometryHolder extends CComponent {
 		* @param {Texture} texture
 		* @return {Object}
 		*/
-	private getSubsetObject(geometry, texture): T3Object {
+	private getSubsetObject(geometry, texture): Object3D {
 		let object; let material;
 
 		// default fractal geometry
 		if (this.settings.geometry_type == 0) {
 			// create material
-			material = new PointsMaterial({
-				map: texture,
-				size: this.settings.texture_size,
-				blending: NormalBlending, // AdditiveBlending, NormalBlending
-				depthTest: false,
-				transparent: true,
-			});
+			material = new PointsMaterial();
+			material.map = texture;
+			material.size = this.settings.texture_size;
+			material.blending = NormalBlending; // AdditiveBlending; NormalBlending
+			material.depthTest = false;
+			material.transparent = true;
+
 			// create particle system from geometry and material
 			object = new Points(geometry, material);
 		} else if (this.settings.geometry_type == 1) {
 			// line geometry type
-			material = new LineBasicMaterial({
-				linewidth: this.settings.texture_size,
-			});
+			material = new LineBasicMaterial();
+			material.linewidth = this.settings.texture_size;
+
 			// create lineloop system from geometry and material
 			object = new LineSegments(geometry, material);
 		}
@@ -481,16 +502,16 @@ export class GeometryHolder extends CComponent {
 	private getSeed(): number {
 		if (this.settings.random_seed < 1) {
 			const useed = Math.floor(Math.random() * 233279);
-			Smallog.info('Using random seed: ' + useed);
+			Smallog.debug('Using random seed: ' + useed);
 			return useed;
 		} else return Math.abs(this.settings.random_seed) % 233280;
 	}
 
 	/**
 	 * Calculate & return algorithm parameters
-	 * @return {Object}
+	 * @return {any} algorithm parameters
 	 */
-	private getParameters(): Object {
+	private getParameters() {
 		// @TODO
 		return {
 			alg_a_min: 6,
@@ -514,42 +535,78 @@ export class GeometryHolder extends CComponent {
 	private generateLevel(level: number): Promise<void> {
 		Smallog.debug('generating level: ' + level);
 
+		const shared = this.sharedASUtils != null;
+
 		const start = performance.now();
 		const {run} = this.levelBuilder;
+
+		const lvlPercent = (85 - 25) / this.settings.num_levels; // / 2;
+
+		/**
+		 * Data pass to worker
+		 * @public
+		 */
+		const workerParams = {
+			level: level,
+			isShared: shared,
+		};
+
 		// isolated Function ran inside worker
 		return run(({module, instance, exports, params}) => {
 			const ex = instance.exports as any;
-			const {level} = params[0];
+			// Data passed in worker
+			const {level, isShared} = params[0];
 			// assembly level Building
 			// returns pointer to int32-array with float-references
 			const dataPtr = ex.build(level);
 			// iterate over all pointers
 			const setPtrs = exports.__getInt32Array(dataPtr);
+
 			// gather transferrable float-arrays
 			const resultObj = {};
-			// we make a hard-copy of the buffer so the data doesnt get lost.
-			setPtrs.forEach((ptr, i) => resultObj['set_' + i] = new Float32Array(exports.__getFloat32ArrayView(ptr)).buffer);
-			return resultObj;
-		}, {
-			// Data passed to worker
-			level: level,
+			if (isShared) {
+				// copy the pointer, since direct access is possible
+				setPtrs.forEach((ptr, i) => resultObj['ptr_' + i] = ptr);
+			} else {
+				// we make a hard-copy
+				// exports.__getFloat32ArrayView(ptr));
+				setPtrs.forEach((ptr, i) => resultObj['set_' + i] = new Float32Array(exports.__getFloat32ArrayView(ptr)).buffer);
+			}
 
-		}).then((result) => {
+			// transfer data
+			return resultObj;
+		}, workerParams).then((result) => {
 			// worker result, back in main context
 			const subbs = this.levels[level].sets;
 			const setsPerLvl = this.settings.num_subsets_per_level;
+
+			this.loadHelper.setText(`Level<br>${level + 1} / ${this.settings.num_levels}`);
+			this.loadHelper.setProgress(this.loadHelper.progress + lvlPercent);
+
 			// spread over time for less thread blocking
 			for (let s = 0; s < setsPerLvl; s++) {
 				// apply actual last Data from worker
-				this.afterRenderQueue.push(() => {
-					// get & set xyzBuffer data, then update child
-					const data = new Float32Array(result['set_' + s]);
-					subbs[s].object.geometry.attributes.position.set(data, 0);
+				this.afterRenderQueue.push(async () => {
+					let data: Float32Array;
+					if (shared) {
+						// @todo TEST & check if offset is needed?
+						// @todo get correct length from bufferPtr - offset
+						// get from shared buffer
+						const ptr = result['ptr_' + s];
+						// data = new Float32Array(buff.slice(ptr, ptr + ptsPerSet * 3));
+						data = await this.sharedASUtils.__getFloat32Array(ptr);
+					} else {
+						// get from transferred data
+						data = new Float32Array(result['set_' + s]);
+					}
+					// console.debug(`DataPeak=`, data.subarray(0, 10));
+
+					(subbs[s].object.geometry.attributes.position as Float32BufferAttribute).set(data, 0);
 					subbs[s].hasNewData = true;
 				});
 			}
 			// print info
-			Smallog.debug(`Generated Level=${level}, Time= ${(performance.now() - start)} ms`);
+			Smallog.debug(`Generated Level=${level}, Time=${(performance.now() - start)} ms`);
 		}).catch((e) => {
 			Smallog.error('Generate Error at Level=\'' + level + '\', Msg=\'' + e.toString() + '\'');
 		});
@@ -667,7 +724,7 @@ export class GeometryHolder extends CComponent {
 				if (color_mode == 4) {
 					targetHue += (colObject.hueB - targetHue) * freqVal / lastAudio.max;
 				} else if (color_mode == 0) {
-					targetHue += freqLvl * sett.color_audio_strength / 30;
+					targetHue += freqLvl * sett.color_audio_strength / 300;
 				}
 				// quick maths
 				targetSat = minSat + freqLvl * scaleSat;
@@ -689,7 +746,7 @@ export class GeometryHolder extends CComponent {
 
 				// opacity fading (replaces exp fog)
 				const X = (dist / orbtSize) + (P / 5) - 0.2 + 0.4 * P;
-				pm.opacity = Math.max(Math.min( 1 - X + (0.1337 + P * 0.1) * Math.sin(2 * Math.PI * X), 1), 0);
+				pm.opacity = Math.max(Math.min(1 - X + (0.1337 + P * 0.1) * Math.sin(1.5 * Math.PI * X), 1), 0);
 			}
 		}
 	}
@@ -794,7 +851,7 @@ export class GeometryHolder extends CComponent {
 
 				// opacity fading (replaces exp fog)
 				const X = (dist / orbtSize) + (P / 5) - 0.2 + 0.5 * P;
-				pm.opacity = Math.max(Math.min( -X + 1 + (0.1337 + P * 0.1) * Math.sin(2 * Math.PI * X), 1), 0);
+				pm.opacity = Math.max(Math.min(-X + 1 + (0.1337 + P * 0.1) * Math.sin(2 * Math.PI * X), 1), 0);
 			}
 		}
 	}
@@ -854,10 +911,10 @@ export class GeometryHolder extends CComponent {
 		}
 
 		// randomly do one after-render-aqction
-		// yes this is intended: "()()"
 		if (this.afterRenderQueue.length > 0) {
 			if (this.speedVelocity > 5 || Math.random() > 0.4) {
-				this.afterRenderQueue.shift()();
+				const action = this.afterRenderQueue.shift();
+				setTimeout(action, 1);
 			}
 		}
 	}

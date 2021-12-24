@@ -1,25 +1,26 @@
 # Todo's
 
-project.json
+## project.json
+
 - rework algorithm params
 ~ update translations -> project.json -> steam
 - update preview image?
 - convert .pngs to webp ?
 
+## main code
 
-main code:
 - Starcloud mode
 
-- fix rgba color 
+- fix rgba color
 - fix shaders (lut, blur, chroma)
 - check new re-init vars
 - disable debug loggin by default
 - wewa: Pause unfocus save
 - finish implementing Web-XR
-	- controls
+  - controls
 
+## other
 
-other:
 - spotify integration?
 - music recognition?
-- record "how to debug"-video? 
+- record "how to debug"-video?
