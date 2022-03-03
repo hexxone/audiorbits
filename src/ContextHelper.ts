@@ -17,7 +17,6 @@ import {
 	CSettings,
 	EffectComposer,
 	FPStats,
-	rgbToObj,
 	Smallog,
 	WEAS,
 	WEICUE,
@@ -30,7 +29,7 @@ import {
 	Vector3,
 	XRHelper,
 	LoadHelper,
-	FogExp2,
+	Fog,
 } from "./we_utils/src";
 
 export const NEAR_DIST = 3;
@@ -122,9 +121,9 @@ export class ContextHelper extends CComponent {
 	private geoHolder: GeometryHolder;
 
 	/**
-     * add global listeners
-     * @param {LoadHelper} loadHelper LoadHelper
-     */
+	 * add global listeners
+	 * @param {LoadHelper} loadHelper LoadHelper
+	 */
 	constructor(loadHelper: LoadHelper) {
 		super();
 		this.loadHelper = loadHelper;
@@ -151,7 +150,7 @@ export class ContextHelper extends CComponent {
 		document.addEventListener("mousemove", mouseUpdate, false);
 
 		// scaling listener
-		window.addEventListener("resize", (e) => this.onResize(e), false);
+		window.addEventListener("resize", () => this.onResize(), false);
 
 		// keep track of children settings
 		this.children.push(this.weas);
@@ -164,11 +163,11 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-     * apply resizing
-     * @param {UIEvent} event resize event
+	 * apply resizing
+	 * @param {UIEvent} event resize event
 	 * @return {void}
-     */
-	private onResize(event): void {
+	 */
+	private onResize(): void {
 		const iW = window.innerWidth;
 		const iH = window.innerHeight;
 		this.windowHalfX = iW / 2;
@@ -181,11 +180,11 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-     * initialize three-js context
-     * @public
-     * @param {Promise} waitFor (optional) wait for this promise before rendering
-     * @return {Promise} finish event
-     */
+	 * initialize three-js context
+	 * @public
+	 * @param {Promise} waitFor (optional) wait for this promise before rendering
+	 * @return {Promise} finish event
+	 */
 	public init(waitFor?: Promise<void>): Promise<void> {
 		return new Promise((res, rej) => {
 			Smallog.debug("init Context...");
@@ -194,9 +193,9 @@ export class ContextHelper extends CComponent {
 			const cont = document.getElementById("renderContainer");
 			// distance
 			const viewDist =
-                this.settings.num_levels *
-                this.settings.level_depth *
-                (this.settings.xr_mode ? 1 : 2);
+				this.settings.num_levels *
+				this.settings.level_depth *
+				(this.settings.xr_mode ? 1 : 2);
 			// precision
 			const prec = this.getPrecisionPref();
 
@@ -225,8 +224,15 @@ export class ContextHelper extends CComponent {
 
 			// create scene
 			this.scene = new Scene();
-			this.scene.fog = new FogExp2(this.colorHolder.colorObject.main.getHexString(), 0.00001 + this.settings.fog_thickness / viewDist / 15);
-			// this.scene.fog = new Fog(fogCol, NEAR_DIST, this.settings.fog_thickness / viewDist / 7);
+			// this.scene.fog = new FogExp2(
+			// 	this.colorHolder.colorObject.main.getHexString(),
+			// 	0.00001 + this.settings.fog_thickness / viewDist / 15
+			// );
+			this.scene.fog = new Fog(
+				new Color(0, 0, 0),
+				NEAR_DIST,
+				(viewDist * (100 - this.settings.fog_thickness)) / 250
+			);
 
 			// create render-context
 			this.renderer = new WebGLRenderer({
@@ -294,10 +300,10 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-     * clamp camera position
-     * @param {number} axis current value
-     * @return {number} clamped value
-     */
+	 * clamp camera position
+	 * @param {number} axis current value
+	 * @return {number} clamped value
+	 */
 	private clampCam(axis) {
 		return Math.min(
 			this.settings.scaling_factor / 2,
@@ -306,18 +312,17 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-     * update camera values
-     * @param {number} ellapsed ms
-     * @param {number} deltaTime multiplier ~1
+	 * update camera values
+	 * @param {number} ellapsed ms
+	 * @param {number} deltaTime multiplier ~1
 	 * @return {void}
-     */
+	 */
 	private updateFrame(ellapsed, deltaTime) {
 		if (this.settings.xr_mode) {
 			// WEBVR PROCESSING
 			// will automagically update the camera, no need to do it manually
 			this.handleVRController(this.userData.controller1);
 			this.handleVRController(this.userData.controller1);
-
 		} else {
 			// NORMAL PROCESSING
 			// constantly use/control mouse position to make it smooth
@@ -337,11 +342,7 @@ export class ContextHelper extends CComponent {
 				cPos.y += (newYPos - cPos.y) * deltaTime * 0.05;
 			}
 
-			const depthVector = new Vector3(
-				0,
-				0,
-				-this.settings.level_depth / 2
-			);
+			const depthVector = new Vector3(0, 0, -this.settings.level_depth / 2);
 
 			if (this.settings.parallax_cam) {
 				// target is center origin - depth (parallax)
@@ -354,13 +355,14 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-     * called after any setting changed
-     * @public
-     * @return {Promise} finish event
-     */
+	 * called after any setting changed
+	 * @public
+	 * @return {Promise} finish event
+	 */
 	public updateSettings(): Promise<void> {
 		// fix for centered camera on Parallax "none"
 		if (this.settings.parallax_option == 0) this.mouseX = this.mouseY = 0;
+
 		// set Cursor for "fixed" parallax mode
 		if (this.settings.parallax_option == 3)
 			this.positionMouseAngle(this.settings.parallax_angle);
@@ -373,11 +375,11 @@ export class ContextHelper extends CComponent {
 	// /////////////////////////////////////////////
 
 	/**
-     * start or stop rendering
-     * @public
-     * @param {boolean} render Start | Stop
+	 * start or stop rendering
+	 * @public
+	 * @param {boolean} render Start | Stop
 	 * @return {void}
-     */
+	 */
 	public setRenderer(render: boolean) {
 		Smallog.debug("setRender: " + render);
 
@@ -414,11 +416,11 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-     * repeated render frame call
-     * @param {number} time second fraction
-     * @param {XRFrame} frame XR Frame
+	 * repeated render frame call
+	 * @param {number} time second fraction
+	 * @param {XRFrame} frame XR Frame
 	 * @return {void}
-     */
+	 */
 	private renderLoop(time?: number, frame?: XRFrame) {
 		// paused - stop render
 		if (this.PAUSED) return;
@@ -461,11 +463,11 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-     * Render timing wrapper 
-     * @param {number} ellapsed time
-     * @param {XRFrame} frame XR Frame
+	 * Render timing wrapper
+	 * @param {number} ellapsed time
+	 * @param {XRFrame} frame XR Frame
 	 * @return {void}
-     */
+	 */
 	private timeRender(ellapsed: number, frame: XRFrame) {
 		// track GPU
 		this.stats.begin(false);
@@ -487,9 +489,9 @@ export class ContextHelper extends CComponent {
 	// /////////////////////////////////////////////
 
 	/**
-     * will initialize webvr components and rendering
+	 * will initialize webvr components and rendering
 	 * @return {void}
-     */
+	 */
 	private initWebXR() {
 		if (!this.settings.xr_mode) return;
 
@@ -501,10 +503,7 @@ export class ContextHelper extends CComponent {
 
 				if (enable) {
 					const regCon = (con: Group) => {
-						con.addEventListener(
-							"selectstart",
-							this.onVRSelectStart
-						);
+						con.addEventListener("selectstart", this.onVRSelectStart);
 						con.addEventListener("selectend", this.onVRSelectEnd);
 						this.scene.add(con);
 					};
@@ -534,28 +533,28 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-     * VR controller starts selecting
+	 * VR controller starts selecting
 	 * @return {void}
-     */
+	 */
 	private onVRSelectStart() {
 		this.userData.isSelecting = true;
 	}
 
 	/**
-     * VR controller stops selecting
+	 * VR controller stops selecting
 	 * @return {void}
-     */
+	 */
 	private onVRSelectEnd() {
 		this.userData.isSelecting = false;
 	}
 
 	/**
-     * @todo
-     * use VR controller like mouse & parallax
-     * @param {Object} controller left or right
+	 * @todo
+	 * use VR controller like mouse & parallax
+	 * @param {Object} controller left or right
 	 * @return {void}
-     */
-	private handleVRController(controller) {
+	 */
+	private handleVRController(controller: Group) {
 		/*
 		controller.userData.isSelecting
 		controller.position
@@ -568,41 +567,41 @@ export class ContextHelper extends CComponent {
 	// /////////////////////////////////////////////
 
 	/**
-     * use overall "quality" setting to determine three.js "power" mode
-     * @return {string} three.js power mode
-     */
+	 * use overall "quality" setting to determine three.js "power" mode
+	 * @return {string} three.js power mode
+	 */
 	private getPowerPreference() {
 		switch (this.settings.shader_quality) {
-		case 1:
-			return "low-power";
-		case 3:
-			return "high-performance";
-		default:
-			return "default";
+			case 1:
+				return "low-power";
+			case 3:
+				return "high-performance";
+			default:
+				return "default";
 		}
 	}
 
 	/**
-     * use overall "quality" setting to determine three.js "power" mode
-     * @return {string} three.js power mode
-     */
+	 * use overall "quality" setting to determine three.js "power" mode
+	 * @return {string} three.js power mode
+	 */
 	private getPrecisionPref() {
 		switch (this.settings.shader_quality) {
-		case 1:
-			return "lowp";
-		case 3:
-			return "highp";
-		default:
-			return "mediump";
+			case 1:
+				return "lowp";
+			case 3:
+				return "highp";
+			default:
+				return "mediump";
 		}
 	}
 
 	/**
-     * @todo
-     * shows a fancy text mesage
-     * @param {string} msg text to show
+	 * @todo
+	 * shows a fancy text mesage
+	 * @param {string} msg text to show
 	 * @return {void}
-     */
+	 */
 	private showMessage(msg: string) {
 		// @TODO Fix
 		const tPos = new Vector3(0, 0, this.settings.level_depth).add(
@@ -612,11 +611,11 @@ export class ContextHelper extends CComponent {
 	}
 
 	/**
-     * position Mouse with angle
-     * @public
-     * @param {number} degrees angle
+	 * position Mouse with angle
+	 * @public
+	 * @param {number} degrees angle
 	 * @return {void}
-     */
+	 */
 	public positionMouseAngle(degrees) {
 		const ang = (degrees * Math.PI) / 180;
 		let w = window.innerHeight;

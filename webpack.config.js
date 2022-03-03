@@ -17,15 +17,13 @@ const RenamerPlugin = require("./src/we_utils/src/renamer/RenamerPlugin");
 
 // optimizing
 const propertiesRenameTransformer =
-    require("ts-transformer-properties-rename").default;
+	require("ts-transformer-properties-rename").default;
 const TerserPlugin = require("terser-webpack-plugin");
-const ThreeMinifierPlugin = require("@yushijinhun/three-minifier-webpack");
-const threeMinifier = new ThreeMinifierPlugin();
 
 // analyzing
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const BundleAnalyzerPlugin =
-    require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+	require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 // prop list
 const propss = Object.keys(
@@ -112,7 +110,11 @@ propss.push(
 	"uniqueID",
 	"fullName",
 	"resolution",
-	"x", "y", "z", "w", "a",
+	"x",
+	"y",
+	"z",
+	"w",
+	"a"
 );
 
 // const
@@ -142,7 +144,7 @@ module.exports = (env) => {
 			liveReload: false,
 			hot: false,
 			headers: {
-				"https": true,
+				https: true,
 				"Access-Control-Allow-Origin": "*",
 				"Cross-Origin-Opener-Policy": "same-origin",
 				"Cross-Origin-Embedder-Policy": "require-corp",
@@ -167,20 +169,15 @@ module.exports = (env) => {
 						getCustomTransformers: (program) => {
 							return {
 								before:
-                                    prod && !prod
-                                    	? [
-                                    		propertiesRenameTransformer(
-                                    			program,
-                                    			{
-                                    				entrySourceFiles: [
-                                    					ENTRY_FILE,
-                                    				],
-                                    				reserved: propss,
-                                    				// noImplicitAny: true,
-                                    			}
-                                    		),
-                                    	]
-                                    	: [],
+									prod && !prod
+										? [
+												propertiesRenameTransformer(program, {
+													entrySourceFiles: [ENTRY_FILE],
+													reserved: propss,
+													// noImplicitAny: true,
+												}),
+										  ]
+										: [],
 							};
 						},
 					},
@@ -197,9 +194,7 @@ module.exports = (env) => {
 				// ts shader loader
 				{
 					test: /\.(glsl)$/,
-					loader: require.resolve(
-						"./src/we_utils/src/three/shader/loader"
-					),
+					loader: require.resolve("./src/we_utils/src/three/shader/loader"),
 				},
 				// exclude .asc from the bundle
 				{
@@ -238,6 +233,7 @@ module.exports = (env) => {
 				relpath: "../../../",
 				extension: "asc",
 				cleanup: prod,
+				shared: true,
 			}),
 
 			// offline worker helper
@@ -265,41 +261,41 @@ module.exports = (env) => {
 		// remove dead code in production
 		optimization: prod
 			? {
-				nodeEnv: "production",
-				minimize: true,
-				minimizer: [
-					new TerserPlugin({
-						// https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
-						terserOptions: {
-							ecma: 2020,
-							parse: {},
-							compress: {
-								unsafe: true,
-								// pure_funcs: ["console.warn"], // ~40kb of three.js messages... errors will stil come through.
-								hoist_funs: true,
-							},
-							mangle: {
-								properties: {
-									keep_quoted: true,
-									reserved: propss,
-									regex: /_(private|internal)_/, // the same prefixes like for custom transformer
+					nodeEnv: "production",
+					minimize: true,
+					minimizer: [
+						new TerserPlugin({
+							// https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
+							terserOptions: {
+								ecma: 2020,
+								parse: {},
+								compress: {
+									unsafe: true,
+									// pure_funcs: ["console.warn"], // ~40kb of three.js messages... errors will stil come through.
+									hoist_funs: true,
 								},
+								mangle: {
+									properties: {
+										keep_quoted: true,
+										reserved: propss,
+										regex: /_(private|internal)_/, // the same prefixes like for custom transformer
+									},
+								},
+								module: false,
+								toplevel: true,
+								sourceMap: false,
+								keep_fnames: false,
 							},
-							module: false,
-							toplevel: true,
-							sourceMap: false,
-							keep_fnames: false,
-						},
-					}),
-				],
-				moduleIds: "size",
-				mangleExports: "size",
-				mangleWasmImports: true,
-				providedExports: true,
-				usedExports: true,
-				concatenateModules: true,
-				innerGraph: true,
-			}
+						}),
+					],
+					moduleIds: "size",
+					mangleExports: "size",
+					mangleWasmImports: true,
+					providedExports: true,
+					usedExports: true,
+					concatenateModules: true,
+					innerGraph: true,
+			  }
 			: {},
 		// print statistics
 		stats: {
