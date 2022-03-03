@@ -20,12 +20,12 @@ import {
  * @public
  */
 type ColorObject = {
-    hueA: number;
-    hueB: number;
-    min: number;
-    max: number;
-    range: number;
-    main: Color;
+	hueA: number;
+	hueB: number;
+	min: number;
+	max: number;
+	range: number;
+	main: Color;
 };
 
 /**
@@ -55,10 +55,10 @@ export class ColorHelper extends CComponent {
 	public hueValues: number[] = [];
 
 	/**
-     * gets called after updating color picker
-     * @public
-     * @return {Promise} complete
-     */
+	 * gets called after updating color picker
+	 * @public
+	 * @return {Promise} complete
+	 */
 	public updateSettings(): Promise<void> {
 		const sett = this.settings;
 		const cobj = (this.colorObject = this.getColorObject());
@@ -67,18 +67,16 @@ export class ColorHelper extends CComponent {
 		for (let s = 0; s < sett.num_subsets_per_level; s++) {
 			let col = Math.random(); // default: random
 			switch (sett.color_mode) {
-			case 1: // single color OR
-			case 4: // audio max = 2nd color, min = 1st color
-				col = cobj.hueA;
-				break;
-			case 2: // level gradient
-				col =
-                        cobj.hueA +
-                        (s / sett.num_subsets_per_level) * cobj.range;
-				break;
-			case 3: // random from range
-				col = cobj.hueA + col * cobj.range;
-				break;
+				case 1: // single color OR
+				case 4: // audio max = 2nd color, min = 1st color
+					col = cobj.hueA;
+					break;
+				case 2: // level gradient
+					col = cobj.hueA + (s / sett.num_subsets_per_level) * cobj.range;
+					break;
+				case 3: // random from range
+					col = cobj.hueA + col * cobj.range;
+					break;
 			}
 			this.hueValues[s] = col;
 		}
@@ -86,9 +84,9 @@ export class ColorHelper extends CComponent {
 	}
 
 	/**
-     * returns the processed user color object
-     * @return {ColorObject} processed
-     */
+	 * returns the processed user color object
+	 * @return {ColorObject} processed
+	 */
 	private getColorObject(): ColorObject {
 		const a = rgbToHSL(this.settings.user_color_a).h;
 		const b = rgbToHSL(this.settings.user_color_b).h;
@@ -104,11 +102,12 @@ export class ColorHelper extends CComponent {
 	}
 
 	/**
-     * shift hue values
-     * @public
-     * @param {number} ellapsed passed ms float
-     * @param {number} deltaTime alternative multiplier
-     */
+	 * shift hue values
+	 * @public
+	 * @param {number} ellapsed passed ms float
+	 * @param {number} deltaTime alternative multiplier
+	 * @returns {void}
+	 */
 	public updateFrame(ellapsed, deltaTime) {
 		const sett = this.settings;
 		if (sett.color_fade_speed > 0) {
