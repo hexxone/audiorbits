@@ -1,38 +1,52 @@
 /**
-* @author hexxone / https://hexx.one
-*
-* @license
-* Copyright (c) 2021 hexxone All rights reserved.
-* Licensed under the GNU GENERAL PUBLIC LICENSE.
-* See LICENSE file in the project root for full license information.
-*
-* @description
-*/
+ * @author hexxone / https://hexx.one
+ *
+ * @license
+ * Copyright (c) 2021 hexxone All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE.
+ * See LICENSE file in the project root for full license information.
+ *
+ * @description
+ */
 
-import {LUTHelper} from './LUTHelper';
-import {BlurShader, CComponent, ChromaticShader, CSettings, EffectComposer, FractalMirrorShader, FXAAShader, LUTShader, LUTShaderNearest, ShaderPass, Smallog, UnrealBloomPass, WEAS} from './we_utils/src';
-import {Vector2} from './we_utils/src/three.ts/src/math/Vector2';
+import { LUTHelper } from "./LUTHelper";
+import {
+	BlurShader,
+	CComponent,
+	ChromaticShader,
+	CSettings,
+	EffectComposer,
+	FractalMirrorShader,
+	FXAAShader,
+	LUTShader,
+	LUTShaderNearest,
+	ShaderPass,
+	Smallog,
+	UnrealBloomPass,
+	WEAS,
+	Vector2,
+} from "./we_utils/src";
 
 /**
-* Shder-relevant settings
-* @public
-*/
+ * Shder-relevant settings
+ * @public
+ */
 class ShaderSettings extends CSettings {
-	bloom_filter: boolean = false;
-	lut_filter: number = -1;
-	mirror_shader: number = 0;
-	mirror_invert: boolean = false;
-	fx_antialiasing: boolean = true;
-	blur_strength: number = 0;
-	chroma_filter: number = 10;
-	audio_increase: number = 75;
+	bloom_filter = false;
+	lut_filter = -1;
+	mirror_shader = 0;
+	mirror_invert = false;
+	fx_antialiasing = true;
+	blur_strength = 0;
+	chroma_filter = 10;
+	audio_increase = 75;
 }
 
 /**
-* Contains all shader-relevant js-code
-* @extends {CComponent}
-* @public
-*/
+ * Contains all shader-relevant js-code
+ * @extends {CComponent}
+ * @public
+ */
 export class ShaderHolder extends CComponent {
 	public settings: ShaderSettings = new ShaderSettings();
 
@@ -50,15 +64,14 @@ export class ShaderHolder extends CComponent {
 	private blurPassY: ShaderPass;
 	private chrmPass: ShaderPass;
 
-
 	/**
-	* Construct the shaders
-	* @param {WEAS} weas optional audio supplier
-	*/
+	 * Construct the shaders
+	 * @param {WEAS} weas optional audio supplier
+	 */
 	constructor(weas?: WEAS) {
 		super();
 		this.weas = weas;
-		Smallog.debug('creating shaders...');
+		Smallog.debug("creating shaders...");
 
 		// bloom
 		this.urBloomPass = new UnrealBloomPass(new Vector2(512, 512), 3, 0, 0.1);
@@ -82,14 +95,15 @@ export class ShaderHolder extends CComponent {
 	}
 
 	/**
-	* add shaders to composer
-	* @public
-	* @param {EffectComposer} composer Render-Manager
-	*/
+	 * add shaders to composer
+	 * @public
+	 * @param {EffectComposer} composer Render-Manager
+	 * @returns {void}
+	 */
 	public init(composer: EffectComposer) {
 		this.composer = composer;
 		this.updateSettings();
-		Smallog.debug('adding shaders to render chain.');
+		Smallog.debug("adding shaders to render chain.");
 
 		// bloom
 		composer.addPass(this.urBloomPass);
@@ -108,11 +122,12 @@ export class ShaderHolder extends CComponent {
 	}
 
 	/**
-	* update some uniforms values?
-	* @public
-	* @param {number} e ellapsed ms
-	* @param {number} d deltaTime ~1 multiplier
-	*/
+	 * update some uniforms values?
+	 * @public
+	 * @param {number} e ellapsed ms
+	 * @param {number} d deltaTime ~1 multiplier
+	 * @returns {void}
+	 */
 	public updateFrame(e, d) {
 		const hasAudio = this.weas && this.weas.hasAudio();
 		const audioObj = this.weas.lastAudio || null;
@@ -120,7 +135,11 @@ export class ShaderHolder extends CComponent {
 
 		if (hasAudio && sett.chroma_filter > 0) {
 			const flmult = (1 + sett.audio_increase) * 0.5;
-			const intensity = ((audioObj.bass * 2 - audioObj.mids + audioObj.highs) / 60 / audioObj.average) * flmult;
+			const intensity =
+				((audioObj.bass * 2 - audioObj.mids + audioObj.highs) /
+					60 /
+					audioObj.average) *
+				flmult;
 
 			this.chrmPass.uniforms.strength = sett.chroma_filter * intensity;
 		} else {
@@ -129,10 +148,10 @@ export class ShaderHolder extends CComponent {
 	}
 
 	/**
-	* just destroy & rebuild completely... whatever lul
-	* @public
-	* @return {Promise} finished event
-	*/
+	 * just destroy & rebuild completely... whatever lul
+	 * @public
+	 * @return {Promise} finished event
+	 */
 	public updateSettings(): Promise<void> {
 		if (!this.composer) return;
 		const sett = this.settings;
@@ -165,7 +184,10 @@ export class ShaderHolder extends CComponent {
 		const fxaa = sett.fx_antialiasing;
 		if (fxaa) {
 			// set uniform
-			this.fxaaPass.uniforms.resolution.value = new Vector2(1 / window.innerWidth, 1 / window.innerHeight);
+			this.fxaaPass.uniforms.resolution.value = new Vector2(
+				1 / window.innerWidth,
+				1 / window.innerHeight
+			);
 		}
 		this.fxaaPass.enabled = fxaa;
 
