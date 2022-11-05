@@ -1,16 +1,14 @@
 {
 	"name": "audiorbits",
 	"version": "2.4.0",
-	"description": "Web Wallpaper for Wallpaper Engine",
-	"main": "index.js",
+	"description": "WebGL Wallpaper for Wallpaper Engine",
+	"main": "src/AudiOrbi.ts",
 	"sideEffects": "false",
 	"scripts": {
-		"prep": "rm -rf ./dist && cp -R public dist",
-		"prep-win": "del \"dist\\*.*\" /Q /S && xcopy \"public\\*.*\" \"dist\\\" /e /i /y /s",
-		"dbg": "yarn prep && webpack && webpack serve",
-		"dbg-win": "yarn prep-win && webpack && webpack serve",
-		"prod": "yarn prep && webpack --env production && webpack serve --env production",
-		"prod-win": "yarn prep-win && webpack --env production && webpack serve --env production",
+		"tsc": "tsc",
+		"prepcopy": "copyfiles -u 1 -V \"./src/**/*.glsl\" \"./dist/tsc/\"",
+		"dbg": "yarn prepcopy && tsc && webpack && webpack serve",
+		"prod": "yarn prepcopy && tsc && webpack --env production && webpack serve --env production",
 		"lint": "eslint ./src/we_utils/src/cthree/ --ext js,ts,jsx,tsx --fix"
 	},
 	"repository": {
@@ -26,15 +24,17 @@
 	"dependencies": {
 		"@assemblyscript/loader": "^0.18.29",
 		"@babel/eslint-parser": "^7.16.3",
-		"@types/estree": "^0.0.50",
+		"@types/node": "^18.7.22",
 		"@types/offscreencanvas": "^2019.6.4",
 		"@typescript-eslint/eslint-plugin": "^5.5.0",
 		"@typescript-eslint/parser": "^5.5.0",
 		"@yushijinhun/three-minifier-common": "^0.3.0",
 		"assemblyscript": "^0.19.20",
-		"awesome-typescript-loader": "^5.2.1",
-		"better-docs": "^2.3.2",
+		"babel-loader": "^8.2.5",
+		"better-docs": "^2.7.2",
 		"circular-dependency-plugin": "^5.2.2",
+		"copy-webpack-plugin": "^11.0.0",
+		"copyfiles": "^2.4.1",
 		"eslint": "^8.3.0",
 		"eslint-config-airbnb": "^19.0.2",
 		"eslint-config-google": "^0.14.0",
@@ -52,17 +52,16 @@
 		"ink-docstrap": "^1.3.2",
 		"null-loader": "^4.0.1",
 		"prettier": "^2.5.0",
+		"react": "^18.2.0",
 		"replace-in-file": "^6.2.0",
 		"stats-js": "^1.0.1",
 		"terser-webpack-plugin": "^5.1.1",
 		"ts-loader": "^9.2.6",
 		"ts-transformer-properties-rename": "^0.11.0",
-		"ttypescript": "^1.5.12",
 		"typescript": "^4.4.4",
 		"webpack": "^5.61.0",
 		"webpack-bundle-analyzer": "^4.5.0",
 		"webpack-cli": "^4.9.1",
-		"webpack-dev-server": "^4.4.0",
-		"worker-loader": "^3.0.8"
+		"webpack-dev-server": "^4.4.0"
 	}
 }
