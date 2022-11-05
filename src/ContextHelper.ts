@@ -2,7 +2,7 @@
  * @author hexxone / https://hexx.one
  *
  * @license
- * Copyright (c) 2021 hexxone All rights reserved.
+ * Copyright (c) 2022 hexxone All rights reserved.
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.
  */
@@ -20,6 +20,11 @@ import {
 	Smallog,
 	WEAS,
 	WEICUE,
+	XRHelper,
+	LoadHelper,
+} from "we_utils/src";
+
+import {
 	WebGLRenderer,
 	Group,
 	PerspectiveCamera,
@@ -27,12 +32,10 @@ import {
 	Clock,
 	Color,
 	Vector3,
-	XRHelper,
-	LoadHelper,
 	Fog,
-} from "./we_utils/src";
+} from "three.ts/src";
 
-export const NEAR_DIST = 3;
+import { NEAR_DIST } from "./Consts";
 
 /**
  * Renderer Settings
@@ -81,34 +84,34 @@ export class ContextHelper extends CComponent {
 	// webvr user input data
 	private userData = {
 		isSelecting: false,
-		controller1: null as Group,
-		controller2: null as Group,
+		controller1: null as Group | null,
+		controller2: null as Group | null,
 	};
 
 	// html elements
-	private mainCanvas: HTMLCanvasElement = null;
+	private mainCanvas: HTMLCanvasElement | undefined;
 
 	// mouse over canvas
 	private mouseX = 0;
 	private mouseY = 0;
 
 	// Three.js objects
-	private renderer: WebGLRenderer = null;
-	private camera: PerspectiveCamera = null;
-	private cameraPosition: Vector3;
-	private scene: Scene = null;
+	private renderer?: WebGLRenderer;
+	private camera?: PerspectiveCamera;
+	private cameraPosition?: Vector3;
+	private scene?: Scene;
 
-	private composer: EffectComposer = null;
+	private composer?: EffectComposer;
 	private clock: Clock = new Clock();
 
 	// custom render timing
-	private renderTimeout = null;
+	private renderTimeout: NodeJS.Timeout | null = null;
 
 	// window half size
 	private windowHalfX = window.innerWidth / 2;
 	private windowHalfY = window.innerHeight / 2;
 
-	private textHolder: FancyText = null;
+	private textHolder?: FancyText;
 
 	// important objects
 	private weas: WEAS = new WEAS();
@@ -176,7 +179,7 @@ export class ContextHelper extends CComponent {
 		this.camera.aspect = iW / iH;
 		this.camera.updateProjectionMatrix();
 		this.renderer.setSize(iW, iH);
-		this.composer.setSize(iW, iH);
+		this.composer?.setSize(iW, iH);
 	}
 
 	/**
@@ -191,6 +194,8 @@ export class ContextHelper extends CComponent {
 
 			// get canvas container
 			const cont = document.getElementById("renderContainer");
+			if (!cont) throw new Error("Missing #renderContainer");
+
 			// distance
 			const viewDist =
 				this.settings.num_levels *
@@ -267,7 +272,7 @@ export class ContextHelper extends CComponent {
 			// eslint-disable-next-line no-async-promise-executor
 			const newWait = new Promise<void>(async (resolve) => {
 				// precompile shaders
-				this.composer.precompile();
+				this.composer?.precompile();
 
 				// initialize weas
 				if (this.weas.init) await this.weas.init();
@@ -318,11 +323,17 @@ export class ContextHelper extends CComponent {
 	 * @return {void}
 	 */
 	private updateFrame(ellapsed, deltaTime) {
+		if (!this.camera || !this.cameraPosition) {
+			// eslint-disable-next-line no-debugger
+			debugger;
+			return;
+		}
+
 		if (this.settings.xr_mode) {
 			// WEBVR PROCESSING
 			// will automagically update the camera, no need to do it manually
-			this.handleVRController(this.userData.controller1);
-			this.handleVRController(this.userData.controller1);
+			this.handleVRController(this.userData?.controller1);
+			this.handleVRController(this.userData?.controller1);
 		} else {
 			// NORMAL PROCESSING
 			// constantly use/control mouse position to make it smooth
@@ -551,15 +562,17 @@ export class ContextHelper extends CComponent {
 	/**
 	 * @todo
 	 * use VR controller like mouse & parallax
-	 * @param {Object} controller left or right
+	 * @param {Group | null} controller left or right
 	 * @return {void}
 	 */
-	private handleVRController(controller: Group) {
+	private handleVRController(controller: Group | null) {
 		/*
 		controller.userData.isSelecting
 		controller.position
 		controller.quaternion
 		*/
+		// eslint-disable-next-line no-debugger
+		if (controller) debugger;
 	}
 
 	// /////////////////////////////////////////////
