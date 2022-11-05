@@ -2,7 +2,7 @@
  * @author hexxone / https://hexx.one
  *
  * @license
- * Copyright (c) 2021 hexxone All rights reserved.
+ * Copyright (c) 2022 hexxone All rights reserved.
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.
  *
@@ -10,6 +10,7 @@
  */
 
 import { LUTHelper } from "./LUTHelper";
+
 import {
 	BlurShader,
 	CComponent,
@@ -24,8 +25,9 @@ import {
 	Smallog,
 	UnrealBloomPass,
 	WEAS,
-	Vector2,
-} from "./we_utils/src";
+} from "we_utils/src";
+
+import { Vector2 } from "three.ts/src";
 
 /**
  * Shder-relevant settings
@@ -50,11 +52,12 @@ class ShaderSettings extends CSettings {
 export class ShaderHolder extends CComponent {
 	public settings: ShaderSettings = new ShaderSettings();
 
-	private weas: WEAS;
+	private weas: WEAS | undefined;
 
 	private lutSetup: LUTHelper = new LUTHelper();
 
-	private composer: EffectComposer;
+	private composer: EffectComposer | undefined;
+
 	private urBloomPass: UnrealBloomPass;
 	private lutPass: ShaderPass;
 	private lutNear: ShaderPass;
@@ -124,16 +127,16 @@ export class ShaderHolder extends CComponent {
 	/**
 	 * update some uniforms values?
 	 * @public
-	 * @param {number} e ellapsed ms
-	 * @param {number} d deltaTime ~1 multiplier
+	 * @param {number} _e ellapsed ms
+	 * @param {number} _d deltaTime ~1 multiplier
 	 * @returns {void}
 	 */
-	public updateFrame(e, d) {
+	public updateFrame(_e: number, _d: number) {
 		const hasAudio = this.weas && this.weas.hasAudio();
-		const audioObj = this.weas.lastAudio || null;
+		const audioObj = this.weas.lastAudio;
 		const sett = this.settings;
 
-		if (hasAudio && sett.chroma_filter > 0) {
+		if (hasAudio && audioObj && sett.chroma_filter > 0) {
 			const flmult = (1 + sett.audio_increase) * 0.5;
 			const intensity =
 				((audioObj.bass * 2 - audioObj.mids + audioObj.highs) /
@@ -153,7 +156,8 @@ export class ShaderHolder extends CComponent {
 	 * @return {Promise} finished event
 	 */
 	public updateSettings(): Promise<void> {
-		if (!this.composer) return;
+		if (!this.composer) return Promise.resolve();
+
 		const sett = this.settings;
 
 		// bloom

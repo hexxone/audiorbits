@@ -2,7 +2,7 @@
  * @author hexxone / https://hexx.one
  *
  * @license
- * Copyright (c) 2021 hexxone All rights reserved.
+ * Copyright (c) 2022 hexxone All rights reserved.
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.
  *
@@ -28,6 +28,11 @@ import {
 	Smallog,
 	WEAS,
 	WascInterface,
+	LoadHelper,
+	sharedWorker,
+} from "we_utils/src";
+
+import {
 	BufferGeometry,
 	HSL,
 	Object3D,
@@ -42,13 +47,11 @@ import {
 	LineBasicMaterial,
 	LineSegments,
 	Float32BufferAttribute,
-	LoadHelper,
-	sharedWorker,
 	Material,
-} from "./we_utils/src";
+} from "three.ts/src";
 
 import { ColorHelper } from "./ColorHelper";
-import { NEAR_DIST } from "./ContextHelper";
+import { NEAR_DIST } from "./Consts";
 
 export const GEO_DIMS = 3;
 
