@@ -7,8 +7,8 @@
 	"scripts": {
 		"tsc": "tsc",
 		"prepcopy": "copyfiles -u 1 -V \"./src/**/*.glsl\" \"./dist/tsc/\"",
-		"dbg": "yarn prepcopy && tsc && webpack && webpack serve",
-		"prod": "yarn prepcopy && tsc && webpack --env production && webpack serve --env production",
+		"dbg": "webpack && webpack serve",
+		"prod": "webpack --env production && webpack serve --env production",
 		"lint": "eslint ./src/we_utils/src/cthree/ --ext js,ts,jsx,tsx --fix"
 	},
 	"repository": {
@@ -49,7 +49,6 @@
 		"eslint-plugin-react": "^7.27.1",
 		"file-loader": "^6.2.0",
 		"fork-ts-checker-webpack-plugin": "^6.2.5",
-		"ink-docstrap": "^1.3.2",
 		"null-loader": "^4.0.1",
 		"prettier": "^2.5.0",
 		"react": "^18.2.0",
