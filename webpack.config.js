@@ -1,10 +1,16 @@
-/* eslint-disable no-undef */
-/* eslint-disable @typescript-eslint/no-var-requires */
 /**
- * Webpack build config for AudiOrbits.
+ * @author hexxone / https://hexx.one
  *
+ * @license
+ * Copyright (c) 2022 hexxone All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE.
+ * See LICENSE file in the project root for full license information.
+ *
+ * Webpack build config for AudiOrbits.
  * Probably not a good example to start from :D
  */
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-var-requires */
 
 const path = require("path");
 
@@ -17,7 +23,7 @@ const BundleAnalyzerPlugin =
 // custom plugins
 const OfflinePlugin = require("./src/we_utils/src/offline/OfflinePlugin");
 const WascBuilderPlugin = require("./src/we_utils/src/wasc-worker/WascBuilderPlugin");
-const RenamerPlugin = require("./src/we_utils/src/renamer/RenamerPlugin");
+// const RenamerPlugin = require("./src/we_utils/src/renamer/RenamerPlugin");
 
 module.exports = (env) => {
 	const prod = env.production || false;
@@ -25,18 +31,26 @@ module.exports = (env) => {
 
 	return {
 		mode: stringMode,
-		entry: "./dist/tsc/AudiOrbi.js",
+		entry: {
+			ao: {
+				import: "./src/AudiOrbi.ts",
+			},
+		},
 		// compile target
 		// target: ["web", "es6", "es2020"],
 		output: {
 			chunkFormat: "module",
 			path: path.resolve(__dirname, "dist", stringMode),
-			publicPath: "/",
-			library: "ao",
-			libraryTarget: "commonjs",
-			filename: "ao.js",
+			publicPath: "dist/" + stringMode,
+			library: {
+				name: "ao",
+				type: "var", // window
+			},
+			// libraryTarget: "commonjs",
+			// filename: "ao.js",
+			filename: "[name].js",
+			chunkFilename: "[name].js",
 			globalObject: "this",
-			chunkFilename: (_pathData) => "ao.[id].js",
 		},
 		// remove dead code
 		optimization: {
@@ -47,11 +61,11 @@ module.exports = (env) => {
 					// https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
 					terserOptions: {
 						// ecma: 2020,
-						parse: {},
-						compress: {
-							unsafe: prod,
-							hoist_funs: prod,
-						},
+						// parse: {},
+						// compress: {
+						// 	unsafe: prod,
+						// 	hoist_funs: prod,
+						// },
 						format: {
 							comments: false,
 						},
@@ -62,15 +76,16 @@ module.exports = (env) => {
 								regex: /_(private|internal)_/, // the same prefixes like for custom transformer
 							},
 						},
-						module: false,
+						module: true,
 						toplevel: true,
 						sourceMap: false,
-						keep_fnames: !prod,
+						// keep_fnames: !prod,
+						keep_classnames: !prod,
 					},
 					extractComments: false,
 				}),
 			],
-			chunkIds: "deterministic",
+			chunkIds: "size",
 			concatenateModules: true,
 			moduleIds: "size",
 			mangleExports: "size",
@@ -82,7 +97,40 @@ module.exports = (env) => {
 		devtool: false,
 		module: {
 			rules: [
-				// JS loader
+				// loader for workers...
+				// {
+				// 	test: /\.worker\.js$/i,
+				// 	loader: "src/we_utils/src/worker-loader-fork/src/index.js",
+				// 	options: {
+				// 		esModule: true,
+				// 		filename: "asdasd.foo.js",
+				// 		chunkFilename: "sdf.custom.js",
+				// 	},
+				// },
+				// loader for Typescript
+				{
+					test: /\.tsx?$/,
+					loader: "ts-loader",
+					exclude: /node_modules/,
+					options: {
+						compiler: "typescript", // ttypescript
+						transpileOnly: true,
+						// getCustomTransformers: (program) => {
+						// 	return {
+						// 		before: prod
+						// 			? [
+						// 				propertiesRenameTransformer(program, {
+						// 					entrySourceFiles: ["main.ts"],
+						// 					reserved: ["a", "b", "c", "d", "w", "x", "y", "z", "min", "max"],
+						// 					// noImplicitAny: true,
+						// 				}),
+						// 			]
+						// 			: [],
+						// 	};
+						// },
+					},
+				},
+				// Process any JS outside of the app with Babel.
 				{
 					test: /\.jsx?$/, // If you are using TypeScript: /\.tsx?$/
 					include: path.resolve(__dirname, "src"),
@@ -107,15 +155,23 @@ module.exports = (env) => {
 				},
 			],
 		},
+		resolveLoader: {
+			alias: {
+				"worker-loader": path.resolve(
+					__dirname,
+					"./src/we_utils/src/worker-loader-fork/dist"
+				),
+			},
+		},
 		resolve: {
 			extensions: [".tsx", ".ts", ".js", ".glsl"],
 			// plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
 
 			alias: {
-				"we_utils/src": path.resolve(__dirname, "./dist/tsc/we_utils/src"),
+				"we_utils/src": path.resolve(__dirname, "./src/we_utils/src"),
 				"three.ts/src": path.resolve(
 					__dirname,
-					"./dist/tsc/we_utils/src/three.ts/src"
+					"./src/we_utils/src/three.ts/src"
 				),
 				// reverse mapping shaders (dont get copied by tsc)
 				// "fragment/*.glsl": path.resolve(__dirname, "./src/we_utils/src/three/shader/fragment"),
@@ -144,7 +200,7 @@ module.exports = (env) => {
 			// will create a list of all app-files.
 			// this list is used to cache the app offline in browser.
 			new OfflinePlugin({
-				staticdir: "dist/tsc",
+				staticdir: __dirname + "\\public",
 				outfile: "offlinefiles.json",
 				extrafiles: ["/"],
 				pretty: !prod,
