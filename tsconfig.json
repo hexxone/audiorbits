@@ -6,11 +6,12 @@
 			"we_utils/*": ["src/we_utils/*"],
 			"three.ts/*": ["src/we_utils/src/three.ts/*"]
 		},
+		"noEmit": true,
 		"target": "ES2021",
 		"module": "ES2020",
 		"moduleResolution": "Node",
 		"esModuleInterop": true,
-		"sourceMap": false,
+		"sourceMap": true,
 		"removeComments": true,
 		"baseUrl": ".",
 		"noImplicitAny": false,
@@ -21,6 +22,6 @@
 	},
 	"types": ["*.d.ts"],
 	"include": ["./src/**/*.ts"],
-	"exclude": ["**/*.asc"],
+	"exclude": ["**/*.asc", "node_modules", "src/**/*.spec.ts", "src/we_utils/docs"],
 
 }
