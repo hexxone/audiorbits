@@ -12,7 +12,9 @@
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+const fs = require("fs");
 const path = require("path");
+const { networkInterfaces } = require("os");
 
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
@@ -24,6 +26,12 @@ const BundleAnalyzerPlugin =
 const OfflinePlugin = require("./src/we_utils/src/offline/OfflinePlugin");
 const WascBuilderPlugin = require("./src/we_utils/src/wasc-worker/WascBuilderPlugin");
 // const RenamerPlugin = require("./src/we_utils/src/renamer/RenamerPlugin");
+
+const lanIp =
+	networkInterfaces()["Ethernet"].find(
+		(item) => item.family == "IPv4" && !item.internal && item.address
+	).address ?? "0.0.0.0";
+console.log("Got Lan IP: " + lanIp);
 
 module.exports = (env) => {
 	const prod = env.production || false;
@@ -41,7 +49,7 @@ module.exports = (env) => {
 		output: {
 			chunkFormat: "module",
 			path: path.resolve(__dirname, "dist", stringMode),
-			publicPath: "dist/" + stringMode,
+			// publicPath: "dist/" + stringMode,
 			library: {
 				name: "ao",
 				type: "var", // window
@@ -226,14 +234,22 @@ module.exports = (env) => {
 			}),
 		],
 		devServer: {
+			host: lanIp,
+			allowedHosts: ["all"], // or use 'auto' for slight more security
 			static: {
 				directory: path.resolve(__dirname, "dist", stringMode),
 				watch: true,
 			},
 			client: false,
-			compress: true,
-			https: false,
 			liveReload: false,
+			compress: true,
+			https: {
+				key: fs.readFileSync("../../localhost+1-key.pem"),
+				cert: fs.readFileSync("../../localhost+1.pem"),
+				// ca: fs.readFileSync("ca.crt"),
+			},
+			server: "https",
+			// disableHostCheck: true,
 			hot: false,
 			port: 8443,
 			headers: {
