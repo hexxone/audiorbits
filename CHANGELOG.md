@@ -1,7 +1,9 @@
-## Changelog:
+# Changelog
 
-### [Version 2.4](https://github.com/hexxone/audiorbits/releases/tag/2.4):
+## [Version 2.4](https://github.com/hexxone/audiorbits/releases/tag/2.4)
+
 - full code and settings category rework
+- Add VR (WebXR) Support with shaders
 - Add "Audio Direction" Combobox (normal & invert)
 - Add Audio "Equalize" Setting
 - Add Audio "Mono/Stereo" Setting
@@ -12,25 +14,29 @@
 - Add Geometry "Random-Seed"
 - Add Level Spiral
 - Add Low latency mode
-- improved level generation
-- shortened fade-in time and fixxed reload bar
-- when ran in browser, App will make itself available offline
+- drastically improved level generation
+- shortened fade-in time and improved loading bar
+- "Offline Mode" available when running in Browser
+- Add Support for [Lively Wallpaper](https://github.com/rocksdanister/lively). See github `Releases` section for download link.
 
-### [Version 2.3](https://github.com/hexxone/audiorbits/releases/tag/2.3):
+## [Version 2.3](https://github.com/hexxone/audiorbits/releases/tag/2.3)
+
 - added "shader_quality"-setting (Advanced)
 - outsourced and restructured most libraries
 - added lots of languages (see we_project_helper)
 
-### Version 2.2:
+## Version 2.2
+
 - fixed "no audio = screen black" issue
 - fixed rendering/zoom speed issue
-- fixed transparency for all shaders 
+- fixed transparency for all shaders
 - fixed some LED / iCUE issues
-- added Custom Color option for Background 
+- added Custom Color option for Background
 - added "Only Forward Zoom" option
 - shortened animations & reload-time
 
-### Version 2.1:
+## Version 2.1
+
 - added blur-filter
 - added FXAA-filter
 - added "reload" indicator
@@ -42,7 +48,8 @@
 - updated three.js and jquery
 - removed moment.js
 
-### Version 2.0:
+## Version 2.0
+
 - added "filter"-tab
 - added invertable mirror-filter
 - moved bloom-filter to "filter"-tab
@@ -50,10 +57,12 @@
 - internal rendering & initialisation changes
 - removed "system drawing"
 
-### Version 1.9:
+## Version 1.9
+
 - added "minimum volume" setting
 
-### Version 1.8:
+## Version 1.8
+
 - added "fixed" parallax mode
 - added "color"-tab and three new color modes
 - added LUT (LookUpTable)-filter with three modes to "color"-tab
@@ -62,12 +71,12 @@
 - level shifting is now ON by default
 - removed "no_pause"-setting (there is an equivalent option in WE)
 - updated WEWWA.js for browser usage
-- updated https://orbits.hexx.one/
+- updated <https://orbits.hexx.one/>
 - updated preview image to a gif
 - improved rendering performance
 
+## Version 1.7
 
-### Version 1.7:
 - !!! Please reset your config for one last time !!!
 - a lot of internal changes have been made
 - default settings have been lowered
@@ -84,17 +93,17 @@
 - audio processing is now reusable (WEAS.js)
 - uploaded some awesome pre-configs :)
 
+## Version 1.6
 
-### Version 1.6:
 - added overlay & background image options
 - added default brightness & saturation options
-- added "playing audio" minimum brightness & saturation options 
+- added "playing audio" minimum brightness & saturation options
 - added custom font & greeting message
-- improved smooth fade-in 
+- improved smooth fade-in
 - renamed "camera position" to "camera bound"
 
+## Version 1.5
 
-### Version 1.5:
 - grouped settings by categories
 - added fog thickness setting
 - added texture size setting
@@ -103,8 +112,8 @@
 - rendering is now independent of fps (deltaTime calculation)
 - added a small Easteregg :)
 
+## Version 1.4
 
-### Version 1.4:
 - fixed screen going black due to invalid audio data
 - fixed wallpaper-engine fps limiter
 - updated render lib
@@ -119,17 +128,21 @@
 - added level shifting (experimental)
 - removed progression
 
+## Version 1.3
 
-### Version 1.3:
 - audio-processing improved for different music genres
 - better smoothing, cache & performance
 - "Volume Level" wont affect "Zoom speed" anymore
 - fixed some bugs (hopefully)
 
+## Version 1.2
 
-### Version 1.2:
 - overhauled settings
 - added optional stats & smoothing
 - changed audio data processing
 - fixed vertex data update
 - fixed "silent"-empty bug
+
+## Version 1.1 and earlier
+
+had no Patchnotes.

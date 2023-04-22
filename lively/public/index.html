@@ -2,18 +2,18 @@
 <html lang="en">
 	<head>
 		<!--
-	AudiOrbits - 色即是空空即是色。
-	
-	Copyright (c) 2022 hexxone All rights reserved.  
-	Licensed under the GNU GENERAL PUBLIC LICENSE.
-	See LICENSE file in the project root for full license information.  
-	
-	AudiOrbits project    / https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780
-	for Wallpaper Engine  / https://steamcommunity.com/app/431960
-	Code Repository:      / https://github.com/hexxone/audiorbits
-	Online Preview:       / https://orbits.hexx.one
-	My Website:           / https://hexx.one
-	-->
+		AudiOrbits - 色即是空空即是色。
+		
+		Copyright (c) 2023 hexxone All rights reserved.  
+		Licensed under the GNU GENERAL PUBLIC LICENSE.
+		See LICENSE file in the project root for full license information.  
+		
+		AudiOrbits project    / https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780
+		for Wallpaper Engine  / https://steamcommunity.com/app/431960
+		Code Repository:      / https://github.com/hexxone/audiorbits
+		Online Preview:       / https://orbits.hexx.one
+		My Website:           / https://hexx.one
+		-->
 		<meta charset="utf-8" />
 		<meta
 			name="description"
@@ -27,42 +27,63 @@
 		<title>AudiOrbits 2.4 Lively</title>
 		<script>
 			/*
-			* 	Custom Adapter Script from Lively Wallpaper to Wallpaper Engine.
-			*	Scripts need to be included BEFORE loading the Wallpaper JS.
-			*/
-
+			 * 	Custom Adapter Script from Lively Wallpaper to Wallpaper Engine.
+			 *	Scripts need to be included BEFORE loading the Wallpaper JS.
+			 */
 
 			let _audioCallback = null;
 			window.wallpaperRegisterAudioListener = (callback) => {
-				console.log("audio callback registered ", callback);
+				console.debug("audio callback registered ", callback);
 
 				_audioCallback = callback;
-			}
+			};
 
 			function livelyWallpaperPlaybackChanged(data) {
 				var obj = JSON.parse(data);
-				console.log("paused ", obj.IsPaused); //true or false
+				console.debug("paused ", obj.IsPaused); //true or false
 
-				if(window.wallpaperPropertyListener.setPaused) {
+				if (
+					window.wallpaperPropertyListener &&
+					window.wallpaperPropertyListener.setPaused
+				) {
 					window.wallpaperPropertyListener.setPaused(obj.IsPaused);
 				}
 			}
+			let applyPropertyHandler = 0;
+			let temporaryProperties = {};
 			function livelyPropertyListener(name, val) {
-				console.log("property ", name, val);
-
-				if(window.wallpaperPropertyListener.applyUserProperties) {
-					window.wallpaperPropertyListener.applyUserProperties({
-						[name]: {
-							type: "none",
-							value: val,
-						},
-					});
+				// save the property temporarily if we cannot apply it directly.
+				temporaryProperties = {
+					...temporaryProperties,
+					[name]: {
+						type: "none",
+						value: val,
+					},
+				};
+				// cancel our apply attempt, if its already running.
+				if (applyPropertyHandler != 0) {
+					clearTimeout(applyPropertyHandler);
+					applyPropertyHandler = 0;
 				}
+				// wait a 1/4 second for more properties to gather before applying...
+				applyPropertyHandler = setTimeout(() => {
+					if (
+						window.wallpaperPropertyListener &&
+						window.wallpaperPropertyListener.applyUserProperties
+					) {
+						// apply Props if ready
+						window.wallpaperPropertyListener.applyUserProperties(
+							temporaryProperties
+						);
+						temporaryProperties = {};
+					} else {
+						// retry if the wallpaper is not ready.
+						livelyPropertyListener(name, val);
+					}
+				}, 250);
 			}
 			function livelyAudioListener(audioArray) {
-				console.log("audio ", audioArray);
-
-				if(_audioCallback) {
+				if (_audioCallback) {
 					_audioCallback(audioArray);
 				}
 			}

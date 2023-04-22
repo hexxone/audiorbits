@@ -1,1135 +1,703 @@
 {
-  "schemecolor": {
-    "order": 10,
-    "text": "ui_browse_properties_scheme_color",
-    "type": "color",
-    "value": "0 0 0"
-  },
-  "HDR_NO_AUDIO": {
-    "condition": "!audioprocessing.value",
-    "order": 20,
-    "value": "ui_ao_0020",
-    "type": "label"
-  },
   "banner_reload": {
-    "order": 30,
-    "value": "ui_ao_0030",
-    "type": "label"
+    "type": "label",
+    "value": "🔃 After changing these settings the wallpaper will reload automatically 🔃."
   },
   "SPCR_01": {
-    "order": 40,
-    "value": "ui_ao_0040",
-    "type": "label"
+    "type": "label",
+    "value": "========================================"
   },
   "HDR_GEOMETRY": {
-    "order": 50,
-    "text": "ui_ao_0050",
-    "type": "bool",
-    "value": false
+    "type": "label",
+    "value": "📐 Geometry"
   },
   "SPCR_02": {
-    "condition": "HDR_GEOMETRY.value",
-    "order": 60,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "geometry_type": {
-    "condition": "HDR_GEOMETRY.value",
-    "options": [
-      {
-        "label": "ui_ao_0070_1",
-        "value": 0
-      },
-      {
-        "label": "ui_ao_0070_2",
-        "value": 1
-      },
-      {
-        "label": "ui_ao_0070_3",
-        "value": 2
-      },
-      {
-        "label": "ui_ao_0070_4",
-        "value": 3
-      }
-    ],
-    "order": 70,
-    "text": "ui_ao_0070",
-    "type": "combo",
-    "value": 0
+    "text": "Geometry variant 🔃",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Texture",
+      "Particle",
+      "Test 1",
+      "Test 2"
+    ]
   },
   "base_texture": {
-    "condition": "HDR_GEOMETRY.value && geometry_type.value == 0",
-    "options": [
-      {
-        "label": "ui_ao_0080_1",
-        "value": 0
-      },
-      {
-        "label": "ui_ao_0080_2",
-        "value": 1
-      },
-      {
-        "label": "ui_ao_0080_3",
-        "value": 2
-      }
-    ],
-    "order": 80,
-    "text": "ui_ao_0080",
-    "type": "combo",
-    "value": 0
+    "text": "Base texture 🔃",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Galaxy",
+      "Cuboid",
+      "Fractal"
+    ]
   },
   "texture_size": {
-    "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
-    "editable": false,
     "max": 25,
     "min": 1,
-    "order": 90,
-    "text": "ui_ao_0090",
+    "text": "Texture size",
     "type": "slider",
-    "value": 6
+    "value": 5
   },
   "SPCR_03": {
-    "condition": "HDR_GEOMETRY.value",
-    "order": 100,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "HDR_PARAMS": {
-    "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
-    "order": 110,
-    "text": "ui_ao_0110",
-    "type": "bool",
-    "value": false
+    "type": "label",
+    "value": "🧬 Display parameter"
   },
   "alg_a_min": {
-    "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
-    "editable": true,
     "max": 80,
     "min": -80,
-    "order": 120,
-    "text": "ui_ao_0120",
+    "text": "Param A Minimum",
     "type": "slider",
     "value": -25
   },
   "alg_a_max": {
-    "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
-    "editable": true,
     "max": 80,
     "min": -80,
-    "order": 130,
-    "text": "ui_ao_0130",
+    "text": "Param A Maximum",
     "type": "slider",
     "value": 25
   },
   "alg_b_min": {
-    "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
-    "editable": true,
     "max": 80,
     "min": -80,
-    "order": 140,
-    "text": "ui_ao_0140",
+    "text": "Param B Minimum",
     "type": "slider",
     "value": 0.25
   },
   "alg_b_max": {
-    "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
-    "editable": true,
     "max": 80,
     "min": -80,
-    "order": 150,
-    "text": "ui_ao_0150",
+    "text": "Param B Maximum",
     "type": "slider",
     "value": 1.7
   },
   "alg_c_min": {
-    "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
-    "editable": true,
     "max": 80,
     "min": -80,
-    "order": 160,
-    "text": "ui_ao_0160",
+    "text": "Param C Minimum",
     "type": "slider",
     "value": 5
   },
   "alg_c_max": {
-    "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
-    "editable": true,
     "max": 80,
     "min": -80,
-    "order": 170,
-    "text": "ui_ao_0170",
+    "text": "Param C Maximum",
     "type": "slider",
     "value": 16
   },
   "alg_d_min": {
-    "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
-    "editable": true,
     "max": 80,
     "min": -80,
-    "order": 180,
-    "text": "ui_ao_0180",
+    "text": "Param D Minimum",
     "type": "slider",
     "value": 1
   },
   "alg_d_max": {
-    "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
-    "editable": true,
     "max": 80,
     "min": -80,
-    "order": 190,
-    "text": "ui_ao_0190",
+    "text": "Param D Maximum",
     "type": "slider",
     "value": 9
   },
   "alg_e_min": {
-    "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
-    "editable": true,
     "max": 80,
     "min": -80,
-    "order": 200,
-    "text": "ui_ao_0200",
+    "text": "Param E Minimum",
     "type": "slider",
     "value": 1
   },
   "alg_e_max": {
-    "condition": "HDR_GEOMETRY.value && HDR_PARAMS.value && geometry_type.value < 2",
-    "editable": true,
     "max": 80,
     "min": -80,
-    "order": 210,
-    "text": "ui_ao_0210",
+    "text": "Param E Maximum",
     "type": "slider",
     "value": 10
   },
   "SPCR_04": {
-    "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
-    "order": 220,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "generate_tunnel": {
-    "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
-    "order": 230,
-    "text": "ui_ao_0230",
-    "type": "bool",
+    "text": "⭕️ Generate tunnel",
+    "type": "checkbox",
     "value": true
   },
   "tunnel_inner_radius": {
-    "condition": "HDR_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
-    "editable": false,
     "max": 25,
     "min": 1,
-    "order": 240,
-    "text": "ui_ao_0240",
+    "text": "Tunnel size",
     "type": "slider",
     "value": 2
   },
   "tunnel_outer_radius": {
-    "condition": "HDR_GEOMETRY.value && generate_tunnel.value && geometry_type.value < 2",
-    "editable": false,
     "max": 25,
     "min": 1,
-    "order": 250,
-    "text": "ui_ao_0250",
+    "text": "Tunnel wall",
     "type": "slider",
     "value": 2
   },
   "SPCR_06": {
-    "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
-    "order": 260,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "scaling_factor": {
-    "condition": "HDR_GEOMETRY.value",
-    "editable": false,
     "max": 4000,
     "min": 100,
-    "order": 270,
-    "text": "ui_ao_0270",
+    "text": "Scaling 🔃",
     "type": "slider",
     "value": 1500
   },
   "num_levels": {
-    "condition": "HDR_GEOMETRY.value",
-    "editable": false,
     "max": 32,
     "min": 2,
-    "order": 280,
-    "text": "ui_ao_0280",
-    "type": "slider",
-    "value": 6
-  },
-  "level_depth": {
-    "condition": "HDR_GEOMETRY.value",
-    "editable": false,
-    "max": 10000,
-    "min": 100,
-    "order": 290,
-    "text": "ui_ao_0290",
-    "type": "slider",
-    "value": 1200
-  },
-  "level_shifting": {
-    "condition": "HDR_GEOMETRY.value",
-    "order": 300,
-    "text": "ui_ao_0300",
-    "type": "bool",
-    "value": true
-  },
-  "level_spiralize": {
-    "condition": "HDR_GEOMETRY.value",
-    "order": 310,
-    "text": "ui_ao_0310",
-    "type": "bool",
-    "value": false
-  },
-  "num_subsets_per_level": {
-    "condition": "HDR_GEOMETRY.value",
-    "editable": false,
-    "max": 16,
-    "min": 2,
-    "order": 320,
-    "text": "ui_ao_0320",
+    "text": "Level 🔃",
     "type": "slider",
     "value": 12
   },
+  "level_depth": {
+    "max": 10000,
+    "min": 100,
+    "text": "Level size 🔃",
+    "type": "slider",
+    "value": 800
+  },
+  "level_shifting": {
+    "text": "Level shift 🔃",
+    "type": "checkbox",
+    "value": false
+  },
+  "level_spiralize": {
+    "text": "Level spiral 🔃",
+    "type": "checkbox",
+    "value": false
+  },
+  "num_subsets_per_level": {
+    "max": 32,
+    "min": 2,
+    "text": "Subsets/Level 🔃",
+    "type": "slider",
+    "value": 16
+  },
   "num_points_per_subset": {
-    "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
-    "editable": false,
     "max": 32768,
     "min": 512,
-    "order": 330,
-    "text": "ui_ao_0330",
+    "text": "Points/subset 🔃",
     "type": "slider",
-    "value": 8192
+    "value": 16384
   },
   "random_seed": {
-    "condition": "HDR_GEOMETRY.value && geometry_type.value == 0",
-    "editable": true,
     "max": 233280,
     "min": 0,
-    "order": 340,
-    "text": "ui_ao_0340",
+    "text": "Random seed 🔃",
     "type": "slider",
     "value": 0
   },
   "SPCR_07": {
-    "condition": "HDR_GEOMETRY.value",
-    "order": 350,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "HDR_PRLX": {
-    "order": 360,
-    "text": "ui_ao_0360",
-    "type": "bool",
-    "value": false
+    "type": "label",
+    "value": "🎥 Camera"
   },
   "SPCR_08": {
-    "condition": "HDR_PRLX.value",
-    "order": 370,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "parallax_option": {
-    "condition": "HDR_PRLX.value",
-    "options": [
-      {
-        "label": "ui_ao_0380_1",
-        "value": 0
-      },
-      {
-        "label": "ui_ao_0380_2",
-        "value": 1
-      },
-      {
-        "label": "ui_ao_0380_3",
-        "value": 2
-      },
-      {
-        "label": "ui_ao_0380_4",
-        "value": 3
-      }
-    ],
-    "order": 380,
-    "text": "ui_ao_0380",
-    "type": "combo",
-    "value": 0
+    "text": "Position",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "From",
+      "Cursor",
+      "Automatic",
+      "Fixed"
+    ]
   },
   "parallax_cam": {
-    "condition": "HDR_PRLX.value",
-    "order": 390,
-    "text": "ui_ao_0390",
-    "type": "bool",
+    "text": "Parallax",
+    "type": "checkbox",
     "value": true
   },
   "parallax_strength": {
-    "condition": "HDR_PRLX.value && parallax_option.value > 0",
-    "editable": false,
     "max": 20,
     "min": 1,
-    "order": 400,
-    "text": "ui_ao_0400",
+    "text": "Strength",
     "type": "slider",
     "value": 3
   },
   "parallax_angle": {
-    "condition": "HDR_PRLX.value && parallax_option.value == 3",
-    "editable": false,
     "max": 360,
     "min": 0,
-    "order": 410,
-    "text": "ui_ao_0410",
+    "text": "Rotation angle",
     "type": "slider",
     "value": 0
   },
   "auto_parallax_speed": {
-    "condition": "HDR_PRLX.value && parallax_option.value == '2'",
-    "editable": true,
     "max": 10,
     "min": -10,
-    "order": 420,
-    "text": "ui_ao_0420",
+    "text": "Speed",
     "type": "slider",
     "value": 2
   },
   "SPCR_42": {
-    "condition": "HDR_PRLX.value",
-    "order": 430,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "field_of_view": {
-    "condition": "HDR_PRLX.value",
-    "editable": true,
     "max": 130,
     "min": 50,
-    "order": 440,
-    "text": "ui_ao_0440",
+    "text": "Visibility range",
     "type": "slider",
     "value": 70
   },
   "fog_thickness": {
-    "condition": "HDR_PRLX.value",
-    "editable": false,
     "max": 99,
     "min": 1,
-    "order": 450,
-    "text": "ui_ao_0450",
+    "text": "Fog density",
     "type": "slider",
     "value": 69
   },
   "custom_fps": {
-    "condition": "HDR_PRLX.value",
-    "order": 460,
-    "text": "ui_ao_0460",
-    "type": "bool",
+    "text": "VSYNC Disable 🔃",
+    "type": "checkbox",
     "value": false
   },
   "fps_value": {
-    "condition": "HDR_PRLX.value && custom_fps.value",
-    "max": 240,
+    "max": 480,
     "min": 1,
-    "order": 470,
-    "text": "ui_ao_0470",
+    "text": "FPS target",
     "type": "slider",
     "value": 60
   },
   "SPCR_09": {
-    "condition": "HDR_PRLX.value",
-    "order": 480,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "HDR_MOVEMENT": {
-    "order": 490,
-    "text": "ui_ao_0490",
-    "type": "bool",
-    "value": false
+    "type": "label",
+    "value": "⏫ Movement"
   },
   "SPCR_10": {
-    "condition": "HDR_MOVEMENT.value",
-    "order": 500,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "movement_type": {
-    "condition": "HDR_MOVEMENT.value",
-    "options": [
-      {
-        "label": "ui_ao_0510_1",
-        "value": 0
-      },
-      {
-        "label": "ui_ao_0510_2",
-        "value": 1
-      }
-    ],
-    "order": 510,
-    "text": "ui_ao_0510",
-    "type": "combo",
-    "value": 0
+    "text": "Movement direction",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Forward",
+      "Backward"
+    ]
   },
   "zoom_val": {
-    "condition": "HDR_MOVEMENT.value",
-    "editable": true,
     "max": 20,
     "min": 0,
-    "order": 520,
-    "text": "ui_ao_0520",
+    "text": "Speed",
     "type": "slider",
     "value": 1
   },
   "audiozoom_val": {
-    "condition": "HDR_MOVEMENT.value && audioprocessing.value",
-    "editable": true,
     "max": 15,
     "min": 0,
-    "order": 530,
-    "text": "ui_ao_0530",
+    "text": "🔊 Audio zoom",
     "type": "slider",
-    "value": 2
+    "value": 3
   },
   "audiozoom_smooth": {
-    "condition": "HDR_MOVEMENT.value && audioprocessing.value",
-    "order": 540,
-    "text": "ui_ao_0540",
-    "type": "bool",
+    "text": "🔊 Zoom smoothing",
+    "type": "checkbox",
     "value": false
   },
   "reverse_type": {
-    "condition": "HDR_MOVEMENT.value && audioprocessing.value",
-    "order": 550,
-    "text": "ui_ao_0550",
-    "options": [
-      {
-        "label": "ui_ao_0550_1",
-        "value": 0
-      },
-      {
-        "label": "ui_ao_0550_2",
-        "value": 1
-      },
-      {
-        "label": "ui_ao_0550_3",
-        "value": 2
-      }
-    ],
-    "type": "combo",
-    "value": 0
+    "text": "🔊 Negative zoom",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Enabled",
+      "Disabled",
+      "convert"
+    ]
   },
   "rotation_val": {
-    "condition": "HDR_MOVEMENT.value",
-    "editable": true,
     "max": 10,
     "min": -10,
-    "order": 560,
-    "text": "ui_ao_0560",
+    "text": "Rotation speed",
     "type": "slider",
     "value": 0
   },
   "SPCR_11": {
-    "condition": "HDR_MOVEMENT.value",
-    "order": 570,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "HDR_COLOR": {
-    "order": 580,
-    "text": "ui_ao_0580",
-    "type": "bool",
-    "value": false
+    "type": "label",
+    "value": "🌈 Colors"
   },
   "SPCR_12": {
-    "condition": "HDR_COLOR.value",
-    "order": 590,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "main_color": {
-    "condition": "HDR_COLOR.value",
-    "order": 600,
-    "text": "ui_ao_0600",
+    "text": "Background",
     "type": "color",
-    "value": "0 0 0"
+    "value": "#000000"
   },
   "color_mode": {
-    "condition": "HDR_COLOR.value",
-    "options": [
-      {
-        "label": "ui_ao_0610_1",
-        "value": 0
-      },
-      {
-        "label": "ui_ao_0610_2",
-        "value": 1
-      },
-      {
-        "label": "ui_ao_0610_3",
-        "value": 2
-      },
-      {
-        "label": "ui_ao_0610_4",
-        "value": 3
-      },
-      {
-        "label": "ui_ao_0610_5",
-        "value": 4
-      },
-      {
-        "label": "ui_ao_0610_6",
-        "value": 5
-      }
-    ],
-    "order": 610,
-    "text": "ui_ao_0610",
-    "type": "combo",
-    "value": 0
+    "text": "Color mode",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Random",
+      "Plain",
+      "Gradient",
+      "Random color range",
+      "🔊 Color range",
+      "Level division"
+    ]
   },
   "user_color_a": {
-    "condition": "HDR_COLOR.value && color_mode.value >0",
-    "order": 620,
-    "text": "ui_ao_0620",
+    "text": "Color 1",
     "type": "color",
-    "value": "1 0.5 0"
+    "value": "#ff7f00"
   },
   "user_color_b": {
-    "condition": "HDR_COLOR.value && color_mode.value >1",
-    "order": 630,
-    "text": "ui_ao_0630",
+    "text": "Color 2",
     "type": "color",
-    "value": "0 0.5 1"
+    "value": "#007fff"
   },
   "color_fade_speed": {
-    "condition": "HDR_COLOR.value",
-    "editable": true,
     "max": 10,
     "min": 0,
-    "order": 640,
-    "text": "ui_ao_0640",
+    "text": "Color change speed",
     "type": "slider",
     "value": 2
   },
   "color_audio_strength": {
-    "condition": "HDR_COLOR.value",
-    "editable": true,
     "max": 20,
     "min": 0,
-    "order": 650,
-    "text": "ui_ao_0650",
+    "text": "🔊 Color reaction",
     "type": "slider",
     "value": 2
   },
   "SPCR_13": {
-    "condition": "HDR_COLOR.value",
-    "order": 660,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "HDR_BRIGHTNESS": {
-    "order": 670,
-    "text": "ui_ao_0670",
-    "type": "bool",
-    "value": false
+    "type": "label",
+    "value": "🔆 Brightness"
   },
   "SPCR_14": {
-    "condition": "HDR_BRIGHTNESS.value",
-    "order": 680,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "default_brightness": {
-    "condition": "HDR_BRIGHTNESS.value",
-    "editable": false,
     "max": 100,
     "min": 10,
-    "order": 690,
-    "text": "ui_ao_0690",
-    "type": "slider",
-    "value": 60
-  },
-  "minimum_brightness": {
-    "condition": "HDR_BRIGHTNESS.value && audioprocessing.value",
-    "editable": false,
-    "max": 100,
-    "min": 10,
-    "order": 700,
-    "text": "ui_ao_0700",
-    "type": "slider",
-    "value": 40
-  },
-  "maximum_brightness": {
-    "condition": "HDR_BRIGHTNESS.value && audioprocessing.value",
-    "editable": false,
-    "max": 100,
-    "min": 10,
-    "order": 710,
-    "text": "ui_ao_0710",
+    "text": "Standard",
     "type": "slider",
     "value": 80
   },
-  "SPCR_15": {
-    "condition": "HDR_BRIGHTNESS.value",
-    "order": 720,
-    "value": "ui_ao_0060",
-    "type": "label"
-  },
-  "HDR_SATURATION": {
-    "order": 730,
-    "text": "ui_ao_0730",
-    "type": "bool",
-    "value": false
-  },
-  "SPCR_16": {
-    "condition": "HDR_SATURATION.value",
-    "order": 740,
-    "value": "ui_ao_0060",
-    "type": "label"
-  },
-  "default_saturation": {
-    "condition": "HDR_SATURATION.value",
-    "editable": false,
+  "minimum_brightness": {
     "max": 100,
     "min": 10,
-    "order": 750,
-    "text": "ui_ao_0690",
+    "text": "🔊 Minimum",
+    "type": "slider",
+    "value": 50
+  },
+  "maximum_brightness": {
+    "max": 100,
+    "min": 10,
+    "text": "🔊 Maximum",
+    "type": "slider",
+    "value": 90
+  },
+  "SPCR_15": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_SATURATION": {
+    "type": "label",
+    "value": "📊 Saturation"
+  },
+  "SPCR_16": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "default_saturation": {
+    "max": 100,
+    "min": 10,
+    "text": "Standard",
     "type": "slider",
     "value": 75
   },
   "minimum_saturation": {
-    "condition": "HDR_SATURATION.value && audioprocessing.value",
-    "editable": false,
     "max": 100,
     "min": 10,
-    "order": 760,
-    "text": "ui_ao_0700",
+    "text": "🔊 Minimum",
     "type": "slider",
-    "value": 30
+    "value": 40
   },
   "maximum_saturation": {
-    "condition": "HDR_SATURATION.value && audioprocessing.value",
-    "editable": false,
     "max": 100,
     "min": 10,
-    "order": 770,
-    "text": "ui_ao_0710",
+    "text": "🔊 Maximum",
     "type": "slider",
     "value": 90
   },
   "SPCR_17": {
-    "condition": "HDR_SATURATION.value",
-    "order": 780,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "HDR_FILTER": {
-    "order": 790,
-    "text": "ui_ao_0790",
-    "type": "bool",
-    "value": false
+    "type": "label",
+    "value": "🕶 Shader"
   },
   "SPCR_18": {
-    "condition": "HDR_FILTER.value",
-    "order": 800,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "bloom_filter": {
-    "condition": "HDR_FILTER.value",
-    "order": 810,
-    "text": "ui_ao_0810",
-    "type": "bool",
+    "text": "Bloom",
+    "type": "checkbox",
     "value": false
   },
   "lut_filter": {
-    "condition": "HDR_FILTER.value",
-    "options": [
-      {
-        "label": "ui_ao_0820_1",
-        "value": -1
-      },
-      {
-        "label": "ui_ao_0820_2",
-        "value": 0
-      },
-      {
-        "label": "ui_ao_0820_3",
-        "value": 1
-      },
-      {
-        "label": "ui_ao_0820_4",
-        "value": 2
-      }
-    ],
-    "order": 820,
-    "text": "ui_ao_0820",
-    "type": "combo",
-    "value": -1
+    "text": "LookUpTable",
+    "type": "dropdown",
+    "value": -1,
+    "items": [
+      "From",
+      "Posterize",
+      "Inverse",
+      "Negative"
+    ]
   },
   "mirror_shader": {
-    "condition": "HDR_FILTER.value",
-    "editable": false,
     "max": 16,
     "min": 0,
-    "order": 830,
-    "text": "ui_ao_0830",
+    "text": "Mirror",
     "type": "slider",
     "value": 0
   },
-  "mirror_invalid_val": {
-    "condition": "mirror_shader.value == 1",
-    "order": 840,
-    "value": "ui_ao_0840",
-    "type": "label"
-  },
   "mirror_invert": {
-    "condition": "HDR_FILTER.value && mirror_shader.value>1",
-    "order": 850,
-    "text": "ui_ao_0850",
-    "type": "bool",
+    "text": "Mirror inverted",
+    "type": "checkbox",
     "value": false
   },
   "fx_antialiasing": {
-    "condition": "HDR_FILTER.value",
-    "order": 860,
-    "text": "ui_ao_0860",
-    "type": "bool",
+    "text": "FXAA",
+    "type": "checkbox",
     "value": false
   },
   "blur_strength": {
-    "condition": "HDR_FILTER.value",
-    "editable": false,
     "max": 20,
     "min": 0,
-    "order": 870,
-    "text": "ui_ao_0870",
+    "text": "Blur",
     "type": "slider",
     "value": 0
   },
   "chroma_filter": {
-    "condition": "HDR_FILTER.value",
-    "editable": false,
     "max": 30,
     "min": 0,
-    "order": 880,
-    "text": "ui_ao_0880",
+    "text": "ChromA",
     "type": "slider",
     "value": 0
   },
   "SPCR_19": {
-    "condition": "HDR_FILTER.value",
-    "order": 890,
-    "value": "ui_ao_0060",
-    "type": "label"
-  },
-  "HDR_IMGS": {
-    "order": 900,
-    "text": "ui_ao_0900",
-    "type": "bool",
-    "value": false
-  },
-  "SPCR_20": {
-    "condition": "HDR_IMGS.value",
-    "order": 910,
-    "value": "ui_ao_0060",
-    "type": "label"
-  },
-  "img_overlay": {
-    "condition": "HDR_IMGS.value",
-    "order": 920,
-    "text": "ui_ao_0920",
-    "type": "file"
-  },
-  "img_background": {
-    "condition": "HDR_IMGS.value",
-    "order": 930,
-    "text": "ui_ao_0930",
-    "type": "file"
-  },
-  "SPCR_21": {
-    "condition": "HDR_IMGS.value",
-    "order": 940,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "HDR_AUDIO": {
-    "condition": "audioprocessing.value",
-    "order": 950,
-    "text": "ui_ao_0950",
-    "type": "bool",
-    "value": false
+    "type": "label",
+    "value": "🔊 Audio"
   },
   "SPCR_22": {
-    "condition": "HDR_AUDIO.value && audioprocessing.value",
-    "order": 960,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "equalize": {
-    "condition": "HDR_AUDIO.value && audioprocessing.value",
-    "order": 970,
-    "text": "ui_ao_0970",
-    "type": "bool",
+    "text": "Dynamics EQ",
+    "type": "checkbox",
     "value": true
   },
   "mono_audio": {
-    "condition": "HDR_AUDIO.value && audioprocessing.value && false",
-    "order": 980,
-    "text": "ui_ao_0980",
-    "type": "bool",
+    "text": "Mono audio",
+    "type": "checkbox",
     "value": true
   },
   "audio_direction": {
-    "condition": "HDR_AUDIO.value && audioprocessing.value",
-    "options": [
-      {
-        "label": "ui_ao_0990_1",
-        "value": 0
-      },
-      {
-        "label": "ui_ao_0990_2",
-        "value": 1
-      }
-    ],
-    "order": 990,
-    "text": "ui_ao_0990",
-    "type": "combo",
-    "value": 0
+    "text": "Audio direction",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Depths near, heights far",
+      "Highs near, lows far"
+    ]
   },
   "peak_filter": {
-    "condition": "HDR_AUDIO.value && audioprocessing.value",
-    "editable": false,
     "max": 5,
     "min": 0,
-    "order": 1000,
-    "text": "ui_ao_1000",
+    "text": "Peak values",
     "type": "slider",
-    "value": 1
+    "value": 1.5
   },
   "value_smoothing": {
-    "condition": "HDR_AUDIO.value && audioprocessing.value",
-    "editable": false,
     "max": 10,
     "min": 0,
-    "order": 1010,
-    "text": "ui_ao_1010",
+    "text": "Smoothing",
     "type": "slider",
     "value": 2
   },
   "audio_increase": {
-    "condition": "HDR_AUDIO.value && audioprocessing.value",
-    "editable": false,
     "max": 100,
     "min": 20,
-    "order": 1020,
-    "text": "ui_ao_1020",
+    "text": "Strength",
     "type": "slider",
     "value": 75
   },
   "audio_decrease": {
-    "condition": "HDR_AUDIO.value && audioprocessing.value",
-    "editable": false,
     "max": 60,
     "min": 5,
-    "order": 1030,
-    "text": "ui_ao_1030",
+    "text": "Reaction",
     "type": "slider",
     "value": 25
   },
   "minimum_volume": {
-    "condition": "HDR_AUDIO.value && audioprocessing.value && false",
-    "editable": false,
     "max": 20,
     "min": 1,
-    "order": 1040,
-    "text": "ui_ao_1040",
+    "text": "Minimum volume",
     "type": "slider",
     "value": 10
   },
   "SPCR_23": {
-    "condition": "HDR_AUDIO.value && audioprocessing.value",
-    "order": 1050,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "HDR_ICUE": {
-    "order": 1060,
-    "text": "ui_ao_1060",
-    "type": "bool",
-    "value": false
+    "type": "label",
+    "value": "💡 LED / iCUE"
   },
   "SPCR_24": {
-    "condition": "HDR_ICUE.value",
-    "order": 1070,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "icue_mode": {
-    "condition": "HDR_ICUE.value",
-    "options": [
-      {
-        "label": "ui_ao_1080_1",
-        "value": 0
-      },
-      {
-        "label": "ui_ao_1080_2",
-        "value": 1
-      },
-      {
-        "label": "ui_ao_1080_3",
-        "value": 2
-      }
-    ],
-    "order": 1080,
-    "text": "ui_ao_1080",
-    "type": "combo",
-    "value": 1
+    "text": "LED mode",
+    "type": "dropdown",
+    "value": 1,
+    "items": [
+      "From",
+      "Projection",
+      "Color"
+    ]
   },
   "icue_area_xoff": {
-    "condition": "HDR_ICUE.value && icue_mode.value == 1",
-    "editable": false,
     "max": 100,
     "min": 5,
-    "order": 1090,
-    "text": "ui_ao_1090",
+    "text": "Projection X Distance",
     "type": "slider",
     "value": 50
   },
   "icue_area_yoff": {
-    "condition": "HDR_ICUE.value && icue_mode.value == 1",
-    "editable": false,
     "max": 100,
     "min": 5,
-    "order": 1100,
-    "text": "ui_ao_1100",
+    "text": "Projection Y distance",
     "type": "slider",
     "value": 90
   },
   "icue_area_width": {
-    "condition": "HDR_ICUE.value && icue_mode.value == 1",
-    "editable": false,
     "max": 100,
     "min": 5,
-    "order": 1110,
-    "text": "ui_ao_1110",
+    "text": "Projection width",
     "type": "slider",
     "value": 75
   },
   "icue_area_height": {
-    "condition": "HDR_ICUE.value && icue_mode.value == 1",
-    "editable": false,
     "max": 100,
     "min": 5,
-    "order": 1120,
-    "text": "ui_ao_1120",
+    "text": "Projection height",
     "type": "slider",
     "value": 30
   },
   "icue_area_blur": {
-    "condition": "HDR_ICUE.value && icue_mode.value == 1",
-    "editable": false,
     "max": 5,
     "min": 0,
-    "order": 1130,
-    "text": "ui_ao_1130",
+    "text": "Soft focus",
     "type": "slider",
     "value": 1
   },
   "icue_area_decay": {
-    "condition": "HDR_ICUE.value && icue_mode.value == 1",
-    "editable": false,
     "max": 100,
     "min": 0,
-    "order": 1140,
-    "text": "ui_ao_1140",
+    "text": "Color loss",
     "type": "slider",
     "value": 20
   },
   "icue_main_color": {
-    "condition": "HDR_ICUE.value && icue_mode.value == 2",
-    "order": 1150,
-    "text": "ui_ao_1150",
+    "text": "LED color",
     "type": "color",
-    "value": "0 0.8 0"
+    "value": "#00cc00"
   },
   "SPCR_25": {
-    "condition": "HDR_ICUE.value",
-    "order": 1160,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "HDR_ADVANCED": {
-    "order": 1170,
-    "text": "ui_ao_1170",
-    "type": "bool",
-    "value": false
+    "type": "label",
+    "value": "⚙️ Advanced"
   },
   "SPCR_26": {
-    "condition": "HDR_ADVANCED.value",
-    "order": 1180,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "shader_quality": {
-    "condition": "HDR_ADVANCED.value",
-    "options": [
-      {
-        "label": "ui_ao_1190_1",
-        "value": 1
-      },
-      {
-        "label": "ui_ao_1190_2",
-        "value": 2
-      },
-      {
-        "label": "ui_ao_1190_3",
-        "value": 3
-      }
-    ],
-    "order": 1190,
-    "text": "ui_ao_1190",
-    "type": "combo",
-    "value": 3
+    "text": "Quality 🔃",
+    "type": "dropdown",
+    "value": 3,
+    "items": [
+      "Low",
+      "Medium",
+      "High"
+    ]
   },
   "low_latency": {
-    "condition": "HDR_ADVANCED.value",
-    "order": 1200,
-    "text": "ui_ao_1200",
-    "type": "bool",
+    "text": "Low latency 🔃",
+    "type": "checkbox",
     "value": false
   },
   "xr_mode": {
-    "condition": "HDR_ADVANCED.value",
-    "order": 1210,
-    "text": "ui_ao_1210",
-    "type": "bool",
+    "text": "VR Mode (BETA)",
+    "type": "checkbox",
     "value": false
   },
   "seizure_warning": {
-    "condition": "HDR_ADVANCED.value",
-    "order": 1220,
-    "text": "ui_ao_1220",
-    "type": "bool",
+    "text": "Epilepsy warning",
+    "type": "checkbox",
     "value": true
   },
   "debugging": {
-    "condition": "HDR_ADVANCED.value",
-    "order": 1230,
-    "text": "ui_ao_1230",
-    "type": "bool",
+    "text": "Debugging",
+    "type": "checkbox",
     "value": false
   },
   "SPCR_27": {
-    "condition": "HDR_ADVANCED.value",
-    "order": 1240,
-    "value": "ui_ao_0060",
-    "type": "label"
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
   "HDR_THANKS": {
-    "order": 1250,
-    "value": "ui_ao_1250",
-    "type": "label"
+    "type": "label",
+    "value": "Thanks for using :)"
   }
 }

@@ -2,7 +2,7 @@
  * @author hexxone / https://hexx.one
  *
  * @license
- * Copyright (c) 2022 hexxone All rights reserved.
+ * Copyright (c) 2023 hexxone All rights reserved.
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.
  */
@@ -179,7 +179,8 @@ export class ContextHelper extends CComponent {
 		this.camera.aspect = iW / iH;
 		this.camera.updateProjectionMatrix();
 		this.renderer.setSize(iW, iH);
-		this.composer?.setSize(iW, iH);
+
+		if (this.composer) this.composer.setSize(iW, iH);
 	}
 
 	/**
@@ -585,9 +586,9 @@ export class ContextHelper extends CComponent {
 	 */
 	private getPowerPreference() {
 		switch (this.settings.shader_quality) {
-			case 1:
+			case 0:
 				return "low-power";
-			case 3:
+			case 2:
 				return "high-performance";
 			default:
 				return "default";
@@ -600,9 +601,9 @@ export class ContextHelper extends CComponent {
 	 */
 	private getPrecisionPref() {
 		switch (this.settings.shader_quality) {
-			case 1:
+			case 0:
 				return "lowp";
-			case 3:
+			case 2:
 				return "highp";
 			default:
 				return "mediump";
