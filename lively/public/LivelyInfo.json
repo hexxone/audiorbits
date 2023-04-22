@@ -1,0 +1,17 @@
+{
+  "AppVersion": "2.4.0.0",
+  "Title": "AudiOrbits",
+  "Thumbnail": "img/preview.png",
+  "Preview": "preview.gif",
+  "Desc": "Reacts to music by projecting the audio-spectrum onto the Orbits in form of color, saturation and brightness.",
+  "Author": "hexxone",
+  "License": "GPL v3",
+  "Contact": "https://github.com/hexxone/audiorbits/releases",
+  "Type": 1,
+  "FileName": "index.html",
+  "Arguments": "--audio true --pause-event true",
+  "IsAbsolutePath": false,
+  "Id": null,
+  "Tags": null,
+  "Version": 0
+}
