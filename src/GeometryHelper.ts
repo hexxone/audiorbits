@@ -2,7 +2,7 @@
  * @author hexxone / https://hexx.one
  *
  * @license
- * Copyright (c) 2022 hexxone All rights reserved.
+ * Copyright (c) 2023 hexxone All rights reserved.
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.
  *
@@ -333,7 +333,7 @@ export class GeometryHolder extends CComponent {
 		const camZ = this.camera.position.z;
 
 		Smallog.debug("building levels.");
-		this.loadHelper.setText("Levels");
+		this.loadHelper.setText("Particles");
 		this.loadHelper.setProgress(25);
 
 		// reset Orbit data
@@ -583,7 +583,8 @@ export class GeometryHolder extends CComponent {
 		const start = performance.now();
 		const { run } = this.levelBuilder;
 
-		const lvlPercent = (85 - 25) / this.settings.num_levels; // / 2;
+		const numLevels = this.settings.num_levels;
+		const lvlPercent = (85 - 25) / numLevels; // / 2;
 
 		/**
 		 * Data pass to worker
@@ -628,10 +629,12 @@ export class GeometryHolder extends CComponent {
 				// worker result, back in main context
 				const subbs = this.levels[level].sets;
 				const setsPerLvl = this.settings.num_subsets_per_level;
+				const pointsPerSet = this.settings.num_points_per_subset;
 
-				this.loadHelper.setText(
-					`Level<br>${level + 1} / ${this.settings.num_levels}`
-				);
+				const pointsPerLvl = setsPerLvl * pointsPerSet;
+				const currentPoints = ((level + 1) * pointsPerLvl).toLocaleString("en");
+				const maxPoints = (numLevels * pointsPerLvl).toLocaleString("en");
+				this.loadHelper.setText(`Particles<br>${currentPoints} / ${maxPoints}`);
 				this.loadHelper.setProgress(this.loadHelper.progress + lvlPercent);
 
 				// spread over time for less thread blocking
@@ -661,11 +664,7 @@ export class GeometryHolder extends CComponent {
 					});
 				}
 				const dbgT = performance.now() - start,
-					vertS =
-						(this.settings.num_subsets_per_level *
-							this.settings.num_points_per_subset) /
-						3 /
-						(dbgT / 1000);
+					vertS = (setsPerLvl * pointsPerSet) / 3 / (dbgT / 1000);
 				// print info
 				Smallog.debug(
 					`Generated Level=${level}, Time=${dbgT.toFixed(

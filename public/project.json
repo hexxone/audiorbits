@@ -2867,7 +2867,7 @@
         "order": 90,
         "text": "ui_ao_0090",
         "type": "slider",
-        "value": 6
+        "value": 5
       },
       "SPCR_03": {
         "condition": "HDR_GEOMETRY.value",
@@ -3039,7 +3039,7 @@
         "order": 280,
         "text": "ui_ao_0280",
         "type": "slider",
-        "value": 6
+        "value": 12
       },
       "level_depth": {
         "condition": "HDR_GEOMETRY.value",
@@ -3049,14 +3049,14 @@
         "order": 290,
         "text": "ui_ao_0290",
         "type": "slider",
-        "value": 1200
+        "value": 800
       },
       "level_shifting": {
         "condition": "HDR_GEOMETRY.value",
         "order": 300,
         "text": "ui_ao_0300",
         "type": "bool",
-        "value": true
+        "value": false
       },
       "level_spiralize": {
         "condition": "HDR_GEOMETRY.value",
@@ -3068,12 +3068,12 @@
       "num_subsets_per_level": {
         "condition": "HDR_GEOMETRY.value",
         "editable": false,
-        "max": 16,
+        "max": 32,
         "min": 2,
         "order": 320,
         "text": "ui_ao_0320",
         "type": "slider",
-        "value": 12
+        "value": 16
       },
       "num_points_per_subset": {
         "condition": "HDR_GEOMETRY.value && geometry_type.value < 2",
@@ -3083,7 +3083,7 @@
         "order": 330,
         "text": "ui_ao_0330",
         "type": "slider",
-        "value": 8192
+        "value": 16384
       },
       "random_seed": {
         "condition": "HDR_GEOMETRY.value && geometry_type.value == 0",
@@ -3210,7 +3210,7 @@
       },
       "fps_value": {
         "condition": "HDR_PRLX.value && custom_fps.value",
-        "max": 240,
+        "max": 480,
         "min": 1,
         "order": 470,
         "text": "ui_ao_0470",
@@ -3270,7 +3270,7 @@
         "order": 530,
         "text": "ui_ao_0530",
         "type": "slider",
-        "value": 2
+        "value": 3
       },
       "audiozoom_smooth": {
         "condition": "HDR_MOVEMENT.value && audioprocessing.value",
@@ -3428,7 +3428,7 @@
         "order": 690,
         "text": "ui_ao_0690",
         "type": "slider",
-        "value": 60
+        "value": 80
       },
       "minimum_brightness": {
         "condition": "HDR_BRIGHTNESS.value && audioprocessing.value",
@@ -3438,7 +3438,7 @@
         "order": 700,
         "text": "ui_ao_0700",
         "type": "slider",
-        "value": 40
+        "value": 50
       },
       "maximum_brightness": {
         "condition": "HDR_BRIGHTNESS.value && audioprocessing.value",
@@ -3448,7 +3448,7 @@
         "order": 710,
         "text": "ui_ao_0710",
         "type": "slider",
-        "value": 80
+        "value": 90
       },
       "SPCR_15": {
         "condition": "HDR_BRIGHTNESS.value",
@@ -3486,7 +3486,7 @@
         "order": 760,
         "text": "ui_ao_0700",
         "type": "slider",
-        "value": 30
+        "value": 40
       },
       "maximum_saturation": {
         "condition": "HDR_SATURATION.value && audioprocessing.value",
@@ -3528,19 +3528,19 @@
         "options": [
           {
             "label": "ui_ao_0820_1",
-            "value": -1
-          },
-          {
-            "label": "ui_ao_0820_2",
             "value": 0
           },
           {
-            "label": "ui_ao_0820_3",
+            "label": "ui_ao_0820_2",
             "value": 1
           },
           {
-            "label": "ui_ao_0820_4",
+            "label": "ui_ao_0820_3",
             "value": 2
+          },
+          {
+            "label": "ui_ao_0820_4",
+            "value": 3
           }
         ],
         "order": 820,
@@ -3686,7 +3686,7 @@
         "order": 1000,
         "text": "ui_ao_1000",
         "type": "slider",
-        "value": 1
+        "value": 1.5
       },
       "value_smoothing": {
         "condition": "HDR_AUDIO.value && audioprocessing.value",
@@ -3857,15 +3857,15 @@
         "options": [
           {
             "label": "ui_ao_1190_1",
-            "value": 1
+            "value": 0
           },
           {
             "label": "ui_ao_1190_2",
-            "value": 2
+            "value": 1
           },
           {
             "label": "ui_ao_1190_3",
-            "value": 3
+            "value": 2
           }
         ],
         "order": 1190,
@@ -3918,9 +3918,9 @@
   "preview": "img/preview.png",
   "tags": [
     "Abstract",
-	"CGI",
-	"Music",
-	"Technology"
+    "CGI",
+    "Music",
+    "Technology"
   ],
   "title": "AudiOrbits 2.4",
   "type": "web",

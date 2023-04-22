@@ -12,17 +12,20 @@
 - Star cloud mode
 - release memory on pause option
 
+- fix Colors dont work properly atm
+
+- fix fancy text?
 - fix rgba color
 - fix shaders (lut, blur, chroma)
 - check new re-init vars
-- disable debug loggin by default
 - wewa: Pause unfocus save
 - finish implementing Web-XR
   - controls
+  - movement strength?
 
 ## other
 
-- Implement <https://github.com/rocksdanister/lively> Release
+- Implement <https://github.com/rocksdanister/lively> Release (almost)
 
 - spotify integration?
 - music recognition?

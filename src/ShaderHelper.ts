@@ -2,7 +2,7 @@
  * @author hexxone / https://hexx.one
  *
  * @license
- * Copyright (c) 2022 hexxone All rights reserved.
+ * Copyright (c) 2023 hexxone All rights reserved.
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.
  *
@@ -35,7 +35,7 @@ import { Vector2 } from "three.ts/src";
  */
 class ShaderSettings extends CSettings {
 	bloom_filter = false;
-	lut_filter = -1;
+	lut_filter = 0;
 	mirror_shader = 0;
 	mirror_invert = false;
 	fx_antialiasing = true;
@@ -165,9 +165,9 @@ export class ShaderHolder extends CComponent {
 
 		// lookuptable filter
 		this.lutNear.enabled = this.lutPass.enabled = false;
-		if (sett.lut_filter >= 0) {
+		if (sett.lut_filter > 0) {
 			// add normal or filtered LUT shader
-			const lutInfo = this.lutSetup.Textures[sett.lut_filter];
+			const lutInfo = this.lutSetup.Textures[sett.lut_filter - 1];
 			const useEffect = lutInfo.filter ? this.lutNear : this.lutPass;
 			// set shader uniform values
 			useEffect.uniforms.lutMap.value = lutInfo.texture;
