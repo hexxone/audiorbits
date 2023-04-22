@@ -22,7 +22,7 @@
 /* eslint-disable no-unused-vars */
 
 import { ContextHelper } from "./ContextHelper";
-import { WEventListener } from "./WEventListener";
+import { WEProperty, WEventListener } from "./WEventListener";
 
 import {
 	CComponent,
@@ -66,6 +66,8 @@ const ReInit: string[] = [
 	"low_latency",
 	"xr_mode",
 ];
+
+const TextLabels: string[] = ["text", "label"];
 
 // temporary properties
 let temProps = null;
@@ -208,7 +210,7 @@ class AudiOrbits extends CComponent {
 	 * @param {Object} props Properties
 	 * @return {boolean} reinit-flag
 	 */
-	private applyCustomProps(props) {
+	private applyCustomProps(props: { [key: string]: WEProperty }) {
 		Smallog.debug("applying settings: " + JSON.stringify(props));
 
 		// possible apply-targets
@@ -239,7 +241,7 @@ class AudiOrbits extends CComponent {
 					break;
 				case "slider":
 				case "combo":
-					found = this.applySetting(setting, parseFloat(prop.value));
+					found = this.applySetting(setting, parseFloat(prop.value as string));
 					break;
 				default:
 					found = this.applySetting(setting, prop.value || prop.text);
@@ -248,8 +250,8 @@ class AudiOrbits extends CComponent {
 			// set re-init flag if value changed and included in list
 			if (found) reInitFlag ||= ReInit.indexOf(setting) > -1;
 			// invalid?
-			else if (prop.type != "text")
-				Smallog.debug("Setting not applied: " + setting);
+			else if (prop.type && TextLabels.includes(prop.type))
+				Smallog.debug("TextLabel not applied: " + setting);
 		}
 
 		// Update all modules
@@ -257,16 +259,16 @@ class AudiOrbits extends CComponent {
 
 		// Custom bg color
 		if (props.main_color) {
-			const cO = rgbToObj(props.main_color.value);
+			const cO = rgbToObj(props.main_color.value as string);
 			document.body.style.backgroundColor = `rgb(${cO.r},${cO.g},${cO.b})`;
 		}
 
 		// Custom user images
 		if (props.img_background) {
-			this.setImgSrc("img_back", props.img_background.value);
+			this.setImgSrc("img_back", props.img_background.value as string);
 		}
 		if (props.img_overlay) {
-			this.setImgSrc("img_over", props.img_overlay.value);
+			this.setImgSrc("img_over", props.img_overlay.value as string);
 		}
 
 		// debug

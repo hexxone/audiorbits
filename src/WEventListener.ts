@@ -7,7 +7,13 @@
  * See LICENSE file in the project root for full license information.
  */
 
-export type WEPropType = "combo" | "text" | "slider" | "bool" | "color";
+export type WEPropType =
+	| "none"
+	| "combo"
+	| "text"
+	| "slider"
+	| "bool"
+	| "color";
 
 /**
  * Options list for 'combo'-type user settings
@@ -53,7 +59,7 @@ export type WEventListener = {
 	 * @param {WEProperty[]} props Wallpaper Custom properties
 	 * @see https://docs.wallpaperengine.io/en/web/customization/properties.html
 	 */
-	applyUserProperties(props: WEProperty[]): void;
+	applyUserProperties(props: { [key: string]: WEProperty }): void;
 
 	/**
 	 * Set paused

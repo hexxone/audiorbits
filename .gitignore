@@ -1,3 +1,6 @@
+# Completed Build Files
+*.zip
+
 # Logs
 logs
 *.log
