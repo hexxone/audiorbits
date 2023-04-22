@@ -2,7 +2,7 @@
  * @author hexxone / https://hexx.one
  *
  * @license
- * Copyright (c) 2022 hexxone All rights reserved.
+ * Copyright (c) 2023 hexxone All rights reserved.
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.
  *
@@ -25,7 +25,7 @@ const BundleAnalyzerPlugin =
 // custom plugins
 const OfflinePlugin = require("./src/we_utils/src/offline/OfflinePlugin");
 const WascBuilderPlugin = require("./src/we_utils/src/wasc-worker/WascBuilderPlugin");
-// const RenamerPlugin = require("./src/we_utils/src/renamer/RenamerPlugin");
+const RenamerPlugin = require("./src/we_utils/src/renamer/RenamerPlugin");
 
 const lanIp =
 	networkInterfaces()["Ethernet"].find(
@@ -222,9 +222,9 @@ module.exports = (env) => {
 			}),
 
 			// custom renamer
-			// new RenamerPlugin({
-			// 	regex: /[a-z0-9_]*_webpack_[a-z0-9_]*/gi,
-			// }),
+			new RenamerPlugin({
+				regex: /[a-z0-9_]*_webpack_[a-z0-9_]*/gi,
+			}),
 
 			// detect circular
 			new CircularDependencyPlugin({

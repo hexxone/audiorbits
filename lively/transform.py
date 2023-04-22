@@ -11,11 +11,21 @@ remove_fields = ['editable', 'order', 'condition']
 replace_string = 'ui_ao'
 replace_fields = ['text', 'value', 'label']
 
+checkbox_to_string = 'HDR'
+
+remove_keys = ['schemecolor', 'HDR_NO_AUDIO', 'HDR_IMGS', 'SPCR_20', 'img_overlay', 'img_background', 'SPCR_21', 'mirror_invalid_val']
+
+replacements = {
+    '=======================': '========================================',
+    '~~~~~~~~~~~~~~~~~~~~~~~~~~': '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+}
 
 def remove_html_tags(text):
     text = re.sub('<[^>]*>', '', text)  # Remove HTML tags
     text = re.sub(' +', ' ', text)      # Replace double spaces with single spaces
     text = text.strip()                 # Trim the string
+    if text in replacements:
+        text = replacements[text]
     return text
 
 def rgb_to_hex(rgb_str):
@@ -28,11 +38,23 @@ with open('../public/project.json', 'r', encoding='utf-8') as file:
     file_b = file_a['general']['properties']
 
 # Iterate through the keys and values in file B
-for key, value in file_b.items():
+for key in list(file_b.keys()):
+    value = file_b[key]
+    # Remove Key
+    if key in remove_keys:
+        del file_b[key]
+        continue
+    
     # Remove Ordering & Conditions
     for field in remove_fields:
         if field in value:
             del value[field]
+            
+    # make Headers to strings
+    if key.startswith(checkbox_to_string):
+        value['type'] = 'text'
+        if 'value' in value:
+            del value['value']
     
     # Replace the "type" field's value "text" with "label"
     if 'type' in value and value['type'] == 'text':
@@ -82,5 +104,5 @@ for key, value in file_b.items():
         
         
 # Save the modified file B to a new JSON file
-with open('./public/LivelyProperties.modified.json', 'w', encoding='utf-8') as file:
+with open('./public/LivelyProperties.json', 'w', encoding='utf-8') as file:
     json.dump(file_b, file, ensure_ascii=False, indent=2)
