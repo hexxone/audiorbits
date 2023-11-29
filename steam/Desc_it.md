@@ -57,14 +57,15 @@ Tuttavia, è possibile personalizzarlo perfettamente in base alle proprie prefer
 ╠══ Attenzione all'epilessia
 ╚══ Debugging.
 
-
 [h1]ℹ️ Su ℹ️[/h1]
-Per me, questo è un bel progetto secondario con molto da imparare, e sono disposto a tenerlo aggiornato nel mio tempo libero. 
+Per me, questo è un bel progetto secondario con molto da imparare, e sono disposto a tenerlo aggiornato nel mio tempo libero.
 
 Questa era una volta una [url=https://orbits.hexx.one/]versione solo web[/url] ed è la mia prima carta da parati del motore, quindi tutto potrebbe non essere perfetto.
 
 Il [url=https://github.com/hexxone/audiorbits]codice sorgente può essere trovato qui[/url]. Ricordati di rispettare la licenza e di accreditare la fonte :)
 
+[h1]Avviso di modifica[/h1]
+Può essere visualizzato nella scheda "Modifiche" qui sopra.
 
 [h1]❓ Aiuto necessario ❓[/h1]
 Se il vostro PC o le vostre applicazioni vacillano, date un'occhiata al [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1729828401678316327/] Guida alle impostazioni[/url].
@@ -73,13 +74,10 @@ Per i bug e altri problemi, c'è il [url=https://steamcommunity.com/workshop/fil
 
 Suggerimenti per nuove caratteristiche [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1698300679759373495/] sono qui [/url].
 
-
 [h1]🗒 Patchnotes 🗒[/h1]
 I dettagli possono essere trovati nella scheda "Modifiche" qui sopra.
 
-
 ❤️ Grazie per gli oltre 200000 utenti ❤️
-
 
 [h1]⚠️ AVVERTENZE ⚠️[/h1]
 Questa "carta da parati" può potenzialmente causare crisi in persone con epilessia fotosensibile.
