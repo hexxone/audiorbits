@@ -1,88 +1,84 @@
-Ce fond d'écran utilise WebGL, WebAudio et un algorithme fractal pour la génération de l'"orbite". Il réagit à la musique en projetant le spectre audio sur les Orbites sous forme de couleur, de saturation et de luminosité.
+Ce fond d'écran utilise WebGL, WebAudio et un algorithme fractal pour la génération des "orbites". Il répond à la musique en projetant le spectre audio en termes de couleur, de saturation et de luminosité sur les "orbites".
 
-[h1]Utilisation[/h1]
-Pour l'instant, le papier peint est peut-être le plus beau avec de la musique qui contient des basses (la plupart des EDM).
-Vous pouvez cependant le modifier pour qu'il corresponde parfaitement à vos préférences avec plus de 50 réglages.
+[h1]🧬 Usage 🧬[/h1]
+Pour l'instant, le fond d'écran est meilleur avec de la musique comportant des basses.
+Cependant, vous pouvez le personnaliser parfaitement en fonction de vos préférences grâce à plus de 50 paramètres !
 
-[h1]Caractéristiques[/h1]
-╠═ 3 Modes parallaxes avec force effective personnalisable
-╠╦═ générateur d'orbite fractale dynamique
-║╠══ paramètres de luminosité et de saturation par défaut (lorsqu'aucun son n'est joué)
-║╠══ réglage de la vitesse du zoom
-║╠══ réglage de la vitesse de rotation
-║╠══ réglage de la vitesse de fondu des couleurs
-║╚══ custom render timing (voir le guide pour plus de détails)
-╠╦═ color-settings
-║╠══ Couleur de fond principale
-║╠══ 5 modes de couleurs différents
-║╠══ vitesse de fondu personnalisable
-║╚══ couleur principale et secondaire personnalisable
-╠╦═ réglage des filtres
-║╠══ bloom filter
-║╠══ 3 filtres (L)ook (U)p (T)able différents
-║╠══ filtre miroir fractal
-║╠══ filtre FXAA
-║╚══ Filtre de flou
-╠╦═ traitement audio et cartographie
-║╠══ réglage du volume minimum
-║╠══ réglage de la luminosité minimale
-║╠══ réglage de la saturation minimale
-║╠══ multiplicateur de volume
-║╠══ filtre de crête
-║╠══ lissage du temps
-║╠══ lissage des valeurs
-║╠══ multiplicateur de zoom audio
-║╚══ audio zoom smoothing
-╠═ "tunnel generator" (évite les particules devant la caméra)
-╠═ images en superposition et en arrière-plan facultatives
-╠═ paramètres d'algorithme personnalisables
-╠╦═ paramètres avancés
-║╠══ 3 textures de base au choix
-║╠══ réglage de la taille de la texture
-║╠══ rendu des statistiques
-║╠══ qualité des shaders
-║╠══ setting FOV
-║╠══ Facteur d'échelle
-║╠══ montant du niveau d'orbite
-║╠══ profondeur du niveau de l'orbite
-║╠══ sous-ensemble d'orbite par quantité de niveau
-║╠══ point d'orbite par sous-ensemble
-║╠══ réglage de l'épaisseur du brouillard
-║╚══ changement de niveau
-╠╦═ iCUE Intégration
-║╠══ mode couleur unique
-║╚══ mode de projection
-╠═ fondu enchaîné en douceur
-╠═ avertissement de saisie
-╚═ debug logging
+[h1]⚙️ Caractéristiques ⚙️[/h1]
+╠╦═ 📐 Géométrie
+║╠═══ Variant
+║╠═══ Texture et taille
+║╠═══ Générateur de tunnel
+║╠══ Nombre, échelle, profondeur, quantité.
+║╚═══ Graine aléatoire
+╠╦═ 🎥 Appareil photo
+║╠═══ Curseur/Automatique/Position fixe
+║╠═══ Parallaxe
+║╠═══ Force, FOV, brouillard
+║╚═══ Remplacer VSYNC (FPS)
+╠╦═ ⏫ Motion
+║╠═══ Direction
+║╠═══ Vitesse
+║╠═══ Force du zoom audio, lissage
+║╚═══ Rotation
+╠╦═ 🌈 Couleurs
+║╠═══ Fond d'écran
+║╠═══ 6x modes de couleur
+║╠═══ Changement de couleur
+║╚═══ Force de réponse audio
+╠╦═ 🔆 Luminosité
+║╚═══ Standard, Audio min & max
+╠╦═ 📊 Saturation
+║╚═══ Défaut, audio min & max
+╠╦═ 🕶 Filtre
+║╠═══ bloom
+║╠═══ Table de recherche
+║╠═══ Miroir
+║╠═══ FXAA
+║╠═══ BLUR
+║╚═══ ChromeA
+╠╦═ 🖼 Pictures
+║╠═══ Premier plan
+║╚═══ Fond d'écran
+╠╦═ 🔊 Audio
+║╠═══ Égaliseur dynamique
+║╠═══ Commutation mono/stéréo
+║╠═══ Direction de la cartographie
+║╠═══ Pics, lissage, force, réponse
+║╚═══ Volume minimum
+╠╦═ 💡 LED / iCUE
+║╠═══ Mode projection/couleur
+║╠═══ Réglage de la portée/des couleurs
+║╚═══ Flou, perte de couleur
+╠═ ⚙️ Avancé
+╠══ Qualité (faible, moyenne, élevée)
+╠══ Faible latence
+╠══ Mode VR (expérimental)
+╠═══ Toggle Avertissement d'épilepsie
+╚═══ Débogage.
 
-[h1]À propos de[/h1]
-Pour moi, c'est un projet parallèle amusant qui a beaucoup à apprendre et je suis prêt à le tenir à jour pendant mon temps libre. 
+[h1]ℹ️ A propos de ℹ️[/h1]
+Pour moi, il s'agit d'un projet parallèle cool qui m'apporte beaucoup à apprendre, et je suis prêt à le mettre à jour pendant mon temps libre.
 
-C'était autrefois une version [url=https://orbits.hexx.one/] réservée au web[/url] et c'est mon premier fond d'écran, donc les choses ne sont peut-être pas parfaites.
+Il s'agissait autrefois d'une version [url=https://orbits.hexx.one/]web-only[/url] et c'est mon premier fond d'écran de moteur de papier peint, donc tout peut ne pas être parfait.
 
-Le code source se trouve [url=https://github.com/hexxone/audiorbits]ici[/url]. N'oubliez pas de respecter la licence et de mentionner le nom de l'auteur.
+Le [url=https://github.com/hexxone/audiorbits]code source peut être trouvé ici[/url]. N'oubliez pas de respecter la licence et de mentionner la source :)
 
+[h1]❓ Besoin d'aide ❓[/h1]
+Si votre PC ou vos applications ne fonctionnent pas correctement, jetez un coup d'œil à la page [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1729828401678316327/]. Guide des paramètres [/url].
 
-[h1]Besoin d'aide ?[/h1]
-Si votre PC ou vos applications sont à la traîne, veuillez consulter le forum [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Guide des paramètres[/url].
+Pour les bogues et autres problèmes, il y a le [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]. Fil de rapport de bogue [/url].
 
-Pour les bogues et autres problèmes, veuillez consulter le [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Bugreport Thread[/url].
+Les suggestions de nouvelles fonctionnalités [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1698300679759373495/] sont ici [/url].
 
-Pour des suggestions de nouvelles fonctionnalités, veuillez consulter le site [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Planning to implement[/url].
+[h1]🗒 Patchnotes 🗒[/h1]
+Les détails se trouvent dans l'onglet "Changements" ci-dessus.
 
+❤️ Merci pour plus de 200000 utilisateurs ❤️
 
-[h1]notes de patch[/h1]
-Peut être consulté dans l'onglet "Changements" ci-dessus.
+[h1]⚠️ AVERTISSEMENTS ⚠️[/h1]
+Ce "papier peint" peut potentiellement provoquer des crises chez les personnes souffrant d'épilepsie photosensible.
+Un visionnage prolongé peut provoquer des maux de tête, des modifications à court terme de la perception visuelle, etc.
+La discrétion du téléspectateur est requise.
 
-
-[spoiler]Merci à plus de 100k utilisateurs O :[/spoiler]
-
-
-[h1]MISE EN GARDE[/h1]
-Ce "Wallpaper" peut potentiellement déclencher des crises chez les personnes souffrant d'épilepsie photosensible.
-Un regard trop long peut provoquer des maux de tête, des modifications de la perception visuelle à court terme, etc.
-Il est conseillé de faire preuve de discernement.
-
-Ce "Wallpaper" peut utiliser beaucoup de ressources RAM, CPU et GPU, selon les paramètres.
-Soyez vigilants !
+Ce "fond d'écran" peut consommer beaucoup de RAM, de CPU et de ressources GPU selon les paramètres.

@@ -1,88 +1,73 @@
-Este fondo de pantalla utiliza WebGL, WebAudio y un algoritmo fractal para la generación de la "Órbita". Reacciona a la música proyectando el espectro de audio en las Órbitas en forma de color, saturación y brillo.
+Este fondo de pantalla utiliza WebGL, WebAudio y un algoritmo fractal para la generación de "órbitas". Responde a la música proyectando el espectro de audio en términos de color, saturación y brillo en las "órbitas".
 
-[h1] Uso [/h1]
-Por el momento, el fondo de pantalla puede verse mejor con música que tenga algo de bajo (la mayoría EDM).
-Sin embargo, puedes ajustarlo para que se ajuste perfectamente a tus preferencias con más de 50 ajustes.
+[h1]🧬 Uso 🧬[/h1]
+En este momento, el fondo de pantalla se ve mejor con la música que tiene algunos bajos.
+Sin embargo, puedes personalizarlo perfectamente según tus preferencias con más de 50 ajustes.
 
-[h1] Características [/h1]
-╠═ 3 modos de paralaje con fuerza de efecto personalizable
-╠╦═ generador dinámico de órbita fractal
-║╠══ ajustes de brillo y saturación por defecto (cuando no hay audio)
-║╠══ Ajuste de la velocidad del zoom
-║╠══ Ajuste de la velocidad de rotación
-║╠══ Configuración de la velocidad de desvanecimiento del color
-║╚══ tiempo de renderizado personalizado (Ver Guía para más detalles)
-╠╦═ ajustes de color
-║╠══ Color de fondo principal
-║╠══ 5 modos de colores diferentes
-║╠══ Velocidad de desvanecimiento personalizable
-║╚═══ color principal y secundario personalizable
-╠╦═ ajustes de filtro
-║╠══ filtro de floración
-║╠══ 3 filtros diferentes de (L)ook (U)p (T)able
-║╠══ filtro de espejo fractal
-║╠══ Filtro FXAA
-║╚═══ filtro de desenfoque
-╠╦═ procesamiento de audio y mapeo
-║╠══ Ajuste del volumen mínimo
-║╠══ Configuración de brillo mínimo
-║╠══ Configuración de saturación mínima
-║╠══ multiplicador de volumen
-║╠══ filtro de pico
-║╠══ alisado del tiempo
-║╠══ alisamiento de valor
-║╠══ multiplicador de zoom de audio
-║╚══ Suavizado del zoom de audio
-╠═ "generador de túneles" (evita las partículas frente a la cámara)
-╠═ imágenes opcionales de superposición y de fondo
-╠═ parámetros de algoritmos personalizables
-╠╦═ configuración avanzada
-║╠══ 3 texturas de base elegibles
-║╠══ ajuste de tamaño de la textura
-║╠══ estadísticas de representación
-║╠══ calidad de los sombreadores
-║╠══ Configuración FOV
-║╠══ Factor de escala
-║╠══ cantidad de nivel de órbita
-║╠══ profundidad del nivel de órbita
-║╠══ subconjunto de órbita por cantidad de nivel
-║╠══ punto de órbita por cantidad de subconjunto
-║╠══ ajuste del espesor de la niebla
-║╚══ cambio de nivel
-╠╦═ Integración iCUE
-║╠══ modo de color único
-║╚══ modo de proyección
-╠═ smooth fade-in
-╠═ advertencia de incautación
-╚═ registro de depuración
+[h1]⚙️ Características ⚙️[/h1]
+╠╦═ 📐 Geometría
+║╠══ Variante
+║╠══ Textura y tamaño
+║╠══ Generador de túneles
+║╠══ Número, escala, profundidad, cantidad.
+║╚═══ Semilla aleatoria
+╠╦═ 🎥 Cámara
+║╠═══ Cursor/Automático/Posición fija
+║╠══ Parallax
+║╠══ Fuerza, FOV, Niebla
+║╚══ Anular VSYNC (FPS)
+╠╦═ ⏫ Movimiento
+║╠══ Dirección
+║╠══ Velocidad
+║╠═══ Fuerza del zoom de audio, suavizado
+║╚══ Rotación
+╠╦═ 🌈 Colores
+║╠══ Antecedentes
+║╠══ 6x modos de color
+║╠══ Cambio de color
+║╚══ Fuerza de respuesta de audio
+╠╦═𥔆 Brillo
+║╚══ Estándar, Audio min y max
+╠╦═ 📊 Saturación
+║╚══ Por defecto, audio min y max
+╠╦═ 🕶 Filtro
+║╠══ Bloom
+║╠══ Tabla de consulta
+║╠══ Espejo
+║╠══ FXAA
+║╠══ BLUR
+║╚══ CromoA
+╠╦═ 🖼 Fotos
+║╠══ Primer plano
+║╚══ Antecedentes
+╠╦═ 🔊 Audio
+║╠══ Ecualizador dinámico
+║╠══ Conmutación mono/estéreo
+║╠══ Dirección del mapa
+║╠══ Picos, suavización, fuerza, respuesta
+║╚══ Volumen mínimo
+╠╦═ 💡 LED / iCUE
+║╠══ Modo de proyección/color
+║╠═══ Ajuste de rango/color
+║╚══ Desenfoque, pérdida de color
+╠═⚙️ Avanzado
+╠══ Calidad (baja, media, alta)
+╠══ Baja latencia
+╠══ Modo VR (experimental)
+╠══ Alternar la advertencia de epilepsia
+╚══ Depuración.
 
-[h1]Acerca de[/h1]
-Para mí este es un proyecto divertido con mucho que aprender y estoy dispuesto a mantenerlo actualizado en mi tiempo libre. 
+Para mí, este es un proyecto paralelo genial con mucho que aprender, y estoy dispuesto a mantenerlo actualizado en mi tiempo libre.
 
-Esta fue una vez una [url=https://orbits.hexx.one/]versión sólo para la web[/url] y es mi primer Wallpaper-Motor Wallpaper, así que las cosas podrían no ser perfectas.
+Esta fue una [url=https://orbits.hexx.one/]versión sólo para la web[/url] y es mi primer fondo de pantalla del motor, por lo que todo puede no ser perfecto.
 
-El código fuente se puede encontrar [url=https://github.com/hexxone/audiorbits]aquí[/url]. Por favor, recuerden respetar la Licencia y dar crédito cuando sea necesario.
-
-
-[h1]¿Necesitas ayuda?[/h1]
-Si tu PC o tus aplicaciones se retrasan, por favor, echa un vistazo al foro de la Guía de Configuración [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]/url].
-
-Para errores y otras cuestiones, por favor, echa un vistazo al [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Hilo de informe de errores[/url].
-
-Para sugerencias de nuevas características, por favor visite [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Planeando implementar[/url].
-
+El [url=https://github.com/hexxone/audiorbits]código fuente puede encontrarse aquí[/url]. Por favor, recuerde respetar la licencia y acreditar la fuente :)
 
 [h1]Aviso de modificación[/h1]
-Se puede ver en la pestaña "Cambios" de arriba.
 
+❤️ Gracias por los más de 200000 usuarios ❤️
 
-[spoiler]Gracias por los más de 100.000 usuarios de O:[/spoiler]
+Este "papel pintado" puede provocar convulsiones en personas con epilepsia fotosensible.
+Verlo durante demasiado tiempo puede provocar dolores de cabeza, cambios a corto plazo en la percepción visual, etc.
 
-
-[h1] ADVERTENCIAS [/h1]
-Este "Fondo de pantalla" puede potencialmente desencadenar convulsiones para las personas con epilepsia fotosensible.
-Mirarlo por mucho tiempo podría resultar en dolores de cabeza, cambios en la percepción visual a corto plazo y más.
-Se aconseja la discreción del espectador.
-
-Este "Fondo de Pantalla" puede usar bastante RAM, CPU y GPU, dependiendo de la configuración.
-¡Cuidado!
+Este "fondo de pantalla" puede ocupar muchos recursos de la RAM, la CPU y la GPU dependiendo de la configuración.
