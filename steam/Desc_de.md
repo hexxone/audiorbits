@@ -57,29 +57,24 @@ Man kann es jedoch mit über 50 Einstellungen perfekt an die Vorlieben anpassen!
 ╠══ Epillepsie-Warnung
 ╚══ Debugging
 
-
 [h1]ℹ️ Über ℹ️[/h1]
-Für mich ist dies ein cooles Nebenprojekt, bei dem es viel zu lernen gibt, und ich bin bereit, es in meiner Freizeit aktuell zu halten. 
+Für mich ist dies ein cooles Nebenprojekt, bei dem es viel zu lernen gibt, und ich bin bereit, es in meiner Freizeit aktuell zu halten.
 
 Dies war einmal eine [url=https://orbits.hexx.one/]reine Web-Version[/url] und ist mein erstes Wallpaper-Engine-Wallpaper, daher ist vielleicht nicht alles perfekt.
 
-Der [url=https://github.com/hexxone/audiorbits]Quellcode kann hier[/url] gefunden werden. Bitte daran denken, die Lizenz zu respektieren und die Quelle zu nennen :)
+Den Quellcode findet man [url=https://github.com/hexxone/audiorbits]hier[/url]. Bitte die Lizenz respektieren :)
 
+[h1] Hilfe & Anmerkungen [/h1]
+Wenn PC oder Anwendungen laggen, wirf einen Blick auf die [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Einstellungsanleitung [/url]
 
-[h1]❓ Hilfe benötigt ❓[/h1]
-Wenn der PC oder die Anwendungen stocken, bitte einen Blick auf die [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1729828401678316327/] Einstellungsanleitung [/url] werfen.
+Bei Bugs und andere Problemen, erstelle bitte einen [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Fehlerbericht [/url]
 
-Für Bugs und andere Probleme gibt es den [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Bugreport-Thread [/url].
+Vorschläge für neue Funktionen [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]findet man  hier [/url]
 
-Vorschläge zu neuen Funktionen [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1698300679759373495/] gibt es hier [/url].
-
-
-[h1]🗒 Patchnotes 🗒[/h1]
-Details können im "Änderungen"-Tab oben eingesehen werden.
-
+[h1]Updates[/h1]
+Können in der Registerkarte "Änderungen" oben eingesehen werden.
 
 ❤️ Danke für über 200.000 Benutzer ❤️
-
 
 [h1]⚠️ WARNUNGEN ⚠️[/h1]
 Dieses "Wallpaper" kann bei Menschen mit lichtempfindlicher Epilepsie möglicherweise Krampfanfälle auslösen.

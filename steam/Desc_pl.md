@@ -57,29 +57,17 @@ Możesz jednak dostosować go idealnie do swoich preferencji dzięki ponad 50 us
 ╠══ Ostrzeżenie o epilepsji Toggle
 ╚══ Debugowanie.
 
-
 [h1]ℹ️ O ℹ️[/h1]
-Dla mnie jest to fajny projekt poboczny, w którym można się wiele nauczyć i jestem gotów aktualizować go w wolnym czasie. 
+Dla mnie jest to fajny projekt poboczny, w którym można się wiele nauczyć i jestem gotów aktualizować go w wolnym czasie.
 
 To była kiedyś [url=https://orbits.hexx.one/]wersja web-only[/url] i jest to moja pierwsza tapeta na silniku, więc wszystko może nie być idealne.
 
 Kod [url=https://github.com/hexxone/audiorbits]źródłowy można znaleźć tutaj[/url]. Proszę pamiętać o przestrzeganiu licencji i podawaniu źródła :)
 
-
-[h1]❓ Potrzebna pomoc ❓[/h1]
-Jeśli Twój komputer lub aplikacje zawodzą, proszę spójrz na [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1729828401678316327/] Przewodnik po ustawieniach[/url].
-
-W przypadku błędów i innych problemów, istnieje [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Bugreport thread [/url].
-
-Propozycje nowych funkcji [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1698300679759373495/] są tutaj [/url].
-
-
-[h1]🗒 Patchnotes 🗒[/h1]
-Szczegóły można znaleźć w zakładce "Zmiany" powyżej.
-
+[h1]Zawiadomienie o modyfikacji[/h1]
+Można je zobaczyć w zakładce "Zmiany" powyżej.
 
 ❤️ Dziękujemy za ponad 200000 użytkowników ❤️
-
 
 [h1]⚠️ OSTRZEŻENIA ⚠️[/h1]
 Ta "tapeta" może potencjalnie powodować ataki u osób z epilepsją wrażliwą na światło.

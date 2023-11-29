@@ -4,82 +4,76 @@ Deze wallpaper gebruikt WebGL, WebAudio en een fractal algoritme voor het genere
 Op dit moment ziet het behang er het beste uit met muziek met wat bas erin.
 U kunt het echter perfect aan uw voorkeuren aanpassen met meer dan 50 instellingen!
 
-[h1]⚙️ Features ⚙️[/h1]
-╠╦═ 📐 Meetkunde
-║╠══ Variant
-║╠══ Textuur & Grootte
-║╠══ Tunnelgenerator
-║╠══ Aantal, Schaal, Diepte, Hoeveelheid.
-║╚══ Willekeurig zaad
-╠╦═ 🎥 Camera
-║╠══ Cursor/Automatisch/Vaste positie
-║╠══ Parallax
-║╠══ Sterkte, FOV, Mist
-║╚══ VSYNC opheffen (FPS)
-╠╦═ ⏫ Beweging
-║╠══ Richting
-║╠══ Snelheid
-║╠══ Audio Zoom Sterkte, Afvlakking
-║╚══ Rotatie
-╠╦═ 🌈 Kleuren
-║╠══ Achtergrond
-║╠══ 6x kleurmodi
-║╠══ Kleurverandering
-║╚══ Audio-responsiekracht
-╠╦═ 🔆 Helderheid
-║╚══ Standaard, Audio min & max
-╠╦═ 📊 Verzadiging
-║╚══ Standaard, audio min & max
-╠╦═ 🕶 Filter
-║╠══ Bloom
-║╠══ Opzoektabel
-║╠══ Spiegel
-║╠══ FXAA
-║╠══ BLUR
-║╚══ ChromeA
-╠╦═ 🖼 Foto's
-║╠══ Voorgrond
-║╚══ Achtergrond
-╠╦═ 🔊 Audio
-║╠══ Dynamische equalizer
-║╠══ Mono/stereo omschakeling
-║╠══ Kaartrichting
-║╠══ Pieken, Afvlakking, Sterkte, Reactie
-║╚══ Minimumvolume
-╠╦═ 💡 LED / iCUE
-║╠══ Projectie-/kleurenmodus
-║╠══ Bereik-/kleuraanpassing
-║╚══ Onscherpte, kleurverlies
-╠═ ⚙️ Geavanceerd
-╠══ Kwaliteit (laag, gemiddeld, hoog)
-╠══ Lage latentie
-╠══ VR-modus (experimenteel)
-╠══ Waarschuwing voor epilepsie
-╚══ Debuggen
+[h1]Functies[/h1]
+╠═ 3 Parallax modi met aanpasbare efffectsterkte
+╠╦═ dynamische fractal orbit generator
+║╠════ standaard instellingen voor helderheid en verzadiging (wanneer er geen audio wordt afgespeeld)
+║╠════ zoomsnelheidsinstelling
+║╠════ rotatiesnelheid instelling
+║╠════ kleurvervaging snelheid instelling
+║╚════ aangepaste rendertiming (zie de handleiding voor meer details)
+╠╦═ kleurstellingen
+║╠════ Belangrijkste achtergrondkleur
+║╠════ 5 verschillende kleurmodi
+║╠════ aanpasbare fade snelheid
+║╚════ aanpasbare hoofd & secundaire kleur
+╠╦═ filterinstellingen
+║╠════ bloeifilter
+║╠════ 3 verschillende (L)ook (U)p (T)bekwame filters
+║╠════ fractal mirror filter
+║╠════ FXAA-filter
+║╚════ vervagen Filter
+╠╦═ audioverwerking & -mapping
+║╠════ minimum volume-instelling
+║╠════ minimale helderheidsinstelling
+║╠════ minimale verzadiging instelling
+║╠════ volumemultiplicator
+║╠════ piek filter
+║╠════ tijd gladstrijken
+║╠════ waardeafvlakking
+║╠════ audio zoom vermenigvuldiger
+║╚════ audio zoom gladstrijken
+╠═ "tunnelgenerator" (vermijdt deeltjes voor de camera)
+╠═ optionele overlay en achtergrondafbeeldingen
+╠═ aanpasbare algoritme parameters
+╠╦═ geavanceerde instellingen
+║╠════ 3 kiesbare basistexturen
+║╠════ textuur grootte instelling
+║╠════ weergave van statistieken
+║╠════ shader kwaliteit
+║╠════ FOV instelling
+║╠════ Schaalfactor
+║╠════ baanniveau bedrag
+║╠════ baanniveau diepte
+║╠════ orbit subset per niveau bedrag
+║╠════ baanpunt per deelverzameling bedrag
+║╠════ mistdikte instelling
+║╚════ niveauverschuiving
+╠╦═ iCUE Integratie
+║╠════ enkele kleurmodus
+║╚════ projectiemodus
+╠═ gladde fade-in
+╠═ waarschuwing voor inbeslagname
+╚═ debuggenregistratie
 
+[h1]Over...[/h1]
+Voor mij is dit een leuk nevenproject met veel te leren en ik ben bereid om het up-to-date te houden in mijn vrije tijd.
+
+Dit was ooit een [url=https://orbits.hexx.one/] web-only versie [/url] en is mijn eerste Wallpaper-Engine Wallpaper, dus dingen zijn misschien niet perfect.
+
+De broncode kan worden gevonden [url=https://github.com/hexxone/audiorbits] hier [/url]. Vergeet niet om de licentie te respecteren en krediet te geven waar nodig.
 
 [h1]ℹ️ Over ℹ️[/h1]
-Voor mij is dit een cool nevenproject waar nog veel te leren valt, en ik ben bereid om het in mijn vrije tijd bij te werken. 
+Voor mij is dit een cool nevenproject waar nog veel te leren valt, en ik ben bereid om het in mijn vrije tijd bij te werken.
 
 Dit was ooit een [url=https://orbits.hexx.one/]web-only versie[/url] en is mijn eerste wallpaper engine wallpaper, dus alles is misschien niet perfect.
 
 De [url=https://github.com/hexxone/audiorbits]broncode kan hier gevonden worden[/url]. Respecteer de licentie en vermeld de bron :)
 
-
-[h1]❓ Hulp nodig ❓[/h1]]
-Als uw PC of toepassingen haperen, kijk dan eens naar de [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1729828401678316327/] Instellingen Gids[/url].
-
-Voor bugs en andere problemen, is er de [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/] Bugreport draad [/url].
-
-Suggesties voor nieuwe functies [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1698300679759373495/] zijn hier [/url].
-
-
 [h1]🗒 Patchnotes 🗒[/h1]
 Details zijn te vinden in het tabblad "Wijzigingen" hierboven.
 
-
 ❤️ Dank u voor meer dan 200000 gebruikers ❤️
-
 
 [h1]⚠️ WAARSCHUWINGEN ⚠️[/h1]
 Dit "behang" kan mogelijk aanvallen veroorzaken bij mensen met lichtgevoelige epilepsie.

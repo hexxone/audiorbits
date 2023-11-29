@@ -57,14 +57,12 @@ Cependant, vous pouvez le personnaliser parfaitement en fonction de vos préfér
 ╠═══ Toggle Avertissement d'épilepsie
 ╚═══ Débogage.
 
-
 [h1]ℹ️ A propos de ℹ️[/h1]
-Pour moi, il s'agit d'un projet parallèle cool qui m'apporte beaucoup à apprendre, et je suis prêt à le mettre à jour pendant mon temps libre. 
+Pour moi, il s'agit d'un projet parallèle cool qui m'apporte beaucoup à apprendre, et je suis prêt à le mettre à jour pendant mon temps libre.
 
 Il s'agissait autrefois d'une version [url=https://orbits.hexx.one/]web-only[/url] et c'est mon premier fond d'écran de moteur de papier peint, donc tout peut ne pas être parfait.
 
 Le [url=https://github.com/hexxone/audiorbits]code source peut être trouvé ici[/url]. N'oubliez pas de respecter la licence et de mentionner la source :)
-
 
 [h1]❓ Besoin d'aide ❓[/h1]
 Si votre PC ou vos applications ne fonctionnent pas correctement, jetez un coup d'œil à la page [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1729828401678316327/]. Guide des paramètres [/url].
@@ -73,13 +71,10 @@ Pour les bogues et autres problèmes, il y a le [url=https://steamcommunity.com/
 
 Les suggestions de nouvelles fonctionnalités [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1698300679759373495/] sont ici [/url].
 
-
 [h1]🗒 Patchnotes 🗒[/h1]
 Les détails se trouvent dans l'onglet "Changements" ci-dessus.
 
-
 ❤️ Merci pour plus de 200000 utilisateurs ❤️
-
 
 [h1]⚠️ AVERTISSEMENTS ⚠️[/h1]
 Ce "papier peint" peut potentiellement provoquer des crises chez les personnes souffrant d'épilepsie photosensible.
