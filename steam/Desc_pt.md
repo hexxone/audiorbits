@@ -1,8 +1,8 @@
-Este Wallpaper está a utilizar WebGL, WebAudio e um Algoritmo Fractal para a geração "Orbit". Reage à música projectando o espectro áudio nas órbitas sob a forma de cor, saturação e luminosidade.
+Este wallpaper utiliza WebGL, WebAudio e um algoritmo fractal para a geração de "órbita". Responde à música através da projecção do espectro áudio em termos de cor, saturação e brilho nas "órbitas".
 
-[h1]Utilização[/h1]
-Neste momento o papel de parede pode parecer o melhor com música que tenha algum baixo (a maioria das EDM).
-No entanto, pode afiná-lo para se adaptar perfeitamente à sua preferência com mais de 50 definições.
+[h1]🧬 Utilização 🧬[/h1]
+Neste momento, o papel de parede fica melhor com música que tenha algum baixo.
+No entanto, pode personalizá-lo perfeitamente de acordo com as suas preferências com mais de 50 configurações!
 
 [h1]Características[/h1]
 ╠═ 3 Modos de paralaxe com força de efeito personalizável
@@ -64,25 +64,24 @@ Esta foi em tempos uma versão [url=https://orbits.hexx.one/]só na web[/url] e 
 O código fonte pode ser encontrado [url=https://github.com/hexxone/audiorbits]aqui[/url]. Por favor, lembre-se de respeitar a Licença e dê crédito onde for devido.
 
 
-[h1]Precisa de ajuda?[/h1]
-Se o seu PC ou aplicações estiverem atrasados, por favor dê uma olhada no fórum [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Settings Guide [/url].
+[h1]ℹ️ Sobre ℹ️[/h1]
+Para mim, este é um projecto lateral fixe com muito para aprender, e estou disposto a mantê-lo actualizado no meu tempo livre. 
 
-Para bugs e outras questões, por favor dê uma olhada no [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Bugreport Thread[/url].
+Esta foi em tempos uma versão [url=https://orbits.hexx.one/]só na web[/url] e é o meu primeiro papel de parede do motor de parede, por isso tudo pode não ser perfeito.
 
-Para sugestões de novas funcionalidades, por favor visite [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/]Planning to implement[/url].
+O código fonte [url=https://github.com/hexxone/audiorbits]pode ser encontrado aqui[/url]. Lembre-se de respeitar a licença e creditar a fonte :)
 
 
 [h1]Aviso de modificação[/h1]
 Pode ser visto no separador "Alterações" acima.
 
 
-[spoiler]Obrigado por mais de 100k utilizadores O:[/spoiler].
+❤️ Obrigado por mais de 200000 utilizadores ❤️
 
 
-[h1]ADVERTÊNCIAS[/h1]
-Este "papel de parede" pode potencialmente desencadear convulsões para pessoas com epilepsia fotossensível.
-Olhar para ele durante demasiado tempo pode resultar em dores de cabeça, alterações da percepção visual a curto prazo e muito mais.
-Aconselha-se a discrição do espectador.
+[h1]⚠️ WARNINGS ⚠️[/h1]
+Este "papel de parede" pode potencialmente causar convulsões em pessoas com epilepsia fotossensível.
+Vê-lo durante demasiado tempo pode causar dores de cabeça, alterações a curto prazo na percepção visual, e muito mais.
+Pede-se a discrição do espectador.
 
-Este "Papel de Parede" pode usar muitos recursos de RAM, CPU e GPU, dependendo das configurações.
-Esteja atento!
+Este "papel de parede" pode ocupar muitos recursos de RAM, CPU e GPU, dependendo das configurações.

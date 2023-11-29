@@ -1,0 +1,703 @@
+{
+  "banner_reload": {
+    "type": "label",
+    "value": "🔃 After changing these settings the wallpaper will reload automatically 🔃."
+  },
+  "SPCR_01": {
+    "type": "label",
+    "value": "========================================"
+  },
+  "HDR_GEOMETRY": {
+    "type": "label",
+    "value": "📐 Geometry"
+  },
+  "SPCR_02": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "geometry_type": {
+    "text": "Geometry variant 🔃",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Texture",
+      "Particle",
+      "Test 1",
+      "Test 2"
+    ]
+  },
+  "base_texture": {
+    "text": "Base texture 🔃",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Galaxy",
+      "Cuboid",
+      "Fractal"
+    ]
+  },
+  "texture_size": {
+    "max": 25,
+    "min": 1,
+    "text": "Texture size",
+    "type": "slider",
+    "value": 5
+  },
+  "SPCR_03": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_PARAMS": {
+    "type": "label",
+    "value": "🧬 Display parameter"
+  },
+  "alg_a_min": {
+    "max": 80,
+    "min": -80,
+    "text": "Param A Minimum",
+    "type": "slider",
+    "value": -25
+  },
+  "alg_a_max": {
+    "max": 80,
+    "min": -80,
+    "text": "Param A Maximum",
+    "type": "slider",
+    "value": 25
+  },
+  "alg_b_min": {
+    "max": 80,
+    "min": -80,
+    "text": "Param B Minimum",
+    "type": "slider",
+    "value": 0.25
+  },
+  "alg_b_max": {
+    "max": 80,
+    "min": -80,
+    "text": "Param B Maximum",
+    "type": "slider",
+    "value": 1.7
+  },
+  "alg_c_min": {
+    "max": 80,
+    "min": -80,
+    "text": "Param C Minimum",
+    "type": "slider",
+    "value": 5
+  },
+  "alg_c_max": {
+    "max": 80,
+    "min": -80,
+    "text": "Param C Maximum",
+    "type": "slider",
+    "value": 16
+  },
+  "alg_d_min": {
+    "max": 80,
+    "min": -80,
+    "text": "Param D Minimum",
+    "type": "slider",
+    "value": 1
+  },
+  "alg_d_max": {
+    "max": 80,
+    "min": -80,
+    "text": "Param D Maximum",
+    "type": "slider",
+    "value": 9
+  },
+  "alg_e_min": {
+    "max": 80,
+    "min": -80,
+    "text": "Param E Minimum",
+    "type": "slider",
+    "value": 1
+  },
+  "alg_e_max": {
+    "max": 80,
+    "min": -80,
+    "text": "Param E Maximum",
+    "type": "slider",
+    "value": 10
+  },
+  "SPCR_04": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "generate_tunnel": {
+    "text": "⭕️ Generate tunnel",
+    "type": "checkbox",
+    "value": true
+  },
+  "tunnel_inner_radius": {
+    "max": 25,
+    "min": 1,
+    "text": "Tunnel size",
+    "type": "slider",
+    "value": 2
+  },
+  "tunnel_outer_radius": {
+    "max": 25,
+    "min": 1,
+    "text": "Tunnel wall",
+    "type": "slider",
+    "value": 2
+  },
+  "SPCR_06": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "scaling_factor": {
+    "max": 4000,
+    "min": 100,
+    "text": "Scaling 🔃",
+    "type": "slider",
+    "value": 1500
+  },
+  "num_levels": {
+    "max": 32,
+    "min": 2,
+    "text": "Level 🔃",
+    "type": "slider",
+    "value": 12
+  },
+  "level_depth": {
+    "max": 10000,
+    "min": 100,
+    "text": "Level size 🔃",
+    "type": "slider",
+    "value": 800
+  },
+  "level_shifting": {
+    "text": "Level shift 🔃",
+    "type": "checkbox",
+    "value": false
+  },
+  "level_spiralize": {
+    "text": "Level spiral 🔃",
+    "type": "checkbox",
+    "value": false
+  },
+  "num_subsets_per_level": {
+    "max": 32,
+    "min": 2,
+    "text": "Subsets/Level 🔃",
+    "type": "slider",
+    "value": 16
+  },
+  "num_points_per_subset": {
+    "max": 32768,
+    "min": 512,
+    "text": "Points/subset 🔃",
+    "type": "slider",
+    "value": 16384
+  },
+  "random_seed": {
+    "max": 233280,
+    "min": 0,
+    "text": "Random seed 🔃",
+    "type": "slider",
+    "value": 0
+  },
+  "SPCR_07": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_PRLX": {
+    "type": "label",
+    "value": "🎥 Camera"
+  },
+  "SPCR_08": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "parallax_option": {
+    "text": "Position",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "From",
+      "Cursor",
+      "Automatic",
+      "Fixed"
+    ]
+  },
+  "parallax_cam": {
+    "text": "Parallax",
+    "type": "checkbox",
+    "value": true
+  },
+  "parallax_strength": {
+    "max": 20,
+    "min": 1,
+    "text": "Strength",
+    "type": "slider",
+    "value": 3
+  },
+  "parallax_angle": {
+    "max": 360,
+    "min": 0,
+    "text": "Rotation angle",
+    "type": "slider",
+    "value": 0
+  },
+  "auto_parallax_speed": {
+    "max": 10,
+    "min": -10,
+    "text": "Speed",
+    "type": "slider",
+    "value": 2
+  },
+  "SPCR_42": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "field_of_view": {
+    "max": 130,
+    "min": 50,
+    "text": "Visibility range",
+    "type": "slider",
+    "value": 70
+  },
+  "fog_thickness": {
+    "max": 99,
+    "min": 1,
+    "text": "Fog density",
+    "type": "slider",
+    "value": 69
+  },
+  "custom_fps": {
+    "text": "VSYNC Disable 🔃",
+    "type": "checkbox",
+    "value": false
+  },
+  "fps_value": {
+    "max": 480,
+    "min": 1,
+    "text": "FPS target",
+    "type": "slider",
+    "value": 60
+  },
+  "SPCR_09": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_MOVEMENT": {
+    "type": "label",
+    "value": "⏫ Movement"
+  },
+  "SPCR_10": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "movement_type": {
+    "text": "Movement direction",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Forward",
+      "Backward"
+    ]
+  },
+  "zoom_val": {
+    "max": 20,
+    "min": 0,
+    "text": "Speed",
+    "type": "slider",
+    "value": 1
+  },
+  "audiozoom_val": {
+    "max": 15,
+    "min": 0,
+    "text": "🔊 Audio zoom",
+    "type": "slider",
+    "value": 3
+  },
+  "audiozoom_smooth": {
+    "text": "🔊 Zoom smoothing",
+    "type": "checkbox",
+    "value": false
+  },
+  "reverse_type": {
+    "text": "🔊 Negative zoom",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Enabled",
+      "Disabled",
+      "convert"
+    ]
+  },
+  "rotation_val": {
+    "max": 10,
+    "min": -10,
+    "text": "Rotation speed",
+    "type": "slider",
+    "value": 0
+  },
+  "SPCR_11": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_COLOR": {
+    "type": "label",
+    "value": "🌈 Colors"
+  },
+  "SPCR_12": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "main_color": {
+    "text": "Background",
+    "type": "color",
+    "value": "#000000"
+  },
+  "color_mode": {
+    "text": "Color mode",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Random",
+      "Plain",
+      "Gradient",
+      "Random color range",
+      "🔊 Color range",
+      "Level division"
+    ]
+  },
+  "user_color_a": {
+    "text": "Color 1",
+    "type": "color",
+    "value": "#ff7f00"
+  },
+  "user_color_b": {
+    "text": "Color 2",
+    "type": "color",
+    "value": "#007fff"
+  },
+  "color_fade_speed": {
+    "max": 10,
+    "min": 0,
+    "text": "Color change speed",
+    "type": "slider",
+    "value": 2
+  },
+  "color_audio_strength": {
+    "max": 20,
+    "min": 0,
+    "text": "🔊 Color reaction",
+    "type": "slider",
+    "value": 2
+  },
+  "SPCR_13": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_BRIGHTNESS": {
+    "type": "label",
+    "value": "🔆 Brightness"
+  },
+  "SPCR_14": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "default_brightness": {
+    "max": 100,
+    "min": 10,
+    "text": "Standard",
+    "type": "slider",
+    "value": 80
+  },
+  "minimum_brightness": {
+    "max": 100,
+    "min": 10,
+    "text": "🔊 Minimum",
+    "type": "slider",
+    "value": 50
+  },
+  "maximum_brightness": {
+    "max": 100,
+    "min": 10,
+    "text": "🔊 Maximum",
+    "type": "slider",
+    "value": 90
+  },
+  "SPCR_15": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_SATURATION": {
+    "type": "label",
+    "value": "📊 Saturation"
+  },
+  "SPCR_16": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "default_saturation": {
+    "max": 100,
+    "min": 10,
+    "text": "Standard",
+    "type": "slider",
+    "value": 75
+  },
+  "minimum_saturation": {
+    "max": 100,
+    "min": 10,
+    "text": "🔊 Minimum",
+    "type": "slider",
+    "value": 40
+  },
+  "maximum_saturation": {
+    "max": 100,
+    "min": 10,
+    "text": "🔊 Maximum",
+    "type": "slider",
+    "value": 90
+  },
+  "SPCR_17": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_FILTER": {
+    "type": "label",
+    "value": "🕶 Shader"
+  },
+  "SPCR_18": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "bloom_filter": {
+    "text": "Bloom",
+    "type": "checkbox",
+    "value": false
+  },
+  "lut_filter": {
+    "text": "LookUpTable",
+    "type": "dropdown",
+    "value": -1,
+    "items": [
+      "From",
+      "Posterize",
+      "Inverse",
+      "Negative"
+    ]
+  },
+  "mirror_shader": {
+    "max": 16,
+    "min": 0,
+    "text": "Mirror",
+    "type": "slider",
+    "value": 0
+  },
+  "mirror_invert": {
+    "text": "Mirror inverted",
+    "type": "checkbox",
+    "value": false
+  },
+  "fx_antialiasing": {
+    "text": "FXAA",
+    "type": "checkbox",
+    "value": false
+  },
+  "blur_strength": {
+    "max": 20,
+    "min": 0,
+    "text": "Blur",
+    "type": "slider",
+    "value": 0
+  },
+  "chroma_filter": {
+    "max": 30,
+    "min": 0,
+    "text": "ChromA",
+    "type": "slider",
+    "value": 0
+  },
+  "SPCR_19": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_AUDIO": {
+    "type": "label",
+    "value": "🔊 Audio"
+  },
+  "SPCR_22": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "equalize": {
+    "text": "Dynamics EQ",
+    "type": "checkbox",
+    "value": true
+  },
+  "mono_audio": {
+    "text": "Mono audio",
+    "type": "checkbox",
+    "value": true
+  },
+  "audio_direction": {
+    "text": "Audio direction",
+    "type": "dropdown",
+    "value": 0,
+    "items": [
+      "Depths near, heights far",
+      "Highs near, lows far"
+    ]
+  },
+  "peak_filter": {
+    "max": 5,
+    "min": 0,
+    "text": "Peak values",
+    "type": "slider",
+    "value": 1.5
+  },
+  "value_smoothing": {
+    "max": 10,
+    "min": 0,
+    "text": "Smoothing",
+    "type": "slider",
+    "value": 2
+  },
+  "audio_increase": {
+    "max": 100,
+    "min": 20,
+    "text": "Strength",
+    "type": "slider",
+    "value": 75
+  },
+  "audio_decrease": {
+    "max": 60,
+    "min": 5,
+    "text": "Reaction",
+    "type": "slider",
+    "value": 25
+  },
+  "minimum_volume": {
+    "max": 20,
+    "min": 1,
+    "text": "Minimum volume",
+    "type": "slider",
+    "value": 10
+  },
+  "SPCR_23": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_ICUE": {
+    "type": "label",
+    "value": "💡 LED / iCUE"
+  },
+  "SPCR_24": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "icue_mode": {
+    "text": "LED mode",
+    "type": "dropdown",
+    "value": 1,
+    "items": [
+      "From",
+      "Projection",
+      "Color"
+    ]
+  },
+  "icue_area_xoff": {
+    "max": 100,
+    "min": 5,
+    "text": "Projection X Distance",
+    "type": "slider",
+    "value": 50
+  },
+  "icue_area_yoff": {
+    "max": 100,
+    "min": 5,
+    "text": "Projection Y distance",
+    "type": "slider",
+    "value": 90
+  },
+  "icue_area_width": {
+    "max": 100,
+    "min": 5,
+    "text": "Projection width",
+    "type": "slider",
+    "value": 75
+  },
+  "icue_area_height": {
+    "max": 100,
+    "min": 5,
+    "text": "Projection height",
+    "type": "slider",
+    "value": 30
+  },
+  "icue_area_blur": {
+    "max": 5,
+    "min": 0,
+    "text": "Soft focus",
+    "type": "slider",
+    "value": 1
+  },
+  "icue_area_decay": {
+    "max": 100,
+    "min": 0,
+    "text": "Color loss",
+    "type": "slider",
+    "value": 20
+  },
+  "icue_main_color": {
+    "text": "LED color",
+    "type": "color",
+    "value": "#00cc00"
+  },
+  "SPCR_25": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_ADVANCED": {
+    "type": "label",
+    "value": "⚙️ Advanced"
+  },
+  "SPCR_26": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "shader_quality": {
+    "text": "Quality 🔃",
+    "type": "dropdown",
+    "value": 3,
+    "items": [
+      "Low",
+      "Medium",
+      "High"
+    ]
+  },
+  "low_latency": {
+    "text": "Low latency 🔃",
+    "type": "checkbox",
+    "value": false
+  },
+  "xr_mode": {
+    "text": "VR Mode (BETA)",
+    "type": "checkbox",
+    "value": false
+  },
+  "seizure_warning": {
+    "text": "Epilepsy warning",
+    "type": "checkbox",
+    "value": true
+  },
+  "debugging": {
+    "text": "Debugging",
+    "type": "checkbox",
+    "value": false
+  },
+  "SPCR_27": {
+    "type": "label",
+    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  },
+  "HDR_THANKS": {
+    "type": "label",
+    "value": "Thanks for using :)"
+  }
+}
