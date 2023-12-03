@@ -1,27 +1,27 @@
 {
 	"compileOnSave": false,
 	"compilerOptions": {
+		"baseUrl": ".",  // This must be specified if "paths" is.
 		"outDir": "./dist/tsc",
 		"paths": {
+			"three.ts/*": ["src/we_utils/src/three.ts/*"],
 			"we_utils/*": ["src/we_utils/*"],
-			"three.ts/*": ["src/we_utils/src/three.ts/*"]
 		},
 		"noEmit": true,
-		"target": "ES2021",
-		"module": "ES2020",
-		"moduleResolution": "Node",
-		"esModuleInterop": true,
 		"sourceMap": true,
-		"removeComments": true,
-		"baseUrl": ".",
 		"noImplicitAny": false,
-		"allowJs": true,
+		"module": "ES2020",
+		"target": "ES2020",
+		"jsx": "react",
 		"lib": ["dom", "ES2020", "ES6"],
+		"allowJs": true,
+		"esModuleInterop": true,
+		"moduleResolution": "Node",
+		"removeComments": true,
 		"forceConsistentCasingInFileNames": true,
 		// "strict": true // TOOD later
 	},
 	"types": ["*.d.ts"],
 	"include": ["./src/**/*.ts"],
-	"exclude": ["**/*.asc", "node_modules", "src/**/*.spec.ts", "src/we_utils/docs"],
-
+	"exclude": ["node_modules", "**/assembly/**", "src/**/*.spec.ts", "src/we_utils/docs"]
 }
