@@ -5,12 +5,14 @@
 	"main": "src/AudiOrbi.ts",
 	"sideEffects": "false",
 	"scripts": {
-		"tsc": "tsc",
-		"prepcopy": "copyfiles -u 1 -V \"./src/**/*.glsl\" \"./dist/tsc/\"",
+		"asbuild:debug": "asc assembly/CloudGen.ts --target debug",
+		"asbuild:release": "asc assembly/CloudGen.ts --target release",
+		"asbuild": "npm run asbuild:debug && npm run asbuild:release",
+		"livedbg": "tsc --watch",
 		"dbg": "webpack && webpack serve",
 		"prod": "webpack --env production",
-		"serve-prod": "yarn prod && webpack serve --env production",
-		"lint": "eslint ./src/we_utils/src/cthree/ --ext js,ts,jsx,tsx --fix"
+		"lint": "eslint ./src/we_utils/src/cthree/ --ext js,ts,jsx,tsx --fix",
+		"serve-prod": "yarn prod && webpack serve --env production"
 	},
 	"repository": {
 		"type": "git",
@@ -23,14 +25,14 @@
 	},
 	"homepage": "https://github.com/hexxone/audiorbits#readme",
 	"dependencies": {
-		"@assemblyscript/loader": "^0.18.29",
+		"@assemblyscript/loader": "^0.27.22",
 		"@babel/eslint-parser": "^7.16.3",
 		"@types/node": "^18.7.22",
 		"@types/offscreencanvas": "^2019.6.4",
 		"@typescript-eslint/eslint-plugin": "^5.5.0",
 		"@typescript-eslint/parser": "^5.5.0",
 		"@yushijinhun/three-minifier-common": "^0.3.0",
-		"assemblyscript": "^0.19.20",
+		"assemblyscript": "^0.27.22",
 		"babel-loader": "^8.2.5",
 		"better-docs": "^2.7.2",
 		"circular-dependency-plugin": "^5.2.2",

@@ -198,9 +198,16 @@ module.exports = (env) => {
 			// where the 'include' (regex) matches a filename.
 			new WascBuilderPlugin({
 				production: prod,
-				relpath: "../../../",
-				extension: "asc",
-				cleanup: prod,
+				basedir: "../../../../assembly",
+				modules: ["BasicGeometry.ts", "FractalGeometry.ts"],
+				cleanup: true,
+				shared: true,
+			}),
+			new WascBuilderPlugin({
+				production: prod,
+				basedir: "../weas/assembly",
+				modules: ["WEAS.ts"],
+				cleanup: true,
 				shared: true,
 			}),
 

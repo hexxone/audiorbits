@@ -32,7 +32,7 @@ import {
 	Smallog,
 	waitReady,
 	WarnHelper,
-	WEWWA,
+	WEWA,
 	LoadHelper,
 } from "we_utils/src";
 
@@ -392,4 +392,4 @@ class AudiOrbits extends CComponent {
 // /////////////////////////////////////////////
 
 // if the wallpaper is ran in browser, we want to delay the init until caching is complete.
-new WEWWA(() => new AudiOrbits());
+new WEWA(() => new AudiOrbits());
