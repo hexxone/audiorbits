@@ -45,13 +45,13 @@ export class FancyText {
 			const textGeo = new TextGeometry(text, {
 				font: fDat,
 				size: 200,
-				height: 200,
+				// TODO height: 200,
 				curveSegments: 12,
 				bevelEnabled: false,
 				bevelThickness: 10,
 				bevelSize: 8,
 				bevelOffset: 0,
-				bevelSegments: 5,
+				// TODO bevelSegments: 5,
 			});
 
 			const textMaterial = new MeshPhongMaterial();
