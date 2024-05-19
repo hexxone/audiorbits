@@ -61,7 +61,7 @@ Install steps:
 1. `git clone https://github.com/hexxone/audiorbits.git`
 2. `cd audiorbits`
 3. `yarn install`
-4. `yarn dbg` on Unix or `yarn dbg-win` on Windows
+4. `yarn start` for debugging or `yarn prod` for an optimized build
 
 ## The little things
 
