@@ -20,7 +20,7 @@
 </a>
 <br/>
 <br/>
-A web wallpaper designed for <a href="https://steamcommunity.com/app/431960">Wallpaper Engine</a>
+A web wallpaper designed for <a href="https://steamcommunity.com/app/431960">Wallpaper Engine</a> and <a href="https://github.com/rocksdanister/lively">Lively</a>
 </p>
 
 ## About
