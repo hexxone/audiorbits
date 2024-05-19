@@ -1,6 +1,8 @@
 <h1 align="center"><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780">AudiOrbits</a></h1>
 <br/>
 <p align="center">
+<img alt="Logo" src="https://github.com/hexxone/audiorbits/blob/main/lively/public/preview.gif?raw=true" height=256 />
+<br/>
 <a href="https://github.com/hexxone/audiorbits/blob/main/LICENSE">
 <img alt="GPL 3.0 License" src="https://img.shields.io/github/license/hexxone/audiorbits"/>
 </a>
