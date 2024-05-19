@@ -1,5 +1,8 @@
 {
-	"singleQuote": false,
-	"endOfLine": "crlf",
-	"useTabs": true
+    "endOfLine": "crlf",
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": true,
+    "arrowParens": "always",
+    "trailingComma": "none"
 }

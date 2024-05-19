@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "eslint",
+      "problemMatcher": ["$eslint-stylish"],
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "label": "Automatic eslint whole folder"
+    }
+  ]
+}

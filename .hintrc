@@ -1,17 +1,17 @@
 {
-  "extends": [
-    "development"
-  ],
-  "hints": {
-    "typescript-config/strict": "off",
-    "meta-viewport": "off",
-    "compat-api/html": [
-      "default",
-      {
-        "ignore": [
-          "meta[name=theme-color]"
+    "extends": [
+        "development"
+    ],
+    "hints": {
+        "typescript-config/strict": "off",
+        "meta-viewport": "off",
+        "compat-api/html": [
+            "default",
+            {
+                "ignore": [
+                    "meta[name=theme-color]"
+                ]
+            }
         ]
-      }
-    ]
-  }
+    }
 }

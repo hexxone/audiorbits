@@ -41,7 +41,7 @@
     "min": 1,
     "text": "Texture size",
     "type": "slider",
-    "value": 5
+    "value": 6
   },
   "SPCR_03": {
     "type": "label",
@@ -160,14 +160,14 @@
     "min": 2,
     "text": "Level 🔃",
     "type": "slider",
-    "value": 12
+    "value": 8
   },
   "level_depth": {
     "max": 10000,
     "min": 100,
     "text": "Level size 🔃",
     "type": "slider",
-    "value": 800
+    "value": 1000
   },
   "level_shifting": {
     "text": "Level shift 🔃",
@@ -180,11 +180,11 @@
     "value": false
   },
   "num_subsets_per_level": {
-    "max": 32,
+    "max": 16,
     "min": 2,
     "text": "Subsets/Level 🔃",
     "type": "slider",
-    "value": 16
+    "value": 12
   },
   "num_points_per_subset": {
     "max": 32768,
@@ -273,7 +273,7 @@
     "value": false
   },
   "fps_value": {
-    "max": 480,
+    "max": 240,
     "min": 1,
     "text": "FPS target",
     "type": "slider",
@@ -312,7 +312,7 @@
     "min": 0,
     "text": "🔊 Audio zoom",
     "type": "slider",
-    "value": 3
+    "value": 2
   },
   "audiozoom_smooth": {
     "text": "🔊 Zoom smoothing",
@@ -356,7 +356,7 @@
   "color_mode": {
     "text": "Color mode",
     "type": "dropdown",
-    "value": 0,
+    "value": 2,
     "items": [
       "Random",
       "Plain",
@@ -407,21 +407,21 @@
     "min": 10,
     "text": "Standard",
     "type": "slider",
-    "value": 80
+    "value": 60
   },
   "minimum_brightness": {
     "max": 100,
     "min": 10,
     "text": "🔊 Minimum",
     "type": "slider",
-    "value": 50
+    "value": 40
   },
   "maximum_brightness": {
     "max": 100,
     "min": 10,
     "text": "🔊 Maximum",
     "type": "slider",
-    "value": 90
+    "value": 80
   },
   "SPCR_15": {
     "type": "label",
@@ -447,7 +447,7 @@
     "min": 10,
     "text": "🔊 Minimum",
     "type": "slider",
-    "value": 40
+    "value": 30
   },
   "maximum_saturation": {
     "max": 100,
@@ -471,7 +471,7 @@
   "bloom_filter": {
     "text": "Bloom",
     "type": "checkbox",
-    "value": false
+    "value": true
   },
   "lut_filter": {
     "text": "LookUpTable",
@@ -551,21 +551,21 @@
     "min": 0,
     "text": "Peak values",
     "type": "slider",
-    "value": 1.5
+    "value": 1
   },
   "value_smoothing": {
     "max": 10,
     "min": 0,
     "text": "Smoothing",
     "type": "slider",
-    "value": 2
+    "value": 0
   },
   "audio_increase": {
     "max": 100,
     "min": 20,
     "text": "Strength",
     "type": "slider",
-    "value": 75
+    "value": 85
   },
   "audio_decrease": {
     "max": 60,
@@ -579,76 +579,7 @@
     "min": 1,
     "text": "Minimum volume",
     "type": "slider",
-    "value": 10
-  },
-  "SPCR_23": {
-    "type": "label",
-    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  },
-  "HDR_ICUE": {
-    "type": "label",
-    "value": "💡 LED / iCUE"
-  },
-  "SPCR_24": {
-    "type": "label",
-    "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  },
-  "icue_mode": {
-    "text": "LED mode",
-    "type": "dropdown",
-    "value": 1,
-    "items": [
-      "From",
-      "Projection",
-      "Color"
-    ]
-  },
-  "icue_area_xoff": {
-    "max": 100,
-    "min": 5,
-    "text": "Projection X Distance",
-    "type": "slider",
-    "value": 50
-  },
-  "icue_area_yoff": {
-    "max": 100,
-    "min": 5,
-    "text": "Projection Y distance",
-    "type": "slider",
-    "value": 90
-  },
-  "icue_area_width": {
-    "max": 100,
-    "min": 5,
-    "text": "Projection width",
-    "type": "slider",
-    "value": 75
-  },
-  "icue_area_height": {
-    "max": 100,
-    "min": 5,
-    "text": "Projection height",
-    "type": "slider",
-    "value": 30
-  },
-  "icue_area_blur": {
-    "max": 5,
-    "min": 0,
-    "text": "Soft focus",
-    "type": "slider",
     "value": 1
-  },
-  "icue_area_decay": {
-    "max": 100,
-    "min": 0,
-    "text": "Color loss",
-    "type": "slider",
-    "value": 20
-  },
-  "icue_main_color": {
-    "text": "LED color",
-    "type": "color",
-    "value": "#00cc00"
   },
   "SPCR_25": {
     "type": "label",
@@ -665,7 +596,7 @@
   "shader_quality": {
     "text": "Quality 🔃",
     "type": "dropdown",
-    "value": 3,
+    "value": 2,
     "items": [
       "Low",
       "Medium",
@@ -675,17 +606,12 @@
   "low_latency": {
     "text": "Low latency 🔃",
     "type": "checkbox",
-    "value": false
-  },
-  "xr_mode": {
-    "text": "VR Mode (BETA)",
-    "type": "checkbox",
-    "value": false
+    "value": true
   },
   "seizure_warning": {
     "text": "Epilepsy warning",
     "type": "checkbox",
-    "value": true
+    "value": false
   },
   "debugging": {
     "text": "Debugging",

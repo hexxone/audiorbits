@@ -11,22 +11,24 @@ It is however basically a website and can easily run in _most_ browsers.
 
 _Note_: Chrome-based browsers are preferred. Firefox may have some smaller problems.
 
-**Please address any [Issues](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/) and [Ideas](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/) on Steam.**
+### Steam Links
 
-## Downloads
+- [Wallpaper](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
+- [Problems / Issues / Bugs](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1744478429683052516/)
+- [New Features / Improvements](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1698300679759373495/)
+- [Settings in Detail](https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1729828401678316327/)
 
-- [Wallpaper Engine Version]()
-- [Lively Wallpaper]()
-
-## License(s)
-
-The Wallpaper is incorporating pieces of Software with different Licenses.
-This project itself is licensed under the GPLv3 and several portions of it under MIT.
-Users of any part of this Code must therefore abide by the conditions of all licences which covered it as they received it.
+## Usage Notice
 
 You are allowed to use this Wallpaper for your favourite party, event, video, stream, etc.
 Please just include a link to THIS repository or the Steam-Page (see urls above).
 Thanks 🙂
+
+## Downloads
+
+- [Latest Web Version](https://github.com/hexxone/audiorbits/releases/download/2.4-beta1/audiorbits_2.4_beta.zip)
+- [Latest Wallpaper Engine Version](https://github.com/hexxone/audiorbits/releases/download/2.3/audiorbits-2.3-release.zip)
+- [Latest Lively Wallpaper Version]()
 
 ## Using the code
 
@@ -62,16 +64,16 @@ Therefore this web-app needs to be served with the following html headers:
 
 - [we_utils](https://github.com/hexxone/we_utils) Custom utilities for TS-Wallpapers
 - [we_project_helper](https://github.com/hexxone/we_project_helper) manipulating `project.json`
-- [three.js](https://threejs.org/) THREE.js & Examples for webgl rendering
 
-## Used Software
+## Tech-Stack
 
-- [yarn](https://yarnpkg.com/) better package manager
+- [yarn](https://yarnpkg.com/) package manager
 - [HTML5](https://html5test.com/) WebGL & WebAudio
 - [TypeScript](https://www.typescriptlang.org/) typization
-- [WebPack](https://webpack.js.org/) bundling & testing everything
-- [WebAssembly](https://webassembly.org/) more efficient processing
-- [AssemblyScript](https://www.assemblyscript.org/) "TypeScript" + "Webassembly"
+- [WebPack](https://webpack.js.org/) building & testing everything
+- [three.js](https://threejs.org/) & Examples for webgl rendering
+- [WebAssembly](https://webassembly.org/) efficient fractal-generation
+- [AssemblyScript](https://www.assemblyscript.org/) = "TypeScript" + "Webassembly"
 - [deepl.com](https://www.deepl.com/translator) translating `project.json`
 
 ## Authors
@@ -91,3 +93,9 @@ Therefore this web-app needs to be served with the following html headers:
 ## [Feature list](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
 
 ## [Changelog.md](https://github.com/hexxone/audiorbits/blob/master/CHANGELOG.md)
+
+## License(s)
+
+This Wallpaper is incorporating pieces of Software with different Licenses, as seen above.
+The project itself is licensed under the GPLv3 and several portions of it under MIT.
+Users of any part of this Code must therefore abide by the conditions of all licences which covered it as they received it.
