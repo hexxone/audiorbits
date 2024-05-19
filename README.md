@@ -28,7 +28,7 @@ Thanks 🙂
 
 - [Latest Web Version](https://github.com/hexxone/audiorbits/releases/download/2.4-beta1/audiorbits_2.4_beta.zip)
 - [Latest Wallpaper Engine Version](https://github.com/hexxone/audiorbits/releases/download/2.3/audiorbits-2.3-release.zip)
-- [Latest Lively Wallpaper Version]()
+- [Latest Lively Wallpaper Version](https://github.com/hexxone/audiorbits/releases/download/2.4-beta1/audiorbits_lively.zip)
 
 ## Using the code
 
