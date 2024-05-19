@@ -108,7 +108,7 @@ Therefore this web-app needs to be served with the following html headers:
 - [Alessandro Caminiti](https://www.dafont.com/de/hexagon-cup.font) hexagon-font
 - [Barry Martin](https://www.fraktalwelt.de/myhome/simpiter2.htm) Hopalong Attractor
 
-## [Web Preview](https://orbits.hexx.one/)
+## [Web Preview](https://orbits.hexx.one/beta)
 
 ## [Feature list](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
 
