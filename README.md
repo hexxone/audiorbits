@@ -25,7 +25,8 @@ A web wallpaper designed for <a href="https://steamcommunity.com/app/431960">Wal
 
 ## About
 
-The Wallpaper is made for and maintained on the **Steam Workshop**.
+The Wallpaper was originally made for and maintained on the **Steam Workshop**.
+
 It is however basically a website and can easily run in _most_ browsers.
 
 _Note_: Chrome-based browsers are preferred. Firefox may have some smaller problems.
