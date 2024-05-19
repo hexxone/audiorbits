@@ -1,8 +1,25 @@
-# [AudiOrbits](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
-
-## A web wallpaper designed for [Wallpaper Engine](https://steamcommunity.com/app/431960)
-
-## [THIS](https://github.com/hexxone/audiorbits) is the wallpaper's public git repository
+<h1 align="center"><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780">AudiOrbits</a></h1>
+<br/>
+<p align="center">
+<a href="https://github.com/hexxone/audiorbits/blob/main/LICENSE">
+<img alt="GPL 3.0 License" src="https://img.shields.io/github/license/hexxone/audiorbits"/>
+</a>
+<a href="https://github.com/hexxone/audiorbits/releases">
+<img alt="Current Release" src="https://img.shields.io/github/release/hexxone/audiorbits"/>
+</a>
+<a href="https://github.com/hexxone/audiorbits/releases">
+<img alt="Current Release Date" src="https://img.shields.io/github/release-date/hexxone/audiorbits?color=blue"/>
+</a>
+<a href="https://github.com/hexxone/audiorbits/releases">
+<img alt="GitHub Downloads" src="https://img.shields.io/github/downloads/hexxone/audiorbits/total"/>
+</a>
+<a href="https://github.com/hexxone/audiorbits/stargazers">
+<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/hexxone/audiorbits"/>
+</a>
+<br/>
+<br/>
+A web wallpaper designed for <a href="https://steamcommunity.com/app/431960">Wallpaper Engine</a>
+</p>
 
 ## About
 
