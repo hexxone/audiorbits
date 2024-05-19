@@ -13,7 +13,11 @@ replace_fields = ['text', 'value', 'label']
 
 checkbox_to_string = 'HDR'
 
-remove_keys = ['schemecolor', 'HDR_NO_AUDIO', 'HDR_IMGS', 'SPCR_20', 'img_overlay', 'img_background', 'SPCR_21', 'mirror_invalid_val']
+remove_keys = [
+    'schemecolor', 'HDR_NO_AUDIO', 'HDR_IMGS', 'SPCR_20', 'img_overlay', 'img_background', 'SPCR_21', 'mirror_invalid_val',
+    'SPCR_23', 'HDR_ICUE', 'SPCR_24', 'icue_mode', 'icue_area_xoff', 'icue_area_yoff', 'icue_area_width', 'icue_area_height',
+    'icue_area_blur', 'icue_area_decay', 'icue_main_color', 'xr_mode',
+]
 
 replacements = {
     '=======================': '========================================',
@@ -21,7 +25,7 @@ replacements = {
 }
 
 def remove_html_tags(text):
-    text = re.sub('<[^>]*>', '', text)  # Remove HTML tags
+    text = re.sub('<.*?>', '', text)  # Remove HTML tags
     text = re.sub(' +', ' ', text)      # Replace double spaces with single spaces
     text = text.strip()                 # Trim the string
     if text in replacements:
@@ -33,9 +37,11 @@ def rgb_to_hex(rgb_str):
     return '#{:02x}{:02x}{:02x}'.format(int(rgb_float[0]*255), int(rgb_float[1]*255), int(rgb_float[2]*255))
 
 # Load JSON file A (translations)
-with open('../public/project.json', 'r', encoding='utf-8') as file:
+with open('./public/project.json', 'r', encoding='utf-8') as file:
     file_a = json.load(file)
     file_b = file_a['general']['properties']
+
+print('<transformer> Converting Wallpaper Engine project.json -> LivelyProperties.json')
 
 # Iterate through the keys and values in file B
 for key in list(file_b.keys()):
@@ -101,8 +107,11 @@ for key in list(file_b.keys()):
         # Remove the "options" field
         del value['options']
 
-        
+print("<transformer> Conversion complete.")
         
 # Save the modified file B to a new JSON file
 with open('./public/LivelyProperties.json', 'w', encoding='utf-8') as file:
     json.dump(file_b, file, ensure_ascii=False, indent=2)
+    
+
+print("<transformer> LivelyProperties.json updated.")

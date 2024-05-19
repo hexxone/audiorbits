@@ -1,23 +1,58 @@
 {
-	"editor.tabSize": 4,
-	"editor.autoIndent": "full",
-	"editor.detectIndentation": true,
-	"editor.codeActionsOnSave": {
-		"source.fixAll": true
-	},
-	"editor.defaultFormatter": "esbenp.prettier-vscode",
-	"prettier.tabWidth": 4,
-	"prettier.useTabs": true,
-	"search.exclude": {
-		"**/node_modules": true,
-		"**/bower_components": true,
-		"**/*.code-search": true,
-		"**/docs": true
-	},
-	"[glsl]": {
-		"editor.defaultFormatter": "raczzalan.webgl-glsl-editor"
-	},
-	"workbench.editorAssociations": {
-		"*.wasm": "hexEditor.hexedit"
-	}
+    "editor.tabSize": 4,
+    "editor.autoIndent": "full",
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit"
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.enable": true,
+    "prettier.useTabs": false,
+    "prettier.tabWidth": 4,
+    "eslint.format.enable": true,
+    "eslint.lintTask.enable": true,
+    "eslint.workingDirectories": [
+        "./src"
+    ],
+    "eslint.validate": [
+        "javascript",
+        "typescript"
+    ],
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true,
+        "**/docs": true
+    },
+    "[glsl]": {
+        "editor.defaultFormatter": "raczzalan.webgl-glsl-editor"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "workbench.editorAssociations": {
+        "*.wasm": "hexEditor.hexedit"
+    },
+    "[yaml]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }

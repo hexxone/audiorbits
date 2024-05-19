@@ -5,13 +5,13 @@ As mentioned in the description, the Wallpaper takes quite some resources to run
 Here I will give a little insight behind the settings and what you can do to optimize performance and looks.
 
 Keep in mind that a lot of the settings depend entirely on:
+
 - your PC / hardware / screen resolution
 - taste / type of music you listen to
 - audio volume
 - your own preference
 
 So, take your time to play around, there are a lot of settings :)
-
 
 [h2]How it works:[/h2]
 
@@ -21,11 +21,10 @@ Multiple Subsets come together as a "Level".
 And multiple Levels will become an orbit ;)
 
 Points are processed using the "Hopalong Attractor" in the beginning and when a level passes the camera.
-Click here to learn more about the algorithm: http://www.fraktalwelt.de/myhome/simpiter2_2.htm
+Click here to learn more about the algorithm: <http://www.fraktalwelt.de/myhome/simpiter2_2.htm>
 
 The audio-spectrum is analyzed and mapped in realtime.
 It works by manipulating the movement, hue, saturation, light and size of subsets.
-
 
 [h2]Wallpaper is not reacting to audio?[/h2]
 
@@ -35,7 +34,6 @@ Next, confirm your input volume (mine is set to 100)
 
 If this does not help, take a look at your Windows Audio Devices or the Wallpaper Engine official forum.
 I can only help with issues related to this wallpaper, not necessarily your PC ://
-
 
 [h2]Settings in Detail:[/h2]
 
@@ -175,7 +173,5 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 ║
 ║
 ╚══ Toggle debugging
-
-
 
 [h2]feel free to ask more.[/h2]

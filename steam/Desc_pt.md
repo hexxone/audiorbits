@@ -57,27 +57,23 @@ No entanto, pode personalizá-lo perfeitamente de acordo com as suas preferênci
 ╚═ debug logging
 
 [h1]Sobre[/h1]
-Para mim este é um projecto lateral divertido com muito para aprender e estou disposto a mantê-lo actualizado no meu tempo livre. 
+Para mim este é um projecto lateral divertido com muito para aprender e estou disposto a mantê-lo actualizado no meu tempo livre.
 
 Esta foi em tempos uma versão [url=https://orbits.hexx.one/]só na web[/url] e é a minha primeira versão de Wallpaper-Engine Wallpaper, por isso as coisas podem não ser perfeitas.
 
 O código fonte pode ser encontrado [url=https://github.com/hexxone/audiorbits]aqui[/url]. Por favor, lembre-se de respeitar a Licença e dê crédito onde for devido.
 
-
 [h1]ℹ️ Sobre ℹ️[/h1]
-Para mim, este é um projecto lateral fixe com muito para aprender, e estou disposto a mantê-lo actualizado no meu tempo livre. 
+Para mim, este é um projecto lateral fixe com muito para aprender, e estou disposto a mantê-lo actualizado no meu tempo livre.
 
 Esta foi em tempos uma versão [url=https://orbits.hexx.one/]só na web[/url] e é o meu primeiro papel de parede do motor de parede, por isso tudo pode não ser perfeito.
 
 O código fonte [url=https://github.com/hexxone/audiorbits]pode ser encontrado aqui[/url]. Lembre-se de respeitar a licença e creditar a fonte :)
 
-
 [h1]Aviso de modificação[/h1]
 Pode ser visto no separador "Alterações" acima.
 
-
 ❤️ Obrigado por mais de 200000 utilizadores ❤️
-
 
 [h1]⚠️ WARNINGS ⚠️[/h1]
 Este "papel de parede" pode potencialmente causar convulsões em pessoas com epilepsia fotossensível.

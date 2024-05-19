@@ -7,20 +7,24 @@
     "scope": "/",
     "theme_color": "#FBAE31",
     "background_color": "#000000",
-    "icons": [{
-      "src": "img/preview.png",
-      "sizes": "512x512",
-      "type": "image/png",
-	  "purpose": "any maskable"
-    }],
-    "related_applications": [{
-      "platform": "webapps",
-      "url": "https://orbits.hexx.one"
-    }],
+    "icons": [
+        {
+            "src": "img/preview.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "related_applications": [
+        {
+            "platform": "webapps",
+            "url": "https://orbits.hexx.one"
+        }
+    ],
     "categories": [
         "personalization",
         "music",
         "photo",
         "utilities"
     ]
-  }
+}
