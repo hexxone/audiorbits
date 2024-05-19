@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<!--
+
+<head>
+    <!--
 		AudiOrbits - 色即是空空即是色。
 		
-		Copyright (c) 2023 hexxone All rights reserved.  
+		Copyright (c) 2024 hexxone All rights reserved.  
 		Licensed under the GNU GENERAL PUBLIC LICENSE.
 		See LICENSE file in the project root for full license information.  
 		
@@ -14,101 +15,107 @@
 		Online Preview:       / https://orbits.hexx.one
 		My Website:           / https://hexx.one
 		-->
-		<meta charset="utf-8" />
-		<meta
-			name="description"
-			content="AudiOrbits Wep Wallpaper for Wallpaper Engine"
-		/>
-		<meta
-			name="viewport"
-			content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1"
-		/>
-		<meta name="theme-color" content="#FBAE31" />
-		<title>AudiOrbits 2.4 Lively</title>
-		<script>
-			/*
-			 * 	Custom Adapter Script from Lively Wallpaper to Wallpaper Engine.
-			 *	Scripts need to be included BEFORE loading the Wallpaper JS.
-			 */
+    <meta charset="utf-8" />
+    <meta name="description" content="AudiOrbits Wep Wallpaper for Wallpaper Engine" />
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1" />
+    <meta name="theme-color" content="#FBAE31" />
+    <title>AudiOrbits 2.4 Lively</title>
+    <script>
+        /*
+         * 	Custom Adapter Script from Lively Wallpaper to Wallpaper Engine.
+         *	Scripts need to be included BEFORE loading the Wallpaper JS.
+         */
 
-			let _audioCallback = null;
-			window.wallpaperRegisterAudioListener = (callback) => {
-				console.debug("audio callback registered ", callback);
+        let _audioCallback = null;
+        window.wallpaperRegisterAudioListener = (callback) => {
+            console.debug("audio callback registered ", callback);
 
-				_audioCallback = callback;
-			};
+            _audioCallback = callback;
+        };
 
-			function livelyWallpaperPlaybackChanged(data) {
-				var obj = JSON.parse(data);
-				console.debug("paused ", obj.IsPaused); //true or false
+        function livelyWallpaperPlaybackChanged(data) {
+            var obj = JSON.parse(data);
+            console.debug("paused ", obj.IsPaused); //true or false
 
-				if (
-					window.wallpaperPropertyListener &&
-					window.wallpaperPropertyListener.setPaused
-				) {
-					window.wallpaperPropertyListener.setPaused(obj.IsPaused);
-				}
-			}
-			let applyPropertyHandler = 0;
-			let temporaryProperties = {};
-			function livelyPropertyListener(name, val) {
-				// save the property temporarily if we cannot apply it directly.
-				temporaryProperties = {
-					...temporaryProperties,
-					[name]: {
-						type: "none",
-						value: val,
-					},
-				};
-				// cancel our apply attempt, if its already running.
-				if (applyPropertyHandler != 0) {
-					clearTimeout(applyPropertyHandler);
-					applyPropertyHandler = 0;
-				}
-				// wait a 1/4 second for more properties to gather before applying...
-				applyPropertyHandler = setTimeout(() => {
-					if (
-						window.wallpaperPropertyListener &&
-						window.wallpaperPropertyListener.applyUserProperties
-					) {
-						// apply Props if ready
-						window.wallpaperPropertyListener.applyUserProperties(
-							temporaryProperties
-						);
-						temporaryProperties = {};
-					} else {
-						// retry if the wallpaper is not ready.
-						livelyPropertyListener(name, val);
-					}
-				}, 250);
-			}
-			function livelyAudioListener(audioArray) {
-				if (_audioCallback) {
-					_audioCallback(audioArray);
-				}
-			}
-		</script>
-		<script src="ao.js" type="module" async></script>
-		<link rel="manifest" href="manifest.json" />
-		<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-		<link rel="apple-touch-icon" href="img/preview.png" />
-		<link
-			rel="stylesheet"
-			type="text/css"
-			href="css/style.css"
-			media="print"
-			onload="this.media='all'"
-		/>
-		<!-- / static head end / -->
-	</head>
+            if (
+                window.wallpaperPropertyListener &&
+                window.wallpaperPropertyListener.setPaused
+            ) {
+                window.wallpaperPropertyListener.setPaused(obj.IsPaused);
+            }
+        }
+        let applyPropertyHandler = 0;
+        let temporaryProperties = {};
+        function livelyPropertyListener(name, val) {
+            // save the property temporarily if we cannot apply it directly.
+            temporaryProperties = {
+                ...temporaryProperties,
+                [name]: {
+                    type: "none",
+                    value: val,
+                },
+            };
+            // cancel our apply attempt, if its already running.
+            if (applyPropertyHandler != 0) {
+                clearTimeout(applyPropertyHandler);
+                applyPropertyHandler = 0;
+            }
+            // wait a 1/4 second for more properties to gather before applying...
+            applyPropertyHandler = setTimeout(() => {
+                if (
+                    window.wallpaperPropertyListener &&
+                    window.wallpaperPropertyListener.applyUserProperties
+                ) {
+                    // apply Props if ready
+                    window.wallpaperPropertyListener.applyUserProperties(
+                        temporaryProperties
+                    );
+                    temporaryProperties = {};
+                } else {
+                    // retry if the wallpaper is not ready.
+                    livelyPropertyListener(name, val);
+                }
+            }, 250);
+        }
 
-	<body>
-		<img id="img_back" alt="Background Image" />
-		<div id="renderContainer"></div>
-		<img id="img_over" alt="Foreground Image" />
-		<div id="debugwnd">
-			<h2>!!! Debugging is active - Be aware of large log files !!!</h2>
-		</div>
-		<!-- / static body end / -->
-	</body>
+        /**
+         * Lively gives us mono data from 0(bass) to 128(treble)
+         * however, wallpaper engine expects stereo data in following format:
+         * 0(L: low) to 63(L: treble) and 64(R: low) to 128(R: treble)
+         * so we do some array transformation..
+         */
+        function convertAudio(data) {
+            const stereo = [];
+            let sIdx = 0;
+            for (let i = 0; i < 64; i++) {
+                stereo[i] = data[sIdx++];
+                stereo[64 + i] = data[sIdx++];
+            }
+            return stereo;
+        }
+        function livelyAudioListener(audioArray) {
+            if (_audioCallback) {
+                _audioCallback(convertAudio(audioArray));
+            }
+        }
+    </script>
+    <script src="ao.js" type="module" async></script>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" href="img/preview.png" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" media="print" onload="this.media='all'" />
+    <!-- / static head end / -->
+</head>
+
+<body>
+    <img id="img_back" alt="Background Image" />
+    <div id="renderContainer"></div>
+    <img id="img_over" alt="Foreground Image" />
+    <div id="debugwnd">
+        <h2>!!! Debugging is active - Be aware of large log files !!!</h2>
+    </div>
+    <!-- / static body end / -->
+</body>
+
 </html>

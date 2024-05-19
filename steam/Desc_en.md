@@ -57,14 +57,12 @@ However, you can customize it perfectly to your preference with over 50 settings
 ╠══ Toggle Epillepsy Warning
 ╚══ Toggle debugging
 
-
 [h1]ℹ️ About ℹ️[/h1]
-For me, this is a cool side project with a lot to learn, and I'm willing to keep it updated in my spare time. 
+For me, this is a cool side project with a lot to learn, and I'm willing to keep it updated in my spare time.
 
 This was once a [url=https://orbits.hexx.one/]web-only version[/url] and is my first wallpaper engine wallpaper, so everything may not be perfect.
 
 The [url=https://github.com/hexxone/audiorbits]source code can be found here[/url]. Please remember to respect the license and credit the source :)
-
 
 [h1]❓ Help needed ❓[/h1]
 If your PC or applications falter, please take a look at the [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1729828401678316327/] Settings Guide[/url].
@@ -73,13 +71,10 @@ For bugs and other problems, there is the [url=https://steamcommunity.com/worksh
 
 Suggestions for new features [url=https://steamcommunity.com/workshop/filedetails/discussion/1396475780/1698300679759373495/] are here [/url].
 
-
 [h1]🗒 Patchnotes 🗒[/h1]
 Details can be found in the "Changes" tab above.
 
-
 ❤️ Thank you for over 200,000 users ❤️
-
 
 [h1]⚠️ WARNINGS ⚠️[/h1]
 This "wallpaper" can potentially cause seizures for people with photosensitive epilepsy.

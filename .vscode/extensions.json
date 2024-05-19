@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "raczzalan.webgl-glsl-editor",
+    "battlelinegames.assemblyscript-lang",
+    "davidanson.vscode-markdownlint",
+    "christian-kohler.npm-intellisense",
+    "gruntfuggly.todo-tree",
+    "alexshen.classdiagram-ts",
+    "eliostruyf.vscode-typescript-exportallmodules",
+    "usernamehw.errorlens"
+  ]
+}
