@@ -12,8 +12,12 @@
 <a href="https://github.com/hexxone/audiorbits/releases">
 <img alt="Current Release Date" src="https://img.shields.io/github/release-date/hexxone/audiorbits?color=blue"/>
 </a>
+<br/>
 <a href="https://github.com/hexxone/audiorbits/releases">
-<img alt="GitHub Downloads" src="https://img.shields.io/github/downloads/hexxone/audiorbits/total"/>
+<img alt="GitHub Downloads" src="https://img.shields.io/github/downloads/hexxone/audiorbits/total?label=Git%20downloads"/>
+</a>
+<a href="https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780">
+<img alt="Steam subscribers" src="https://img.shields.io/steam/subscriptions/1396475780?label=Steam%20subscribers">
 </a>
 <a href="https://github.com/hexxone/audiorbits/stargazers">
 <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/hexxone/audiorbits"/>
