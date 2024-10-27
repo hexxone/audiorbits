@@ -63,7 +63,7 @@ Prerequisites:
 
 Install steps:
 
-1. `git clone https://github.com/hexxone/audiorbits.git`
+1. `git clone --recursive https://github.com/hexxone/audiorbits.git` recursive is needed to include all submodules.
 2. `cd audiorbits`
 3. `yarn install`
 4. `yarn start` for debugging or `yarn prod` for an optimized build
