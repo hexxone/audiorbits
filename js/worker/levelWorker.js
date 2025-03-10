@@ -284,12 +284,12 @@ onmessage = function (e) {
     let choice = Math.random();
     let s, x, y, i, bid;
     // Grab Hopalong Attractor based on choice
-    if (choice < 0.2) BarryMartinClassic(num_subsets, num_points_subset, xyzBuff);
-    else if (choice < 0.4) BarryMartinMod1(num_subsets, num_points_subset, xyzBuff);
-    else if (choice < 0.6) BarryMartinMod2(num_subsets, num_points_subset, xyzBuff);
-    else if (choice < 0.7) BarryMartinSinusoidal(num_subsets, num_points_subset, xyzBuff);
-    else if (choice < 0.8) GingerbreadMan(num_subsets, num_points_subset, xyzBuff);
-    else if (choice < 0.9) BarryMartinAdd(num_subsets, num_points_subset, xyzBuff);
+    if (choice < 0.40) BarryMartinClassic(num_subsets, num_points_subset, xyzBuff);
+    else if (choice < 0.65) BarryMartinMod1(num_subsets, num_points_subset, xyzBuff);
+    else if (choice < 0.80) BarryMartinMod2(num_subsets, num_points_subset, xyzBuff);
+    else if (choice < 0.85) BarryMartinSinusoidal(num_subsets, num_points_subset, xyzBuff);
+    else if (choice < 0.90) GingerbreadMan(num_subsets, num_points_subset, xyzBuff);
+    else if (choice < 0.95) BarryMartinAdd(num_subsets, num_points_subset, xyzBuff);
     else  BarryMartinClassicInv(num_subsets, num_points_subset, xyzBuff);
 
     // calculate level scale based on min and max values
