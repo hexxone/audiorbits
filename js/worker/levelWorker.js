@@ -270,6 +270,7 @@ onmessage = function (e) {
 
     let scale_factor_l = sett.scaling_factor;
     let tunnel = sett.generate_tunnel;
+    let spiral = Number(sett.spiral) * Math.PI / 180;
     let iradius = sett.tunnel_inner_radius / 100;
     let oradius = sett.tunnel_outer_radius / 100;
     // get randomized params in defined ranges
@@ -303,8 +304,11 @@ onmessage = function (e) {
     };
 
     // Normalize and post-process the level          
-    let dist, scaling, outer;
+    let dist, scaling, outer, x1, degree;
+    degree = 0.0;
     for (s = 0; s < num_subsets; s++) {
+        // Rotate level
+        degree += spiral;
         for (i = 0; i < num_points_subset; i++) {
             // calculate x buffer location
             bid = (s * num_points_subset + i) * 2;
@@ -314,6 +318,11 @@ onmessage = function (e) {
             y = scaleY * (xyzBuff[bid + 1] - po.yMin) - scale_factor_l;
             // tunnel processing to take certain points from the center
             // and move them outwards in a circular way
+            if (spiral != 0.0) {
+                x1 = x * Math.cos(degree) - y * Math.sin(degree);
+                y = y * Math.cos(degree) + x * Math.sin(degree);
+                x = x1;
+            }
             if (tunnel) {
                 dist = getPointDistance(0, 0, x, y) / scale_factor_l;
                 //print("pd: " + dist + ",   inner: " + iradius);

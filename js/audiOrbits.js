@@ -68,6 +68,7 @@ var audiOrbits = {
 		default_saturation: 10,
 		zoom_val: 1,
 		rotation_val: 0,
+		spiral: 0,
 		custom_fps: false,
 		fps_value: 60,
 		minimum_brightness: 10,
