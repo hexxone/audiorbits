@@ -176,6 +176,25 @@ var audiOrbits = {
 	// APPLY SETTINGS
 	///////////////////////////////////////////////
 
+	PushSettingsToUi: function () {
+		var self = audiOrbits;
+		var sett = self.settings;
+		var props = wewwApp.GetProperties();
+
+		var settStorage = [sett, weas.settings, weicue.settings];
+		for (var setting in props) {
+			var prop = props[setting];
+			if (!prop || !prop.type || prop.type == "text") continue;
+			for (var storage of settStorage) {
+				if (storage[setting] != null) {
+					if (storage[setting] !== prop.value) {
+						wewwApp.UpdateUiProperty(setting, storage[setting]);
+					}
+				}
+			}
+		}
+	},
+
 	// Apply settings from the project.json "properties" object and takes certain actions
 	applyCustomProps: function (props) {
 		print("applying settings: " + Object.keys(props).length);
