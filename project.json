@@ -2559,7 +2559,7 @@
         "order": 501,
         "text": "ui_Hopalong",
         "type": "slider",
-        "value": 0.75,
+        "value": 0.40,
         "precision": 3,
         "step": 0.01
       },
@@ -2572,7 +2572,7 @@
         "order": 502,
         "text": "ui_HopalongMod1",
         "type": "slider",
-        "value": 0.0,
+        "value": 0.20,
         "precision": 3,
         "step": 0.01
       },
@@ -2585,7 +2585,7 @@
         "order": 503,
         "text": "ui_HopalongMod2",
         "type": "slider",
-        "value": 0.0,
+        "value": 0.15,
         "precision": 3,
         "step": 0.01
       },

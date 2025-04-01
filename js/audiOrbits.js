@@ -119,9 +119,9 @@ var audiOrbits = {
 		// fractal functions represented by chance. Should add up to 1
 		// If adding/removing these settings, update GetAttrSettings(),
 		// UpdateAttrSettings(), _regen array, and fracs from levelWorker.js.
-		Hopalong:            0.75,
-		HopalongMod1:        0,
-		HopalongMod2:        0,
+		Hopalong:            0.40,
+		HopalongMod1:        0.20,
+		HopalongMod2:        0.15,
 		HopalongZen:         0,
 		FuturisticHUD:       0,
 		Stereoscopic:        0,
