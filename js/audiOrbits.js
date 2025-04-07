@@ -393,8 +393,8 @@ var audiOrbits = {
 			if (_ignore.includes(setting) || setting.startsWith("HEADER_")) continue;
 			// get the updated setting
 			var prop = props[setting];
-			// check typing
-			if (!prop || !prop.type || prop.type == "text") continue;
+			// check typing and null value
+			if (!prop || !prop.type || prop.type == "text" || prop.value == null) continue;
 
 			var found = false;
 			// process all storages
@@ -486,7 +486,7 @@ var audiOrbits = {
 				self.afterRenderQueue.shift();
 			}
 			for (var l = 0; l < sett.num_levels; l++) {
-
+				// Set all levels to use the same oribital choices
 				self.GenFuncChoices(l);
 				if (self.state !== 0) self.generateLevel(l);
 			}
@@ -705,7 +705,7 @@ var audiOrbits = {
 		print("texture loaded.")
 
 		// create camera
-		self.camera = new THREE.PerspectiveCamera(sett.field_of_view, window.innerWidth / window.innerHeight, 1, 3.5 * sett.scaling_factor);
+		self.camera = new THREE.PerspectiveCamera(sett.field_of_view, window.innerWidth / window.innerHeight, 1, 3 * sett.scaling_factor);
 		self.camera.position.z = sett.scaling_factor / 2;
 		// create distance fog
 		self.scene = new THREE.Scene();
@@ -1300,13 +1300,22 @@ var audiOrbits = {
 		}
 
 		// Convert probability to a section in the 0-1 space
+		var pop_remain = false;
 		for (i = 0; i < fc.length; i++) {
+			if (pop_remain) {
+				fc.pop();
+				i--;
+				continue;
+			}
 			if (i === 0) {
 				temp = fc[i][0];
 				continue;
 			}
 			temp += fc[i][0];
-			if (temp > 1) temp = 1.0; // Correct precision
+			if (temp > 1) {
+				temp = 1.0; // Correct precision
+				pop_remain = true;
+			}
 			fc[i][0] = temp;
 		}
 

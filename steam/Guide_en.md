@@ -16,11 +16,12 @@ So, take your time to play around, there are a lot of settings :)
 [h2]How it works:[/h2]
 
 Everything you see is made of a single "base texture" called point.
-Points are grouped in 2D fractal geometry-"Subsets".
+Points are grouped in 2D fractal geometry-"Subsets". This is a singular 2D plane.
 Multiple Subsets come together as a level.
 
-The position for each Point in its Subset is processed using the "Hopalong Attractor".
+The position for each Point in its Subset is processed using the "Hopalong Attractor" for orbital levels with the name "Hopalong".
 Click here to learn more about this algorithm: http://www.fraktalwelt.de/myhome/simpiter2_2.htm
+Other Orbitals were created by [url=https://steamcommunity.com/id/ominous_end]Zinic[/url] and are based off the Threeply or QuadrupTwo fractals. Many are of his own design ^^
 
 After all Subsets of a level have passed the camera, the level is re-generated and moved back to the end.
 The color, brightness and light are processed in realtime per Subset.
@@ -75,6 +76,10 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 ║╠══ color fade speed setting
 ║║   the speed at wich the "hue" values are cycled through.
 ║║
+║╠══ spiral setting
+║║   Each subset, or 2D fractal plane, is rotated by this amount in degrees, creating
+║║   a spiraling affect. Set to 0 to reset rotation of each subset immediately.
+║║
 ║╚══ custom render timing
 ║    If you have a monitor with more than 60hz, it is not 100% certain that the system
 ║    will trigger to render a frame as often as the monitor would support it. 
@@ -117,7 +122,9 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 ║  want to use the wallpaper in a stream or a party using a beamer? This might help.
 ║
 ╠═ customizable algorithm parameters
-║  want to know what they do? Take a look at the link above.
+║  Each algorithm parameter represents a random floating-point value between the
+║  specified min/max values. These parameters affect the orbitals design.
+║  See attractor settings below.
 ║
 ╠╦ advanced settings
 ║║
@@ -154,12 +161,47 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 ║║   if you see things spawning in the back or want to see overall less, turn it up
 ║║   if you increased the level depth or want to see more, turn it down
 ║║
-║╚══ level shifting (levels are overlapping each other by half)
-║    doesn't cause additional cpu usage over time and makes the level transitions smoother
+║╠══ level shifting (levels are overlapping each other by half)
+║║    doesn't cause additional cpu usage over time and makes the level transitions smoother
+║╚══ fog thickness setting
+║   if you see things spawning in the back or want to see overall less, turn it up
+║   if you increased the level depth or want to see more, turn it down
 ║
-╠═ smooth fade-in
-╠═ epilepsy warning
-╚═ debug logging
+╠╦ attractor settings (new to v2.3.1. Thanks [url=https://steamcommunity.com/id/ominous_end]Zinic[/url]!)
+║║
+║╚══ Each of the different attractors are selectable as a "percentage" of when it will be generated.
+║    To view a singlular orbital, set it to 1, meaning 100%, and the others to something less than 1.
+║
+║    Only the highest rated orbitals that add up to 1 are shown. For example:
+║    - Hopalong:       0.40
+║    - Hopalong Mod 1: 0.10
+║    - Hopalong Zen:   0.50
+║    - Futuristic HUD: 0.20
+║
+║    With these settings
+║    - [u]Hopalong Zen[/u] is shown 50%
+║    - [u]Hopalong[/u] is shown 40%
+║    - [u]Futuristic HUD[/u] is shown 10%. (1.00 - 0.50 - 0.40 = 0.10) 20% had to be truncated to 10%
+║    - [u]All others[/u] were smaller values when the 100% threshold was met, and so won't be generated.
+║
+║    If [u]Hopalong Mod 1[/u] and [u]Futuristic HUD[/u] were both 0.20, the latter is preferred, but
+║    this is not always the case if there are even more orbitals set to 0.20.
+║
+║    Every orbital is affected by algorithm parameter [b]A[/b]. Parms [b]B - E[/b] affect most obitals.
+║    Parm [b]E[/b] is a special one because it is set to 0 by default. Small changes to this parm can
+║    have drastic affect on the visual appearance of an Orbital.
+║    To see which algorithm parm affects which orbital, see the "js/worker/levelWorker.js" file in the
+║    2.3.x branch from [url=https://github.com/hexxone/audiorbits/tree/2.3_release]github[/url]
+║
+║    One orbital is named [u]Name Me[/u]. Zinic wants someone in the comments decide on a name for this
+║    one. Go ahead and share a name you think is fitting for this one ^^. I'll update it later with that name.
+║    Also I've been told [u]Easter Egg[/u] has an "Easter Egg" if you modify one of the parameters a
+║    bit: [spoiler]You can spawn little bunnies![/spoiler]
+║
+╚╦═══ miscellaneous setting
+ ║   epilepsy warning
+ ╚══ debug logging
+
 
 
 [h2]feel free to ask more.[/h2]

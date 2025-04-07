@@ -192,10 +192,9 @@ function HopalongMod2(numSub, numPointsSub, xyzBuff) {
 
 
 function HopalongZen(numSub, numPointsSub, xyzBuff) {
-    let s, i, z, x1, bid;
+    let s, i, x1, y1, bid;
     let x, y, t;
     let a, b, c, d;
-    let tmp;
 
     a = po.al;
     b = po.bl;
@@ -234,7 +233,7 @@ function HopalongZen(numSub, numPointsSub, xyzBuff) {
 
 
 function FuturisticHUD(numSub, numPointsSub, xyzBuff) {
-    let s, i, x1, bid;
+    let s, i, x1, y1, bid;
     let x, y;
     let a, b, c;
     let tmp;
@@ -276,14 +275,13 @@ function FuturisticHUD(numSub, numPointsSub, xyzBuff) {
 
 // Called stereoscopic simply because there were some shapes that perceived to have depth
 function Stereoscopic(numSub, numPointsSub, xyzBuff) {
-    let s, i, x1, bid;
+    let s, i, x1, y1, bid;
     let x, y;
-    let a, b, c, d, e, f;
+    let a, b, d, e, f;
     let tmp;
 
     a = po.al;
     b = po.bl;
-    c = po.cl; 
     d = po.dl;
     e = po.el
      // f param. Random number between -0.008 and 0.008

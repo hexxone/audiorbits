@@ -32,6 +32,14 @@ Please head over to the Workshop-Page for a full list (see title for the link).
 
 ### Changelog:
 
+Version 2.3.1:
+- added 39 orbital fractlas/attractors
+- added probability slider for each of the 42 orbitals under Attractor Settings
+- added "Spiral" option under General Settings
+- changed range of algorithm params
+- algorithm param E defaults to 0
+- fixed setting no longer being updated after assigning it to null
+
 Version 2.3:
 - added "shader_quality"-setting (Advanced)
 - outsourced and restructured most libraries
