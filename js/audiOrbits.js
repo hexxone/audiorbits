@@ -119,9 +119,9 @@ var audiOrbits = {
 		// fractal functions represented by chance. Should add up to 1
 		// If adding/removing these settings, update GetAttrSettings(),
 		// UpdateAttrSettings(), _regen array, and fracs from levelWorker.js.
-		Hopalong:            0.40,
-		HopalongMod1:        0.20,
-		HopalongMod2:        0.15,
+		Hopalong:            40,
+		HopalongMod1:        20,
+		HopalongMod2:        15,
 		HopalongZen:         0,
 		FuturisticHUD:       0,
 		Stereoscopic:        0,
@@ -139,22 +139,22 @@ var audiOrbits = {
 		Coexistance:         0,
 		HawkingRadiation:    0,
 		Medusa:              0,
-		QuadrupTwo:          0.05,
+		QuadrupTwo:          5,
 		NeonLights:          0,
 		NeonSigns:           0,
 		MathematicalSpecter: 0,
-		OpticalIllusion:     0.05,
+		OpticalIllusion:     5,
 		VisualIllusion:      0,
-		SlinkyWorms:         0.05,
+		SlinkyWorms:         5,
 		ObservableUniverse:  0,
 		ParallelUniverse:    0,
 		HostilePlanet:       0,
 		CyberWarfare:        0,
 		RaveDance:           0,
 		SunBeams:            0,
-		WaywardAi:           0.05,
+		WaywardAi:           5,
 		Threeply:            0,
-		Fiesta:              0.05,
+		Fiesta:              5,
 		WizardsTunnel:       0,
 		GapingHole:          0,
 		LeapOfFaith:         0,
@@ -217,9 +217,11 @@ var audiOrbits = {
 	fractalFuncs: [],
 	// Copy of Attractor settings
 	currAttrSett: [],
-	clyclicAttr: 0,
 	lastSpiralRot: DEFAULT_LEVEL_ROTATION,
 	spiralRad: 0,
+
+	// Set to a high value if all fractals were unselected
+	spinWildly: 0,
 
 	// generator holder
 	levelWorker: null,
@@ -470,38 +472,26 @@ var audiOrbits = {
 
 		// Regen levels to see the effect of the setting change sooner.
 		if (reGenLevels && !reInitFlag) {
-			// Re-adjust remaining settings and update UI to reflect the changes.
-			// Unfortunately its not possible to change Wallpaper Engine settings
-			// (that I am aware of), so user has to manage the validity of each
-			// setting to ensure they add up to 1.
-			// Disabled for now because it doesn't recalc correctly for large
-			// datasets.
-			if (self.state !== 0 && wewwApp.IsInit() && false) {
-				self.recalcAttractProb();
-				self.PushSettingsToUi();
-			}
-
 			// Destroy any queued levels
 			while (self.afterRenderQueue.length > 0) {
 				self.afterRenderQueue.shift();
 			}
+			const attrSet = self.GetAttrSettings();
 			for (var l = 0; l < sett.num_levels; l++) {
 				// Set all levels to use the same oribital choices
-				self.GenFuncChoices(l);
-				if (self.state !== 0) self.generateLevel(l);
+				self.fractalFuncs[l] = self.NormalizeFractChoices(attrSet);
+				// Regenerate levels with new choices
+				if (self.state !== RunState.None) self.generateLevel(l);
+				print(self.fractalFuncs[l], force=false);
 			}
 		}
 
-		// Update spiral radian field in case it was updated
 		if (setSpiral) {
+			// Update spiral radian field
 			self.spiralRad = (sett.spiral * Math.PI / 180);
-			if (self.spiralRad == 0 && !reInitFlag) {
-				for (var k = 0; k < sett.num_levels; k++) {
-					// Reset level rotation
-					for (var s = 0; s < sett.num_subsets_per_level; s++) {
-						self.levels[k].subsets[s].child.rotation.z = DEFAULT_LEVEL_ROTATION;
-					}
-				}
+			// Reset all levels to default rotation
+			if (!reInitFlag) {
+				self.setToDefaultRotation();
 			}
 		}
 
@@ -669,11 +659,10 @@ var audiOrbits = {
 		// set origin Canvas to copy from
 		weicue.mainCanvas = self.mainCanvas;
 
-
-
 		// setup basic objects
+		const attrSet = self.GetAttrSettings();
 		for (var l = 0; l < sett.num_levels; l++) {
-			self.GenFuncChoices(l);
+			self.fractalFuncs[l] = self.NormalizeFractChoices(attrSet);
 
 			var sets = [];
 			for (var i = 0; i < sett.num_subsets_per_level; i++) {
@@ -976,6 +965,19 @@ var audiOrbits = {
 		};
 	},
 
+	setToDefaultRotation: function () {
+		var self = audiOrbits;
+		var sett = self.settings;
+			// If it was set to 0, then set all levels to the default rotation.
+			if (self.spiralRad == 0 && self.state != RunState.None) {
+				for (var k = 0; k < sett.num_levels; k++) {
+					// Reset level rotation
+					for (var s = 0; s < sett.num_subsets_per_level; s++) {
+						self.levels[k].subsets[s].child.rotation.z = DEFAULT_LEVEL_ROTATION;
+					}
+				}
+			}
+	},
 
 	///////////////////////////////////////////////
 	// RENDERING
@@ -1152,7 +1154,7 @@ var audiOrbits = {
 
 			// velocity & rotation
 			child.position.z += spvn;
-			child.rotation.z -= rot;
+			child.rotation.z -= rot - self.spinWildly;
 
 			// targeted HUE
 			tmpHue = Math.abs(self.hueValues[child.mySubset]);
@@ -1265,23 +1267,37 @@ var audiOrbits = {
 		audiOrbits.levelWorker.postMessage(parms);
 	},
 
-	GenFuncChoices: function (levelId) {
+	NormalizeFractChoices: function (attrSet) {
 		var self = audiOrbits;
+		var sett = self.settings;
 		var i, temp;
-		// Since you can't post a function pointer to the web worker, each
-		// fractal setting maps to an index to a function defined in the worker
-		const attrSet = self.GetAttrSettings();
-		const fc = Array(attrSet.length);
-		for (i = 0; i < attrSet.length; i++) {
-			const attr = [attrSet[i], i];
-			fc[i] = attr;
+
+		var normalizedChoices;
+		const exclusiveParams = attrSet.filter(p => p === 100);
+		if (exclusiveParams.length > 0) {
+			// Any 100s are treated as exclusive parameters.
+			normalizedChoices = attrSet.map(p => p === 100 ? (1/exclusiveParams.length) : 0);
+		} else {
+			// Otherwise use the normal weight calculation
+			const total = attrSet.reduce((a, b) => a + b, 0);
+			normalizedChoices = attrSet.map(p => total > 0 ? p / total : 0);
 		}
 
-
+		// Map each fractal choice to an index into a lookup-table used by the web worker
+		mapArrToFuncIndx = (c) => {
+			const fc = Array(c.length);
+			for (i = 0; i < c.length; i++) {
+				const attr = [c[i], i];
+				fc[i] = attr;
+			}
+			return fc;
+		}
+		// Bubble sort intern func. Highest to lowest. Remove any indexes with a 0 value.
 		bubSort = (arr, size) => {
+			// Sort
 			for (i = 0; i < size - 1; i++) {
 				for (var j = 0; j < size - i - 1; j++) {
-					if (arr[j] < arr[j + 1]) {
+					if (arr[j][0] < arr[j + 1][0]) {
 						temp = arr[j];
 						arr[j] = arr[j + 1];
 						arr[j + 1] = temp;
@@ -1289,137 +1305,60 @@ var audiOrbits = {
 				}
 			}
 		}
-		// Sort Array. Highest probability listed first
-		bubSort(fc, fc.length);
-		// Pop off any entries that have a chance of 0
-		for (i = 0; i < fc.length; i++) {
-			if (fc[i][0] === 0) {
-				fc.pop();
-				i--;
-			}
-		}
+		// Sum up the fields, saving as we go
+		sumNormalization = (arr, size) => {
+			var j = 0;
+			// Save first element's value
+			var culm = arr[0][0];
 
-		// Convert probability to a section in the 0-1 space
-		var pop_remain = false;
-		for (i = 0; i < fc.length; i++) {
-			if (pop_remain) {
-				fc.pop();
-				i--;
-				continue;
-			}
-			if (i === 0) {
-				temp = fc[i][0];
-				continue;
-			}
-			temp += fc[i][0];
-			if (temp > 1) {
-				temp = 1.0; // Correct precision
-				pop_remain = true;
-			}
-			fc[i][0] = temp;
-		}
-
-		self.fractalFuncs[levelId] = fc;
-	},
-
-
-	recalcAttractProb: function () {
-		var self = audiOrbits;
-		var i, newSettIndx;
-		var diff, sum;
-		var distrib;
-		var zeroCnt;
-		var numOthers;
-		const newAttrSett = self.GetAttrSettings();
-		const numAttr = newAttrSett.length;
-
-
-		// Find the index that changed
-		diff = 0;
-		zeroCnt = 0;
-		for (i = 0; i < numAttr; i++) {
-			if (self.currAttrSett[i] !== newAttrSett[i]) {
-				// Save the index that changed
-				newSettIndx = i;
-				// Check if outside range. Shouldn't happen, but just in case
-				if (newAttrSett[i] > 1) newAttrSett[i] = 1;
-				if (newAttrSett[i] < 0) newAttrSett[i] = 0;
-				// Negative diff means new setting increased
-				diff = self.currAttrSett[i] - newAttrSett[i];
-				self.currAttrSett[i] = newAttrSett[i]; // Save the new value
-			} else if (newAttrSett[i] == 0) {
-				zeroCnt++;
-			}
-		}
-
-		if (diff == 0) return;
-
-		// Modify remaining settings so collectively they add to 1
-		// settings that are 0 stay 0
-		numOthers = numAttr - zeroCnt - 1;
-		if (numOthers != 0) {
-
-			distrib = diff / numOthers;
-			distribRemainding = (d) => {
-				let overUnderFlow;
-				let j;
-				while (d != 0) {
-					overUnderFlow = 0;
-					for (j = 0; j < numAttr; j++) {
-						if (j === newSettIndx || self.currAttrSett[j] == 0) continue;
-						// This setting needs to be adjusted
-						self.currAttrSett[j] += d;
-						// Check if after adjustment the setting is outside the valid range
-						if (self.currAttrSett[j] < 0) {
-							// Setting underflowed. Set it to 0
-							overUnderFlow += self.currAttrSett[j];
-							self.currAttrSett[j] = 0;
-							numOthers--;
-							if (numOthers == 0) {
-								// new setting was set to 1
-								return;
-							}
-						} else if (self.currAttrSett[j] > 1) {
-							// Setting overflowed. Set it to 1. All other settings
-							// should eventually be set to 0.
-							overUnderFlow += self.currAttrSett[j] - 1;
-							self.currAttrSett[j] = 1;
-						}
-					}
-					d = overUnderFlow / numOthers;
+			// Iterate through the array starting at index 1. Sum
+			// all saving the rolling sum as we go.
+			for (i = 1; i < size - j; i++) {
+				if (arr[i][0] === 0) {
+					arr.pop();
+					i--;
+					j++;
+					continue;
 				}
-			};
-
-			distribRemainding(distrib);
-
-			// Correct settings if they add up to more than 1.
-			// This should only happen during debugging when terminating before
-			// a proper adjustement.
-			sum = 0;
-			for (i = 0; i < numAttr; i++) {
-				sum += self.currAttrSett[i];
+				culm += arr[i][0];
+				arr[i][0] = culm;
 			}
-			if (sum > 1) {
-				distrib = (1 - sum) / numOthers;
-				distribRemainding(distrib);
+
+			if (culm === 0) {
+				// Everything was 0. Pop off first element so array is empty.
+				arr.pop();
 			}
 		}
+		const fc = mapArrToFuncIndx(normalizedChoices);
+		bubSort(fc, fc.length);
+		sumNormalization(fc, fc.length);
 
-		if (self.debug || 1) {
-			let str = "";
-			sum = 0;
-			for (i = 0; i < numAttr; i++) {
-				sum += self.currAttrSett[i];
-				diff = self.currAttrSett[i] - newAttrSett[i];
-				str += newAttrSett[i].toString() + " -> " + self.currAttrSett[i].toString() + ". Change: " + diff.toString() + "\n";
+		if (fc.length === 0) {
+			// No fractals were selected. We have the creative freedom to do
+			// whatever we want. Here we will select a random fractal and
+			// spin it wildly, but only if they have camera rotation set to
+			// -10 as an easter egg prank.
+			const newChoices = self.GetAttrSettings();
+			var rand = Math.floor(Math.random() * (newChoices.length + 1));
+			newChoices[rand] = 1;
+			const fcNew = mapArrToFuncIndx(newChoices);
+			bubSort(fcNew, fcNew.length);
+			sumNormalization(fcNew, fcNew.length);
+			if (sett.rotation_val == -10) {
+				self.spinWildly = 5;
 			}
-			str += "SUM of new: " + sum;
-			console.log(str);
+			return fcNew;
+		} else {
+			if (self.spinWildly != 0) {
+				if (self.state == RunState.Running) {
+					self.setToDefaultRotation();
+				}
+			}
+			self.spinWildly = 0;
 		}
-
-		// Finally update the settings
-		self.UpdateAttrSettings(self.currAttrSett);
+		return fc;
 	},
+
 
 	///////////////////////////////////////////////
 	// EVENT HANDLER & TIMERS

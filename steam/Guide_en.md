@@ -169,23 +169,10 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 ║
 ╠╦ attractor settings (new to v2.3.1. Thanks [url=https://steamcommunity.com/id/ominous_end]Zinic[/url]!)
 ║║
-║╚══ Each of the different attractors are selectable as a "percentage" of when it will be generated.
-║    To view a singlular orbital, set it to 1, meaning 100%, and the others to something less than 1.
-║
-║    Only the highest rated orbitals that add up to 1 are shown. For example:
-║    - Hopalong:       0.40
-║    - Hopalong Mod 1: 0.10
-║    - Hopalong Zen:   0.50
-║    - Futuristic HUD: 0.20
-║
-║    With these settings
-║    - [u]Hopalong Zen[/u] is shown 50%
-║    - [u]Hopalong[/u] is shown 40%
-║    - [u]Futuristic HUD[/u] is shown 10%. (1.00 - 0.50 - 0.40 = 0.10) 20% had to be truncated to 10%
-║    - [u]All others[/u] were smaller values when the 100% threshold was met, and so won't be generated.
-║
-║    If [u]Hopalong Mod 1[/u] and [u]Futuristic HUD[/u] were both 0.20, the latter is preferred, but
-║    this is not always the case if there are even more orbitals set to 0.20.
+║╚══ Each of the different attractors (aka Orbitals) are selectable via a weighted system. The higher
+║    the orbital is set to, the more likly it will be played. A value of 100 is considered "infinite",
+║    meaning only the orbitals that are set to 100 will be played with equal chance. A value of 0 means
+║    that orbital won't be played. Setting all Orbitals to 0 generates a random set of Orbitals.
 ║
 ║    Every orbital is affected by algorithm parameter [b]A[/b]. Parms [b]B - E[/b] affect most obitals.
 ║    Parm [b]E[/b] is a special one because it is set to 0 by default. Small changes to this parm can
