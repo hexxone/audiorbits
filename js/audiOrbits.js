@@ -1279,8 +1279,28 @@ var audiOrbits = {
 			normalizedChoices = attrSet.map(p => p === 100 ? (1/exclusiveParams.length) : 0);
 		} else {
 			// Otherwise use the normal weight calculation
-			const total = attrSet.reduce((a, b) => a + b, 0);
-			normalizedChoices = attrSet.map(p => total > 0 ? p / total : 0);
+			var total = attrSet.reduce((a, b) => a + b, 0);
+			if (total == 0) {
+				// User selected all 0s. Randomly select a fractal
+				if (sett.rotation_val == -10) {
+					// Camera rotation value was set to -10
+					// As an added bonus, spin the camera a lot as a little easter egg.
+					self.spinWildly = 5;
+				}
+				// Pick a random index within our array size
+				var rand = Math.floor(Math.random() * (attrSet.length + 1));
+				normalizedChoices = self.GetAttrSettings();
+				normalizedChoices[rand] = 1;
+			} else {
+				if (self.spinWildly != 0) {
+					// Revert camera spin back to normal
+					self.spinWildly = 0;
+					if (self.state == RunState.Running) {
+						self.setToDefaultRotation();
+					}
+				}
+				normalizedChoices = attrSet.map(p => total > 0 ? p / total : 0);
+			}
 		}
 
 		// Map each fractal choice to an index into a lookup-table used by the web worker
@@ -1333,29 +1353,6 @@ var audiOrbits = {
 		bubSort(fc, fc.length);
 		sumNormalization(fc, fc.length);
 
-		if (fc.length === 0) {
-			// No fractals were selected. We have the creative freedom to do
-			// whatever we want. Here we will select a random fractal and
-			// spin it wildly, but only if they have camera rotation set to
-			// -10 as an easter egg prank.
-			const newChoices = self.GetAttrSettings();
-			var rand = Math.floor(Math.random() * (newChoices.length + 1));
-			newChoices[rand] = 1;
-			const fcNew = mapArrToFuncIndx(newChoices);
-			bubSort(fcNew, fcNew.length);
-			sumNormalization(fcNew, fcNew.length);
-			if (sett.rotation_val == -10) {
-				self.spinWildly = 5;
-			}
-			return fcNew;
-		} else {
-			if (self.spinWildly != 0) {
-				if (self.state == RunState.Running) {
-					self.setToDefaultRotation();
-				}
-			}
-			self.spinWildly = 0;
-		}
 		return fc;
 	},
 
