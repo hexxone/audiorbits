@@ -32,6 +32,8 @@
  * - add audio max saturation & brightness
 */
 
+const DEFAULT_LEVEL_ROTATION = -0.785398;
+
 // custom logging function
 function print(arg, force) {
 	if (audiOrbits.debug || force) console.log("AudiOrbits: " + JSON.stringify(arg));
@@ -68,6 +70,7 @@ var audiOrbits = {
 		default_saturation: 10,
 		zoom_val: 1,
 		rotation_val: 0,
+		spiral: 0,
 		custom_fps: false,
 		fps_value: 60,
 		minimum_brightness: 10,
@@ -85,8 +88,8 @@ var audiOrbits = {
 		alg_c_max: 16,
 		alg_d_min: 1,
 		alg_d_max: 9,
-		alg_e_min: 1,
-		alg_e_max: 10,
+		alg_e_min: 0,
+		alg_e_max: 0,
 		generate_tunnel: false,
 		tunnel_inner_radius: 5,
 		tunnel_outer_radius: 5,
@@ -113,6 +116,51 @@ var audiOrbits = {
 		user_color_a: "1 0.5 0",
 		user_color_b: "0 0.5 1",
 		seizure_warning: true,
+		// fractal functions represented by chance. Should add up to 1
+		// If adding/removing these settings, update GetAttrSettings(),
+		// UpdateAttrSettings(), _regen array, and fracs from levelWorker.js.
+		Hopalong:            40,
+		HopalongMod1:        20,
+		HopalongMod2:        15,
+		HopalongZen:         0,
+		FuturisticHUD:       0,
+		Stereoscopic:        0,
+		SunSpots:            0,
+		Trypophobia:         0,
+		SuperNovaD:          0,
+		SuperNovaE:          0,
+		EndlessPit:          0,
+		OrderedChaos:        0,
+		AlienPhantasms:      0,
+		AlienEtching:        0,
+		AlienHieroglyphs:    0,
+		Wormhole:            0,
+		SpaceCarnival:       0,
+		Coexistance:         0,
+		HawkingRadiation:    0,
+		Medusa:              0,
+		QuadrupTwo:          5,
+		NeonLights:          0,
+		NeonSigns:           0,
+		MathematicalSpecter: 0,
+		OpticalIllusion:     5,
+		VisualIllusion:      0,
+		SlinkyWorms:         5,
+		ObservableUniverse:  0,
+		ParallelUniverse:    0,
+		HostilePlanet:       0,
+		CyberWarfare:        0,
+		RaveDance:           0,
+		SunBeams:            0,
+		WaywardAi:           5,
+		Threeply:            0,
+		Fiesta:              5,
+		WizardsTunnel:       0,
+		GapingHole:          0,
+		LeapOfFaith:         0,
+		BreathingRoom:       0,
+		NameMe:              0,
+		EasterEgg:           0,
 	},
 	/* Have you ever wondered,
 	how many settings are too many settings?
@@ -165,6 +213,15 @@ var audiOrbits = {
 	hueValues: [],
 	// actions to perform after render
 	afterRenderQueue: [],
+	// Array of func pointers mapped to probability values
+	fractalFuncs: [],
+	// Copy of Attractor settings
+	currAttrSett: [],
+	lastSpiralRot: DEFAULT_LEVEL_ROTATION,
+	spiralRad: 0,
+
+	// Set to a high value if all fractals were unselected
+	spinWildly: 0,
 
 	// generator holder
 	levelWorker: null,
@@ -174,6 +231,126 @@ var audiOrbits = {
 	///////////////////////////////////////////////
 	// APPLY SETTINGS
 	///////////////////////////////////////////////
+
+	GetAttrSettings: function () {
+		var self = audiOrbits;
+		var sett = self.settings;
+
+		const attrSettCopy = [
+			sett.Hopalong,
+			sett.HopalongMod1,
+			sett.HopalongMod2,
+			sett.HopalongZen,
+			sett.FuturisticHUD,
+			sett.Stereoscopic,
+			sett.SunSpots,
+			sett.Trypophobia,
+			sett.SuperNovaD,
+			sett.SuperNovaE,
+			sett.EndlessPit,
+			sett.OrderedChaos,
+			sett.AlienPhantasms,
+			sett.AlienEtching,
+			sett.AlienHieroglyphs,
+			sett.Wormhole,
+			sett.SpaceCarnival,
+			sett.Coexistance,
+			sett.HawkingRadiation,
+			sett.Medusa,
+			sett.QuadrupTwo,
+			sett.NeonLights,
+			sett.NeonSigns,
+			sett.MathematicalSpecter,
+			sett.OpticalIllusion,
+			sett.VisualIllusion,
+			sett.SlinkyWorms,
+			sett.ObservableUniverse,
+			sett.ParallelUniverse,
+			sett.HostilePlanet,
+			sett.CyberWarfare,
+			sett.RaveDance,
+			sett.SunBeams,
+			sett.WaywardAi,
+			sett.Threeply,
+			sett.Fiesta,
+			sett.WizardsTunnel,
+			sett.GapingHole,
+			sett.LeapOfFaith,
+			sett.BreathingRoom,
+			sett.NameMe,
+			sett.EasterEgg
+		];
+		return attrSettCopy;
+	},
+
+	UpdateAttrSettings: function(currAttrSett) {
+		var self = audiOrbits;
+		var sett = self.settings;
+
+		var i = 0;
+
+		sett.Hopalong              = currAttrSett[i++];
+		sett.HopalongMod1          = currAttrSett[i++];
+		sett.HopalongMod2          = currAttrSett[i++];
+		sett.HopalongZen           = currAttrSett[i++];
+		sett.BarryMartinSinusoidal = currAttrSett[i++];
+		sett.FuturisticHUD         = currAttrSett[i++];
+		sett.Stereoscopic          = currAttrSett[i++];
+		sett.SunSpots              = currAttrSett[i++];
+		sett.Trypophobia           = currAttrSett[i++];
+		sett.SuperNovaD            = currAttrSett[i++];
+		sett.SuperNovaE            = currAttrSett[i++];
+		sett.EndlessPit            = currAttrSett[i++];
+		sett.OrderedChaos          = currAttrSett[i++];
+		sett.AlienPhantasms        = currAttrSett[i++];
+		sett.AlienEtching          = currAttrSett[i++];
+		sett.AlienHieroglyphs      = currAttrSett[i++];
+		sett.Wormhole              = currAttrSett[i++];
+		sett.Coexistance           = currAttrSett[i++];
+		sett.HawkingRadiation      = currAttrSett[i++];
+		sett.Medusa                = currAttrSett[i++];
+		sett.QuadrupTwo            = currAttrSett[i++];
+		sett.NeonLights            = currAttrSett[i++];
+		sett.NeonSigns             = currAttrSett[i++];
+		sett.MathematicalSpecter   = currAttrSett[i++];
+		sett.OpticalIllusion       = currAttrSett[i++];
+		sett.VisualIllusion        = currAttrSett[i++];
+		sett.SlinkyWorms           = currAttrSett[i++];
+		sett.ObservableUniverse    = currAttrSett[i++];
+		sett.ParallelUniverse      = currAttrSett[i++];
+		sett.HostilePlanet         = currAttrSett[i++];
+		sett.CyberWarfare          = currAttrSett[i++];
+		sett.RaveDance             = currAttrSett[i++];
+		sett.SunBeams              = currAttrSett[i++];
+		sett.WaywardAi             = currAttrSett[i++];
+		sett.Threeply              = currAttrSett[i++];
+		sett.Fiesta                = currAttrSett[i++];
+		sett.WizardsTunnel         = currAttrSett[i++];
+		sett.GapingHole            = currAttrSett[i++];
+		sett.LeapOfFaith           = currAttrSett[i++];
+		sett.BreathingRoom         = currAttrSett[i++];
+		sett.NameMe                = currAttrSett[i++];
+		sett.EasterEgg             = currAttrSett[i++];
+	},
+
+	PushSettingsToUi: function () {
+		var self = audiOrbits;
+		var sett = self.settings;
+		var props = wewwApp.GetProperties();
+
+		var settStorage = [sett, weas.settings, weicue.settings];
+		for (var setting in props) {
+			var prop = props[setting];
+			if (!prop || !prop.type || prop.type == "text") continue;
+			for (var storage of settStorage) {
+				if (storage[setting] != null) {
+					if (storage[setting] !== prop.value) {
+						wewwApp.UpdateUiProperty(setting, storage[setting]);
+					}
+				}
+			}
+		}
+	},
 
 	// Apply settings from the project.json "properties" object and takes certain actions
 	applyCustomProps: function (props) {
@@ -186,9 +363,28 @@ var audiOrbits = {
 			"num_levels", "level_depth", "level_shifting", "bloom_filter", "lut_filter", "mirror_shader",
 			"mirror_invert", "fx_antialiasing", "blur_strength", "custom_fps", "shader_quality"];
 
+		var _regen =  ["alg_a_min", "alg_a_max", "alg_b_min",
+			"alg_b_max", "alg_c_min", "alg_c_max", "alg_d_min",
+			"alg_d_max", "alg_e_min", "Hopalong",
+			"HopalongMod1", "HopalongMod2", "HopalongZen", "FuturisticHUD",
+			"Stereoscopic", "SunSpots", "Trypophobia", "SuperNovaD",
+			"SuperNovaE", "EndlessPit", "OrderedChaos", "AlienPhantasms",
+			"AlienEtching", "AlienHieroglyphs", "Wormhole", "SpaceCarnival",
+			"Coexistance", "HawkingRadiation", "Medusa", "QuadrupTwo",
+			"NeonLights", "NeonSigns", "MathematicalSpecter", "OpticalIllusion",
+			"VisualIllusion", "SlinkyWorms", "ObservableUniverse", "ParallelUniverse",
+			"HostilePlanet", "CyberWarfare", "RaveDance", "SunBeams",
+			"WaywardAi", "Threeply", "Fiesta", "WizardsTunnel",
+			"GapingHole", "LeapOfFaith", "BreathingRoom", "NameMe",
+			"EasterEgg"];
+
+		var _spiral =  ["spiral"];
+
 		var self = audiOrbits;
 		var sett = self.settings;
 		var reInitFlag = false;
+		var reGenLevels = false;
+		var setSpiral = false;
 
 		// possible apply-targets
 		var settStorage = [sett, weas.settings, weicue.settings];
@@ -199,8 +395,8 @@ var audiOrbits = {
 			if (_ignore.includes(setting) || setting.startsWith("HEADER_")) continue;
 			// get the updated setting
 			var prop = props[setting];
-			// check typing
-			if (!prop || !prop.type || prop.type == "text") continue;
+			// check typing and null value
+			if (!prop || !prop.type || prop.type == "text" || prop.value == null) continue;
 
 			var found = false;
 			// process all storages
@@ -215,8 +411,12 @@ var audiOrbits = {
 					else
 						storage[setting] = prop.value;
 
-					// set re-init flag if value changed and included in list
-					reInitFlag = reInitFlag || b4Setting != storage[setting] && _reInit.includes(setting);
+					if (b4Setting != storage[setting]) {
+						// This setting has changed
+						if (_reInit.includes(setting)) reInitFlag = true;
+						if (_regen.includes(setting)) reGenLevels = true;
+						if (_spiral.includes(setting)) setSpiral = true;
+					}
 				}
 			}
 			// invalid?
@@ -269,6 +469,31 @@ var audiOrbits = {
 		if (sett.parallax_option == 0) self.mouseX = self.mouseY = 0;
 		// set Cursor for "fixed" parallax mode
 		if (sett.parallax_option == 3) self.positionMouseAngle(sett.parallax_angle);
+
+		// Regen levels to see the effect of the setting change sooner.
+		if (reGenLevels && !reInitFlag) {
+			// Destroy any queued levels
+			while (self.afterRenderQueue.length > 0) {
+				self.afterRenderQueue.shift();
+			}
+			const attrSet = self.GetAttrSettings();
+			for (var l = 0; l < sett.num_levels; l++) {
+				// Set all levels to use the same oribital choices
+				self.fractalFuncs[l] = self.NormalizeFractChoices(attrSet);
+				// Regenerate levels with new choices
+				if (self.state !== RunState.None) self.generateLevel(l);
+				print(self.fractalFuncs[l], force=false);
+			}
+		}
+
+		if (setSpiral) {
+			// Update spiral radian field
+			self.spiralRad = (sett.spiral * Math.PI / 180);
+			// Reset all levels to default rotation
+			if (!reInitFlag) {
+				self.setToDefaultRotation();
+			}
+		}
 
 		// have render-relevant settings been changed?
 		return reInitFlag;
@@ -336,6 +561,9 @@ var audiOrbits = {
 			self.renderer.setSize(window.innerWidth, window.innerHeight);
 		}, false);
 
+		// Save a copy of the settings into an array
+		self.currAttrSett = self.GetAttrSettings();
+
 		// init plugins
 		LUTSetup.run();
 		weicue.init();
@@ -402,6 +630,11 @@ var audiOrbits = {
 		self.moveBacks = [];
 		self.hueValues = [];
 		self.afterRenderQueue = [];
+		// Set the fractalFuncs to equal the number of funcs we have
+		self.fractalFuncs = Array(sett.num_levels);
+		// Radian reprisentation of spiral
+		self.spiralRad = (sett.spiral * Math.PI / 180);
+
 
 		// setup level generator
 		self.levelWorker = new Worker('./js/worker/levelWorker.js');
@@ -427,7 +660,10 @@ var audiOrbits = {
 		weicue.mainCanvas = self.mainCanvas;
 
 		// setup basic objects
+		const attrSet = self.GetAttrSettings();
 		for (var l = 0; l < sett.num_levels; l++) {
+			self.fractalFuncs[l] = self.NormalizeFractChoices(attrSet);
+
 			var sets = [];
 			for (var i = 0; i < sett.num_subsets_per_level; i++) {
 				sets[i] = {
@@ -560,7 +796,8 @@ var audiOrbits = {
 				}
 				else particles.position.z = - sett.level_depth * k - (s * subsetDist) + sett.scaling_factor / 2;
 				// euler angle 45 deg in radians
-				particles.rotation.z = -0.785398;
+				if (self.spiralRad != 0) self.updateSpiral(particles);
+				else particles.rotation.z = DEFAULT_LEVEL_ROTATION;
 				particles.needsUpdate = false;
 				// add to scene
 				self.scene.add(particles);
@@ -728,6 +965,19 @@ var audiOrbits = {
 		};
 	},
 
+	setToDefaultRotation: function () {
+		var self = audiOrbits;
+		var sett = self.settings;
+			// If it was set to 0, then set all levels to the default rotation.
+			if (self.spiralRad == 0 && self.state != RunState.None) {
+				for (var k = 0; k < sett.num_levels; k++) {
+					// Reset level rotation
+					for (var s = 0; s < sett.num_subsets_per_level; s++) {
+						self.levels[k].subsets[s].child.rotation.z = DEFAULT_LEVEL_ROTATION;
+					}
+				}
+			}
+	},
 
 	///////////////////////////////////////////////
 	// RENDERING
@@ -809,7 +1059,7 @@ var audiOrbits = {
 
 	// render a single frame with the given delta
 	animateFrame: function (ellapsed, deltaTime) {
-		print("| animate | ellapsed: " + ellapsed + ", delta: " + deltaTime);
+		//print("| animate | ellapsed: " + ellapsed + ", delta: " + deltaTime);
 		var self = audiOrbits;
 		var sett = self.settings;
 
@@ -888,6 +1138,7 @@ var audiOrbits = {
 				//print("moved back child: " + i);
 				child.position.z -= sett.num_levels * sett.level_depth;
 				self.moveBacks[child.myLevel]++;
+				if (self.spiralRad != 0) self.updateSpiral(child);
 
 				// update the child visually
 				if (child.needsUpdate) {
@@ -903,7 +1154,7 @@ var audiOrbits = {
 
 			// velocity & rotation
 			child.position.z += spvn;
-			child.rotation.z -= rot;
+			child.rotation.z -= rot - self.spinWildly;
 
 			// targeted HUE
 			tmpHue = Math.abs(self.hueValues[child.mySubset]);
@@ -941,7 +1192,7 @@ var audiOrbits = {
 					setLight += (defBri - setLight) / sixtyDelta;
 			}
 			// update dat shit
-			print("setHSL | child: " + i + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
+			//print("setHSL | child: " + i + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
 			child.myMaterial.color.setHSL(self.clamp(setHue, 0, 1, true), self.clamp(setSat, 0, 1), self.clamp(setLight, 0, 1));
 		}
 	},
@@ -954,6 +1205,13 @@ var audiOrbits = {
 		else {
 			return Math.max(Math.min(val, max), min);
 		}
+	},
+
+	updateSpiral: function (level) {
+		var self = audiOrbits;
+		var newRotVal = self.lastSpiralRot + self.spiralRad;
+		self.lastSpiralRot = newRotVal;
+		level.rotation.z = newRotVal;
 	},
 
 	///////////////////////////////////////////////
@@ -1000,10 +1258,102 @@ var audiOrbits = {
 	generateLevel: function (level) {
 		print("generating level: " + level);
 		audiOrbits.levelWorkersRunning++;
-		audiOrbits.levelWorker.postMessage({
+		let parms = {
 			id: level,
-			settings: audiOrbits.settings
-		});
+			settings: audiOrbits.settings,
+			frac: audiOrbits.fractalFuncs[level]
+		};
+
+		audiOrbits.levelWorker.postMessage(parms);
+	},
+
+	NormalizeFractChoices: function (attrSet) {
+		var self = audiOrbits;
+		var sett = self.settings;
+		var i, temp;
+
+		var normalizedChoices;
+		const exclusiveParams = attrSet.filter(p => p === 100);
+		if (exclusiveParams.length > 0) {
+			// Any 100s are treated as exclusive parameters.
+			normalizedChoices = attrSet.map(p => p === 100 ? (1/exclusiveParams.length) : 0);
+		} else {
+			// Otherwise use the normal weight calculation
+			var total = attrSet.reduce((a, b) => a + b, 0);
+			if (total == 0) {
+				// User selected all 0s. Randomly select a fractal
+				if (sett.rotation_val == -10) {
+					// Camera rotation value was set to -10
+					// As an added bonus, spin the camera a lot as a little easter egg.
+					self.spinWildly = 5;
+				}
+				// Pick a random index within our array size
+				var rand = Math.floor(Math.random() * (attrSet.length + 1));
+				normalizedChoices = self.GetAttrSettings();
+				normalizedChoices[rand] = 1;
+			} else {
+				if (self.spinWildly != 0) {
+					// Revert camera spin back to normal
+					self.spinWildly = 0;
+					if (self.state == RunState.Running) {
+						self.setToDefaultRotation();
+					}
+				}
+				normalizedChoices = attrSet.map(p => total > 0 ? p / total : 0);
+			}
+		}
+
+		// Map each fractal choice to an index into a lookup-table used by the web worker
+		mapArrToFuncIndx = (c) => {
+			const fc = Array(c.length);
+			for (i = 0; i < c.length; i++) {
+				const attr = [c[i], i];
+				fc[i] = attr;
+			}
+			return fc;
+		}
+		// Bubble sort intern func. Highest to lowest. Remove any indexes with a 0 value.
+		bubSort = (arr, size) => {
+			// Sort
+			for (i = 0; i < size - 1; i++) {
+				for (var j = 0; j < size - i - 1; j++) {
+					if (arr[j][0] < arr[j + 1][0]) {
+						temp = arr[j];
+						arr[j] = arr[j + 1];
+						arr[j + 1] = temp;
+					}
+				}
+			}
+		}
+		// Sum up the fields, saving as we go
+		sumNormalization = (arr, size) => {
+			var j = 0;
+			// Save first element's value
+			var culm = arr[0][0];
+
+			// Iterate through the array starting at index 1. Sum
+			// all saving the rolling sum as we go.
+			for (i = 1; i < size - j; i++) {
+				if (arr[i][0] === 0) {
+					arr.pop();
+					i--;
+					j++;
+					continue;
+				}
+				culm += arr[i][0];
+				arr[i][0] = culm;
+			}
+
+			if (culm === 0) {
+				// Everything was 0. Pop off first element so array is empty.
+				arr.pop();
+			}
+		}
+		const fc = mapArrToFuncIndx(normalizedChoices);
+		bubSort(fc, fc.length);
+		sumNormalization(fc, fc.length);
+
+		return fc;
 	},
 
 
