@@ -1,25 +1,47 @@
-# [AudiOrbits](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780) is a web wallpaper designed for [Wallpaper Engine](https://steamcommunity.com/app/431960)
+# [AudiOrbits](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
 
-You are currently viewing the "OLD" 2.3.x branch, which is maintained for maintenance and bug-fixing purposes only.
+## A web wallpaper designed for [Wallpaper Engine](https://steamcommunity.com/app/431960)
 
-You should generally *NOT* rely on this branch, or suggest new features here.
+### IMPORTANT NOTICE
 
-Please use the "main" branch for that.
+You are currently viewing the **OLD** 2.3.x branch, which exists only for maintenance and bug-fixing purposes.
 
-## [THIS](https://github.com/hexxone/audiorbits) is the wallpaper's public git repository
+You should generally **NOT** rely on this branch, or suggest new features here.
 
-## PLEASE NOTE
+Please use [the "main" branch](https://github.com/hexxone/audiorbits) for that.
 
-The wallpaper is made for and maintained on the Steam Workshop.
+## About
 
-However, it is basically a website and can be viewed in any browser.
+The wallpaper was originally made for and maintained on the Steam Workshop.
+
+However, it is basically a website and can be viewed in almost any browser.
 
 Since you need to own the Wallpaper Engine to access the Workshop content and this wallpaper, I've published this for some interested people...
 
-*But:* If you encounter any problems or have any suggestions **please address them on Steam.**
-
 Feel free to use this "wallpaper" at your favourite party, event, video, stream, etc.
 Please remember to give credit by including a link to this repository or the wallpaper on Steam :) Thank you.
+
+### Usage
+
+There are several different ways to run the Wallpaper "online" or "offline".
+
+The easiest way to use it online (with internet access) is here: <https://orbits.hexx.one/>
+
+If you want to run it as a **Wallpaper for your Desktop** offline/locally, there are several different options:
+
+- [Wallpaper-Engine](https://orbits.hexx.one/) A paid App to on Steam but totally worth the price imho.
+- [Lively-Wallpaper](https://github.com/rocksdanister/lively) A free alternative to Wallpaper-Engine, but needs **SEPARATE MODIFIED VERSION** of AudiOrbits.
+
+You can find the 2.4. "Lively" Wallpaper version for download in the github releases section:
+<https://github.com/hexxone/audiorbits/releases>
+
+If you need the 2.3. "Lively" wallpaper version, you can find it as a forked repository here (may be outdated):
+<https://github.com/rocksdanister/audiorbits>
+
+Its unclear if there will be additional 2.3.X releases for Lively Wallpaper. Its too much maintenance effort tbh.
+
+Lastly, if you do not want to use it as a wallpaper BUT offline, you will need to run a small web server or configure your browser with special arguments to allow it,
+but explaining this would go beyond the scope of this README-file. In this case you will have to do your own research :)
 
 ## Dependencies / Libraries
 
