@@ -1,13 +1,16 @@
 /**
- * @author D.Thiele @https://hexx.one
+ * @author hexxone / https://hexx.one
+ * @author ssaenger / https://github.com/ssaenger
  * 
  * @license
- * Copyright (c) 2020 D.Thiele All rights reserved.  
+ * Copyright (c) 2025 hexxone All rights reserved.  
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.  
  * 
  * @description
  * AudiOrbits level-generator worker.
+ *
+ * Special thanks to @ssaenger for his contribution of >30 fractal algorithms!
  */
 
 var po = {
@@ -1740,15 +1743,15 @@ onmessage = function (e) {
     let num_subsets = sett.num_subsets_per_level;
     let num_points_subset = sett.num_points_per_subset;
 
-    // create a buffer thats big enough to hold the x,y,z corrdinate
+    // create a buffer that's big enough to hold the x,y,z coordinate
     // of all subsets * points of the level.
-    // may seem ridiclous, but is actually the fastest way to transfer.
+    // may seem ridiculous, but is actually the fastest way to transfer.
     let xyzBuff = new Float32Array(num_subsets * num_points_subset * 2);
 
     let scale_factor_l = sett.scaling_factor;
     let tunnel = sett.generate_tunnel;
-    let iradius = sett.tunnel_inner_radius / 100;
-    let oradius = sett.tunnel_outer_radius / 100;
+    let innerRadius = sett.tunnel_inner_radius / 100;
+    let outerRadius = sett.tunnel_outer_radius / 100;
     // get randomized params in defined ranges
     po.al = sett.alg_a_min + Math.random() * (sett.alg_a_max - sett.alg_a_min);
     po.bl = sett.alg_b_min + Math.random() * (sett.alg_b_max - sett.alg_b_min);
@@ -1766,7 +1769,7 @@ onmessage = function (e) {
             break;
         }
     }
-    if (i == fcLen) {
+    if (i === fcLen) {
         // Did not select a frac. Default to GapingHole since it's pretty empty
         GapingHole(num_subsets, num_points_subset, xyzBuff);
     }
@@ -1795,10 +1798,10 @@ onmessage = function (e) {
             // and move them outwards in a circular way
             if (tunnel) {
                 dist = getPointDistance(0, 0, x, y) / scale_factor_l;
-                //print("pd: " + dist + ",   inner: " + iradius);
-                if (dist < iradius) {
-                    scaling = dist / iradius;
-                    outer = scaling / oradius;
+                //print("pd: " + dist + ",   inner: " + innerRadius);
+                if (dist < innerRadius) {
+                    scaling = dist / innerRadius;
+                    outer = scaling / outerRadius;
                     x = x / scaling + x * outer;
                     y = y / scaling + y * outer;
                 }

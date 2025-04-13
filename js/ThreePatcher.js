@@ -1,9 +1,7 @@
-
 /**
- * 
+ * @description
  * FIX SOME STUPID THREE JS ERROR MESSAGES
  * https://github.com/mrdoob/three.js/issues/19735
- * 
  */
 var ThreePatcher = {
     patch: function () {

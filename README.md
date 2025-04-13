@@ -1,60 +1,68 @@
-## [AudiOrbits](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780) is a web wallpaper designed for [Wallpaper Engine](https://steamcommunity.com/app/431960)
+# [AudiOrbits](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780) is a web wallpaper designed for [Wallpaper Engine](https://steamcommunity.com/app/431960)
 
-### [THIS](https://github.com/hexxone/audiorbits) is the wallpaper's public git repository.
+You are currently viewing the "OLD" 2.3.x branch, which is maintained for maintenance and bug-fixing purposes only.
 
-### PLEASE NOTE
+You should generally *NOT* rely on this branch, or suggest new features here.
 
-The Wallpaper is made for and maintained on the Steam Workshop.
+Please use the "main" branch for that.
 
-It is however basically a website and can be easily run in any browser.
+## [THIS](https://github.com/hexxone/audiorbits) is the wallpaper's public git repository
 
-Since you need to own Wallpaper Engine in order to access it's Workshop Content and this Wallpaper, I published this for some interested people...
+## PLEASE NOTE
 
-*But:* If you encounter any issues of have suggestions **please address them on Steam.**
+The wallpaper is made for and maintained on the Steam Workshop.
 
+However, it is basically a website and can be viewed in any browser.
 
-P.S.: Feel free to use this "wallpaper" at your favourite party, event, video, stream, etc.
-Just remember to give credit where due :)
+Since you need to own the Wallpaper Engine to access the Workshop content and this wallpaper, I've published this for some interested people...
 
+*But:* If you encounter any problems or have any suggestions **please address them on Steam.**
 
-### Dependencies / Libraries
+Feel free to use this "wallpaper" at your favourite party, event, video, stream, etc.
+Please remember to give credit by including a link to this repository or the wallpaper on Steam :) Thank you.
+
+## Dependencies / Libraries
+
 - [we_utils](https://github.com/hexxone/we_utils) diverse utilities
 - [we_project_helper](https://github.com/hexxone/we_project_helper) translating & editing .json
 - [jQuery](https://jquery.com/) gui editing
 - [three.js](https://threejs.org/) & Examples for webgl rendering
 - [HTML5 Environment](https://html5test.com/) for webGL & audio features
 
-
-### Features:
+## Features
 
 Please head over to the Workshop-Page for a full list (see title for the link).
 
-
-### Changelog:
+## Changelog
 
 Version 2.3.1:
+
 - added 39 orbital fractlas/attractors
 - added weight slider for each of the 42 orbitals under Attractor Settings
 - added "Spiral" option under General Settings
 - changed min/max range of algorithm params
 - algorithm param E now defaults to 0
 - fixed setting no longer being updated after assigning it to null
+- Special thanks to [ssaenger](https://github.com/ssaenger) for his contribution on this update!
 
 Version 2.3:
+
 - added "shader_quality"-setting (Advanced)
 - outsourced and restructured most libraries
 - added lots of languages (see we_project_helper)
 
 Version 2.2:
+
 - fixed "no audio = screen black" issue
 - fixed rendering/zoom speed issue
-- fixed transparency for all shaders 
+- fixed transparency for all shaders
 - fixed some LED / iCUE issues
-- added Custom Color option for Background 
+- added Custom Color option for Background
 - added "Only Forward Zoom" option
 - shortened animations & reload-time
 
 Version 2.1:
+
 - added blur-filter
 - added FXAA-filter
 - added "reload" indicator
@@ -67,6 +75,7 @@ Version 2.1:
 - removed moment.js
 
 Version 2.0:
+
 - added "filter"-tab
 - added invertable mirror-filter
 - moved bloom-filter to "filter"-tab
@@ -75,9 +84,11 @@ Version 2.0:
 - removed "system drawing"
 
 Version 1.9:
+
 - added "minimum volume" setting
 
 Version 1.8:
+
 - added "fixed" parallax mode
 - added "color"-tab and three new color modes
 - added LUT (LookUpTable)-filter with three modes to "color"-tab
@@ -86,12 +97,12 @@ Version 1.8:
 - level shifting is now ON by default
 - removed "no_pause"-setting (there is an equivalent option in WE)
 - updated WEWWA.js for browser usage
-- updated https://orbits.hexx.one/
+- updated <https://orbits.hexx.one/>
 - updated preview image to a gif
 - improved rendering performance
 
-
 Version 1.7:
+
 - !!! Please reset your config for one last time !!!
 - a lot of internal changes have been made
 - default settings have been lowered
@@ -108,17 +119,17 @@ Version 1.7:
 - audio processing is now reusable (WEAS.js)
 - uploaded some awesome pre-configs :)
 
-
 Version 1.6:
+
 - added overlay & background image options
 - added default brightness & saturation options
-- added "playing audio" minimum brightness & saturation options 
+- added "playing audio" minimum brightness & saturation options
 - added custom font & greeting message
-- improved smooth fade-in 
+- improved smooth fade-in
 - renamed "camera position" to "camera bound"
 
-
 Version 1.5:
+
 - grouped settings by categories
 - added fog thickness setting
 - added texture size setting
@@ -127,8 +138,8 @@ Version 1.5:
 - rendering is now independent of fps (deltaTime calculation)
 - added a small Easteregg :)
 
-
 Version 1.4:
+
 - fixed screen going black due to invalid audio data
 - fixed wallpaper-engine fps limiter
 - updated render lib
@@ -143,15 +154,15 @@ Version 1.4:
 - added level shifting (experimental)
 - removed progression
 
-
 Version 1.3:
+
 - audio-processing improved for different music genres
 - better smoothing, cache & performance
 - "Volume Level" wont affect "Zoom speed" anymore
 - fixed some bugs (hopefully)
 
-
 Version 1.2:
+
 - overhauled settings
 - added optional stats & smoothing
 - changed audio data processing

@@ -1,5 +1,5 @@
 /**
- * @author D.Thiele @https://hexx.one
+ * @author hexxone / https://hexx.one
  */
 
 THREE.LUTShader = {

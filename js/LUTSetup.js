@@ -1,8 +1,8 @@
 /**
- * @author D.Thiele @https://hexx.one
+ * @author hexxone / https://hexx.one
  *
  * @license
- * Copyright (c) 2020 D.Thiele All rights reserved.  
+ * Copyright (c) 2025 hexxone All rights reserved.  
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.  
  * 

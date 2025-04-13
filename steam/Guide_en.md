@@ -15,19 +15,23 @@ So, take your time to play around, there are a lot of settings :)
 
 [h2]How it works:[/h2]
 
-Everything you see is made of a single "base texture" called point.
-Points are grouped in 2D fractal geometry-"Subsets". This is a singular 2D plane.
-Multiple Subsets come together as a level.
+Everything you see is made up of a single "base texture" called a point.
+Points are grouped into 2D fractal geometry called "subsets". This is a single 2D plane.
+Multiple subsets come together as a "level".
 
-The position for each Point in its Subset is processed using the "Hopalong Attractor" for orbital levels with the name "Hopalong".
-Click here to learn more about this algorithm: http://www.fraktalwelt.de/myhome/simpiter2_2.htm
-Other Orbitals were created by [url=https://steamcommunity.com/id/ominous_end]Zinic[/url] and are based off the Threeply or QuadrupTwo fractals. Many are of his own design ^^
+The position for each point in its subset is processed using one of several attractors.
+Originally it was just the Hopalong attractor.
+Click here to learn more about this algorithm: http://www.fraktalwelt.de/myhome/simpiter2_2.htm 
 
-After all Subsets of a level have passed the camera, the level is re-generated and moved back to the end.
-The color, brightness and light are processed in realtime per Subset.
+Other orbitals were created by [url=https://steamcommunity.com/id/ominous_end]Zinic[/url] and are based on the Threeply or QuadrupTwo fractals.
+Many are of his own design.
 
-The Audio-Spectrum is mapped onto the whole size of the Levels, beginning with low frequencies "near" the camera to high frequencies "away" from the camera. I might later add an option to invert that, however some more tweaking will be required.
+After all subsets of a level have passed the camera, the level is regenerated and moved back to the end.
+Colour, brightness and light are processed in real time for each subset.
 
+The audio spectrum is mapped to the full size of the levels,
+starting with the low frequencies 'near' the camera to the high frequencies 'far' from the camera.
+In the latest version (2.4+) there is an option to invert this.
 
 [h2]When experiencing low "synced" FPS in Wallpaper Engine:[/h2]
 
@@ -36,8 +40,8 @@ To try and fix this, you may take the following steps. Please keep in mind that 
 and may cause weird behaviours elsewhere.
 
 1. Open Wallpaper Engine Window
-2. klick the "Settings Wheel" at the top right, then navigate to the 2nd Tab "Common" 
-3. Scroll down to "Comanndline for CEF"
+2. click the "Settings Wheel" at the top right, then navigate to the 2nd Tab "Common" 
+3. Scroll down to "Commandline for CEF"
 4. Enter or append " --disable-gpu-vsync" (without quotes).
 5. Press "OK" - That should do the trick.
 
@@ -48,7 +52,7 @@ Check you Wallpaper Engine Audio Settings:
 First, select the correct input/output device in Wallpaper Engine Settings (Default should do it)
 Next, set your Input Volume (mine is set to 100)
 
-If this doesnt help, take a look at your Windows Audio Devices or the Wallpaper Engine official forum.
+If this doesn't help, take a look at your Windows Audio Devices or the Wallpaper Engine official forum.
 I can only help with issues related to this wallpaper, not necessarily your PC :)
 
 
@@ -74,7 +78,7 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 ║║   if audio is playing, this value is slightly influenced by the "boost" factor.
 ║║
 ║╠══ color fade speed setting
-║║   the speed at wich the "hue" values are cycled through.
+║║   the speed at which the "hue" values are cycled through.
 ║║
 ║╠══ spiral setting
 ║║   Each subset, or 2D fractal plane, is rotated by this amount in degrees, creating
@@ -96,16 +100,16 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 ║║
 ║╠══ peak filter
 ║║   apply "pow()" on every audio value with "peak-filter-value" + 1
-║║   Afterwards re-scale the values to their previous maximum.
+║║   Afterward re-scale the values to their previous maximum.
 ║║
 ║╠══ time smoothing
 ║║   adjust the relative percentage of changes applied to values
 ║║   this can have great influence on the experience.
-║║   if the wallpaper is "flashing" alot while listening to music, turn down the values.
+║║   if the wallpaper is "flashing" a lot while listening to music, turn down the values.
 ║║
 ║╠══ value smoothing
 ║║   Takes the average of "(value-smoothing)*2+1" audio values instead of only "1".
-║║   Should be especially usefull when using the peak filter :)
+║║   Should be especially usefully when using the peak filter :)
 ║║
 ║╠══ audio zoom multiplier
 ║║   adjust, how much the audio can "boost" the zoom speed.
@@ -128,7 +132,7 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 ║
 ╠╦ advanced settings
 ║║
-║╠══ 3 choosable base textures
+║╠══ 3 selectable base textures
 ║║
 ║╠══ texture size setting
 ║║   If you have a big screen or had to turn down the points per subset 
@@ -138,7 +142,7 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 ║║   check and monitor the wallpaper performance with different settings
 ║║
 ║╠══ FOV setting
-║║   Field of View - Google if you dont know :)
+║║   Field of View - Google if you don't know :)
 ║║
 ║╠══ Scaling factor
 ║║   Maximum Unit Size for Orbit Subsets
@@ -170,15 +174,15 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 ╠╦ attractor settings (new to v2.3.1. Thanks [url=https://steamcommunity.com/id/ominous_end]Zinic[/url]!)
 ║║
 ║╚══ Each of the different attractors (aka Orbitals) are selectable via a weighted system. The higher
-║    the orbital is set to, the more likly it will be played. A value of 100 is considered "infinite",
-║    meaning only the orbitals that are set to 100 will be played with equal chance. A value of 0 means
+║    the orbital is set to, the more likely it will be selected. A value of 100 is considered "infinite",
+║    meaning only the orbitals that are set to 100 will be selected with equal chance. A value of 0 means
 ║    that orbital won't be played. Setting all Orbitals to 0 generates a random set of Orbitals.
 ║
-║    Every orbital is affected by algorithm parameter [b]A[/b]. Parms [b]B - E[/b] affect most obitals.
-║    Parm [b]E[/b] is a special one because it is set to 0 by default. Small changes to this parm can
-║    have drastic affect on the visual appearance of an Orbital.
-║    To see which algorithm parm affects which orbital, see the "js/worker/levelWorker.js" file in the
-║    2.3.x branch from [url=https://github.com/hexxone/audiorbits/tree/2.3_release]github[/url]
+║    Every orbital is affected by algorithm parameter [b]A[/b]. Params [b]B - E[/b] affect most orbitals.
+║    Param [b]E[/b] is a special one because it is set to 0 by default. Small changes to this param can
+║    have drastic effect on the visual appearance of an Orbital.
+║    To see which algorithm param affects which orbital, see the "js/worker/levelWorker.js" file in the
+║    2.3.x branch from [url=https://github.com/hexxone/audiorbits/tree/2.3.x]github[/url]
 ║
 ║    One orbital is named [u]Name Me[/u]. Zinic wants someone in the comments decide on a name for this
 ║    one. Go ahead and share a name you think is fitting for this one ^^. I'll update it later with that name.
@@ -191,4 +195,4 @@ I can only help with issues related to this wallpaper, not necessarily your PC :
 
 
 
-[h2]feel free to ask more.[/h2]
+[h2]Feel free to ask more questions.[/h2]
