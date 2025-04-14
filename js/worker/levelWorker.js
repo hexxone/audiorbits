@@ -44,7 +44,7 @@ const fracs = [
     AlienHieroglyphs,
     Wormhole,
     SpaceCarnival,
-    Coexistance,
+    Coexistence,
     HawkingRadiation,
     Medusa,
     QuadrupTwo,
@@ -729,7 +729,7 @@ function SpaceCarnival(numSub, numPointsSub, xyzBuff) {
     }
 }
 
-function Coexistance(numSub, numPointsSub, xyzBuff) {
+function Coexistence(numSub, numPointsSub, xyzBuff) {
     let s, i, x1, y1, bid;
     let x, y;
     let a, b;
@@ -1759,7 +1759,7 @@ onmessage = function (e) {
     po.dl = sett.alg_d_min + Math.random() * (sett.alg_d_max - sett.alg_d_min);
     po.el = sett.alg_e_min + Math.random() * (sett.alg_e_max - sett.alg_e_min);
     // some stuff needed in the subset generation loop
-    po.xMin = 0, po.xMax = 0, po.yMin = 0, po.yMax = 0;
+    po.xMin = po.xMax = po.yMin = po.yMax = 0;
     let choice = Math.random();
     let s, x, y, i, bid;
     // Grab an Attractor based on choice

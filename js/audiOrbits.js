@@ -1,26 +1,26 @@
 /**
  * @author hexxone / https://hexx.one
- * 
+ *
  * @license
- * Copyright (c) 2025 hexxone All rights reserved.  
+ * Copyright (c) 2025 hexxone All rights reserved.
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
- * See LICENSE file in the project root for full license information.  
- * 
+ * See LICENSE file in the project root for full license information.
+ *
  * @see
  * AudiOrbits project	(https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
  * for Wallpaper Engine (https://steamcommunity.com/app/431960)
- * by Hexxon 			(https://hexx.one)
- * 
- * You don't own Wallper Engine but want to see this in action?
+ * by hexxone 			(https://hexx.one)
+ *
+ * You don't own Wallpaper Engine but want to see this in action?
  * Go here:	https://orbits.hexx.one
- * 
+ *
  * @description
- * Audiorbits for Wallpaper Engine
- * 
+ * AudiOrbits for Wallpaper Engine
+ *
  * If you're reading this you're either pretty interested in the code or just bored :P
  * Either way thanks for using this Wallpaper I guess.
  * Leave me some feedback on the Workshop-Page for this item if you like!
-*/
+ */
 
 const DEFAULT_LEVEL_ROTATION = -0.785398;
 
@@ -30,7 +30,7 @@ function print(arg, force) {
 }
 
 // what's the wallpaper currently doing?
-var RunState = {
+const RunState = {
     None: 0,
     Initializing: 1,
     Running: 2,
@@ -39,7 +39,7 @@ var RunState = {
 };
 
 // base object for wallpaper
-var audiOrbits = {
+const audiOrbits = {
     // holds default wallpaper settings
     // these basically connect 1:1 to wallpaper engine settings.
     // for more explanation on settings visit the Workshop-Item-Forum (link above)
@@ -120,7 +120,7 @@ var audiOrbits = {
         AlienHieroglyphs: 0,
         Wormhole: 0,
         SpaceCarnival: 0,
-        Coexistance: 0,
+        Coexistence: 0,
         HawkingRadiation: 0,
         Medusa: 0,
         QuadrupTwo: 5,
@@ -216,10 +216,9 @@ var audiOrbits = {
     ///////////////////////////////////////////////
 
     GetAttrSettings: function () {
-        var self = audiOrbits;
-        var sett = self.settings;
+        const sett = audiOrbits.settings;
 
-        const attrSettCopy = [
+        return [
             sett.Hopalong,
             sett.HopalongMod1,
             sett.HopalongMod2,
@@ -237,7 +236,7 @@ var audiOrbits = {
             sett.AlienHieroglyphs,
             sett.Wormhole,
             sett.SpaceCarnival,
-            sett.Coexistance,
+            sett.Coexistence,
             sett.HawkingRadiation,
             sett.Medusa,
             sett.QuadrupTwo,
@@ -263,27 +262,26 @@ var audiOrbits = {
             sett.NameMe,
             sett.EasterEgg
         ];
-        return attrSettCopy;
     },
 
     // Apply settings from the project.json "properties" object and takes certain actions
     applyCustomProps: function (props) {
         print("applying settings: " + Object.keys(props).length);
 
-        var _ignore = ["debugging", "img_overlay", "img_background", "base_texture", "mirror_invalid_val"];
+        const _ignore = ["debugging", "img_overlay", "img_background", "base_texture", "mirror_invalid_val"];
 
-        var _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "icue_mode",
+        const _reInit = ["texture_size", "stats_option", "field_of_view", "fog_thickness", "icue_mode",
             "scaling_factor", "camera_bound", "num_points_per_subset", "num_subsets_per_level",
             "num_levels", "level_depth", "level_shifting", "bloom_filter", "lut_filter", "mirror_shader",
             "mirror_invert", "fx_antialiasing", "blur_strength", "custom_fps", "shader_quality"];
 
-        var _regen = ["alg_a_min", "alg_a_max", "alg_b_min", "alg_b_max",
+        const _regen = ["alg_a_min", "alg_a_max", "alg_b_min", "alg_b_max",
             "alg_c_min", "alg_c_max", "alg_d_min", "alg_d_max", "alg_e_min", "alg_e_max",
             "Hopalong", "HopalongMod1", "HopalongMod2", "HopalongZen", "FuturisticHUD",
             "Stereoscopic", "SunSpots", "Trypophobia", "SuperNovaD",
             "SuperNovaE", "EndlessPit", "OrderedChaos", "AlienPhantasms",
             "AlienEtching", "AlienHieroglyphs", "Wormhole", "SpaceCarnival",
-            "Coexistance", "HawkingRadiation", "Medusa", "QuadrupTwo",
+            "Coexistence", "HawkingRadiation", "Medusa", "QuadrupTwo",
             "NeonLights", "NeonSigns", "MathematicalSpecter", "OpticalIllusion",
             "VisualIllusion", "SlinkyWorms", "ObservableUniverse", "ParallelUniverse",
             "HostilePlanet", "CyberWarfare", "RaveDance", "SunBeams",
@@ -291,40 +289,41 @@ var audiOrbits = {
             "GapingHole", "LeapOfFaith", "BreathingRoom", "NameMe",
             "EasterEgg"];
 
-        var _spiral = ["spiral"];
+        const _spiral = ["spiral"];
 
-        var self = audiOrbits;
-        var sett = self.settings;
-        var reInitFlag = false;
-        var reGenLevels = false;
-        var setSpiral = false;
+        const self = audiOrbits;
+        const sett = self.settings;
+
+        let reInitFlag = false;
+        let reGenLevels = false;
+        let setSpiral = false;
 
         // possible apply-targets
-        var settStorage = [sett, weas.settings, weicue.settings];
+        const settStorage = [sett, weas.settings, weicue.settings];
 
         // loop all settings for updated values
-        for (var setting in props) {
+        for (const setting in props) {
             // ignore this setting or apply it manually
             if (_ignore.includes(setting) || setting.startsWith("HEADER_")) continue;
             // get the updated setting
-            var prop = props[setting];
+            let prop = props[setting];
             // check typing and null value
-            if (!prop || !prop.type || prop.type == "text" || prop.value == null) continue;
+            if (!prop || !prop.type || prop.type === "text" || prop.value == null) continue;
 
-            var found = false;
+            let found = false;
             // process all storages
-            for (var storage of settStorage) {
+            for (const storage of settStorage) {
                 if (storage[setting] != null) {
                     // save b4
                     found = true;
-                    var b4Setting = storage[setting];
+                    const b4Setting = storage[setting];
                     // apply prop value
-                    if (prop.type == "bool")
-                        storage[setting] = prop.value == true;
+                    if (prop.type === "bool")
+                        storage[setting] = prop.value === true;
                     else
                         storage[setting] = prop.value;
 
-                    if (b4Setting != storage[setting]) {
+                    if (b4Setting !== storage[setting]) {
                         // This setting has changed
                         if (_reInit.includes(setting)) reInitFlag = true;
                         if (_regen.includes(setting)) reGenLevels = true;
@@ -336,13 +335,13 @@ var audiOrbits = {
             if (!found) print("Unknown setting: " + setting + ". Are you using an old preset?", true);
         }
 
-        // update preview visbility after setting possibly changed
+        // update preview visibility after setting possibly changed
         weicue.updatePreview();
 
         // Custom bg color
         if (props.main_color) {
-            var spl = props.main_color.value.split(' ');
-            for (var i = 0; i < spl.length; i++) spl[i] *= 255;
+            const spl = props.main_color.value.split(' ');
+            for (let i = 0; i < spl.length; i++) spl[i] *= 255;
             document.body.style.backgroundColor = "rgb(" + spl.join(", ") + ")";
         }
 
@@ -352,13 +351,18 @@ var audiOrbits = {
         if (props.img_overlay)
             self.setImgSrc("#img_over", props.img_overlay.value);
 
-        // intitialize texture splash
+        // initialize texture splash
         if (props.base_texture) {
-            var val = props.base_texture.value;
-            switch (val) {
-                default: sett.base_texture_path = "./img/galaxy.png"; break;
-                case 1: sett.base_texture_path = "./img/cuboid.png"; break;
-                case 2: sett.base_texture_path = "./img/fractal.png"; break;
+            switch (props.base_texture.value) {
+                default:
+                    sett.base_texture_path = "./img/galaxy.png";
+                    break;
+                case 1:
+                    sett.base_texture_path = "./img/cuboid.png";
+                    break;
+                case 2:
+                    sett.base_texture_path = "./img/fractal.png";
+                    break;
             }
             reInitFlag = true;
         }
@@ -369,20 +373,20 @@ var audiOrbits = {
         }
 
         // debug logging
-        if (props.debugging) self.debug = props.debugging.value == true;
+        if (props.debugging) self.debug = props.debugging.value === true;
         if (!self.debug && self.debugTimeout) {
             clearTimeout(self.debugTimeout);
             self.debugTimeout = null;
         }
         if (self.debug && !self.debugTimeout)
-            self.debugTimeout = setTimeout(() => self.applyCustomProps({ debugging: { value: false } }), 1000 * 60);
+            self.debugTimeout = setTimeout(() => self.applyCustomProps({debugging: {value: false}}), 1000 * 60);
 
         $("#debugwnd").css("visibility", self.debug ? "visible" : "hidden");
 
         // fix for centered camera on Parallax "none"
-        if (sett.parallax_option == 0) self.mouseX = self.mouseY = 0;
+        if (sett.parallax_option === 0) self.mouseX = self.mouseY = 0;
         // set Cursor for "fixed" parallax mode
-        if (sett.parallax_option == 3) self.positionMouseAngle(sett.parallax_angle);
+        if (sett.parallax_option === 3) self.positionMouseAngle(sett.parallax_angle);
 
         // Regen levels to see the effect of the setting change sooner.
         if (reGenLevels && !reInitFlag) {
@@ -391,12 +395,12 @@ var audiOrbits = {
                 self.afterRenderQueue.shift();
             }
             const attrSet = self.GetAttrSettings();
-            for (var l = 0; l < sett.num_levels; l++) {
-                // Set all levels to use the same oribital choices
+            for (let l = 0; l < sett.num_levels; l++) {
+                // Set all levels to use the same orbital choices
                 self.fractalFuncs[l] = self.NormalizeFractChoices(attrSet);
                 // Regenerate levels with new choices
                 if (self.state !== RunState.None) self.generateLevel(l);
-                print(self.fractalFuncs[l], force = false);
+                print(self.fractalFuncs[l], false);
             }
         }
 
@@ -430,8 +434,8 @@ var audiOrbits = {
 
     initOnce: function () {
         print("initializing...");
-        var self = audiOrbits;
-        var sett = self.settings;
+        let self = audiOrbits;
+        let sett = self.settings;
 
         // No WebGL ? o.O
         if (!THREE || !Detector.webgl) {
@@ -450,14 +454,13 @@ var audiOrbits = {
         self.container = document.getElementById("renderContainer");
 
         // add global mouse (parallax) listener
-        var mouseUpdate = (event) => {
-            if (sett.parallax_option != 1) return;
-            if (event.touches && event.touches.length == 1) {
+        let mouseUpdate = (event) => {
+            if (sett.parallax_option !== 1) return;
+            if (event.touches && event.touches.length === 1) {
                 event.preventDefault();
                 self.mouseX = event.touches[0].pageX - self.windowHalfX;
                 self.mouseY = event.touches[0].pageY - self.windowHalfY;
-            }
-            else if (event.clientX) {
+            } else if (event.clientX) {
                 self.mouseX = event.clientX - self.windowHalfX;
                 self.mouseY = event.clientY - self.windowHalfY;
             }
@@ -467,7 +470,7 @@ var audiOrbits = {
         document.addEventListener("mousemove", mouseUpdate, false);
 
         // scaling listener
-        window.addEventListener("resize", (event) => {
+        window.addEventListener("resize", (e) => {
             self.windowHalfX = window.innerWidth / 2;
             self.windowHalfY = window.innerHeight / 2;
             if (!self.camera || !self.renderer) return;
@@ -488,7 +491,7 @@ var audiOrbits = {
         self.initSystem();
 
         // initialize wrapper
-        var initWrap = () => {
+        let initWrap = () => {
             $("#mainCvs").addClass("show");
             self.popupMessage("<h1>" + document.title + "</h1>", true);
         };
@@ -498,11 +501,11 @@ var audiOrbits = {
         else WarnHelper.Show(initWrap);
     },
 
-    // re-initialies the walpaper after some time
+    // re-initializes the wallpaper after some time
     reInitSystem: function () {
         print("re-initializing...");
         // Lifetime variables
-        var self = audiOrbits;
+        let self = audiOrbits;
 
         // hide reloader
         ReloadHelper.Hide();
@@ -521,7 +524,7 @@ var audiOrbits = {
         self.renderer.forceContextLoss();
         // recreate webgl canvas
         self.container.removeChild(self.mainCanvas);
-        var mainCvs = document.createElement("canvas");
+        let mainCvs = document.createElement("canvas");
         mainCvs.id = "mainCvs";
         self.container.appendChild(mainCvs);
         // actual re-init
@@ -530,12 +533,12 @@ var audiOrbits = {
         $("#mainCvs").addClass("show");
     },
 
-    // initialize the geometric & grpahics system
-    // => starts rendering loop afterwards
+    // initialize the geometric & graphics system
+    // => starts rendering loop afterward
     initSystem: function () {
         // Lifetime variables
-        var self = audiOrbits;
-        var sett = self.settings;
+        let self = audiOrbits;
+        let sett = self.settings;
 
         // reset rendering
         self.speedVelocity = 0;
@@ -547,7 +550,7 @@ var audiOrbits = {
         self.afterRenderQueue = [];
         // Set the fractalFuncs to equal the number of funcs we have
         self.fractalFuncs = Array(sett.num_levels);
-        // Radian reprisentation of spiral
+        // Radian representation of spiral
         self.spiralRad = (sett.spiral * Math.PI / 180);
 
 
@@ -566,7 +569,7 @@ var audiOrbits = {
 
         // get canvases & contexts
         // ensure the canvas sizes are set !!!
-        // these are independent from the style sizes
+        // these are independent of the style sizes
         self.mainCanvas = document.getElementById("mainCvs");
         self.mainCanvas.width = window.innerWidth;
         self.mainCanvas.height = window.innerHeight;
@@ -576,11 +579,11 @@ var audiOrbits = {
 
         // setup basic objects
         const attrSet = self.GetAttrSettings();
-        for (var l = 0; l < sett.num_levels; l++) {
+        for (let l = 0; l < sett.num_levels; l++) {
             self.fractalFuncs[l] = self.NormalizeFractChoices(attrSet);
 
-            var sets = [];
-            for (var i = 0; i < sett.num_subsets_per_level; i++) {
+            let sets = [];
+            for (let i = 0; i < sett.num_subsets_per_level; i++) {
                 sets[i] = {
                     child: null,
                 };
@@ -602,10 +605,10 @@ var audiOrbits = {
         );
     },
 
-    /// continue intialisation affter texture was loaded
+    /// continue initialisation after texture was loaded
     initWithTexture: function (texture) {
-        var self = audiOrbits;
-        var sett = self.settings;
+        let self = audiOrbits;
+        let sett = self.settings;
         print("texture loaded.")
 
         // create camera
@@ -644,7 +647,7 @@ var audiOrbits = {
             }
 
             // prepare new orbit levels for the first reset/moveBack already
-            for (var l = 0; l < sett.num_levels; l++) {
+            for (let l = 0; l < sett.num_levels; l++) {
                 self.generateLevel(l);
             }
 
@@ -654,23 +657,22 @@ var audiOrbits = {
             // start rendering
             self.setRenderer(self.renderLoop);
 
-            // print
             print("initializing complete.", true);
         };
 
         // generate the levels
-        for (var l = 0; l < sett.num_levels; l++) {
+        for (let l = 0; l < sett.num_levels; l++) {
             self.generateLevel(l);
         }
     },
 
     // create WEBGL objects for each level and subset
     initGeometries: function (texture) {
-        var self = audiOrbits;
-        var sett = self.settings;
+        let self = audiOrbits;
+        let sett = self.settings;
         print("building geometries.");
         // material properties
-        var matprops = {
+        let matprops = {
             map: texture,
             size: sett.texture_size,
             blending: THREE.AdditiveBlending,
@@ -678,35 +680,34 @@ var audiOrbits = {
             transparent: true
         };
 
-        var subsetDist = sett.level_depth / sett.num_subsets_per_level;
+        let subsetDist = sett.level_depth / sett.num_subsets_per_level;
         // build all levels
-        for (var k = 0; k < sett.num_levels; k++) {
+        for (let k = 0; k < sett.num_levels; k++) {
             // build all subsets
-            for (var s = 0; s < sett.num_subsets_per_level; s++) {
+            for (let s = 0; s < sett.num_subsets_per_level; s++) {
                 // create particle geometry from orbit vertex data
-                var geometry = new THREE.BufferGeometry();
+                let geometry = new THREE.BufferGeometry();
 
-                // position attribute (2 vertices per point, thats pretty illegal)
+                // position attribute (2 vertices per point, that's pretty illegal)
                 geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(sett.num_points_per_subset * 2), 2));
 
                 // create particle material with map & size
-                var material = new THREE.PointsMaterial(matprops);
+                let material = new THREE.PointsMaterial(matprops);
                 // set material defaults
                 material.color.setHSL(self.hueValues[s], 0, 0);
                 // create particle system from geometry and material
-                var particles = new THREE.Points(geometry, material);
+                let particles = new THREE.Points(geometry, material);
                 particles.myMaterial = material;
                 particles.myLevel = k;
                 particles.mySubset = s;
                 particles.position.x = 0;
                 particles.position.y = 0;
                 if (sett.level_shifting) {
-                    particles.position.z = - sett.level_depth * k - (s * subsetDist * 2) + sett.scaling_factor / 2;
-                    if (k % 2 != 0) particles.position.z -= subsetDist;
-                }
-                else particles.position.z = - sett.level_depth * k - (s * subsetDist) + sett.scaling_factor / 2;
+                    particles.position.z = -sett.level_depth * k - (s * subsetDist * 2) + sett.scaling_factor / 2;
+                    if (k % 2 !== 0) particles.position.z -= subsetDist;
+                } else particles.position.z = -sett.level_depth * k - (s * subsetDist) + sett.scaling_factor / 2;
                 // euler angle 45 deg in radians
-                if (self.spiralRad != 0) self.updateSpiral(particles);
+                if (self.spiralRad !== 0) self.updateSpiral(particles);
                 else particles.rotation.z = DEFAULT_LEVEL_ROTATION;
                 particles.needsUpdate = false;
                 // add to scene
@@ -718,26 +719,26 @@ var audiOrbits = {
 
     // initialize shaders after composer
     initShaders: function () {
-        var self = audiOrbits;
-        var sett = self.settings;
+        let self = audiOrbits;
+        let sett = self.settings;
         // last added filter
-        var lastEffect = null;
+        let lastEffect = null;
         print("adding shaders to render chain.");
         self.composer.addPass(new THREE.RenderPass(self.scene, self.camera, null, 0x000000, 1));
         // bloom
         if (sett.bloom_filter) {
-            var urBloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), 3, 0, 0.1);
+            let urBloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), 3, 0, 0.1);
             urBloomPass.renderToScreen = false;
             self.composer.addPass(urBloomPass);
             lastEffect = urBloomPass;
         }
 
-        // lookuptable filter
+        // lookup table filter
         if (sett.lut_filter >= 0) {
             // add normal or filtered LUT shader
-            var lutInfo = LUTSetup.Textures[sett.lut_filter];
+            let lutInfo = LUTSetup.Textures[sett.lut_filter];
             // get normal or filtered LUT shader
-            var lutPass = new THREE.ShaderPass(lutInfo.filter ?
+            let lutPass = new THREE.ShaderPass(lutInfo.filter ?
                 THREE.LUTShader : THREE.LUTShaderNearest);
             // prepare render queue
             lutPass.renderToScreen = false;
@@ -751,7 +752,7 @@ var audiOrbits = {
 
         // fractal mirror shader
         if (sett.mirror_shader > 1) {
-            var mirrorPass = new THREE.ShaderPass(THREE.FractalMirrorShader);
+            let mirrorPass = new THREE.ShaderPass(THREE.FractalMirrorShader);
             mirrorPass.renderToScreen = false;
             mirrorPass.material.transparent = true;
             self.composer.addPass(mirrorPass);
@@ -764,7 +765,7 @@ var audiOrbits = {
 
         // Nvidia FX antialiasing
         if (sett.ufx_antialiasing) {
-            var fxaaPass = new THREE.ShaderPass(THREE.FXAAShader);
+            let fxaaPass = new THREE.ShaderPass(THREE.FXAAShader);
             fxaaPass.renderToScreen = false;
             fxaaPass.material.transparent = true;
             self.composer.addPass(fxaaPass);
@@ -775,16 +776,16 @@ var audiOrbits = {
 
         // TWO-PASS Blur using the same directional shader
         if (sett.blur_strength > 0) {
-            var bs = sett.blur_strength / 5;
+            let bs = sett.blur_strength / 5;
             // X
-            var blurPassX = new THREE.ShaderPass(THREE.BlurShader);
+            let blurPassX = new THREE.ShaderPass(THREE.BlurShader);
             blurPassX.renderToScreen = false;
             blurPassX.material.transparent = true;
             blurPassX.uniforms.u_dir.value = new THREE.Vector2(bs, 0);
             blurPassX.uniforms.iResolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
             self.composer.addPass(blurPassX);
             // Y
-            var blurPassY = new THREE.ShaderPass(THREE.BlurShader);
+            let blurPassY = new THREE.ShaderPass(THREE.BlurShader);
             blurPassY.renderToScreen = false;
             blurPassY.material.transparent = true;
             blurPassY.uniforms.u_dir.value = new THREE.Vector2(0, bs);
@@ -806,17 +807,23 @@ var audiOrbits = {
 
     // initialize hue-values by color mode
     initHueValues: function () {
-        var self = audiOrbits;
-        var sett = self.settings;
-        var cobj = self.colorObject = self.getColorObject();
+        let self = audiOrbits;
+        let sett = self.settings;
+        let cobj = self.colorObject = self.getColorObject();
         print("initHueValues: a=" + cobj.hsla + ", b=" + cobj.hslb, true);
-        for (var s = 0; s < sett.num_subsets_per_level; s++) {
-            var col = Math.random();
+        for (let s = 0; s < sett.num_subsets_per_level; s++) {
+            let col = Math.random();
             switch (sett.color_mode) {
                 case 1:
-                case 4: col = cobj.hsla; break;
-                case 2: col = cobj.hsla + (s / sett.num_subsets_per_level * cobj.range); break;
-                case 3: col = cobj.hsla + (col * cobj.range); break;
+                case 4:
+                    col = cobj.hsla;
+                    break;
+                case 2:
+                    col = cobj.hsla + (s / sett.num_subsets_per_level * cobj.range);
+                    break;
+                case 3:
+                    col = cobj.hsla + (col * cobj.range);
+                    break;
             }
             self.hueValues[s] = col;
         }
@@ -824,12 +831,12 @@ var audiOrbits = {
 
     // returns the processed user color object
     getColorObject: function () {
-        var self = audiOrbits;
-        var sett = self.settings;
-        var a = self.rgbToHue(sett.user_color_a.split(" ")).h;
-        var b = self.rgbToHue(sett.user_color_b.split(" ")).h;
-        var mi = Math.min(a, b);
-        var ma = Math.max(a, b);
+        let self = audiOrbits;
+        let sett = self.settings;
+        let a = self.rgbToHue(sett.user_color_a.split(" ")).h;
+        let b = self.rgbToHue(sett.user_color_b.split(" ")).h;
+        let mi = Math.min(a, b);
+        let ma = Math.max(a, b);
         return {
             hsla: a,
             hslb: b,
@@ -841,21 +848,20 @@ var audiOrbits = {
 
     // get HUE val
     rgbToHue: function (arr) {
-        let rabs, gabs, babs, rr, gg, bb, h, s, v, diff, diffc, percentRoundFn;
-        rabs = arr[0] / 255;
-        gabs = arr[1] / 255;
-        babs = arr[2] / 255;
-        v = Math.max(rabs, gabs, babs),
-            diff = v - Math.min(rabs, gabs, babs);
-        diffc = c => (v - c) / 6 / diff + 1 / 2;
-        percentRoundFn = num => Math.round(num * 100) / 100;
-        if (diff == 0) {
+        let rr, gg, bb, h, s;
+        const rabs = arr[0] / 255;
+        const gabs = arr[1] / 255;
+        const babs = arr[2] / 255;
+        const v = Math.max(rabs, gabs, babs);
+        const diff = v - Math.min(rabs, gabs, babs);
+        const diffCalc = c => (v - c) / 6 / diff + 1 / 2;
+        if (diff === 0) {
             h = s = 0;
         } else {
             s = diff / v;
-            rr = diffc(rabs);
-            gg = diffc(gabs);
-            bb = diffc(babs);
+            rr = diffCalc(rabs);
+            gg = diffCalc(gabs);
+            bb = diffCalc(babs);
 
             if (rabs === v) {
                 h = bb - gg;
@@ -878,13 +884,13 @@ var audiOrbits = {
     },
 
     setToDefaultRotation: function () {
-        var self = audiOrbits;
-        var sett = self.settings;
+        let self = audiOrbits;
+        let sett = self.settings;
         // If it was set to 0, then set all levels to the default rotation.
-        if (self.spiralRad == 0 && self.state != RunState.None) {
-            for (var k = 0; k < sett.num_levels; k++) {
+        if (self.spiralRad === 0 && self.state !== RunState.None) {
+            for (let k = 0; k < sett.num_levels; k++) {
                 // Reset level rotation
-                for (var s = 0; s < sett.num_subsets_per_level; s++) {
+                for (let s = 0; s < sett.num_subsets_per_level; s++) {
                     self.levels[k].subsets[s].child.rotation.z = DEFAULT_LEVEL_ROTATION;
                 }
             }
@@ -898,8 +904,8 @@ var audiOrbits = {
     // start or stop rendering
     setRenderer: function (renderFunc) {
         print("setRenderer: " + (renderFunc != null));
-        var self = audiOrbits;
-        var sett = self.settings;
+        let self = audiOrbits;
+        let sett = self.settings;
         // clear all old renderers
         if (self.renderer) {
             self.renderer.setAnimationLoop(null);
@@ -915,20 +921,18 @@ var audiOrbits = {
             // initialize rendering
             if (sett.custom_fps) {
                 self.renderTimeout = setTimeout(self.renderLoop, 1000 / sett.fps_value);
-            }
-            else if (self.renderer) {
+            } else if (self.renderer) {
                 self.renderer.setAnimationLoop(renderFunc);
-            }
-            else print("not initialized!", true);
+            } else print("not initialized!", true);
         }
     },
 
     // root render frame call
     renderLoop: function () {
-        var self = audiOrbits;
-        var sett = self.settings;
+        let self = audiOrbits;
+        let sett = self.settings;
         // paused - stop render
-        if (self.state != RunState.Running) return;
+        if (self.state !== RunState.Running) return;
 
         // custom rendering needs manual re-call
         if (self.renderTimeout)
@@ -939,8 +943,8 @@ var audiOrbits = {
 
         // Figure out how much time passed since the last animation and calc delta
         // Minimum we should reach is 1 FPS
-        var ellapsed = Math.min(1, Math.max(0.001, self.clock.getDelta()));
-        var delta = ellapsed * 60;
+        let ellapsed = Math.min(1, Math.max(0.001, self.clock.getDelta()));
+        let delta = ellapsed * 60;
 
         // effect render first, then update
         self.composer.render();
@@ -949,10 +953,10 @@ var audiOrbits = {
         self.animateFrame(ellapsed, delta);
 
         // ICUE PROCESSING
-        // its better to do this every frame instead of seperately timed
+        // it's better to do this every frame instead of separately timed
         weicue.updateCanvas();
 
-        // randomly do one after-render-aqction
+        // randomly do one after-render-action
         // yes this is intended: "()()"
         if (self.afterRenderQueue.length > 0) {
             if (self.speedVelocity > 5 || Math.random() > 0.4)
@@ -964,24 +968,24 @@ var audiOrbits = {
     },
 
     // render a single frame with the given delta
-    animateFrame: function (ellapsed, deltaTime) {
-        //print("| animate | ellapsed: " + ellapsed + ", delta: " + deltaTime);
-        var self = audiOrbits;
-        var sett = self.settings;
+    animateFrame: function (elapsed, deltaTime) {
+        //print("| animate | elapsed: " + elapsed + ", delta: " + deltaTime);
+        let self = audiOrbits;
+        let sett = self.settings;
 
         // calculate camera parallax with smoothing
-        var clampCam = (axis) => Math.min(sett.camera_bound, Math.max(-sett.camera_bound, axis));
-        var newCamX = clampCam(self.mouseX * sett.parallax_strength / 50);
-        var newCamY = clampCam(self.mouseY * sett.parallax_strength / -50);
-        if (self.camera.position.x != newCamX)
+        let clampCam = (axis) => Math.min(sett.camera_bound, Math.max(-sett.camera_bound, axis));
+        let newCamX = clampCam(self.mouseX * sett.parallax_strength / 50);
+        let newCamY = clampCam(self.mouseY * sett.parallax_strength / -50);
+        if (self.camera.position.x !== newCamX)
             self.camera.position.x += (newCamX - self.camera.position.x) * deltaTime * 0.05;
-        if (self.camera.position.y != newCamY)
+        if (self.camera.position.y !== newCamY)
             self.camera.position.y += (newCamY - self.camera.position.y) * deltaTime * 0.05;
 
         // shift hue values
-        if (sett.color_mode == 0) {
-            var hueAdd = (sett.color_fade_speed / 4000) * deltaTime;
-            for (var s = 0; s < sett.num_subsets_per_level - 1; s++) {
+        if (sett.color_mode === 0) {
+            let hueAdd = (sett.color_fade_speed / 4000) * deltaTime;
+            for (let s = 0; s < sett.num_subsets_per_level - 1; s++) {
                 self.hueValues[s] += hueAdd;
                 if (self.hueValues[s] >= 1)
                     self.hueValues[s] -= 1;
@@ -992,11 +996,11 @@ var audiOrbits = {
         self.camera.lookAt(self.scene.position);
 
         // calculate boost strength & step size if data given
-        var flmult = (15 + sett.audio_multiplier) * 0.02;
-        var spvn = sett.zoom_val / 1.5 * deltaTime;
+        let flmult = (15 + sett.audio_multiplier) * 0.02;
+        let spvn = sett.zoom_val / 1.5 * deltaTime;
 
-        var hasAudio = weas.hasAudio();
-        var lastAudio, boost, step;
+        let hasAudio = weas.hasAudio();
+        let lastAudio, boost, step;
         if (hasAudio) {
             spvn = (spvn + sett.audiozoom_val / 3) * deltaTime;
             // get 
@@ -1021,19 +1025,19 @@ var audiOrbits = {
         self.speedVelocity = spvn;
 
         // rotation calculation
-        var rot = sett.rotation_val / 5000;
+        let rot = sett.rotation_val / 5000;
         if (hasAudio) rot *= boost * 0.02;
         rot *= deltaTime;
 
         // move as many calculations out of loop as possible
-        var minSat = sett.minimum_saturation / 100;
-        var minBri = sett.minimum_brightness / 100;
+        let minSat = sett.minimum_saturation / 100;
+        let minBri = sett.minimum_brightness / 100;
         // get targeted saturation & brightness
-        var defSat = sett.default_saturation / 100;
-        var defBri = sett.default_brightness / 100;
-        var sixtyDelta = deltaTime * 2000;
+        let defSat = sett.default_saturation / 100;
+        let defBri = sett.default_brightness / 100;
+        let sixtyDelta = deltaTime * 2000;
 
-        var i, child, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
+        let i, child, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
         // position all objects
         for (i = 0; i < self.scene.children.length; i++) {
             child = self.scene.children[i];
@@ -1044,7 +1048,7 @@ var audiOrbits = {
                 //print("moved back child: " + i);
                 child.position.z -= sett.num_levels * sett.level_depth;
                 self.moveBacks[child.myLevel]++;
-                if (self.spiralRad != 0) self.updateSpiral(child);
+                if (self.spiralRad !== 0) self.updateSpiral(child);
 
                 // update the child visually
                 if (child.needsUpdate) {
@@ -1052,7 +1056,7 @@ var audiOrbits = {
                     child.needsUpdate = false;
                 }
                 // process subset generation
-                if (self.moveBacks[child.myLevel] == sett.num_subsets_per_level) {
+                if (self.moveBacks[child.myLevel] === sett.num_subsets_per_level) {
                     self.moveBacks[child.myLevel] = 0;
                     self.generateLevel(child.myLevel);
                 }
@@ -1072,16 +1076,15 @@ var audiOrbits = {
                 freqData = parseFloat(lastAudio.data[Math.round((self.camera.position.z - child.position.z) / step) + 4]);
                 freqLvl = (freqData * flmult / 3) / lastAudio.max;
                 // uhoh ugly special case
-                if (sett.color_mode == 4)
+                if (sett.color_mode === 4)
                     tmpHue += (self.colorObject.hslb - tmpHue) * freqData / lastAudio.max;
-                else if (sett.color_mode == 0)
+                else if (sett.color_mode === 0)
                     tmpHue += freqLvl;
                 // quick maths
                 setHue = tmpHue % 1.0;
                 setSat = Math.abs(minSat + freqLvl + freqLvl * boost * 0.07);
                 setLight = Math.min(0.7, minBri + freqLvl + freqLvl * boost * 0.01);
-            }
-            else {
+            } else {
                 // get current HSL
                 hsl = child.myMaterial.color.getHSL({});
                 setHue = hsl.h;
@@ -1097,7 +1100,7 @@ var audiOrbits = {
                 if (Math.abs(defBri - setLight) > 0.01)
                     setLight += (defBri - setLight) / sixtyDelta;
             }
-            // update dat shit
+
             //print("setHSL | child: " + i + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
             child.myMaterial.color.setHSL(self.clamp(setHue, 0, 1, true), self.clamp(setSat, 0, 1), self.clamp(setLight, 0, 1));
         }
@@ -1108,15 +1111,14 @@ var audiOrbits = {
         if (goround) {
             if (val < min) return max - val;
             return val % max;
-        }
-        else {
+        } else {
             return Math.max(Math.min(val, max), min);
         }
     },
 
     updateSpiral: function (level) {
-        var self = audiOrbits;
-        var newRotVal = self.lastSpiralRot + self.spiralRad;
+        let self = audiOrbits;
+        let newRotVal = self.lastSpiralRot + self.spiralRad;
         self.lastSpiralRot = newRotVal;
         level.rotation.z = newRotVal;
     },
@@ -1130,29 +1132,29 @@ var audiOrbits = {
         let ldata = e.data;
         print("generated level: " + ldata.id);
 
-        var self = audiOrbits;
-        var sett = self.settings;
+        let self = audiOrbits;
+        let sett = self.settings;
         self.levelWorkersRunning--;
 
         let xyzBuf = new Float32Array(ldata.xyzBuff);
-        var subbs = self.levels[ldata.id].subsets;
+        let subbs = self.levels[ldata.id].subsets;
 
         // spread over time for less thread blocking
         for (let s = 0; s < sett.num_subsets_per_level; s++) {
             self.afterRenderQueue.push(() => {
                 // copy start index
-                var from = (s * sett.num_points_per_subset) * 2;
+                let from = (s * sett.num_points_per_subset) * 2;
                 // copy end index
-                var tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset) * 2;
+                let tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset) * 2;
                 // slice & set xyzBuffer data, then update child
                 subbs[s].child.geometry.attributes.position.set(xyzBuf.slice(from, tooo), 0);
                 subbs[s].child.needsUpdate = true;
             });
         }
 
-        // if all workers finished and we have a queued event, trigger it
+        // if all workers finished, and we have a queued event, trigger it
         // this is used as "finished"-trigger for initial level generation...
-        if (self.levelWorkersRunning == 0 && self.levelWorkerCall) {
+        if (self.levelWorkersRunning === 0 && self.levelWorkerCall) {
             self.levelWorkerCall();
             self.levelWorkerCall = null;
         }
@@ -1177,34 +1179,34 @@ var audiOrbits = {
     },
 
     NormalizeFractChoices: function (attrSet) {
-        var self = audiOrbits;
-        var sett = self.settings;
-        var i, temp;
+        let self = audiOrbits;
+        let sett = self.settings;
+        let i, temp;
 
-        var normalizedChoices;
+        let normalizedChoices;
         const exclusiveParams = attrSet.filter(p => p === 100);
         if (exclusiveParams.length > 0) {
             // Any 100s are treated as exclusive parameters.
             normalizedChoices = attrSet.map(p => p === 100 ? (1 / exclusiveParams.length) : 0);
         } else {
             // Otherwise use the normal weight calculation
-            var total = attrSet.reduce((a, b) => a + b, 0);
-            if (total == 0) {
+            let total = attrSet.reduce((a, b) => a + b, 0);
+            if (total === 0) {
                 // User selected all 0s. Randomly select a fractal
-                if (sett.rotation_val == -10) {
+                if (sett.rotation_val === -10) {
                     // Camera rotation value was set to -10
-                    // As an added bonus, spin the camera a lot as a little easter egg.
+                    // As an added bonus, spin the camera a lot as a little Easter egg.
                     self.spinWildly = 5;
                 }
                 // Pick a random index within our array size
-                var rand = Math.floor(Math.random() * (attrSet.length + 1));
+                let rand = Math.floor(Math.random() * (attrSet.length + 1));
                 normalizedChoices = self.GetAttrSettings();
                 normalizedChoices[rand] = 1;
             } else {
-                if (self.spinWildly != 0) {
+                if (self.spinWildly !== 0) {
                     // Revert camera spin back to normal
                     self.spinWildly = 0;
-                    if (self.state == RunState.Running) {
+                    if (self.state === RunState.Running) {
                         self.setToDefaultRotation();
                     }
                 }
@@ -1216,8 +1218,7 @@ var audiOrbits = {
         mapArrToFuncIndx = (c) => {
             const fc = Array(c.length);
             for (i = 0; i < c.length; i++) {
-                const attr = [c[i], i];
-                fc[i] = attr;
+                fc[i] = [c[i], i];
             }
             return fc;
         }
@@ -1225,7 +1226,7 @@ var audiOrbits = {
         bubSort = (arr, size) => {
             // Sort
             for (i = 0; i < size - 1; i++) {
-                for (var j = 0; j < size - i - 1; j++) {
+                for (let j = 0; j < size - i - 1; j++) {
                     if (arr[j][0] < arr[j + 1][0]) {
                         temp = arr[j];
                         arr[j] = arr[j + 1];
@@ -1236,9 +1237,9 @@ var audiOrbits = {
         }
         // Sum up the fields, saving as we go
         sumNormalization = (arr, size) => {
-            var j = 0;
+            let j = 0;
             // Save first element's value
-            var culm = arr[0][0];
+            let culm = arr[0][0];
 
             // Iterate through the array starting at index 1. Sum
             // all saving the rolling sum as we go.
@@ -1272,32 +1273,33 @@ var audiOrbits = {
 
     // Auto Parallax handler
     swirlHandler: function () {
-        var self = audiOrbits;
-        var sett = self.settings;
-        if (sett.parallax_option != 2) return;
-        self.swirlStep += sett.auto_parallax_speed / 8;
-        if (self.swirlStep > 360) self.swirlStep -= 360;
-        else if (self.swirlStep < 0) self.swirlStep += 360;
-        self.positionMouseAngle(self.swirlStep);
+        let sett = audiOrbits.settings;
+        if (sett.parallax_option !== 2) {
+            return;
+        }
+        audiOrbits.swirlStep += sett.auto_parallax_speed / 8;
+        if (audiOrbits.swirlStep > 360) audiOrbits.swirlStep -= 360;
+        else if (audiOrbits.swirlStep < 0) audiOrbits.swirlStep += 360;
+        audiOrbits.positionMouseAngle(audiOrbits.swirlStep);
     },
     // position Mouse with angle
     positionMouseAngle: function (degrees) {
-        var self = audiOrbits;
-        var ang = degrees * Math.PI / 180;
-        var w = window.innerHeight;
+        let ang = degrees * Math.PI / 180;
+        let w = window.innerHeight;
         if (window.innerWidth < w) w = window.innerWidth;
         w /= 2;
-        self.mouseX = w * Math.sin(ang);
-        self.mouseY = w * Math.cos(ang);
+        audiOrbits.mouseX = w * Math.sin(ang);
+        audiOrbits.mouseY = w * Math.cos(ang);
     },
     // popup message handler
     popupMessage: function (msg, hideAfter) {
-        $("#txtholder").html(msg);
-        $("#txtholder").fadeIn({ queue: false, duration: "slow" });
-        $("#txtholder").animate({ bottom: "40px" }, "slow");
+        const txtElm = $("#txtholder");
+        txtElm.html(msg);
+        txtElm.fadeIn({queue: false, duration: "slow"});
+        txtElm.animate({bottom: "40px"}, "slow");
         if (hideAfter) setTimeout(() => {
-            $("#txtholder").fadeOut({ queue: false, duration: "slow" });
-            $("#txtholder").animate({ bottom: "-40px" }, "slow");
+            txtElm.fadeOut({queue: false, duration: "slow"});
+            txtElm.animate({bottom: "-40px"}, "slow");
         }, 7000);
     }
 };
@@ -1310,15 +1312,13 @@ var audiOrbits = {
 // will apply settings edited in Wallpaper Engine
 // this will also cause initialization for the first time
 window.wallpaperPropertyListener = {
-    applyGeneralProperties: (props) => { },
     applyUserProperties: (props) => {
-        var initFlag = audiOrbits.applyCustomProps(props);
+        let initFlag = audiOrbits.applyCustomProps(props);
         // very first initialization
-        if (audiOrbits.state == RunState.None) {
+        if (audiOrbits.state === RunState.None) {
             audiOrbits.state = RunState.Initializing;
             $(() => audiOrbits.initOnce());
-        }
-        else if (initFlag) {
+        } else if (initFlag) {
             audiOrbits.state = RunState.ReInitializing;
             print("got reInit-flag from applying settings!", true);
             if (audiOrbits.resetTimeout) clearTimeout(audiOrbits.resetTimeout);
@@ -1330,11 +1330,10 @@ window.wallpaperPropertyListener = {
     },
     setPaused: (isPaused) => {
         weicue.PAUSED = isPaused;
-        if (audiOrbits.state == RunState.Paused) {
+        if (audiOrbits.state === RunState.Paused) {
             if (isPaused) return;
             audiOrbits.state = RunState.Running;
-        }
-        else if (audiOrbits.state == RunState.Running) {
+        } else if (audiOrbits.state === RunState.Running) {
             if (!isPaused) return;
             audiOrbits.state = RunState.Paused;
         }
@@ -1346,7 +1345,7 @@ window.wallpaperPropertyListener = {
 // after the page finished loading: if the wallpaper context is not given
 // AND wewwa fails for some reason => start wallpaper manually with default settings.
 $(() => {
-    if (!window.wallpaperRegisterAudioListener && audiOrbits.state == RunState.None) {
+    if (!window.wallpaperRegisterAudioListener && audiOrbits.state === RunState.None) {
         print("wallpaperRegisterAudioListener not defined. We are probably outside of wallpaper engine. Manual init..", true);
         audiOrbits.applyCustomProps({});
         audiOrbits.state = RunState.Initializing;
