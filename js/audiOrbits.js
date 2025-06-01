@@ -38,6 +38,9 @@ const RunState = {
     ReInitializing: 4
 };
 
+
+const chunkBuffers = {};
+
 // base object for wallpaper
 const audiOrbits = {
     // holds default wallpaper settings
@@ -149,6 +152,7 @@ const audiOrbits = {
     /* Have you ever wondered,
     how many settings are too many settings?
     No? Me neither */
+    precalc: null,
 
     // state of the Wallpaper
     state: 0,
@@ -400,7 +404,6 @@ const audiOrbits = {
                 self.fractalFuncs[l] = self.NormalizeFractChoices(attrSet);
                 // Regenerate levels with new choices
                 if (self.state !== RunState.None) self.generateLevel(l);
-                print(self.fractalFuncs[l], false);
             }
         }
 
@@ -412,6 +415,9 @@ const audiOrbits = {
                 self.setToDefaultRotation();
             }
         }
+
+        // Call precalculation after settings are updated
+        this.precalculateRuntimeValues();
 
         // have render-relevant settings been changed?
         return reInitFlag;
@@ -431,6 +437,47 @@ const audiOrbits = {
     ///////////////////////////////////////////////
     // INITIALIZE
     ///////////////////////////////////////////////
+
+    /**
+     * Precalculate values that don't change during rendering
+     */
+    precalculateRuntimeValues: function() {
+        const sett = this.settings;
+
+        // Store precalculated values
+        this.precalc = {
+            // Camera/parallax constants
+            cameraBound: sett.camera_bound,
+            parallaxStrength: sett.parallax_strength / 50,
+            cameraSmoothing: 0.05,
+
+            // Color constants
+            colorFadeSpeed: sett.color_fade_speed / 4000,
+            minSaturation: sett.minimum_saturation / 100,
+            minBrightness: sett.minimum_brightness / 100,
+            defaultSaturation: sett.default_saturation / 100,
+            defaultBrightness: sett.default_brightness / 100,
+
+            // Movement constants
+            baseZoomVelocity: sett.zoom_val / 1.5,
+            baseRotation: sett.rotation_val / 5000,
+
+            // Audio constants
+            audioZoomBase: sett.audiozoom_val / 3,
+            audioZoomFactor: sett.audiozoom_val * 0.03,
+            audioRotationFactor: 0.02,
+            flmult: (15 + sett.audio_multiplier) * 0.02,
+            audioSmoothing: sett.audio_smoothing / 1000,
+
+            // Level constants
+            levelStep: (sett.num_levels * sett.level_depth * 1.2) / 128,
+
+            // Spiral calculation
+            spiralRad: (sett.spiral * Math.PI / 180)
+        };
+
+        return this.precalc;
+    },
 
     initOnce: function () {
         print("initializing...");
@@ -968,66 +1015,78 @@ const audiOrbits = {
     },
 
     // render a single frame with the given delta
-    animateFrame: function (elapsed, deltaTime) {
-        //print("| animate | elapsed: " + elapsed + ", delta: " + deltaTime);
-        let self = audiOrbits;
-        let sett = self.settings;
+    animateFrame: function(elapsed, deltaTime) {
+        const self = audiOrbits;
+        const sett = self.settings;
+        const precalc = self.precalc;
 
-        // calculate camera parallax with smoothing
-        let clampCam = (axis) => Math.min(sett.camera_bound, Math.max(-sett.camera_bound, axis));
-        let newCamX = clampCam(self.mouseX * sett.parallax_strength / 50);
-        let newCamY = clampCam(self.mouseY * sett.parallax_strength / -50);
-        if (self.camera.position.x !== newCamX)
-            self.camera.position.x += (newCamX - self.camera.position.x) * deltaTime * 0.05;
-        if (self.camera.position.y !== newCamY)
-            self.camera.position.y += (newCamY - self.camera.position.y) * deltaTime * 0.05;
+        // Calculate camera parallax with smoothing
+        if (sett.parallax_option !== 0) {
+            const clampCam = (axis) => Math.min(precalc.cameraBound, Math.max(-precalc.cameraBound, axis));
+            const newCamX = clampCam(self.mouseX * precalc.parallaxStrength);
+            const newCamY = clampCam(self.mouseY * -precalc.parallaxStrength);
 
-        // shift hue values
-        if (sett.color_mode === 0) {
-            let hueAdd = (sett.color_fade_speed / 4000) * deltaTime;
-            for (let s = 0; s < sett.num_subsets_per_level - 1; s++) {
-                self.hueValues[s] += hueAdd;
-                if (self.hueValues[s] >= 1)
-                    self.hueValues[s] -= 1;
+            if (self.camera.position.x !== newCamX) {
+                self.camera.position.x += (newCamX - self.camera.position.x) * deltaTime * precalc.cameraSmoothing;
+            }
+            if (self.camera.position.y !== newCamY) {
+                self.camera.position.y += (newCamY - self.camera.position.y) * deltaTime * precalc.cameraSmoothing;
             }
         }
 
-        // set camera view-target to scene-center
+        // Shift hue values using precalculated speed
+        if (sett.color_mode === 0) {
+            const hueAdd = precalc.colorFadeSpeed * deltaTime;
+            for (let s = 0; s < sett.num_subsets_per_level - 1; s++) {
+                self.hueValues[s] += hueAdd;
+                if (self.hueValues[s] >= 1) {
+                    self.hueValues[s] -= 1;
+                }
+            }
+        }
+
+        // Set camera view-target to scene-center
         self.camera.lookAt(self.scene.position);
 
-        // calculate boost strength & step size if data given
-        let flmult = (15 + sett.audio_multiplier) * 0.02;
-        let spvn = sett.zoom_val / 1.5 * deltaTime;
+        // Calculate boost strength & step size if data given
+        const hasAudio = weas.hasAudio();
+        let spvn = precalc.baseZoomVelocity * deltaTime;
+        let rot = precalc.baseRotation * deltaTime;
 
-        let hasAudio = weas.hasAudio();
-        let lastAudio, boost, step;
         if (hasAudio) {
-            spvn = (spvn + sett.audiozoom_val / 3) * deltaTime;
-            // get 
-            lastAudio = weas.lastAudio;
-            // calc audio boost
-            boost = lastAudio.intensity * flmult;
-            // calculate step distance between levels
-            step = (sett.num_levels * sett.level_depth * 1.2) / 128;
-            // speed velocity calculation
-            if (sett.audiozoom_val > 0)
-                spvn += sett.zoom_val * boost * 0.01 + boost * sett.audiozoom_val * 0.03 * deltaTime;
+            // Get audio data
+            const lastAudio = weas.lastAudio;
+
+            // Calculate audio influence using precalculated multipliers
+            spvn = (spvn + precalc.audioZoomBase) * deltaTime;
+            const boost = lastAudio.intensity * precalc.flmult;
+
+            // Apply audio to velocity
+            if (sett.audiozoom_val > 0) {
+                spvn += precalc.baseZoomVelocity * boost * 0.01 + boost * precalc.audioZoomFactor * deltaTime;
+            }
+
+            // Apply audio to rotation
+            rot *= boost * precalc.audioRotationFactor;
         }
 
-        // speed / zoom smoothing
+        // Apply zoom smoothing
         if (!hasAudio || sett.audiozoom_smooth) {
-            spvn -= ((spvn - self.speedVelocity) * sett.audio_smoothing / 1000);
+            spvn -= ((spvn - self.speedVelocity) * precalc.audioSmoothing);
         }
-        // no negative zoom?
+
+        // No negative zoom?
         if (sett.only_forward && spvn < 0) {
             spvn = 0;
         }
+
+        // Store current velocity
         self.speedVelocity = spvn;
 
-        // rotation calculation
-        let rot = sett.rotation_val / 5000;
-        if (hasAudio) rot *= boost * 0.02;
-        rot *= deltaTime;
+        // Reuse the same HSL object to reduce garbage collection
+        if (!self.reusableHSL) {
+            self.reusableHSL = { h: 0, s: 0, l: 0 };
+        }
 
         // move as many calculations out of loop as possible
         let minSat = sett.minimum_saturation / 100;
@@ -1037,12 +1096,13 @@ const audiOrbits = {
         let defBri = sett.default_brightness / 100;
         let sixtyDelta = deltaTime * 2000;
 
-        let i, child, freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
-        // position all objects
-        for (i = 0; i < self.scene.children.length; i++) {
-            child = self.scene.children[i];
+        let freqData, freqLvl, hsl, tmpHue, setHue, setSat, setLight;
 
-            // reset if out of bounds
+        // Update all objects in the scene
+        for (let i = 0; i < self.scene.children.length; i++) {
+            const child = self.scene.children[i];
+
+            // Reset if out of bounds
             if (child.position.z > self.camera.position.z) {
                 // offset to back
                 //print("moved back child: " + i);
@@ -1062,7 +1122,7 @@ const audiOrbits = {
                 }
             }
 
-            // velocity & rotation
+            // Update position and rotation
             child.position.z += spvn;
             child.rotation.z -= rot - self.spinWildly;
 
@@ -1071,15 +1131,19 @@ const audiOrbits = {
 
             // HSL calculation with audio?
             if (hasAudio) {
+                const lastAudio = weas.lastAudio;
+                const step = precalc.levelStep;
+                const boost = lastAudio.intensity * precalc.flmult;
+
                 // use obj to camera distance with step to get frequency from data >> do some frequency calculations
-                // get & process frequency data
                 freqData = parseFloat(lastAudio.data[Math.round((self.camera.position.z - child.position.z) / step) + 4]);
-                freqLvl = (freqData * flmult / 3) / lastAudio.max;
-                // uhoh ugly special case
+                freqLvl = (freqData * precalc.flmult / 3) / lastAudio.max;
+
                 if (sett.color_mode === 4)
                     tmpHue += (self.colorObject.hslb - tmpHue) * freqData / lastAudio.max;
                 else if (sett.color_mode === 0)
                     tmpHue += freqLvl;
+
                 // quick maths
                 setHue = tmpHue % 1.0;
                 setSat = Math.abs(minSat + freqLvl + freqLvl * boost * 0.07);
@@ -1090,19 +1154,26 @@ const audiOrbits = {
                 setHue = hsl.h;
                 setSat = hsl.s;
                 setLight = hsl.l;
-                // targeted HUE
+
+                // targeted HSL
                 if (Math.abs(tmpHue - setHue) > 0.01)
                     setHue += (tmpHue - setHue) / sixtyDelta;
-                // targeted saturation
                 if (Math.abs(defSat - setSat) > 0.01)
                     setSat += (defSat - setSat) / sixtyDelta;
-                // targeted brightness
                 if (Math.abs(defBri - setLight) > 0.01)
                     setLight += (defBri - setLight) / sixtyDelta;
             }
 
-            //print("setHSL | child: " + i + " | h: " + setHue + " | s: " + setSat + " | l: " + setLight);
-            child.myMaterial.color.setHSL(self.clamp(setHue, 0, 1, true), self.clamp(setSat, 0, 1), self.clamp(setLight, 0, 1));
+            // Set HSL without creating new objects
+            self.reusableHSL.h = self.clamp(setHue, 0, 1, true);
+            self.reusableHSL.s = self.clamp(setSat, 0, 1);
+            self.reusableHSL.l = self.clamp(setLight, 0, 1);
+
+            child.myMaterial.color.setHSL(
+                self.reusableHSL.h,
+                self.reusableHSL.s,
+                self.reusableHSL.l
+            );
         }
     },
 
@@ -1128,35 +1199,70 @@ const audiOrbits = {
     ///////////////////////////////////////////////
 
     // web worker has finished generating the level
-    levelGenerated: function (e) {
-        let ldata = e.data;
-        print("generated level: " + ldata.id);
+    levelGenerated: function(e) {
+        const data = e.data;
+        print("Received data for level: " + data.id);
 
         let self = audiOrbits;
-        let sett = self.settings;
         self.levelWorkersRunning--;
 
-        let xyzBuf = new Float32Array(ldata.xyzBuff);
-        let subbs = self.levels[ldata.id].subsets;
+        // Handle chunked data
+        if (!data.complete) {
+            // Initialize the chunk storage if needed
+            if (!chunkBuffers[data.id]) {
+                chunkBuffers[data.id] = {
+                    receivedChunks: 0,
+                    totalChunks: data.totalChunks,
+                    buffer: new Float32Array(data.totalSize / Float32Array.BYTES_PER_ELEMENT)
+                };
+            }
 
-        // spread over time for less thread blocking
-        for (let s = 0; s < sett.num_subsets_per_level; s++) {
-            self.afterRenderQueue.push(() => {
-                // copy start index
-                let from = (s * sett.num_points_per_subset) * 2;
-                // copy end index
-                let tooo = (s * sett.num_points_per_subset + sett.num_points_per_subset) * 2;
-                // slice & set xyzBuffer data, then update child
-                subbs[s].child.geometry.attributes.position.set(xyzBuf.slice(from, tooo), 0);
-                subbs[s].child.needsUpdate = true;
-            });
+            // Store the chunk data
+            const chunkData = new Float32Array(data.chunkData);
+            const startIdx = data.chunkIndex * (data.chunkData.byteLength / Float32Array.BYTES_PER_ELEMENT);
+            chunkBuffers[data.id].buffer.set(chunkData, startIdx);
+            chunkBuffers[data.id].receivedChunks++;
+
+            // Check if all chunks have been received
+            if (chunkBuffers[data.id].receivedChunks === chunkBuffers[data.id].totalChunks) {
+                // Process complete data
+                self.processLevelData(data.id, chunkBuffers[data.id].buffer);
+
+                // Clean up
+                delete chunkBuffers[data.id];
+            }
+        } else {
+            // This is a complete (non-chunked) message
+            self.processLevelData(data.id, new Float32Array(data.xyzBuff));
         }
 
-        // if all workers finished, and we have a queued event, trigger it
-        // this is used as "finished"-trigger for initial level generation...
+        // Check if all workers have finished
         if (self.levelWorkersRunning === 0 && self.levelWorkerCall) {
             self.levelWorkerCall();
             self.levelWorkerCall = null;
+        }
+    },
+
+    processLevelData: function(levelId, xyzBuff) {
+        let self = audiOrbits;
+        let sett = self.settings;
+        let subbs = self.levels[levelId].subsets;
+
+        // Add tasks to the render queue with less blocking
+        for (let s = 0; s < sett.num_subsets_per_level; s++) {
+            self.afterRenderQueue.push(() => {
+                // Calculate the slice indices more efficiently
+                const startIdx = s * sett.num_points_per_subset * 2;
+                const endIdx = startIdx + sett.num_points_per_subset * 2;
+
+                // Update the geometry data
+                const positions = subbs[s].child.geometry.attributes.position;
+                for (let i = startIdx, j = 0; i < endIdx; i++, j++) {
+                    positions.array[j] = xyzBuff[i];
+                }
+                positions.needsUpdate = true;
+                subbs[s].child.needsUpdate = true;
+            });
         }
     },
 

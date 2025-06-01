@@ -13,7 +13,7 @@
  * Special thanks to @ssaenger for his contribution of >30 fractal algorithms!
  */
 
-var po = {
+var params = {
     xMin: 0,
     xMax: 0,
     yMin: 0,
@@ -26,7 +26,7 @@ var po = {
 }
 
 // 42 fractal functions
-const fracs = [
+const fractalFunctions = [
     Hopalong,
     HopalongMod1,
     HopalongMod2,
@@ -81,11 +81,11 @@ function Hopalong(numSub, numPointsSub, xyzBuff) {
     let x, y;
     let a, b, c, d, e;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -99,11 +99,11 @@ function Hopalong(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             // set x coordinate
             xyzBuff[bid] = x = x1;
@@ -120,11 +120,11 @@ function HopalongMod1(numSub, numPointsSub, xyzBuff) {
     let x, y;
     let a, b, c, d, e;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -137,11 +137,11 @@ function HopalongMod1(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             // set x coordinate
             xyzBuff[bid] = x = x1;
@@ -159,11 +159,11 @@ function HopalongMod2(numSub, numPointsSub, xyzBuff) {
     let x, y;
     let a, b, c, d, e;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -178,11 +178,11 @@ function HopalongMod2(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             // set x coordinate
             xyzBuff[bid] = x = x1;
@@ -199,10 +199,10 @@ function HopalongZen(numSub, numPointsSub, xyzBuff) {
     let x, y, t;
     let a, b, c, d;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
 
     // loop all subsets for the level
     for (s = 0; s < numSub; s++) {
@@ -218,11 +218,11 @@ function HopalongZen(numSub, numPointsSub, xyzBuff) {
             t = t + d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             // calculate x buffer location
             bid = (s * numPointsSub + i) * 2;
@@ -241,10 +241,10 @@ function FuturisticHUD(numSub, numPointsSub, xyzBuff) {
     let a, b, c;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -261,11 +261,11 @@ function FuturisticHUD(numSub, numPointsSub, xyzBuff) {
             y1 = a - x - Math.sin(tmp);
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             // set x coordinate
             xyzBuff[bid] = x = x1;
@@ -283,10 +283,10 @@ function Stereoscopic(numSub, numPointsSub, xyzBuff) {
     let a, b, d, e, f;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    d = po.dl;
-    e = po.el
+    a = params.al;
+    b = params.bl;
+    d = params.dl;
+    e = params.el
      // f param. Random number between -0.008 and 0.008
      f = -0.008 + Math.random() * (0.008 + 0.008);
     bid = 0;
@@ -304,11 +304,11 @@ function Stereoscopic(numSub, numPointsSub, xyzBuff) {
             y1 = a - x - tmp;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             // set x coordinate
             xyzBuff[bid] = x = x1;
@@ -324,10 +324,10 @@ function SunSpots(numSub, numPointsSub, xyzBuff) {
     let x, y;
     let a, b, c, d;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -341,11 +341,11 @@ function SunSpots(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             // set x coordinate
             xyzBuff[bid] = x = x1;
@@ -362,9 +362,9 @@ function Trypophobia(numSub, numPointsSub, xyzBuff) {
     let x, y;
     let a, b, d;
 
-    a = po.al;
-    b = po.bl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -378,11 +378,11 @@ function Trypophobia(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -397,10 +397,10 @@ function SuperNovaD(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d;
     let z, t;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -418,11 +418,11 @@ function SuperNovaD(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -438,10 +438,10 @@ function SuperNovaE(numSub, numPointsSub, xyzBuff) {
     let a, b, c, e;
     let z, t;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -459,11 +459,11 @@ function SuperNovaE(numSub, numPointsSub, xyzBuff) {
             t += e;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -478,9 +478,9 @@ function EndlessPit(numSub, numPointsSub, xyzBuff) {
     let a, b, c;
     let z, t;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
     bid = 0;
 
     // loop all subsets for the level
@@ -497,11 +497,11 @@ function EndlessPit(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -516,10 +516,10 @@ function OrderedChaos(numSub, numPointsSub, xyzBuff) {
     let a, b, c;
     let z, t;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -536,11 +536,11 @@ function OrderedChaos(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -555,8 +555,8 @@ function AlienPhantasms(numSub, numPointsSub, xyzBuff) {
     let a, c;
     let z;
 
-    a = po.al;
-    c = po.cl;
+    a = params.al;
+    c = params.cl;
     bid = 0;
 
     // loop all subsets for the level
@@ -571,11 +571,11 @@ function AlienPhantasms(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -591,9 +591,9 @@ function AlienEtching(numSub, numPointsSub, xyzBuff) {
     let c;
     let z;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
     bid = 0;
 
     // loop all subsets for the level
@@ -608,11 +608,11 @@ function AlienEtching(numSub, numPointsSub, xyzBuff) {
             y1 = c - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -627,8 +627,8 @@ function AlienHieroglyphs(numSub, numPointsSub, xyzBuff) {
     let a, c;
     let z;
 
-    a = po.al;
-    c = po.cl;
+    a = params.al;
+    c = params.cl;
     bid = 0;
 
     // loop all subsets for the level
@@ -643,11 +643,11 @@ function AlienHieroglyphs(numSub, numPointsSub, xyzBuff) {
             y1 = c - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -662,9 +662,9 @@ function Wormhole(numSub, numPointsSub, xyzBuff) {
     let a, b, d;
     let z;
 
-    a = po.al;
-    b = po.bl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -679,11 +679,11 @@ function Wormhole(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -698,8 +698,8 @@ function SpaceCarnival(numSub, numPointsSub, xyzBuff) {
     let a, d;
     let z;
 
-    a = po.al;
-    d = po.dl;
+    a = params.al;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -716,11 +716,11 @@ function SpaceCarnival(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -736,10 +736,10 @@ function Coexistence(numSub, numPointsSub, xyzBuff) {
     let c, d;
     let z;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -756,11 +756,11 @@ function Coexistence(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -775,9 +775,9 @@ function HawkingRadiation(numSub, numPointsSub, xyzBuff) {
     let a, b, d;
     let z, t;
 
-    a = po.al;
-    b = po.bl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -795,11 +795,11 @@ function HawkingRadiation(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -814,11 +814,11 @@ function Medusa(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, e;
     let z;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -835,11 +835,11 @@ function Medusa(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -854,10 +854,10 @@ function QuadrupTwo(numSub, numPointsSub, xyzBuff) {
     let a, b, c, e;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -871,11 +871,11 @@ function QuadrupTwo(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -890,11 +890,11 @@ function NeonLights(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, e;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -911,11 +911,11 @@ function NeonLights(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -930,11 +930,11 @@ function NeonSigns(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, e;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -951,11 +951,11 @@ function NeonSigns(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -970,11 +970,11 @@ function MathematicalSpecter(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, e;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -991,11 +991,11 @@ function MathematicalSpecter(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1010,11 +1010,11 @@ function OpticalIllusion(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, e;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1031,11 +1031,11 @@ function OpticalIllusion(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1050,11 +1050,11 @@ function VisualIllusion(numSub, numPointsSub, xyzBuff) {
     let tmp;
     let a, b, c, d, e;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1071,11 +1071,11 @@ function VisualIllusion(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1091,11 +1091,11 @@ function SlinkyWorms(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, e;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1113,11 +1113,11 @@ function SlinkyWorms(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1132,10 +1132,10 @@ function ObservableUniverse(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -1152,11 +1152,11 @@ function ObservableUniverse(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1171,11 +1171,11 @@ function ParallelUniverse(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, e;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1192,11 +1192,11 @@ function ParallelUniverse(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1211,10 +1211,10 @@ function HostilePlanet(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, f;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
      // f param. Random number between -0.002 and 0.002
      // 0 = is like the universe attractor. Too big of a value is just a verticle line
      // down the middle. Staying close to 0 splits the verticle line into many lines, and adds
@@ -1237,11 +1237,11 @@ function HostilePlanet(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1257,11 +1257,11 @@ function CyberWarfare(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, e;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1278,11 +1278,11 @@ function CyberWarfare(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1298,11 +1298,11 @@ function RaveDance(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, f;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     // f param between -0.008 and 0.008
     // Like HostilePlanet, too high turns just into a single line down middle.
     // 0 = CyberWarefare. Close to 0 is a Rave Dance with lights
@@ -1324,11 +1324,11 @@ function RaveDance(numSub, numPointsSub, xyzBuff) {
             t = t + d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1343,11 +1343,11 @@ function SunBeams(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, e;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1365,11 +1365,11 @@ function SunBeams(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1384,11 +1384,11 @@ function WaywardAi(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d, e;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1406,11 +1406,11 @@ function WaywardAi(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1424,10 +1424,10 @@ function Threeply(numSub, numPointsSub, xyzBuff) {
     let x, y;
     let a, b, c, e;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1441,11 +1441,11 @@ function Threeply(numSub, numPointsSub, xyzBuff) {
             y1 = c - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1460,11 +1460,11 @@ function Fiesta(numSub, numPointsSub, xyzBuff) {
     let tmp;
     let a, b, c, d, e;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1481,11 +1481,11 @@ function Fiesta(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1500,10 +1500,10 @@ function WizardsTunnel(numSub, numPointsSub, xyzBuff) {
     let a, b, c, d;
     let tmp;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -1520,11 +1520,11 @@ function WizardsTunnel(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1539,10 +1539,10 @@ function GapingHole(numSub, numPointsSub, xyzBuff) {
     let x, y;
     let a, b, c, e;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1557,11 +1557,11 @@ function GapingHole(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1577,11 +1577,11 @@ function LeapOfFaith(numSub, numPointsSub, xyzBuff) {
     let x, y;
     let a, b, c, d, e;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1596,11 +1596,11 @@ function LeapOfFaith(numSub, numPointsSub, xyzBuff) {
             y1 = a - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1617,10 +1617,10 @@ function BreathingRoom(numSub, numPointsSub, xyzBuff) {
     let x, y, t;
     let a, b, c, d;
 
-    a = po.al;
-    b = po.bl; // Change to make more stuff happen near center
-    c = po.cl;
-    d = po.dl;
+    a = params.al;
+    b = params.bl; // Change to make more stuff happen near center
+    c = params.cl;
+    d = params.dl;
     bid = 0;
 
     // loop all subsets for the level
@@ -1636,11 +1636,11 @@ function BreathingRoom(numSub, numPointsSub, xyzBuff) {
             y1 = b - x;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1656,11 +1656,11 @@ function NameMe(numSub, numPointsSub, xyzBuff) {
     let tmp;
     let a, b, c, d, e;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1677,11 +1677,11 @@ function NameMe(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1696,11 +1696,11 @@ function EasterEgg(numSub, numPointsSub, xyzBuff) {
     let tmp;
     let a, b, c, d, e;
 
-    a = po.al;
-    b = po.bl;
-    c = po.cl;
-    d = po.dl;
-    e = po.el;
+    a = params.al;
+    b = params.bl;
+    c = params.cl;
+    d = params.dl;
+    e = params.el;
     bid = 0;
 
     // loop all subsets for the level
@@ -1717,11 +1717,11 @@ function EasterEgg(numSub, numPointsSub, xyzBuff) {
             t += d;
 
             // process x size
-            po.xMin = (x < po.xMin) ? x : po.xMin;
-            po.xMax = (x > po.xMax) ? x : po.xMax;
+            params.xMin = (x < params.xMin) ? x : params.xMin;
+            params.xMax = (x > params.xMax) ? x : params.xMax;
             // process y size
-            po.yMin = (y < po.yMin) ? y : po.yMin;
-            po.yMax = (y > po.yMax) ? y : po.yMax;
+            params.yMin = (y < params.yMin) ? y : params.yMin;
+            params.yMax = (y > params.yMax) ? y : params.yMax;
 
             xyzBuff[bid] = x = x1;
             xyzBuff[bid + 1] = y = y1;
@@ -1730,91 +1730,153 @@ function EasterEgg(numSub, numPointsSub, xyzBuff) {
     }
 }
 
-
 onmessage = function (e) {
-    // what I need:
-    let eventData = e.data;
-    let sett = eventData.settings;
-    let levelId = eventData.id;
-    let fc = eventData.frac;
-    let fcLen = fc.length;
+    const eventData = e.data;
+    const sett = eventData.settings;
+    const levelId = eventData.id;
+    const fractalChoices = eventData.frac;
 
     // get local vars
-    let num_subsets = sett.num_subsets_per_level;
-    let num_points_subset = sett.num_points_per_subset;
+    const num_subsets = sett.num_subsets_per_level;
+    const num_points_subset = sett.num_points_per_subset;
+    const numSubsets = sett.num_subsets_per_level;
+    const numPointsSubset = sett.num_points_per_subset;
+    const scaleFactor = sett.scaling_factor;
+    const tunnel = sett.generate_tunnel;
+    const innerRadius = sett.tunnel_inner_radius / 100;
+    const outerRadius = sett.tunnel_outer_radius / 100;
 
-    // create a buffer that's big enough to hold the x,y,z coordinate
-    // of all subsets * points of the level.
-    // may seem ridiculous, but is actually the fastest way to transfer.
-    let xyzBuff = new Float32Array(num_subsets * num_points_subset * 2);
+    // Create output buffer
+    const xyzBuff = new Float32Array(num_subsets * num_points_subset * 2);
 
-    let scale_factor_l = sett.scaling_factor;
-    let tunnel = sett.generate_tunnel;
-    let innerRadius = sett.tunnel_inner_radius / 100;
-    let outerRadius = sett.tunnel_outer_radius / 100;
-    // get randomized params in defined ranges
-    po.al = sett.alg_a_min + Math.random() * (sett.alg_a_max - sett.alg_a_min);
-    po.bl = sett.alg_b_min + Math.random() * (sett.alg_b_max - sett.alg_b_min);
-    po.cl = sett.alg_c_min + Math.random() * (sett.alg_c_max - sett.alg_c_min);
-    po.dl = sett.alg_d_min + Math.random() * (sett.alg_d_max - sett.alg_d_min);
-    po.el = sett.alg_e_min + Math.random() * (sett.alg_e_max - sett.alg_e_min);
-    // some stuff needed in the subset generation loop
-    po.xMin = po.xMax = po.yMin = po.yMax = 0;
-    let choice = Math.random();
-    let s, x, y, i, bid;
+    // Initialize parameters with random values in the specified ranges
+    params.a = getRandomInRange(sett.alg_a_min, sett.alg_a_max);
+    params.b = getRandomInRange(sett.alg_b_min, sett.alg_b_max);
+    params.c = getRandomInRange(sett.alg_c_min, sett.alg_c_max);
+    params.d = getRandomInRange(sett.alg_d_min, sett.alg_d_max);
+    params.e = getRandomInRange(sett.alg_e_min, sett.alg_e_max);
+
+    // Reset min/max values
+    params.xMin = params.xMax = params.yMin = params.yMax = 0;
+
+    const choice = Math.random();
+    let selectedFractal = false;
+
     // Grab an Attractor based on choice
-    for (i = 0; i < fcLen; i++) {
-        if (choice < fc[i][0]) {
-            fracs[fc[i][1]](num_subsets, num_points_subset, xyzBuff);
+    for (let i = 0; i < fractalChoices.length; i++) {
+        if (choice < fractalChoices[i][0]) {
+            // Execute the selected fractal function
+            fractalFunctions[fractalChoices[i][1]](num_subsets, num_points_subset, xyzBuff);
+            selectedFractal = true;
+
             break;
         }
     }
-    if (i === fcLen) {
-        // Did not select a frac. Default to GapingHole since it's pretty empty
+
+    // Default to a fallback fractal if none selected
+    if (!selectedFractal) {
         GapingHole(num_subsets, num_points_subset, xyzBuff);
     }
 
-    // calculate level scale based on min and max values
-    let scaleX = 2 * scale_factor_l / (po.xMax - po.xMin);
-    let scaleY = 2 * scale_factor_l / (po.yMax - po.yMin);
+    // Scale and normalize the coordinates
+    normalizeCoordinates(xyzBuff, numSubsets, numPointsSubset, scaleFactor, tunnel, innerRadius, outerRadius);
 
-    // small helper
-    let getPointDistance = function (x1, y1, x2, y2) {
-        let a = x1 - x2;
-        let b = y1 - y2;
-        return Math.sqrt(a * a + b * b);
-    };
+    sendLevelData(levelId, xyzBuff.buffer);
+};
 
-    // Normalize and post-process the level          
-    let dist, scaling, outer;
-    bid = 0;
-    for (s = 0; s < num_subsets; s++) {
-        for (i = 0; i < num_points_subset; i++) {
-            // re-scale x position
-            x = scaleX * (xyzBuff[bid] - po.xMin) - scale_factor_l;
-            // re-scale y position
-            y = scaleY * (xyzBuff[bid + 1] - po.yMin) - scale_factor_l;
-            // tunnel processing to take certain points from the center
-            // and move them outwards in a circular way
+
+/**
+ * Get a random number within a specified range
+ */
+function getRandomInRange(min, max) {
+    return min + Math.random() * (max - min);
+}
+
+
+/**
+ * Calculate distance between two points
+ */
+function getPointDistance(x1, y1, x2, y2) {
+    const a = x1 - x2;
+    const b = y1 - y2;
+    return Math.sqrt(a * a + b * b);
+}
+
+/**
+ * Normalize coordinates to the proper scale for rendering
+ */
+function normalizeCoordinates(buffer, numSubsets, numPointsSubset, scaleFactor, tunnel, innerRadius, outerRadius) {
+    // Calculate scale based on min/max values
+    const scaleX = 2 * scaleFactor / (params.xMax - params.xMin);
+    const scaleY = 2 * scaleFactor / (params.yMax - params.yMin);
+
+    let bid = 0;
+    for (let s = 0; s < numSubsets; s++) {
+        for (let i = 0; i < numPointsSubset; i++) {
+            // Scale the coordinates
+            let x = scaleX * (buffer[bid] - params.xMin) - scaleFactor;
+            let y = scaleY * (buffer[bid + 1] - params.yMin) - scaleFactor;
+
+            // Apply tunnel effect if enabled
             if (tunnel) {
-                dist = getPointDistance(0, 0, x, y) / scale_factor_l;
-                //print("pd: " + dist + ",   inner: " + innerRadius);
+                const dist = getPointDistance(0, 0, x, y) / scaleFactor;
                 if (dist < innerRadius) {
-                    scaling = dist / innerRadius;
-                    outer = scaling / outerRadius;
+                    const scaling = dist / innerRadius;
+                    const outer = scaling / outerRadius;
                     x = x / scaling + x * outer;
                     y = y / scaling + y * outer;
                 }
             }
-            xyzBuff[bid] = x;
-            xyzBuff[bid + 1] = y;
+
+            // Store scaled coordinates
+            buffer[bid] = x;
+            buffer[bid + 1] = y;
             bid += 2;
         }
     }
-    // done, post calculated object
-    let levelObj = {
-        id: levelId,
-        xyzBuff: xyzBuff.buffer,
+}
+
+/**
+ * Uses chunking to send the level data in smaller arrays for less thread-blocking.
+ * @param levelId
+ * @param buffer
+ */
+function sendLevelData(levelId, buffer) {
+    // Configure chunk size
+    const CHUNK_SIZE = 100000; // 100KB in bytes
+    const totalSize = buffer.byteLength;
+
+    // For small buffers, send in one piece
+    if (totalSize <= CHUNK_SIZE) {
+        self.postMessage({
+            id: levelId,
+            complete: true,
+            xyzBuff: buffer
+        }, [buffer]);
+        return;
     }
-    self.postMessage(levelObj, [levelObj.xyzBuff]);
-};
+
+    // For large buffers, send in chunks
+    const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
+    const float32View = new Float32Array(buffer);
+
+    for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE / Float32Array.BYTES_PER_ELEMENT;
+        const end = Math.min(
+            start + CHUNK_SIZE / Float32Array.BYTES_PER_ELEMENT,
+            buffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+        );
+
+        // Create a slice of the buffer
+        const chunk = float32View.slice(start, end);
+
+        self.postMessage({
+            id: levelId,
+            chunkIndex: i,
+            totalChunks: totalChunks,
+            totalSize: totalSize,
+            chunkData: chunk.buffer,
+            complete: false
+        }, [chunk.buffer]);
+    }
+}
