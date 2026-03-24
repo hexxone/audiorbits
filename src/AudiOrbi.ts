@@ -73,7 +73,7 @@ let temProps = null;
 // eslint-disable-next-line dot-notation
 window['wallpaperPropertyListener'] = {
     applyUserProperties: (p) => {
-        console.log('Before', p);
+        console.debug('Before', p);
         temProps = p;
     }
 };

@@ -16,20 +16,13 @@ import { CComponent,
     CSettings,
     EffectComposer,
     FPStats,
+    LoadHelper,
     Smallog,
     WEAS,
     WEICUE,
-    XRHelper,
-    LoadHelper } from 'we_utils/src';
+    XRHelper } from 'we_utils/src';
 
-import { WebGLRenderer,
-    Group,
-    PerspectiveCamera,
-    Scene,
-    Clock,
-    Color,
-    Vector3,
-    Fog } from 'three.ts/src';
+import { Clock, Color, Fog, Group, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three.ts/src';
 
 import { NEAR_DIST } from './Consts';
 
@@ -46,6 +39,8 @@ class ContextSettings extends CSettings {
     auto_parallax_speed = 2;
     parallax_cam = true;
     field_of_view = 90;
+    x_offset = 0;
+    y_offset = 0;
     custom_fps = false;
     fps_value = 60;
     shader_quality = 1;
@@ -76,7 +71,8 @@ export class ContextHelper extends CComponent {
     /** @public */
     public settings: ContextSettings = new ContextSettings();
 
-    private loadHelper: LoadHelper;
+    private readonly loadHelper: LoadHelper;
+    private readonly geoHolder: GeometryHolder;
 
     // webvr user input data
     private userData = {
@@ -102,7 +98,7 @@ export class ContextHelper extends CComponent {
     private clock: Clock = new Clock();
 
     // custom render timing
-    private renderTimeout: NodeJS.Timeout | null = null;
+    private renderTimeout: number | null = null;
 
     // window half size
     private windowHalfX = window.innerWidth / 2;
@@ -117,8 +113,6 @@ export class ContextHelper extends CComponent {
     private weicue: WEICUE = new WEICUE(this.weas);
     private stats: FPStats = new FPStats(this.weas);
     private xrHelper: XRHelper = new XRHelper();
-
-    private geoHolder: GeometryHolder;
 
     /**
      * add global listeners
@@ -155,9 +149,7 @@ export class ContextHelper extends CComponent {
         // scaling listener
         window.addEventListener(
             'resize',
-            () => {
-                return this.onResize();
-            },
+            this.onResize,
             false
         );
 
@@ -173,10 +165,10 @@ export class ContextHelper extends CComponent {
 
     /**
      * apply resizing
-     * @param {UIEvent} event resize event
+     * @param {UIEvent} _event resize event
      * @returns {void}
      */
-    private onResize(): void {
+    private onResize(_event: UIEvent): void {
         const iW = window.innerWidth;
         const iH = window.innerHeight;
 
@@ -200,133 +192,123 @@ export class ContextHelper extends CComponent {
      * @param {Promise} waitFor (optional) wait for this promise before rendering
      * @returns {Promise} finish event
      */
-    public init(waitFor?: Promise<void>): Promise<void> {
-        return new Promise((res, rej) => {
-            Smallog.debug('init Context...');
+    public async init(waitFor?: Promise<void>): Promise<void> {
+        Smallog.debug('init Context...');
 
-            // get canvas container
-            const cont = document.getElementById('renderContainer');
+        const renderContainer = document.getElementById('renderContainer');
 
-            if (!cont) {
-                throw new Error('Missing #renderContainer');
-            }
+        if (!renderContainer) {
+            throw new Error('Missing #renderContainer');
+        }
 
-            // distance
-            const viewDist
-                = this.settings.num_levels
-                * this.settings.level_depth
-                * (this.settings.xr_mode ? 1 : 2);
-            // precision
-            const prec = this.getPrecisionPref();
+        // distance
+        const viewDist
+            = this.settings.num_levels
+            * this.settings.level_depth
+            * (this.settings.xr_mode ? 1 : 2);
 
-            // destroy old context
-            if (this.renderer) {
-                this.renderer.forceContextLoss();
-            }
-            if (this.composer) {
-                this.composer.reset();
-            }
-            if (this.mainCanvas) {
-                cont.removeChild(this.mainCanvas);
-            }
+        const precisionPref = this.getPrecisionPref();
 
-            // get canvases & contexts
-            // ensure the canvas sizes are set !!!
-            // these are independent from the style sizes
-            this.mainCanvas = document.createElement('canvas');
-            this.mainCanvas.id = 'mainCvs';
-            this.mainCanvas.width = window.innerWidth;
-            this.mainCanvas.height = window.innerHeight;
-            cont.appendChild(this.mainCanvas);
+        // destroy old context
+        if (this.renderer) {
+            this.renderer.forceContextLoss();
+        }
+        if (this.composer) {
+            this.composer.reset();
+        }
+        if (this.mainCanvas) {
+            renderContainer.removeChild(this.mainCanvas);
+        }
 
-            // create camera
-            this.camera = new PerspectiveCamera(
-                this.settings.field_of_view,
-                window.innerWidth / window.innerHeight,
-                NEAR_DIST,
-                viewDist
-            );
-            this.cameraPosition = this.camera.position;
+        // get canvases & contexts
+        // ensure the canvas sizes are set !!!
+        // these are independent from the style sizes
+        this.mainCanvas = document.createElement('canvas');
+        this.mainCanvas.id = 'mainCvs';
+        this.mainCanvas.width = window.innerWidth;
+        this.mainCanvas.height = window.innerHeight;
+        renderContainer.appendChild(this.mainCanvas);
 
-            // create scene
-            this.scene = new Scene();
-            // this.scene.fog = new FogExp2(
-            //     this.colorHolder.colorObject.main.getHexString(),
-            //     0.00001 + this.settings.fog_thickness / viewDist / 15
-            // );
-            this.scene.fog = new Fog(
-                new Color(0, 0, 0),
-                NEAR_DIST,
-                (viewDist * (100 - this.settings.fog_thickness)) / 250
-            );
+        // create camera
+        this.camera = new PerspectiveCamera(
+            this.settings.field_of_view,
+            window.innerWidth / window.innerHeight,
+            NEAR_DIST,
+            viewDist
+        );
+        this.cameraPosition = this.camera.position;
+        this.applyCameraViewOffset();
 
-            // create render-context
-            this.renderer = new WebGLRenderer({
-                alpha: true,
-                antialias: false,
-                canvas: this.mainCanvas,
-                logarithmicDepthBuffer: true,
-                powerPreference: this.getPowerPreference(),
-                precision: prec
-            });
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-            this.renderer.setClearColor(0x000000, 0);
+        // create scene
+        this.scene = new Scene();
+        // this.scene.fog = new FogExp2(
+        //     this.colorHolder.colorObject.main.getHexString(),
+        //     0.00001 + this.settings.fog_thickness / viewDist / 15
+        // );
+        this.scene.fog = new Fog(
+            new Color(0, 0, 0),
+            NEAR_DIST,
+            (viewDist * (100 - this.settings.fog_thickness)) / 250
+        );
 
-            // initialize VR mode
-            this.initWebXR();
 
-            // initialize shader composer
-            this.composer = new EffectComposer(
-                this.scene,
-                this.camera,
-                this.renderer,
-                prec,
-                0x000000
-            );
-
-            // add shaders
-            this.shaderHolder.init(this.composer);
-
-            // initialize colors if not done already
-            this.colorHolder.updateSettings();
-
-            // eslint-disable-next-line no-async-promise-executor
-            const newWait = new Promise<void>(async (resolve) => {
-                // precompile shaders
-                this.composer?.precompile();
-
-                // initialize weas
-                if (this.weas.init) {
-                    await this.weas.init();
-                }
-                this.loadHelper.setProgress(this.loadHelper.progress + 5);
-
-                // wait for seizure warning
-                if (waitFor) {
-                    await waitFor;
-                }
-
-                // return Controlflow
-                resolve();
-            });
-
-            this.loadHelper.setText('Objects');
-            this.loadHelper.setProgress(10);
-
-            // initialize main geometry
-            this.geoHolder
-                .init(this.scene, this.camera, newWait)
-                .then(() => {
-                    this.loadHelper.show(false);
-                    // show fancy text
-                    this.showMessage(document.title);
-                    // start rendering
-                    this.setRenderer(true);
-                    // resolve promise
-                    res();
-                })
-                .catch(rej);
+        // create render-context
+        this.renderer = new WebGLRenderer({
+            alpha: true,
+            antialias: false,
+            canvas: this.mainCanvas,
+            logarithmicDepthBuffer: true,
+            powerPreference: this.getPowerPreference(),
+            precision: precisionPref
         });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor(0x000000, 0);
+
+        // initialize VR mode
+        this.initWebXR();
+
+        // initialize shader composer
+        this.composer = new EffectComposer(
+            this.scene,
+            this.camera,
+            this.renderer,
+            precisionPref,
+            0x000000
+        );
+
+        // add shaders
+        this.shaderHolder.init(this.composer);
+
+        // initialize colors if not done already
+        await this.colorHolder.updateSettings();
+
+        this.loadHelper.setText('Objects');
+        this.loadHelper.setProgress(10);
+
+        // initialize main geometry
+        await this.geoHolder.init(this.scene, this.camera);
+
+        // precompile shaders
+        this.composer?.precompile();
+
+        // initialize weas
+        if (this.weas.init) {
+            await this.weas.init();
+        }
+
+        this.loadHelper.setProgress(this.loadHelper.progress + 5);
+
+        // wait for seizure warning
+        if (waitFor) {
+            await waitFor;
+        }
+
+        // loading completed
+        this.loadHelper.show(false);
+        // show fancy text
+        this.showMessage(document.title);
+        // start rendering
+        this.setRenderer(true);
     }
 
     /**
@@ -334,7 +316,7 @@ export class ContextHelper extends CComponent {
      * @param {number} axis current value
      * @returns {number} clamped value
      */
-    private clampCam(axis) {
+    private clampCam(axis: number): number {
         return Math.min(
             this.settings.scaling_factor / 2,
             Math.max(-this.settings.scaling_factor / 2, axis)
@@ -343,11 +325,11 @@ export class ContextHelper extends CComponent {
 
     /**
      * update camera values
-     * @param {number} ellapsed ms
+     * @param {number} _elapsed ms
      * @param {number} deltaTime multiplier ~1
      * @returns {void}
      */
-    private updateFrame(ellapsed, deltaTime) {
+    private updateFrame(_elapsed: number, deltaTime: number) {
         if (!this.camera || !this.cameraPosition) {
             // eslint-disable-next-line no-debugger
             debugger;
@@ -397,6 +379,35 @@ export class ContextHelper extends CComponent {
     }
 
     /**
+     * Apply x_offset/y_offset as a camera frustum shift (view offset).
+     * This shifts the point-of-view center without rotating the camera,
+     * so the geometry appears centered on the offset position (e.g. left
+     * screen of a dual-monitor span).
+     * @returns {void}
+     * @private
+     */
+    private applyCameraViewOffset():void {
+        if (!this.camera) {
+            return;
+        }
+        const xOff = this.settings.x_offset;
+        const yOff = this.settings.y_offset;
+
+        if (xOff === 0 && yOff === 0) {
+            this.camera.clearViewOffset();
+        } else {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            const xPx = (xOff / 100) * w;
+            const yPx = (yOff / 100) * h;
+
+            // setViewOffset(fullWidth, fullHeight, offsetX, offsetY, portWidth, portHeight)
+            this.camera.setViewOffset(w, h, xPx, yPx, w, h);
+        }
+        this.camera.updateProjectionMatrix();
+    }
+
+    /**
      * called after any setting changed
      * @public
      * @returns {Promise} finish event
@@ -410,6 +421,18 @@ export class ContextHelper extends CComponent {
         // set Cursor for "fixed" parallax mode
         if (this.settings.parallax_option === 3) {
             this.positionMouseAngle(this.settings.parallax_angle);
+        }
+
+        // apply screen-center shift for multi-monitor setups
+        this.applyCameraViewOffset();
+
+        const viewDist
+            = this.settings.num_levels
+            * this.settings.level_depth
+            * (this.settings.xr_mode ? 1 : 2);
+
+        if (this.scene?.fog) {
+            this.scene.fog.far = (viewDist * (100 - this.settings.fog_thickness)) / 250;
         }
 
         return Promise.resolve();
@@ -463,11 +486,11 @@ export class ContextHelper extends CComponent {
 
     /**
      * repeated render frame call
-     * @param {number} time second fraction
+     * @param {number} _time second fraction
      * @param {XRFrame} frame XR Frame
      * @returns {void}
      */
-    private renderLoop(time?: number, frame?: XRFrame) {
+    private renderLoop(_time?: number, frame?: XRFrame): void {
         // paused - stop render
         if (this.PAUSED) {
             return;

@@ -1,7 +1,7 @@
 {
   "banner_reload": {
     "type": "label",
-    "value": "🔃 After changing these settings the wallpaper will reload automatically 🔃."
+    "value": "🔃 After changing these settings the wallpaper will reload automatically. 🔃"
   },
   "SPCR_01": {
     "type": "label",
@@ -217,7 +217,7 @@
     "type": "dropdown",
     "value": 0,
     "items": [
-      "From",
+      "Off",
       "Cursor",
       "Automatic",
       "Fixed"
@@ -478,7 +478,7 @@
     "type": "dropdown",
     "value": -1,
     "items": [
-      "From",
+      "Off",
       "Posterize",
       "Inverse",
       "Negative"

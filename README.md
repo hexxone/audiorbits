@@ -48,6 +48,10 @@ You are allowed to use this Wallpaper for your favourite party, event, video, st
 Please just include a link to THIS repository or the Steam-Page (see urls above).
 Thanks 🙂
 
+## [Web Preview](https://orbits.hexx.one/beta)
+
+## [Feature list](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
+
 ## Downloads
 
 - [Latest Web Version](https://github.com/hexxone/audiorbits/releases/download/2.4-beta1/audiorbits_2.4_beta.zip)
@@ -66,7 +70,8 @@ Install steps:
 1. `git clone --recursive https://github.com/hexxone/audiorbits.git` recursive is needed to include all submodules.
 2. `cd audiorbits`
 3. `yarn install`
-4. `yarn start` for debugging or `yarn prod` for an optimized build
+4. Run `sh generate-certs.sh` once before starting the dev server.
+5. `yarn start` for debugging or `yarn prod` for an optimized build
 
 ## The little things
 
@@ -111,10 +116,6 @@ Therefore this web-app needs to be served with the following html headers:
 - [mbasso](https://github.com/mbasso) Web-Assembly worker
 - [Alessandro Caminiti](https://www.dafont.com/de/hexagon-cup.font) hexagon-font
 - [Barry Martin](https://www.fraktalwelt.de/myhome/simpiter2.htm) Hopalong Attractor
-
-## [Web Preview](https://orbits.hexx.one/beta)
-
-## [Feature list](https://steamcommunity.com/sharedfiles/filedetails/?id=1396475780)
 
 ## [Changelog.md](https://github.com/hexxone/audiorbits/blob/master/CHANGELOG.md)
 

@@ -11,7 +11,6 @@
  */
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-var-requires */
-
 const fs = require('fs');
 const path = require('path');
 const { networkInterfaces } = require('os');
@@ -26,10 +25,12 @@ const OfflinePlugin = require('./src/we_utils/src/offline/OfflinePlugin');
 const WascBuilderPlugin = require('./src/we_utils/src/wasc-worker/WascBuilderPlugin');
 const RenamerPlugin = require('./src/we_utils/src/renamer/RenamerPlugin');
 
-const lanIp
-    = networkInterfaces().Ethernet.find((item) => {
+const lanIp = Object.values(networkInterfaces())
+    .flat()
+    .find((item) => {
         return item.family === 'IPv4' && !item.internal && item.address;
-    }).address ?? '0.0.0.0';
+    })
+    ?.address ?? '0.0.0.0';
 
 console.log(`Got Lan IP: ${lanIp}`);
 
@@ -221,7 +222,7 @@ module.exports = (env) => {
             // will create a list of all app-files.
             // this list is used to cache the app offline in browser.
             new OfflinePlugin({
-                staticdir: `${__dirname}\\public`,
+                staticdir: path.resolve(__dirname, 'public'),
                 outfile: 'offlinefiles.json',
                 extrafiles: ['/'],
                 pretty: !prod
@@ -247,8 +248,7 @@ module.exports = (env) => {
             })
         ],
         devServer: {
-            host: lanIp,
-            allowedHosts: ['all'], // or use 'auto' for slight more security
+            allowedHosts: ['localhost'],
             static: {
                 directory: path.resolve(__dirname, 'dist', stringMode),
                 watch: true
@@ -257,9 +257,8 @@ module.exports = (env) => {
             liveReload: false,
             compress: true,
             https: {
-                key: fs.readFileSync('../../localhost+1-key.pem'),
-                cert: fs.readFileSync('../../localhost+1.pem')
-                // ca: fs.readFileSync("ca.crt"),
+                key: fs.readFileSync(path.resolve(__dirname, 'localhost+2-key.pem')),
+                cert: fs.readFileSync(path.resolve(__dirname, 'localhost+2.pem'))
             },
             server: 'https',
             // disableHostCheck: true,
@@ -269,7 +268,19 @@ module.exports = (env) => {
                 https: true,
                 'Access-Control-Allow-Origin': '*',
                 'Cross-Origin-Opener-Policy': 'same-origin',
-                'Cross-Origin-Embedder-Policy': 'require-corp'
+                'Cross-Origin-Embedder-Policy': 'require-corp',
+                'Content-Security-Policy': "worker-src 'self' blob:"
+            },
+            setupMiddlewares: (middlewares, devServer) => {
+                devServer.app.use((req, res, next) => {
+                    // res.setHeader(
+                    //     'Content-Security-Policy',
+                    //     "default-src 'self' blob:; worker-src 'self' blob:"
+                    // );
+                    next();
+                });
+
+                return middlewares;
             }
         },
         // print statistics

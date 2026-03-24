@@ -1,5 +1,6 @@
 # Completed Build Files
 *.zip
+*.pem
 
 # Logs
 logs
@@ -39,6 +40,8 @@ bower_components
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
+*.wasm.wat
+*.wasm.wat"
 
 # Dependency directories
 node_modules/
@@ -117,3 +120,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# WebStorm
+.idea

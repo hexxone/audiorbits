@@ -5,7 +5,7 @@ root = true
 end_of_line = crlf
 insert_final_newline = true
 
-[*.{js,ts,html}]
+[*.{js,ts,html,json}]
 charset = utf-8
 indent_size = 4
 indent_style = space

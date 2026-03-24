@@ -228,59 +228,45 @@ export class GeometryHolder extends CComponent {
      * @public
      * @param {Scene} scene parent
      * @param {Camera} cam renderer
-     * @param {Promise} waitFor (optional)
      * @returns {Promise} res
      */
-    public init(
+    public async init(
         scene: Scene,
-        cam: Camera,
-        waitFor?: Promise<void>
+        cam: Camera
     ): Promise<void> {
-        return new Promise((res, rej) => {
-            this.camera = cam;
+        this.camera = cam;
 
-            const sett = this.settings;
+        const sett = this.settings;
 
-            // reset generator
-            this.afterRenderQueue = [];
-            // reset rendering
-            this.speedVelocity = 0;
+        // reset generator
+        this.afterRenderQueue = [];
+        // reset rendering
+        this.speedVelocity = 0;
 
-            this.loadHelper.setText('Texture');
-            this.loadHelper.setProgress(15);
+        this.loadHelper.setText('Texture');
+        this.loadHelper.setProgress(15);
 
-            // load texture
-            let texture: Texture = null;
+        // load texture
+        let texture: Texture = null;
 
-            if (sett.geometry_type === 0) {
-                // get texture path
-                const texPth = this.getBaseTexPath();
+        if (sett.geometry_type === 0) {
+            // get texture path
+            const texPth = this.getBaseTexPath();
 
-                Smallog.debug(`loading Texture: ${texPth}`);
-                texture = new TextureLoader().load(texPth);
-            }
+            Smallog.debug(`loading Texture: ${texPth}`);
+            texture = new TextureLoader().load(texPth);
+        }
 
-            this.loadHelper.setText('Generator');
-            this.loadHelper.setProgress(20);
+        this.loadHelper.setText('Generator');
+        this.loadHelper.setProgress(20);
 
-            // setup fractal generator, get exported functions, push settings & init geometry
-            this.getGeoBuilder()
-                .then((builder) => {
-                    return (this.levelBuilder = builder);
-                })
-                .then(() => {
-                    return this.updateSettings();
-                })
-                .then(() => {
-                    return this.initGeometries(scene, texture, waitFor);
-                })
-                .then(() => {
-                    Smallog.debug('Finished building geometries!');
-                    this.loadHelper.setProgress(this.loadHelper.progress + 5);
-                    res();
-                })
-                .catch(rej);
-        });
+        // setup fractal generator, get exported functions, push settings & init geometry
+        this.levelBuilder = await this.getGeoBuilder();
+        await this.updateSettings();
+        await this.initGeometries(scene, texture);
+
+        Smallog.debug('Finished building geometries!');
+        this.loadHelper.setProgress(this.loadHelper.progress + 5);
     }
 
     /**
@@ -318,7 +304,7 @@ export class GeometryHolder extends CComponent {
      * Get Base-texture path
      * @returns {string} path
      */
-    private getBaseTexPath() {
+    private getBaseTexPath(): string {
         switch (this.settings.base_texture) {
             case 0:
                 return './img/galaxy.png';
@@ -333,14 +319,12 @@ export class GeometryHolder extends CComponent {
      * create WEBGL objects for each level and subset
      * @param {Scene} scene sc
      * @param {Texture} texture tx
-     * @param {Promise} waitFor (optional) promise to wait for
      * @returns {Promise<void>} action
      */
     private async initGeometries(
         scene: Scene,
-        texture: Texture,
-        waitFor?: Promise<void>
-    ) {
+        texture: Texture
+    ): Promise<void> {
         const sett = this.settings;
         const camZ = this.camera.position.z;
 
@@ -448,26 +432,11 @@ export class GeometryHolder extends CComponent {
         this.loadHelper.setProgress(this.loadHelper.progress + 5);
 
         // generate standby data for first move-back
-        /* const stndBy = */
         Promise.all(
             this.levels.map((o, l) => {
                 return this.generateLevel(l);
             })
         );
-
-        // wait for something else?
-        if (waitFor) {
-            // wait for 2nd data?
-            // await stndBy;
-
-            // apply data
-            // while (this.afterRenderQueue.length > 0) {
-            //     this.afterRenderQueue.shift()();
-            // }
-
-            // wait for control flow
-            await waitFor;
-        }
     }
 
     /**
@@ -523,7 +492,7 @@ export class GeometryHolder extends CComponent {
      * @public
      * @returns {Promise} finished event
      */
-    public updateSettings(): Promise<void> {
+    public async updateSettings(): Promise<void> {
         // CAVEAT: only available after init and module load
         if (!this.levelBuilder) {
             return;
@@ -557,7 +526,7 @@ export class GeometryHolder extends CComponent {
         };
 
         // WRAP IN isolated Function ran inside worker
-        return this.levelBuilder
+        await this.levelBuilder
             .run(({ instance, exports, params }) => {
                 const ex = instance.exports as any;
                 // Data passed in worker
@@ -568,12 +537,10 @@ export class GeometryHolder extends CComponent {
                 exports.__getFloat32ArrayView(ex.levelSettings).set(arrData);
                 // generate new data structure with updated settings
                 ex.update();
-            }, args)
-            .then(() => {
-                Smallog.debug(
-                    `Sent Settings to Generator: ${JSON.stringify(sett)}`
-                );
-            });
+            }, args);
+        Smallog.debug(
+            `Sent Settings to Generator: ${JSON.stringify(sett)}`
+        );
     }
 
     /**
@@ -596,7 +563,7 @@ export class GeometryHolder extends CComponent {
      * Calculate & return algorithm parameters
      * @returns {any} algorithm parameters
      */
-    private getParameters() {
+    private getParameters(): any {
         // @TODO
         return {
             alg_a_min: 6,
@@ -617,7 +584,7 @@ export class GeometryHolder extends CComponent {
      * @param {number} level for what we are generating
      * @returns {Promise} finiished event
      */
-    private generateLevel(level: number): Promise<void> {
+    private async generateLevel(level: number): Promise<void> {
         Smallog.debug(`generating level: ${level}`);
 
         const shared = this.levelBuilder.shared !== null;
@@ -638,105 +605,97 @@ export class GeometryHolder extends CComponent {
         };
 
         // isolated Function ran inside worker
-        return run(({ instance, exports, params }) => {
-            const ex = instance.exports as any;
-            // Data passed in worker
-            const { level, isShared } = params[0];
-            // assembly level Building
-            // returns pointer to int32-array with float-references
-            const dataPtr = ex.build(level);
-            // iterate over all pointers
-            const setPtrs = exports.__getInt32Array(dataPtr);
+        try {
+            const wasmWorkerResult = await run(({ instance, exports, params }) => {
+                const ex = instance.exports as any;
+                // Data passed in worker
+                const { level: level_1, isShared } = params[0];
+                // assembly level Building
+                // returns a pointer to int32-array with float-references
+                const dataPtr = ex.build(level_1);
+                // iterate over all pointers
+                const setPtrs = exports.__getInt32Array(dataPtr);
 
-            // gather transferrable float-arrays
-            const resultObj = {};
+                // gather transferable float-arrays
+                const resultObj = {};
 
-            if (isShared) {
-                // copy the pointer, since direct access is possible
-                setPtrs.forEach((ptr, i) => {
-                    return (resultObj[`ptr_${i}`] = ptr);
-                });
-            } else {
-                // we make a hard-copy
-                // exports.__getFloat32ArrayView(ptr));
-                setPtrs.forEach((ptr, i) => {
-                    return (resultObj[`set_${i}`] = new Float32Array(
-                        exports.__getFloat32ArrayView(ptr)
-                    ).buffer);
-                });
-            }
-
-            // transfer data
-            return resultObj;
-        }, workerParams)
-            .then(async (result) => {
-                // worker result, back in main context
-                const subbs = this.levels[level].sets;
-                const setsPerLvl = this.settings.num_subsets_per_level;
-                const pointsPerSet = this.settings.num_points_per_subset;
-
-                const pointsPerLvl = setsPerLvl * pointsPerSet;
-                const currentPoints = (
-                    (level + 1)
-                    * pointsPerLvl
-                ).toLocaleString('en');
-                const maxPoints = (numLevels * pointsPerLvl).toLocaleString(
-                    'en'
-                );
-
-                this.loadHelper.setText(
-                    `Particles<br>${currentPoints} / ${maxPoints}`
-                );
-                this.loadHelper.setProgress(
-                    this.loadHelper.progress + lvlPercent
-                );
-
-                // spread over time for less thread blocking
-                for (let s = 0; s < setsPerLvl; s++) {
-                    let data: Float32Array;
-
-                    if (shared) {
-                        // @todo TEST & check if offset is needed?
-                        // @todo get correct length from bufferPtr - offset
-                        // get from shared buffer
-                        const ptr = result[`ptr_${s}`];
-
-                        // data = new Float32Array(buff.slice(ptr, ptr + ptsPerSet * 3));
-                        data
-                            = await this.levelBuilder.shared.__getFloat32Array(
-                                ptr
-                            );
-                    }
-                    // apply actual last Data from worker
-                    this.afterRenderQueue.push(async () => {
-                        if (!shared) {
-                            // get from transferred data
-                            data = new Float32Array(result[`set_${s}`]);
-                        }
-                        // console.debug(`DataPeak=`, data.subarray(0, 10));
-
-                        (
-                            subbs[s].object.geometry.attributes
-                                .position as Float32BufferAttribute
-                        ).set(data, 0);
-                        subbs[s].hasNewData = true;
+                if (isShared) {
+                    // copy the pointer, since direct access is possible
+                    setPtrs.forEach((ptr_1, i) => {
+                        return (resultObj[`ptr_${i}`] = ptr_1);
+                    });
+                } else {
+                    // we make a hard-copy
+                    // exports.__getFloat32ArrayView(ptr));
+                    setPtrs.forEach((ptr_2, i_1) => {
+                        return (resultObj[`set_${i_1}`] = new Float32Array(
+                            exports.__getFloat32ArrayView(ptr_2)
+                        ).buffer);
                     });
                 }
-                const dbgT = performance.now() - start;
-                const vertS = (setsPerLvl * pointsPerSet) / 3 / (dbgT / 1000);
 
-                // print info
-                Smallog.debug(
-                    `Generated Level=${level}, Time=${dbgT.toFixed(
-                        2
-                    )} ms, ${vertS.toFixed(2)} vert/s`
-                );
-            })
-            .catch((e) => {
-                Smallog.error(
-                    `Generate Error at Level='${level}', Msg='${e.toString()}'`
-                );
-            });
+                // transfer data
+                return resultObj;
+            }, workerParams);
+            // worker result, back in the main context
+            const subsets = this.levels[level].sets;
+            const setsPerLvl = this.settings.num_subsets_per_level;
+            const pointsPerSet = this.settings.num_points_per_subset;
+
+            const pointsPerLvl = setsPerLvl * pointsPerSet;
+            const currentPoints = (
+                (level + 1)
+                * pointsPerLvl
+            ).toLocaleString('en');
+            const maxPoints = (numLevels * pointsPerLvl).toLocaleString(
+                'en'
+            );
+
+            this.loadHelper.setText(
+                `Particles<br>${currentPoints} / ${maxPoints}`
+            );
+            this.loadHelper.setProgress(
+                this.loadHelper.progress + lvlPercent
+            );
+
+            // spread over time for less thread blocking
+            for (let s = 0; s < setsPerLvl; s++) {
+                let data: Float32Array;
+
+                if (shared) {
+                    // get from a shared buffer
+                    const ptr_4 = wasmWorkerResult[`ptr_${s}`];
+
+                    // data = new Float32Array(buff.slice(ptr, ptr + ptsPerSet * 3));
+                    data = this.levelBuilder.shared.__getFloat32Array(ptr_4);
+                }
+                // apply actual last Data from worker
+                this.afterRenderQueue.push(async () => {
+                    if (!shared) {
+                        // get from transferred data
+                        data = new Float32Array(wasmWorkerResult[`set_${s}`]);
+                    }
+                    // console.debug(`DataPeak=`, data.subarray(0, 10));
+                    (
+                        subsets[s].object.geometry.attributes.position as Float32BufferAttribute
+                    ).set(data, 0);
+                    subsets[s].hasNewData = true;
+                });
+            }
+            const dbgT = performance.now() - start;
+            const vertS = (setsPerLvl * pointsPerSet) / 3 / (dbgT / 1000);
+
+            // print info
+            Smallog.debug(
+                `Generated Level=${level}, Time=${dbgT.toFixed(
+                    2
+                )} ms, ${vertS.toFixed(2)} vert/s`
+            );
+        } catch (e) {
+            Smallog.error(
+                `Generate Error at Level='${level}', Msg='${e.toString()}'`
+            );
+        }
     }
 
     // /////////////////////////////////////////////
@@ -745,11 +704,11 @@ export class GeometryHolder extends CComponent {
 
     /**
      * Update position & color with audio data
-     * @param {number} ellapsed ms
+     * @param {number} _elapsed ms
      * @param {number} deltaTime multiplier
      * @returns {void}
      */
-    private updateWithAudio(ellapsed, deltaTime) {
+    private updateWithAudio(_elapsed: number, deltaTime: number): void {
         const sett = this.settings;
 
         // calc audio boost
@@ -911,11 +870,11 @@ export class GeometryHolder extends CComponent {
 
     /**
      * Update position & color without audio
-     * @param {number} ellapsed ms
+     * @param {number} _elapsed ms
      * @param {number} deltaTime multiplier
      * @returns {void}
      */
-    private updateNoAudio(ellapsed, deltaTime) {
+    private updateNoAudio(_elapsed: number, deltaTime: number): void {
         const sett = this.settings;
         const reversed = sett.movement_type === 1;
         // get targeted saturations & brightness
@@ -1036,10 +995,10 @@ export class GeometryHolder extends CComponent {
 
     /**
      * Check if a Subset has to be moved back or forth
-     * @param {Subset} prnt Object to check
+     * @param {Subset} subset Object to check
      * @returns {void}
      */
-    private checkPosition(prnt: Subset) {
+    private checkPosition(subset: Subset): void {
         const orbitSize = this.settings.num_levels * this.settings.level_depth;
         const hlfSize = orbitSize / 2;
 
@@ -1054,29 +1013,29 @@ export class GeometryHolder extends CComponent {
 
         let moved = false;
 
-        if (prnt.object.position.z > maxPos) {
+        if (subset.object.position.z > maxPos) {
             // reset to back if behind cam
-            prnt.object.position.z -= orbitSize;
+            subset.object.position.z -= orbitSize;
             moved = true;
-        } else if (prnt.object.position.z < minPos) {
+        } else if (subset.object.position.z < minPos) {
             // reset behind cam if too far away
-            prnt.object.position.z += orbitSize;
+            subset.object.position.z += orbitSize;
             moved = true;
         }
         if (moved) {
-            this.moveBacks[prnt.level]++;
+            this.moveBacks[subset.level]++;
             // update the child geometry only when it gets moved
-            if (prnt.hasNewData) {
-                prnt.hasNewData = false;
-                prnt.object.geometry.attributes.position.needsUpdate = true;
+            if (subset.hasNewData) {
+                subset.hasNewData = false;
+                subset.object.geometry.attributes.position.needsUpdate = true;
             }
             // process subset generation
             if (
-                Math.abs(this.moveBacks[prnt.level])
+                Math.abs(this.moveBacks[subset.level])
                 === this.settings.num_subsets_per_level
             ) {
-                this.moveBacks[prnt.level] = 0;
-                this.generateLevel(prnt.level);
+                this.moveBacks[subset.level] = 0;
+                this.generateLevel(subset.level);
             }
         }
     }
@@ -1088,7 +1047,7 @@ export class GeometryHolder extends CComponent {
      * @param {number} deltaTime multiplier ~1
      * @returns {void}
      */
-    public updateFrame(ellapsed, deltaTime) {
+    public updateFrame(ellapsed: number, deltaTime: number): void {
         if (this.weas.hasAudio()) {
             this.updateWithAudio(ellapsed, deltaTime);
         } else {
@@ -1110,11 +1069,11 @@ export class GeometryHolder extends CComponent {
      * @param {number} val Origin value
      * @param {number} min Minimum allowed
      * @param {number} max Maximum allowed
-     * @param {boolean} goround Wrap around, instead of limiting?
+     * @param {boolean} wrap Wrap around, instead of limiting?
      * @returns {number} corrected value
      */
-    private clamp(val: number, min: number, max: number, goround = false) {
-        if (goround) {
+    private clamp(val: number, min: number, max: number, wrap: boolean = false): number {
+        if (wrap) {
             if (val < min) {
                 return max - val;
             }
