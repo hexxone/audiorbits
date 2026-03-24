@@ -23,6 +23,7 @@
 
 import { ContextHelper } from './ContextHelper';
 import { WEProperty, WEventListener } from './WEventListener';
+import { FILE_PROTOCOL, DEBUG_WINDOW_ID } from './Consts';
 
 import { CComponent,
     CSettings,
@@ -73,7 +74,6 @@ let temProps = null;
 // eslint-disable-next-line dot-notation
 window['wallpaperPropertyListener'] = {
     applyUserProperties: (p) => {
-        console.debug('Before', p);
         temProps = p;
     }
 };
@@ -159,9 +159,13 @@ class AudiOrbits extends CComponent {
                 // very first initialization
                 if (this.state === RunState.None) {
                     this.state = RunState.Initializing;
-                    waitReady().then(() => {
-                        return this.initOnce();
-                    });
+                    waitReady()
+                        .then(() => {
+                            return this.initOnce();
+                        })
+                        .catch((err) => {
+                            Smallog.error('[AudiOrbits] Error during initial waitReady: ', err);
+                        });
                 } else if (initFlag) {
                     this.state = RunState.ReInitializing;
                     Smallog.debug('got reInit-flag from applying settings!');
@@ -210,6 +214,7 @@ class AudiOrbits extends CComponent {
 
         if (temProps) {
             this.weListener.applyUserProperties(temProps);
+            temProps = null; // Clear temProps after use
         }
     }
 
@@ -217,20 +222,70 @@ class AudiOrbits extends CComponent {
     // APPLY SETTINGS
     // /////////////////////////////////////////////
 
+    private _applyBooleanProp(setting: string, propValue: boolean | string): boolean {
+        return this.applySetting(
+            setting,
+            propValue === true
+            || propValue === 'true'
+            || propValue === 'True'
+        );
+    }
+
+    private _applyNumericProp(setting: string, propValue: string): boolean {
+        return this.applySetting(
+            setting,
+            parseFloat(propValue)
+        );
+    }
+
+    private _applyStringProp(setting: string, propValue: any): boolean {
+        return this.applySetting(setting, propValue);
+    }
+
+    private _applyMainColorProp(propValue: string): void {
+        const cO = rgbToObj(propValue);
+
+        document.body.style.backgroundColor = `rgb(${cO.r},${cO.g},${cO.b})`;
+    }
+
+    private _applyImageProp(imgID: string, srcVal: string): void {
+        const elmt = document.getElementById(imgID);
+
+        if (!elmt) { return; }
+
+        elmt.classList.remove('show');
+        if (!srcVal) {
+            return;
+        }
+        setTimeout(() => {
+            elmt.setAttribute('src', `${FILE_PROTOCOL}${srcVal}`);
+            elmt.classList.add('show');
+        }, 1000);
+    }
+
+    private _applyDebuggingProp(): void {
+        const dbgWnd = document.getElementById(DEBUG_WINDOW_ID);
+
+        if (!dbgWnd) { return; }
+
+        if (this.settings.debugging) {
+            dbgWnd.classList.add('show');
+        } else {
+            dbgWnd.classList.remove('show');
+        }
+    }
+
     /**
      * Apply settings from the project.json "properties" object and takes certain actions
      * @param {Object} props Properties
      * @returns {boolean} reinit-flag
      */
-    private applyCustomProps(props: { [key: string]: WEProperty }) {
+    private applyCustomProps(props: { [key: string]: WEProperty }): boolean {
         Smallog.debug(`applying settings: ${JSON.stringify(props)}`);
 
-        // possible apply-targets
         let reInitFlag = false;
 
-        // loop all settings for updated values
         for (const setting in props) {
-            // ignore this setting or apply it manually
             if (
                 Ignore.indexOf(setting) > -1
                 || setting.indexOf('HDR_') === 0
@@ -238,95 +293,51 @@ class AudiOrbits extends CComponent {
             ) {
                 continue;
             }
-            // get the updated setting
+
             const prop = props[setting];
 
-            if (!prop) {
-                continue;
-            }
+            if (!prop) { continue; }
 
             let found = false;
+            const propValue = prop.value ?? prop.text;
 
-            // apply prop value
             switch (prop.type || 'none') {
                 case 'bool':
-                    found = this.applySetting(
-                        setting,
-                        prop.value === true
-                            || prop.value === 'true'
-                            || prop.value === 'True'
-                    );
+                    found = this._applyBooleanProp(setting, prop.value as string | boolean);
                     break;
                 case 'slider':
                 case 'combo':
-                    found = this.applySetting(
-                        setting,
-                        parseFloat(prop.value as string)
-                    );
+                    found = this._applyNumericProp(setting, prop.value as string);
                     break;
                 default:
-                    found = this.applySetting(setting, prop.value ?? prop.text);
+                    found = this._applyStringProp(setting, propValue);
                     break;
             }
+
             if (found) {
-                // set re-init flag if value changed and included in list
                 reInitFlag ||= ReInit.indexOf(setting) > -1;
             } else if (prop.type && TextLabels.includes(prop.type)) {
-                // invalid?
                 Smallog.debug(`TextLabel not applied: ${setting}`);
             }
         }
 
-        // Update all modules
         this.updateAll();
 
-        // Custom bg color
         if (props.main_color) {
-            const cO = rgbToObj(props.main_color.value as string);
-
-            document.body.style.backgroundColor = `rgb(${cO.r},${cO.g},${cO.b})`;
+            this._applyMainColorProp(props.main_color.value as string);
         }
 
         // Custom user images
         if (props.img_background) {
-            this.setImgSrc('img_back', props.img_background.value as string);
+            this._applyImageProp('img_back', props.img_background.value as string);
         }
         if (props.img_overlay) {
-            this.setImgSrc('img_over', props.img_overlay.value as string);
+            this._applyImageProp('img_over', props.img_overlay.value as string);
         }
 
-        // debug
-        // Smallog.setLevel(this.settings.debugging ? LogLevel.Debug : LogLevel.Info);
-        const dbgWnd = document.getElementById('debugwnd');
+        this._applyDebuggingProp();
 
-        if (this.settings.debugging) {
-            dbgWnd.classList.add('show');
-        } else {
-            dbgWnd.classList.remove('show');
-        }
-
-        // have render-relevant settings been changed?
         return reInitFlag;
-    }
-
-    /**
-     * Set Image
-     * @param {string} imgID html element id
-     * @param {string} srcVal new src value
-     * @returns {void}
-     */
-    private setImgSrc(imgID: string, srcVal: string) {
-        const elmt = document.getElementById(imgID);
-
-        elmt.classList.remove('show');
-        if (!srcVal) {
-            return;
-        }
-        setTimeout(() => {
-            // "file:///" +
-            elmt.setAttribute('src', `file:///${srcVal}`);
-            elmt.classList.add('show');
-        }, 1000);
     }
 
     /**
@@ -346,7 +357,7 @@ class AudiOrbits extends CComponent {
      * do first init after page loaded
      * @returns {void}
      */
-    private initOnce() {
+    private initOnce(): void {
         // initializing and wait for seizure warning
         this.initSystem(this.warnHelper.show());
     }
@@ -355,7 +366,7 @@ class AudiOrbits extends CComponent {
      * re-initialies the walpaper after some time
      * @returns {void}
      */
-    private reInitSystem() {
+    private reInitSystem(): void {
         // hide reloader
         this.reloadHelper.show(false);
         // kill intervals
@@ -371,7 +382,7 @@ class AudiOrbits extends CComponent {
      * @param {Promise} waitFor wait for this promise if given
      * @returns {void}
      */
-    private initSystem(waitFor?: Promise<void>) {
+    private initSystem(waitFor?: Promise<void>): void {
         Smallog.debug('initializing...');
         // show loader
         this.loadHelper.setText('3D');
@@ -397,6 +408,8 @@ class AudiOrbits extends CComponent {
                 const m = `Fatal Error when creating main-context!\r\n\r\nMsg: ${err}`;
 
                 Smallog.error(m);
+                // Alert is kept as a last resort for critical errors to ensure user visibility,
+                // as Smallog only logs to console.
                 alert(m);
             });
     }
@@ -409,7 +422,7 @@ class AudiOrbits extends CComponent {
      * Auto Parallax handler
      * @returns {void}
      */
-    private swirlHandler() {
+    private swirlHandler(): void {
         if (this.settings.parallax_option !== 2) {
             return;
         }
@@ -419,7 +432,7 @@ class AudiOrbits extends CComponent {
         } else if (this.swirlStep < 0) {
             this.swirlStep += 360;
         }
-        this.ctxHolder.positionMouseAngle(this.swirlStep);
+        this.ctxHolder.mouseInputHandler.positionMouseAngle(this.swirlStep);
     }
 
 }

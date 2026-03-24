@@ -11,6 +11,7 @@
  */
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-var-requires */
+
 const fs = require('fs');
 const path = require('path');
 const { networkInterfaces } = require('os');
@@ -45,101 +46,65 @@ module.exports = (env) => {
                 import: './src/AudiOrbi.ts'
             }
         },
-        // compile target
-        // target: ["web", "es6", "es2020"],
         output: {
             chunkFormat: 'module',
             path: path.resolve(__dirname, 'dist', stringMode),
-            // publicPath: "dist/" + stringMode,
             library: {
                 name: 'ao',
-                type: 'var' // window
+                type: 'var' // window - exposes the entry point as window.ao
             },
-            // libraryTarget: "commonjs",
-            // filename: "ao.js",
-            filename: '[name].js',
-            chunkFilename: '[name].js',
-            globalObject: 'this'
+            filename: '[name].js', // Main output file, e.g., ao.js
+            chunkFilename: '[name].js', // For dynamically imported chunks
+            globalObject: 'this' // Ensures compatibility in various environments for the UMD wrapper / library type 'var'
         },
-        // remove dead code
         optimization: {
-            minimize: true,
-            nodeEnv: stringMode,
+            minimize: prod, // Only minimize in production
+            nodeEnv: stringMode, // Sets process.env.NODE_ENV, Webpack does this by default based on mode
             minimizer: [
                 new TerserPlugin({
-                    // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
                     terserOptions: {
-                        // ecma: 2020,
-                        // parse: {},
-                        // compress: {
-                        //     unsafe: prod,
-                        //     hoist_funs: prod,
-                        // },
                         format: {
                             comments: false
                         },
                         mangle: {
                             properties: {
                                 keep_quoted: true,
-                                // reserved: propss,
-                                regex: /_(private|internal)_/ // the same prefixes like for custom transformer
+                                regex: /_(private|internal)_/
                             }
                         },
                         module: true,
                         toplevel: true,
-                        sourceMap: false,
-                        // keep_fnames: !prod,
-                        keep_classnames: !prod
+                        sourceMap: !prod,
+                        keep_classnames: !prod,
+                        keep_fnames: !prod
+                        // Aggressive compression can be enabled if needed and tested
+                        // compress: prod ? { unsafe: true, hoist_funs: true, passes: 2 } : false,
                     },
                     extractComments: false
                 })
             ],
-            chunkIds: 'size',
-            concatenateModules: true,
-            moduleIds: 'size',
-            mangleExports: 'size',
-            mangleWasmImports: true,
+            // Following options are generally good defaults for production builds
+            chunkIds: prod ? 'size' : 'named',
+            concatenateModules: prod, // Scope hoisting
+            moduleIds: prod ? 'size' : 'named',
+            mangleExports: prod ? 'size' : false,
+            mangleWasmImports: true, // Good for Wasm size
             providedExports: true,
-            usedExports: true,
-            innerGraph: true
+            usedExports: true, // Essential for tree-shaking
+            innerGraph: prod // More effective tree shaking in prod
         },
-        devtool: false,
+        devtool: prod ? false : 'source-map',
         module: {
             rules: [
-                // loader for workers...
-                // {
-                //     test: /\.worker\.js$/i,
-                //     loader: "src/we_utils/src/worker-loader-fork/src/index.js",
-                //     options: {
-                //         esModule: true,
-                //         filename: "asdasd.foo.js",
-                //         chunkFilename: "sdf.custom.js",
-                //     },
-                // },
-                // loader for Typescript
                 {
                     test: /\.tsx?$/,
                     loader: 'ts-loader',
                     exclude: /node_modules/,
                     options: {
-                        compiler: 'typescript', // ttypescript
-                        transpileOnly: true
-                        // getCustomTransformers: (program) => {
-                        //     return {
-                        //         before: prod
-                        //             ? [
-                        //                 propertiesRenameTransformer(program, {
-                        //                     entrySourceFiles: ["main.ts"],
-                        //                     reserved: ["a", "b", "c", "d", "w", "x", "y", "z", "min", "max"],
-                        //                     // noImplicitAny: true,
-                        //                 }),
-                        //             ]
-                        //             : [],
-                        //     };
-                        // },
+                        compiler: 'typescript', // Specify compiler if using ttypescript or similar
+                        transpileOnly: true // Speeds up compilation; type checking can be a separate step (e.g. `tsc --noEmit`)
                     }
                 },
-                // Process any JS outside of the app with Babel.
                 {
                     test: /\.jsx?$/, // If you are using TypeScript: /\.tsx?$/
                     include: path.resolve(__dirname, 'src'),
@@ -176,19 +141,11 @@ module.exports = (env) => {
         },
         resolve: {
             extensions: ['.tsx', '.ts', '.js', '.glsl'],
-            // plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
-
             alias: {
                 'we_utils/src': path.resolve(__dirname, './src/we_utils/src'),
-                'three.ts/src': path.resolve(
-                    __dirname,
-                    './src/we_utils/src/three.ts/src'
-                )
-                // reverse mapping shaders (dont get copied by tsc)
-                // "fragment/*.glsl": path.resolve(__dirname, "./src/we_utils/src/three/shader/fragment"),
+                'three.ts/src': path.resolve(__dirname, './src/we_utils/src/three.ts/src')
             }
         },
-        // plugins
         plugins: [
             // copy static files
             new CopyWebpackPlugin({
@@ -205,33 +162,27 @@ module.exports = (env) => {
             // where the 'include' (regex) matches a filename.
             new WascBuilderPlugin({
                 production: prod,
-                basedir: '../../../../assembly',
+                basedir: path.resolve(__dirname, 'assembly'),
                 modules: ['BasicGeometry.ts', 'FractalGeometry.ts'],
                 cleanup: true,
                 shared: true
             }),
             new WascBuilderPlugin({
                 production: prod,
-                basedir: '../weas/assembly',
+                basedir: path.resolve(__dirname, 'src/we_utils/src/weas/assembly'),
                 modules: ['WEAS.ts'],
                 cleanup: true,
                 shared: true
             }),
-
-            // offline worker helper
-            // will create a list of all app-files.
-            // this list is used to cache the app offline in browser.
             new OfflinePlugin({
                 staticdir: path.resolve(__dirname, 'public'),
                 outfile: 'offlinefiles.json',
-                extrafiles: ['/'],
+                extrafiles: ['/'], // Cache the root path
                 pretty: !prod
             }),
-
-            // webpack bundle analyzer
             new BundleAnalyzerPlugin({
                 analyzerMode: 'static',
-                reportFilename: '../out/ao_bundle_report.html',
+                reportFilename: path.resolve(__dirname, 'dist', 'report', 'ao_bundle_report.html'),
                 openAnalyzer: false
             }),
 
@@ -240,30 +191,30 @@ module.exports = (env) => {
                 regex: /[a-z0-9_]*_webpack_[a-z0-9_]*/gi
             }),
 
-            // detect circular
             new CircularDependencyPlugin({
                 exclude: /node_modules/,
-                include: /dist/,
-                failOnError: true
+                include: /src/,
+                failOnError: true,
+                cwd: process.cwd()
             })
         ],
         devServer: {
             allowedHosts: ['localhost'],
             static: {
-                directory: path.resolve(__dirname, 'dist', stringMode),
-                watch: true
+                directory: path.resolve(__dirname, 'dist', stringMode), // Serve from the output directory
+                watch: true // Watch for file changes
             },
-            client: false,
-            liveReload: false,
-            compress: true,
+            client: false, // Disable webpack client logging in the browser console
+            liveReload: false, // Disable live reload (can be enabled if preferred)
+            compress: true, // Enable gzip compression
             https: {
+                // See README.md for instructions on how to create these keys.
                 key: fs.readFileSync(path.resolve(__dirname, 'localhost+2-key.pem')),
                 cert: fs.readFileSync(path.resolve(__dirname, 'localhost+2.pem'))
             },
-            server: 'https',
-            // disableHostCheck: true,
-            hot: false,
-            port: 8443,
+            server: 'https', // Use HTTPS
+            hot: false, // Disable Hot Module Replacement (HMR)
+            port: 8443, // Dev server port
             headers: {
                 https: true,
                 'Access-Control-Allow-Origin': '*',

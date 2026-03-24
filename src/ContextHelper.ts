@@ -11,20 +11,31 @@ import { ColorHelper } from './ColorHelper';
 import { GeometryHolder } from './GeometryHelper';
 import { ShaderHolder } from './ShaderHelper';
 import { FancyText } from './FancyText';
+import { CComponent, CSettings, EffectComposer, FPStats, LoadHelper, Smallog, WEAS, WEICUE } from 'we_utils/src';
+import { Clock, Color, Fog, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three.ts/src';
 
-import { CComponent,
-    CSettings,
-    EffectComposer,
-    FPStats,
-    LoadHelper,
-    Smallog,
-    WEAS,
-    WEICUE,
-    XRHelper } from 'we_utils/src';
-
-import { Clock, Color, Fog, Group, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three.ts/src';
-
-import { NEAR_DIST } from './Consts';
+import { COLOR_BLACK_HEX,
+    DEFAULT_FPS,
+    ELLAPSED_TIME_MAX,
+    ELLAPSED_TIME_MIN,
+    FANCY_TEXT_DEFAULT_Z,
+    FOG_FAR_DIVISOR,
+    FOG_NEAR_FACTOR,
+    LERP_FACTOR_CAMERA,
+    MAIN_CANVAS_ID,
+    MOUSE_PARALLAX_DIVISOR_X,
+    MOUSE_PARALLAX_DIVISOR_Y,
+    NEAR_DIST,
+    POWER_PREFERENCE_DEFAULT,
+    POWER_PREFERENCE_HIGH,
+    POWER_PREFERENCE_LOW,
+    PRECISION_HIGH,
+    PRECISION_LOW,
+    PRECISION_MEDIUM,
+    RENDER_CONTAINER_ID } from './Consts';
+import { WebXRHandler } from './WebXRHandler';
+import { MouseInputHandler } from './MouseInputHandler';
+import { ResizeHandler } from './ResizeHandler';
 
 /**
  * Renderer Settings
@@ -71,22 +82,13 @@ export class ContextHelper extends CComponent {
     /** @public */
     public settings: ContextSettings = new ContextSettings();
 
+    public readonly mouseInputHandler: MouseInputHandler = new MouseInputHandler();
+
     private readonly loadHelper: LoadHelper;
     private readonly geoHolder: GeometryHolder;
 
-    // webvr user input data
-    private userData = {
-        isSelecting: false,
-        controller1: null as Group | null,
-        controller2: null as Group | null
-    };
-
     // html elements
     private mainCanvas: HTMLCanvasElement | undefined;
-
-    // mouse over canvas
-    private mouseX = 0;
-    private mouseY = 0;
 
     // Three.js objects
     private renderer?: WebGLRenderer;
@@ -100,11 +102,8 @@ export class ContextHelper extends CComponent {
     // custom render timing
     private renderTimeout: number | null = null;
 
-    // window half size
-    private windowHalfX = window.innerWidth / 2;
-    private windowHalfY = window.innerHeight / 2;
-
     private textHolder?: FancyText;
+    private resizeHandler?: ResizeHandler; // Initialized in init when camera/renderer are ready
 
     // important objects
     private weas: WEAS = new WEAS();
@@ -112,7 +111,8 @@ export class ContextHelper extends CComponent {
     private shaderHolder: ShaderHolder = new ShaderHolder(this.weas);
     private weicue: WEICUE = new WEICUE(this.weas);
     private stats: FPStats = new FPStats(this.weas);
-    private xrHelper: XRHelper = new XRHelper();
+    private webXRHandler?: WebXRHandler;
+
 
     /**
      * add global listeners
@@ -127,63 +127,16 @@ export class ContextHelper extends CComponent {
             this.loadHelper
         );
 
-        // mouse listener
-        const mouseUpdate = (event) => {
-            if (this.settings.parallax_option !== 1) {
-                return;
-            }
-            if (event.touches && event.touches.length === 1) {
-                event.preventDefault();
-                this.mouseX = event.touches[0].pageX - this.windowHalfX;
-                this.mouseY = event.touches[0].pageY - this.windowHalfY;
-            } else if (event.clientX) {
-                this.mouseX = event.clientX - this.windowHalfX;
-                this.mouseY = event.clientY - this.windowHalfY;
-            }
-        };
-
-        document.addEventListener('touchstart', mouseUpdate, false);
-        document.addEventListener('touchmove', mouseUpdate, false);
-        document.addEventListener('mousemove', mouseUpdate, false);
-
-        // scaling listener
-        window.addEventListener(
-            'resize',
-            this.onResize,
-            false
-        );
-
         // keep track of children settings
+        this.children.push(this.mouseInputHandler);
         this.children.push(this.weas);
         this.children.push(this.colorHolder);
         this.children.push(this.shaderHolder);
         this.children.push(this.weicue);
         this.children.push(this.stats);
         this.children.push(this.geoHolder);
-        this.children.push(this.xrHelper);
-    }
-
-    /**
-     * apply resizing
-     * @param {UIEvent} _event resize event
-     * @returns {void}
-     */
-    private onResize(_event: UIEvent): void {
-        const iW = window.innerWidth;
-        const iH = window.innerHeight;
-
-        this.windowHalfX = iW / 2;
-        this.windowHalfY = iH / 2;
-        if (!this.camera || !this.renderer) {
-            return;
-        }
-        this.camera.aspect = iW / iH;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(iW, iH);
-
-        if (this.composer) {
-            this.composer.setSize(iW, iH);
-        }
+        // WebXRHandler is added to children in init()
+        // ResizeHandler is added to children in init()
     }
 
     /**
@@ -195,10 +148,10 @@ export class ContextHelper extends CComponent {
     public async init(waitFor?: Promise<void>): Promise<void> {
         Smallog.debug('init Context...');
 
-        const renderContainer = document.getElementById('renderContainer');
+        const renderContainer = document.getElementById(RENDER_CONTAINER_ID);
 
         if (!renderContainer) {
-            throw new Error('Missing #renderContainer');
+            throw new Error(`Missing #${RENDER_CONTAINER_ID}`);
         }
 
         // distance
@@ -224,7 +177,7 @@ export class ContextHelper extends CComponent {
         // ensure the canvas sizes are set !!!
         // these are independent from the style sizes
         this.mainCanvas = document.createElement('canvas');
-        this.mainCanvas.id = 'mainCvs';
+        this.mainCanvas.id = MAIN_CANVAS_ID;
         this.mainCanvas.width = window.innerWidth;
         this.mainCanvas.height = window.innerHeight;
         renderContainer.appendChild(this.mainCanvas);
@@ -241,16 +194,11 @@ export class ContextHelper extends CComponent {
 
         // create scene
         this.scene = new Scene();
-        // this.scene.fog = new FogExp2(
-        //     this.colorHolder.colorObject.main.getHexString(),
-        //     0.00001 + this.settings.fog_thickness / viewDist / 15
-        // );
         this.scene.fog = new Fog(
-            new Color(0, 0, 0),
+            new Color(COLOR_BLACK_HEX),
             NEAR_DIST,
-            (viewDist * (100 - this.settings.fog_thickness)) / 250
+            (viewDist * (FOG_NEAR_FACTOR - this.settings.fog_thickness)) / FOG_FAR_DIVISOR
         );
-
 
         // create render-context
         this.renderer = new WebGLRenderer({
@@ -262,10 +210,28 @@ export class ContextHelper extends CComponent {
             precision: precisionPref
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0x000000, 0);
+        this.renderer.setClearColor(COLOR_BLACK_HEX, 0);
 
+        // Initialize ResizeHandler now that camera and renderer are available
+        if (this.camera && this.renderer) {
+            if (this.resizeHandler) {
+                this.resizeHandler.dispose();
+                this.children.splice(this.children.indexOf(this.resizeHandler), 1);
+            }
+            this.resizeHandler = new ResizeHandler(this.camera, this.renderer);
+            this.children.push(this.resizeHandler); // Add to children for settings propagation
+        }
+
+        if (this.webXRHandler) {
+            this.webXRHandler.dispose();
+            this.children.splice(this.children.indexOf(this.webXRHandler), 1);
+        }
         // initialize VR mode
-        this.initWebXR();
+        if (this.settings.xr_mode && this.renderer && this.scene) {
+            this.webXRHandler = new WebXRHandler(this.renderer, this.scene);
+            this.children.push(this.webXRHandler); // Add to children for settings propagation
+            this.webXRHandler.initWebXR();
+        }
 
         // initialize shader composer
         this.composer = new EffectComposer(
@@ -273,8 +239,12 @@ export class ContextHelper extends CComponent {
             this.camera,
             this.renderer,
             precisionPref,
-            0x000000
+            COLOR_BLACK_HEX
         );
+        // Pass composer to ResizeHandler
+        if (this.resizeHandler) {
+            this.resizeHandler.setComposer(this.composer);
+        }
 
         // add shaders
         this.shaderHolder.init(this.composer);
@@ -295,7 +265,6 @@ export class ContextHelper extends CComponent {
         if (this.weas.init) {
             await this.weas.init();
         }
-
         this.loadHelper.setProgress(this.loadHelper.progress + 5);
 
         // wait for seizure warning
@@ -303,7 +272,6 @@ export class ContextHelper extends CComponent {
             await waitFor;
         }
 
-        // loading completed
         this.loadHelper.show(false);
         // show fancy text
         this.showMessage(document.title);
@@ -329,37 +297,33 @@ export class ContextHelper extends CComponent {
      * @param {number} deltaTime multiplier ~1
      * @returns {void}
      */
-    private updateFrame(_elapsed: number, deltaTime: number) {
+    private updateFrame(_elapsed: number, deltaTime: number): void {
         if (!this.camera || !this.cameraPosition) {
-            // eslint-disable-next-line no-debugger
-            debugger;
+            Smallog.error('[ContextHelper] Camera or cameraPosition is not initialized in updateFrame.');
 
             return;
         }
 
-        if (this.settings.xr_mode) {
-            // WEBVR PROCESSING
-            // will automagically update the camera, no need to do it manually
-            this.handleVRController(this.userData?.controller1);
-            this.handleVRController(this.userData?.controller1);
+        if (this.settings.xr_mode && this.webXRHandler) {
+            this.webXRHandler.updateFrame();
         } else {
             // NORMAL PROCESSING
             // constantly use/control mouse position to make it smooth
 
             const newXPos = this.clampCam(
-                (this.mouseX * this.settings.parallax_strength) / 70
+                (this.mouseInputHandler.mouseX * this.settings.parallax_strength) / MOUSE_PARALLAX_DIVISOR_X
             );
             const newYPos = this.clampCam(
-                (this.mouseY * this.settings.parallax_strength) / -90
+                (this.mouseInputHandler.mouseY * this.settings.parallax_strength) / MOUSE_PARALLAX_DIVISOR_Y
             );
             // lerp to new position
             const cPos = this.camera.position;
 
             if (cPos.x !== newXPos) {
-                cPos.x += (newXPos - cPos.x) * deltaTime * 0.05;
+                cPos.x += (newXPos - cPos.x) * deltaTime * LERP_FACTOR_CAMERA;
             }
             if (cPos.y !== newYPos) {
-                cPos.y += (newYPos - cPos.y) * deltaTime * 0.05;
+                cPos.y += (newYPos - cPos.y) * deltaTime * LERP_FACTOR_CAMERA;
             }
 
             const depthVector = new Vector3(
@@ -386,7 +350,7 @@ export class ContextHelper extends CComponent {
      * @returns {void}
      * @private
      */
-    private applyCameraViewOffset():void {
+    private applyCameraViewOffset(): void {
         if (!this.camera) {
             return;
         }
@@ -413,15 +377,8 @@ export class ContextHelper extends CComponent {
      * @returns {Promise} finish event
      */
     public updateSettings(): Promise<void> {
-        // fix for centered camera on Parallax "none"
-        if (this.settings.parallax_option === 0) {
-            this.mouseX = this.mouseY = 0;
-        }
-
-        // set Cursor for "fixed" parallax mode
-        if (this.settings.parallax_option === 3) {
-            this.positionMouseAngle(this.settings.parallax_angle);
-        }
+        // parallax delegated to MouseInputHandler
+        // also WebXRHandler listens for its own settings if it exists
 
         // apply screen-center shift for multi-monitor setups
         this.applyCameraViewOffset();
@@ -432,7 +389,7 @@ export class ContextHelper extends CComponent {
             * (this.settings.xr_mode ? 1 : 2);
 
         if (this.scene?.fog) {
-            this.scene.fog.far = (viewDist * (100 - this.settings.fog_thickness)) / 250;
+            this.scene.fog.far = (viewDist * (FOG_NEAR_FACTOR - this.settings.fog_thickness)) / FOG_FAR_DIVISOR;
         }
 
         return Promise.resolve();
@@ -448,7 +405,7 @@ export class ContextHelper extends CComponent {
      * @param {boolean} render Start | Stop
      * @returns {void}
      */
-    public setRenderer(render: boolean) {
+    public setRenderer(render: boolean): void {
         Smallog.debug(`setRender: ${render}`);
 
         // clear all old renderers
@@ -460,7 +417,7 @@ export class ContextHelper extends CComponent {
             this.renderTimeout = null;
         }
 
-        // call new renderer ?
+        // call new renderer
         if (render) {
             // set state to running
             this.PAUSED = this.weicue.PAUSED = false;
@@ -468,7 +425,7 @@ export class ContextHelper extends CComponent {
             if (this.settings.custom_fps) {
                 this.renderTimeout = setTimeout(() => {
                     return this.renderLoop();
-                }, 1000 / this.settings.fps_value);
+                }, 1000 / (this.settings.fps_value || DEFAULT_FPS));
             } else if (this.renderer) {
                 this.renderer.setAnimationLoop((t, f) => {
                     return this.renderLoop(t, f);
@@ -506,22 +463,22 @@ export class ContextHelper extends CComponent {
 
         // Figure out how much time passed since the last animation and calc delta
         // Minimum we should reach is 1 FPS
-        const ellapsed = Math.min(1, Math.max(0.001, this.clock.getDelta()));
-        const delta = ellapsed * 60;
+        const elapsed = Math.min(ELLAPSED_TIME_MAX, Math.max(ELLAPSED_TIME_MIN, this.clock.getDelta()));
+        const delta = elapsed * DEFAULT_FPS; // Assuming 60 FPS is the target for delta calculation
 
         // render before updating
         if (!sett.low_latency) {
-            this.timeRender(ellapsed, frame);
+            this.timeRender(elapsed, frame);
         }
 
         // track CPU
         this.stats.begin(true);
 
         // update objects
-        this.colorHolder.updateFrame(ellapsed, delta);
-        this.geoHolder.updateFrame(ellapsed, delta);
-        this.shaderHolder.updateFrame(ellapsed, delta);
-        this.updateFrame(ellapsed, delta);
+        this.colorHolder.updateFrame(elapsed, delta);
+        this.geoHolder.updateFrame(elapsed, delta);
+        this.shaderHolder.updateFrame(elapsed, delta);
+        this.updateFrame(elapsed, delta);
 
         // track CPU
         this.stats.end(true);
@@ -529,7 +486,7 @@ export class ContextHelper extends CComponent {
         // render after updating
         // this saves 1 frame (7-16 ms) audio delay but may cause stutter
         if (sett.low_latency) {
-            this.timeRender(ellapsed, frame);
+            this.timeRender(elapsed, frame);
         }
 
         // update tracked stats
@@ -540,11 +497,11 @@ export class ContextHelper extends CComponent {
 
     /**
      * Render timing wrapper
-     * @param {number} ellapsed time
+     * @param {number} elapsed time
      * @param {XRFrame} frame XR Frame
      * @returns {void}
      */
-    private timeRender(ellapsed: number, frame: XRFrame) {
+    private timeRender(elapsed: number, frame: XRFrame): void {
         // track GPU
         this.stats.begin(false);
 
@@ -552,7 +509,7 @@ export class ContextHelper extends CComponent {
         // this.renderer.render(this.scene, this.camera);
 
         // render with effects
-        this.composer.render(ellapsed, frame);
+        this.composer.render(elapsed, frame);
 
         // ICUE PROCESSING
         this.weicue.updateCanvas(this.mainCanvas);
@@ -561,98 +518,8 @@ export class ContextHelper extends CComponent {
     }
 
     // /////////////////////////////////////////////
-    // WEB-VR INTEGRATION
+    // WEB-VR INTEGRATION MOVED TO WebXRHandler.ts
     // /////////////////////////////////////////////
-
-    /**
-     * will initialize webvr components and rendering
-     * @returns {void}
-     */
-    private initWebXR() {
-        if (!this.settings.xr_mode) {
-            return;
-        }
-
-        this.xrHelper
-            .enableSession((xrs) => {
-                const enable = xrs !== null;
-
-                this.renderer.xr.setSession(xrs);
-                this.renderer.xr.enabled = true; // TODO this correct?
-
-                if (enable) {
-                    const regCon = (con: Group) => {
-                        con.addEventListener(
-                            'selectstart',
-                            this.onVRSelectStart
-                        );
-                        con.addEventListener('selectend', this.onVRSelectEnd);
-                        this.scene.add(con);
-                    };
-                    // get first controller
-                    const c1 = this.renderer.xr.getController(0);
-
-                    if (c1) {
-                        regCon(c1);
-                        this.userData.controller1 = c1;
-                        // only need to check for a 2nd controller if there is a first?
-                        const c2 = this.renderer.xr.getController(1);
-
-                        if (c2) {
-                            regCon(c2);
-                            this.userData.controller2 = c2;
-                        }
-                    }
-                } else {
-                    if (this.userData.controller1) {
-                        this.scene.remove(this.userData.controller1);
-                    }
-                    if (this.userData.controller2) {
-                        this.scene.remove(this.userData.controller2);
-                    }
-                }
-            })
-            .then((succ) => {
-                if (succ) {
-                    Smallog.info('Initialized WebXR!');
-                } else {
-                    Smallog.error('Initializing WebXR failed.');
-                }
-            });
-    }
-
-    /**
-     * VR controller starts selecting
-     * @returns {void}
-     */
-    private onVRSelectStart() {
-        this.userData.isSelecting = true;
-    }
-
-    /**
-     * VR controller stops selecting
-     * @returns {void}
-     */
-    private onVRSelectEnd() {
-        this.userData.isSelecting = false;
-    }
-
-    /**
-     * @todo
-     * use VR controller like mouse & parallax
-     * @param {Group | null} controller left or right
-     * @returns {void}
-     */
-    private handleVRController(controller: Group | null) {
-        // controller.userData.isSelecting
-        // controller.position
-        // controller.quaternion
-        // eslint-disable-next-line no-debugger
-        if (controller) {
-            // eslint-disable-next-line no-debugger
-            debugger;
-        }
-    }
 
     // /////////////////////////////////////////////
     // HELPER
@@ -662,14 +529,14 @@ export class ContextHelper extends CComponent {
      * use overall "quality" setting to determine three.js "power" mode
      * @returns {string} three.js power mode
      */
-    private getPowerPreference() {
+    private getPowerPreference(): string {
         switch (this.settings.shader_quality) {
             case 0:
-                return 'low-power';
+                return POWER_PREFERENCE_LOW;
             case 2:
-                return 'high-performance';
+                return POWER_PREFERENCE_HIGH;
             default:
-                return 'default';
+                return POWER_PREFERENCE_DEFAULT;
         }
     }
 
@@ -677,48 +544,35 @@ export class ContextHelper extends CComponent {
      * use overall "quality" setting to determine three.js "power" mode
      * @returns {string} three.js power mode
      */
-    private getPrecisionPref() {
+    private getPrecisionPref(): string {
         switch (this.settings.shader_quality) {
             case 0:
-                return 'lowp';
+                return PRECISION_LOW;
             case 2:
-                return 'highp';
+                return PRECISION_HIGH;
             default:
-                return 'mediump';
+                return PRECISION_MEDIUM;
         }
     }
 
     /**
-     * @todo
      * shows a fancy text mesage
      * @param {string} msg text to show
      * @returns {void}
      */
-    private showMessage(msg: string) {
-        // @TODO Fix
-        const tPos = new Vector3(0, 0, this.settings.level_depth).add(
-            this.camera.position
-        );
+    private showMessage(msg: string): void {
+        // Position the text at a fixed Z distance in front of the camera's initial view plane.
+        // The text is added to the scene, so it won't move with camera XY translation by default.
+        const tPos = new Vector3(0, 0, FANCY_TEXT_DEFAULT_Z);
+        // If the camera is not at (0,0,0) initially or text needs to be relative to current camera view,
+        // this might need adjustment or text added as child of camera.
+        // For now, assuming text is relative to world origin or initial camera setup.
 
-        this.textHolder = new FancyText(this.scene, tPos, msg);
-    }
-
-    /**
-     * position Mouse with angle
-     * @public
-     * @param {number} degrees angle
-     * @returns {void}
-     */
-    public positionMouseAngle(degrees) {
-        const ang = (degrees * Math.PI) / 180;
-        let w = window.innerHeight;
-
-        if (window.innerWidth < w) {
-            w = window.innerWidth;
+        if (this.scene && this.camera) { // Ensure scene and camera are available
+            this.textHolder = new FancyText(this.scene, tPos, msg);
+        } else {
+            Smallog.warn('Scene or Camera not available for showMessage.');
         }
-        w /= 2;
-        this.mouseX = w * Math.sin(ang);
-        this.mouseY = w * Math.cos(ang);
     }
 
 }
