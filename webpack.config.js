@@ -2,7 +2,7 @@
  * @author hexxone / https://hexx.one
  *
  * @license
- * Copyright (c) 2024 hexxone All rights reserved.
+ * Copyright (c) 2026 hexxone All rights reserved.
  * Licensed under the GNU GENERAL PUBLIC LICENSE.
  * See LICENSE file in the project root for full license information.
  *
@@ -216,11 +216,14 @@ module.exports = (env) => {
             hot: false, // Disable Hot Module Replacement (HMR)
             port: 8443, // Dev server port
             headers: {
-                https: true,
                 'Access-Control-Allow-Origin': '*',
                 'Cross-Origin-Opener-Policy': 'same-origin',
                 'Cross-Origin-Embedder-Policy': 'require-corp',
-                'Content-Security-Policy': "worker-src 'self' blob:"
+                'Cross-Origin-Resource-Policy': 'cross-origin',
+                'Content-Security-Policy': [
+                    "worker-src 'self' blob:",
+                    "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline' blob:"
+                ].join('; ')
             },
             setupMiddlewares: (middlewares, devServer) => {
                 devServer.app.use((req, res, next) => {

@@ -1,3 +1,12 @@
+/**
+ * @author hexxone / https://hexx.one
+ *
+ * @license
+ * Copyright (c) 2026 hexxone All rights reserved.
+ * Licensed under the GNU GENERAL PUBLIC LICENSE.
+ * See LICENSE file in the project root for full license information.
+ */
+
 export const NEAR_DIST = 3;
 
 export const FILE_PROTOCOL = 'file:///';
@@ -24,7 +33,8 @@ export const MOUSE_PARALLAX_DIVISOR_X = 70;
 export const MOUSE_PARALLAX_DIVISOR_Y = -90;
 export const DEFAULT_FPS = 60;
 export const ELLAPSED_TIME_MIN = 0.001;
-export const ELLAPSED_TIME_MAX = 1.0; // Max 1 second jump to prevent extreme changes
+// Max 1 second jump to prevent extreme changes
+export const ELLAPSED_TIME_MAX = 1.0;
 
 // WebGL Preferences
 export const POWER_PREFERENCE_LOW = 'low-power';

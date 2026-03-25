@@ -9,8 +9,6 @@
 
 ## main code
 
-- clean up old "new Promise(()...)" patterns
-- update Copyright year
 - Star cloud mode
 
 - fix Colors dont work properly atm
@@ -24,6 +22,8 @@
 
 ## other
 
+- improve WEAS-CSS (rounded corners, scroll bar, shadows, etc.)
+- improve "WEB-XR" Button CSS (bigger, background)
 - music recognition?
 - record "how to debug"-video?
 
