@@ -7,10 +7,7 @@
  * See LICENSE file in the project root for full license information.
  *
  * @description
- * Wallaper Engine Fractal Geometry worker.
- *
- * @todo
- * export function vars to global space
+ * AudiOrbits basic geometry worker.
  */
 
 /// ///////////////////////

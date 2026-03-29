@@ -18,6 +18,9 @@ export class ResizeHandler extends CComponent {
     private camera: PerspectiveCamera;
     private renderer: WebGLRenderer;
     private composer?: EffectComposer;
+    private readonly handleResize = (): void => {
+        this.onResize();
+    };
 
     constructor(
         camera: PerspectiveCamera,
@@ -29,7 +32,7 @@ export class ResizeHandler extends CComponent {
         this.renderer = renderer;
         this.composer = composer;
 
-        window.addEventListener(EVENT_RESIZE, this.onResize, false);
+        window.addEventListener(EVENT_RESIZE, this.handleResize, false);
     }
 
     public onResize(): void {
@@ -52,11 +55,12 @@ export class ResizeHandler extends CComponent {
     // Optional: if composer can be set later or changed
     public setComposer(composer: EffectComposer): void {
         this.composer = composer;
+        this.onResize();
     }
 
     // Method to clean up event listener if handler is ever destroyed
     public dispose(): void {
-        window.removeEventListener(EVENT_RESIZE, this.onResize, false);
+        window.removeEventListener(EVENT_RESIZE, this.handleResize, false);
     }
 
 }

@@ -23,6 +23,14 @@ And multiple Levels will become an orbit ;)
 Points are processed using the "Hopalong Attractor" in the beginning and when a level passes the camera.
 Click here to learn more about the algorithm: <http://www.fraktalwelt.de/myhome/simpiter2_2.htm>
 
+Current builds also support a larger attractor family. The attractor sliders are weights, not fixed selectors.
+
+- `Hopalong` defaults to `100` for backwards compatibility.
+- The new attractors default to `0`, so old presets keep their previous look.
+- Any attractor weight set to `100` becomes exclusive.
+- If all attractor weights are `0`, the generator falls back to `Hopalong`.
+- `Spiral` is now a numeric angle instead of a simple on/off toggle.
+
 The audio-spectrum is analyzed and mapped in realtime.
 It works by manipulating the movement, hue, saturation, light and size of subsets.
 

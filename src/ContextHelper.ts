@@ -37,6 +37,9 @@ import { WebXRHandler } from './WebXRHandler';
 import { MouseInputHandler } from './MouseInputHandler';
 import { ResizeHandler } from './ResizeHandler';
 
+// use direct rendering without any post-processing
+const bypass_composer = false;
+
 /**
  * Renderer Settings
  * @public
@@ -58,7 +61,7 @@ class ContextSettings extends CSettings {
     xr_mode = false;
 
     // mirrored setting
-    fog_thickness = 20;
+    fog_thickness = 42;
     scaling_factor = 1500;
     level_depth = 1200;
     num_levels = 8000;
@@ -205,12 +208,16 @@ export class ContextHelper extends CComponent {
             alpha: true,
             antialias: false,
             canvas: this.mainCanvas,
-            logarithmicDepthBuffer: true,
+            // Point mode renders with depth testing disabled, so a logarithmic
+            // depth buffer only adds fragment cost there without improving
+            // particle ordering.
+            logarithmicDepthBuffer: this.geoHolder.settings.geometry_type !== 0,
             powerPreference: this.getPowerPreference(),
             precision: precisionPref
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor(COLOR_BLACK_HEX, 0);
+        this.stats.setContext(this.renderer.getContext() as WebGLRenderingContext);
 
         // Initialize ResizeHandler now that camera and renderer are available
         if (this.camera && this.renderer) {
@@ -340,6 +347,8 @@ export class ContextHelper extends CComponent {
                 this.camera.lookAt(depthVector.add(cPos));
             }
         }
+
+        this.weas.updateCanvas();
     }
 
     /**
@@ -505,11 +514,16 @@ export class ContextHelper extends CComponent {
         // track GPU
         this.stats.begin(false);
 
-        // render without effects
-        // this.renderer.render(this.scene, this.camera);
-
-        // render with effects
-        this.composer.render(elapsed, frame);
+        if (
+            bypass_composer
+            && this.renderer
+            && this.scene
+            && this.camera
+        ) {
+            this.renderer.render(this.scene, this.camera);
+        } else {
+            this.composer.render(elapsed, frame);
+        }
 
         // ICUE PROCESSING
         this.weicue.updateCanvas(this.mainCanvas);

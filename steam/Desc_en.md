@@ -53,6 +53,8 @@ However, you can customize it perfectly to your preference with over 50 settings
 ╠═ ⚙️ Advanced
 ╠══ Quality (low,medium,high)
 ╠══ Low latency
+╠══ Distance LOD
+╠══ Hotspot avoidance
 ╠══ VR mode (experimental)
 ╠══ Toggle Epillepsy Warning
 ╚══ Toggle debugging

@@ -265,7 +265,7 @@
     "min": 1,
     "text": "Fog density",
     "type": "slider",
-    "value": 69
+    "value": 42
   },
   "custom_fps": {
     "text": "VSYNC Disable 🔃",
@@ -607,6 +607,28 @@
     "text": "Low latency 🔃",
     "type": "checkbox",
     "value": true
+  },
+  "distance_lod": {
+    "text": "Distance LOD",
+    "type": "dropdown",
+    "value": 2,
+    "items": [
+      "Off",
+      "Low",
+      "Medium",
+      "Strong"
+    ]
+  },
+  "hotspot_avoidance": {
+    "text": "Hotspot avoidance",
+    "type": "dropdown",
+    "value": 2,
+    "items": [
+      "Off",
+      "Low",
+      "Medium",
+      "Strong"
+    ]
   },
   "seizure_warning": {
     "text": "Epilepsy warning",

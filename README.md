@@ -6,11 +6,12 @@
 <a href="https://github.com/hexxone/audiorbits/blob/main/LICENSE">
 <img alt="GPL 3.0 License" src="https://img.shields.io/github/license/hexxone/audiorbits"/>
 </a>
+<br/>
 <a href="https://github.com/hexxone/audiorbits/releases">
-<img alt="Current Release" src="https://img.shields.io/github/release/hexxone/audiorbits"/>
+<img alt="Pre Release" src="https://img.shields.io/github/v/release/hexxone/audiorbits?include_prereleases&label=pre-release"/>
 </a>
 <a href="https://github.com/hexxone/audiorbits/releases">
-<img alt="Current Release Date" src="https://img.shields.io/github/release-date/hexxone/audiorbits?color=blue"/>
+<img alt="Stable Release" src="https://img.shields.io/github/release/hexxone/audiorbits?label=stable-release"/>
 </a>
 <br/>
 <a href="https://github.com/hexxone/audiorbits/releases">
@@ -34,6 +35,26 @@ The Wallpaper was originally made for and maintained on the **Steam Workshop**.
 It is however basically a website and can easily run in _most_ browsers.
 
 _Note_: Chrome-based browsers are preferred. Firefox may have some smaller problems.
+
+### Fractal Attractors
+
+The current generator keeps the modern WebAssembly pipeline, but now includes the legacy attractor family from the old `2.3.x` branch.
+
+- `Hopalong` remains the compatibility default with weight `100`.
+- All additional attractors default to `0`, so existing presets keep the classic look.
+- Attractor weights are relative and normalized internally.
+- Any attractor set to `100` becomes exclusive. If several are at `100`, only those are considered.
+- If all attractor weights are `0`, the generator falls back to `Hopalong`.
+- The old spiral toggle is replaced by a numeric `spiral` angle.
+
+Other Orbitals were created/contributed by [ssaenger](https://github.com/ssaenger) aka [Zinic](https://steamcommunity.com/id/ominous_end) and are based off the Threeply or QuadrupTwo fractals. 
+Many are of his own design. Thanks!
+
+#### Related links
+
+- <https://www.fraktalwelt.de/myhome/simpiter2.htm> (Hopalong by Barry Martin)
+- <https://www.jolinton.co.uk/Mathematics/Hopalong_Fractals/Text.pdf>
+
 
 ### Steam Links
 

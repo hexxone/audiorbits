@@ -52,6 +52,218 @@ import { NEAR_DIST } from './Consts';
 export const GEO_DIMS = 3;
 
 const cachedBuilders = [];
+const LEGACY_SPIRAL_DEGREES = 45;
+const PARTICLE_LOD_MODE_OFF = 0;
+const PARTICLE_LOD_MODE_LOW = 1;
+const PARTICLE_LOD_MODE_MEDIUM = 2;
+const PARTICLE_LOD_MODE_STRONG = 3;
+const ATTRACTOR_WEIGHT_SETTINGS = [
+    {
+        paramKey: 'Hopalong',
+        settingKey: 'alg_w_hopalong',
+        defaultWeight: 100
+    },
+    {
+        paramKey: 'HopalongMod1',
+        settingKey: 'alg_w_hopalong_mod_1',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'HopalongMod2',
+        settingKey: 'alg_w_hopalong_mod_2',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'HopalongZen',
+        settingKey: 'alg_w_hopalong_zen',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'FuturisticHUD',
+        settingKey: 'alg_w_futuristic_hud',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'Stereoscopic',
+        settingKey: 'alg_w_stereoscopic',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'SunSpots',
+        settingKey: 'alg_w_sun_spots',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'Trypophobia',
+        settingKey: 'alg_w_trypophobia',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'SuperNovaD',
+        settingKey: 'alg_w_super_nova_d',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'SuperNovaE',
+        settingKey: 'alg_w_super_nova_e',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'EndlessPit',
+        settingKey: 'alg_w_endless_pit',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'OrderedChaos',
+        settingKey: 'alg_w_ordered_chaos',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'AlienPhantasms',
+        settingKey: 'alg_w_alien_phantasms',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'AlienEtching',
+        settingKey: 'alg_w_alien_etching',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'AlienHieroglyphs',
+        settingKey: 'alg_w_alien_hieroglyphs',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'Wormhole',
+        settingKey: 'alg_w_wormhole',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'SpaceCarnival',
+        settingKey: 'alg_w_space_carnival',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'Coexistence',
+        settingKey: 'alg_w_coexistence',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'HawkingRadiation',
+        settingKey: 'alg_w_hawking_radiation',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'Medusa',
+        settingKey: 'alg_w_medusa',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'QuadrupTwo',
+        settingKey: 'alg_w_quadrup_two',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'NeonLights',
+        settingKey: 'alg_w_neon_lights',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'NeonSigns',
+        settingKey: 'alg_w_neon_signs',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'MathematicalSpecter',
+        settingKey: 'alg_w_mathematical_specter',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'OpticalIllusion',
+        settingKey: 'alg_w_optical_illusion',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'VisualIllusion',
+        settingKey: 'alg_w_visual_illusion',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'SlinkyWorms',
+        settingKey: 'alg_w_slinky_worms',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'ObservableUniverse',
+        settingKey: 'alg_w_observable_universe',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'ParallelUniverse',
+        settingKey: 'alg_w_parallel_universe',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'HostilePlanet',
+        settingKey: 'alg_w_hostile_planet',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'CyberWarfare',
+        settingKey: 'alg_w_cyber_warfare',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'RaveDance',
+        settingKey: 'alg_w_rave_dance',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'SunBeams',
+        settingKey: 'alg_w_sun_beams',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'WaywardAi',
+        settingKey: 'alg_w_wayward_ai',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'Threeply',
+        settingKey: 'alg_w_threeply',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'Fiesta',
+        settingKey: 'alg_w_fiesta',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'WizardsTunnel',
+        settingKey: 'alg_w_wizards_tunnel',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'GapingHole',
+        settingKey: 'alg_w_gaping_hole',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'LeapOfFaith',
+        settingKey: 'alg_w_leap_of_faith',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'BreathingRoom',
+        settingKey: 'alg_w_breathing_room',
+        defaultWeight: 0
+    },
+    {
+        paramKey: 'NameMe',
+        settingKey: 'alg_w_unnamed',
+        defaultWeight: 0
+    }
+] as const;
 
 /**
  * @public
@@ -66,6 +278,7 @@ type Level = {
  */
 type Subset = {
     hasNewData: boolean;
+    generatedVisiblePoints: number;
     object: Object3D;
     level: number;
     set: number;
@@ -76,6 +289,14 @@ type Subset = {
  * @public
  */
 class LevelSettings extends CSettings {
+
+    constructor() {
+        super();
+
+        ATTRACTOR_WEIGHT_SETTINGS.forEach(({ settingKey, defaultWeight }) => {
+            (this as any)[settingKey] = defaultWeight;
+        });
+    }
 
     geometry_type = 0;
 
@@ -93,6 +314,48 @@ class LevelSettings extends CSettings {
 
     level_shifting = false;
     level_spiralize = false;
+    spiral = 0;
+    alg_w_hopalong = 0;
+    alg_w_hopalong_mod_1 = 0;
+    alg_w_hopalong_mod_2 = 0;
+    alg_w_hopalong_zen = 0;
+    alg_w_futuristic_hud = 0;
+    alg_w_stereoscopic = 0;
+    alg_w_sun_spots = 0;
+    alg_w_trypophobia = 0;
+    alg_w_super_nova_d = 0;
+    alg_w_super_nova_e = 0;
+    alg_w_endless_pit = 0;
+    alg_w_ordered_chaos = 0;
+    alg_w_alien_phantasms = 0;
+    alg_w_alien_etching = 0;
+    alg_w_alien_hieroglyphs = 0;
+    alg_w_wormhole = 0;
+    alg_w_space_carnival = 0;
+    alg_w_coexistence = 0;
+    alg_w_hawking_radiation = 0;
+    alg_w_medusa = 0;
+    alg_w_quadrup_two = 0;
+    alg_w_neon_lights = 0;
+    alg_w_neon_signs = 0;
+    alg_w_mathematical_specter = 0;
+    alg_w_optical_illusion = 0;
+    alg_w_visual_illusion = 0;
+    alg_w_slinky_worms = 0;
+    alg_w_observable_universe = 0;
+    alg_w_parallel_universe = 0;
+    alg_w_hostile_planet = 0;
+    alg_w_cyber_warfare = 0;
+    alg_w_rave_dance = 0;
+    alg_w_sun_beams = 0;
+    alg_w_wayward_ai = 0;
+    alg_w_threeply = 0;
+    alg_w_fiesta = 0;
+    alg_w_wizards_tunnel = 0;
+    alg_w_gaping_hole = 0;
+    alg_w_leap_of_faith = 0;
+    alg_w_breathing_room = 0;
+    alg_w_unnamed = 0;
     // Tunnel generator
     // @todo remove bool & make tunnel bigger
     generate_tunnel = false;
@@ -112,12 +375,12 @@ class LevelSettings extends CSettings {
     alg_c_max = 16;
     alg_d_min = 1;
     alg_d_max = 9;
-    alg_e_min = 1;
-    alg_e_max = 10;
+    alg_e_min = 0;
+    alg_e_max = 0;
     // </FractalGeometry>
 
     // Camera category
-    fog_thickness = 80;
+    fog_thickness = 42;
     // Movement category
     movement_type = 0;
     zoom_val = 1;
@@ -142,6 +405,8 @@ class LevelSettings extends CSettings {
     // time-value smoothing ratios mirrored from WEAS
     audio_increase = 75;
     audio_decrease = 25;
+    distance_lod = 2;
+    hotspot_avoidance = 2;
     // seeded random for fractal generator
     random_seed = 0; // user setting
     // VR mode
@@ -175,8 +440,50 @@ enum WasmSettings {
 
     real_seed = 16,
     level_depth = 17,
-    level_spiralize = 18,
-    num_levels = 19
+    spiral = 18,
+    num_levels = 19,
+    Hopalong = 20,
+    HopalongMod1 = 21,
+    HopalongMod2 = 22,
+    HopalongZen = 23,
+    FuturisticHUD = 24,
+    Stereoscopic = 25,
+    SunSpots = 26,
+    Trypophobia = 27,
+    SuperNovaD = 28,
+    SuperNovaE = 29,
+    EndlessPit = 30,
+    OrderedChaos = 31,
+    AlienPhantasms = 32,
+    AlienEtching = 33,
+    AlienHieroglyphs = 34,
+    Wormhole = 35,
+    SpaceCarnival = 36,
+    Coexistence = 37,
+    HawkingRadiation = 38,
+    Medusa = 39,
+    QuadrupTwo = 40,
+    NeonLights = 41,
+    NeonSigns = 42,
+    MathematicalSpecter = 43,
+    OpticalIllusion = 44,
+    VisualIllusion = 45,
+    SlinkyWorms = 46,
+    ObservableUniverse = 47,
+    ParallelUniverse = 48,
+    HostilePlanet = 49,
+    CyberWarfare = 50,
+    RaveDance = 51,
+    SunBeams = 52,
+    WaywardAi = 53,
+    Threeply = 54,
+    Fiesta = 55,
+    WizardsTunnel = 56,
+    GapingHole = 57,
+    LeapOfFaith = 58,
+    BreathingRoom = 59,
+    NameMe = 60,
+    hotspot_avoidance = 61
 }
 
 /**
@@ -193,6 +500,7 @@ export class GeometryHolder extends CComponent {
     private moveBacks: Int32Array;
     // speed smoothing helper
     private speedVelocity = 0;
+    private lastHotspotAvoidance = 0;
 
     // keep camera position for moving subsets around
     private camera: Camera;
@@ -408,6 +716,7 @@ export class GeometryHolder extends CComponent {
                 scene.add(object);
                 this.levels[l].sets[s] = {
                     hasNewData: false,
+                    generatedVisiblePoints: sett.num_points_per_subset,
                     object,
                     level: l,
                     set: s
@@ -459,8 +768,14 @@ export class GeometryHolder extends CComponent {
             material.map = texture;
             material.size = this.settings.texture_size;
             material.blending = NormalBlending; // AdditiveBlending; NormalBlending
+            // Trim fully or near-fully transparent texels early to reduce
+            // quad overdraw when dense attractors collapse many sprites into
+            // the same screen region.
+            material.alphaTest = 0.02;
             material.depthTest = false;
+            material.depthWrite = false;
             material.transparent = true;
+            geometry.setDrawRange(0, this.settings.num_points_per_subset);
 
             // create particle system from geometry and material
             object = new Points(geometry, material);
@@ -497,11 +812,21 @@ export class GeometryHolder extends CComponent {
         if (!this.levelBuilder) {
             return;
         }
+        const hotspotChanged = this.lastHotspotAvoidance !== this.settings.hotspot_avoidance;
+
+        this.lastHotspotAvoidance = this.settings.hotspot_avoidance;
 
         // apply seed & settings
         let tempSettings = {
+            ...this.settings,
             real_seed: this.getSeed(),
-            ...this.settings
+            spiral: this.getSpiralDegrees(),
+            tunnel_inner_radius: this.settings.generate_tunnel
+                ? this.settings.tunnel_inner_radius
+                : 0,
+            tunnel_outer_radius: this.settings.generate_tunnel
+                ? this.settings.tunnel_outer_radius
+                : 0
         };
 
         // apply algorithm params
@@ -541,6 +866,14 @@ export class GeometryHolder extends CComponent {
         Smallog.debug(
             `Sent Settings to Generator: ${JSON.stringify(sett)}`
         );
+
+        if (hotspotChanged && this.levels.length > 0) {
+            await Promise.all(
+                this.levels.map((_o, level) => {
+                    return this.generateLevel(level);
+                })
+            );
+        }
     }
 
     /**
@@ -564,19 +897,32 @@ export class GeometryHolder extends CComponent {
      * @returns {any} algorithm parameters
      */
     private getParameters(): any {
-        // @TODO
-        return {
-            alg_a_min: 6,
-            alg_a_max: 7,
-            alg_b_min: 8,
-            alg_b_max: 9,
-            alg_c_min: 10,
-            alg_c_max: 11,
-            alg_d_min: 12,
-            alg_d_max: 13,
-            alg_e_min: 14,
-            alg_e_max: 15
+        const parameters: any = {
+            alg_a_min: this.settings.alg_a_min,
+            alg_a_max: this.settings.alg_a_max,
+            alg_b_min: this.settings.alg_b_min,
+            alg_b_max: this.settings.alg_b_max,
+            alg_c_min: this.settings.alg_c_min,
+            alg_c_max: this.settings.alg_c_max,
+            alg_d_min: this.settings.alg_d_min,
+            alg_d_max: this.settings.alg_d_max,
+            alg_e_min: this.settings.alg_e_min,
+            alg_e_max: this.settings.alg_e_max
         };
+
+        ATTRACTOR_WEIGHT_SETTINGS.forEach(({ paramKey, settingKey }) => {
+            parameters[paramKey] = this.settings[settingKey];
+        });
+
+        return parameters;
+    }
+
+    private getSpiralDegrees(): number {
+        if (this.settings.spiral !== 0) {
+            return this.settings.spiral;
+        }
+
+        return this.settings.level_spiralize ? LEGACY_SPIRAL_DEGREES : 0;
     }
 
     /**
@@ -610,6 +956,7 @@ export class GeometryHolder extends CComponent {
                 const ex = instance.exports as any;
                 // Data passed in worker
                 const { level: level_1, isShared } = params[0];
+                const buildStart = performance.now();
                 // assembly level Building
                 // returns a pointer to int32-array with float-references
                 const dataPtr = ex.build(level_1);
@@ -617,7 +964,14 @@ export class GeometryHolder extends CComponent {
                 const setPtrs = exports.__getInt32Array(dataPtr);
 
                 // gather transferable float-arrays
-                const resultObj = {};
+                const resultObj: {
+                    [key: string]: number | ArrayBuffer;
+                    buildTimeMs?: number;
+                    counts?: ArrayBuffer;
+                } = {};
+                const visibleCounts = new Int32Array(
+                    exports.__getInt32ArrayView(ex.visibleCounts)
+                );
 
                 if (isShared) {
                     // copy the pointer, since direct access is possible
@@ -634,6 +988,9 @@ export class GeometryHolder extends CComponent {
                     });
                 }
 
+                resultObj.counts = new Int32Array(visibleCounts).buffer;
+                resultObj.buildTimeMs = performance.now() - buildStart;
+
                 // transfer data
                 return resultObj;
             }, workerParams);
@@ -641,6 +998,12 @@ export class GeometryHolder extends CComponent {
             const subsets = this.levels[level].sets;
             const setsPerLvl = this.settings.num_subsets_per_level;
             const pointsPerSet = this.settings.num_points_per_subset;
+            const visibleCounts = wasmWorkerResult.counts
+                ? new Int32Array(wasmWorkerResult.counts)
+                : new Int32Array(setsPerLvl);
+            let totalVisiblePoints = 0;
+            let minVisiblePoints = pointsPerSet;
+            let maxVisiblePoints = 0;
 
             const pointsPerLvl = setsPerLvl * pointsPerSet;
             const currentPoints = (
@@ -661,6 +1024,17 @@ export class GeometryHolder extends CComponent {
             // spread over time for less thread blocking
             for (let s = 0; s < setsPerLvl; s++) {
                 let data: Float32Array;
+                const generatedVisiblePoints = Math.max(
+                    1,
+                    Math.min(
+                        pointsPerSet,
+                        visibleCounts[s] || pointsPerSet
+                    )
+                );
+
+                totalVisiblePoints += generatedVisiblePoints;
+                minVisiblePoints = Math.min(minVisiblePoints, generatedVisiblePoints);
+                maxVisiblePoints = Math.max(maxVisiblePoints, generatedVisiblePoints);
 
                 if (shared) {
                     // get from a shared buffer
@@ -679,17 +1053,19 @@ export class GeometryHolder extends CComponent {
                     (
                         subsets[s].object.geometry.attributes.position as Float32BufferAttribute
                     ).set(data, 0);
+                    subsets[s].generatedVisiblePoints = generatedVisiblePoints;
+                    subsets[s].object.geometry.setDrawRange(0, generatedVisiblePoints);
                     subsets[s].hasNewData = true;
                 });
             }
-            const dbgT = performance.now() - start;
-            const vertS = (setsPerLvl * pointsPerSet) / 3 / (dbgT / 1000);
+            const dbgT = wasmWorkerResult.buildTimeMs ?? performance.now() - start;
+            const totalVertices = setsPerLvl * pointsPerSet;
+            const vertS = totalVertices / (dbgT / 1000);
+            const visiblePercent = (totalVisiblePoints / Math.max(totalVertices, 1)) * 100;
 
-            // print info
-            Smallog.debug(
-                `Generated Level=${level}, Time=${dbgT.toFixed(
-                    2
-                )} ms, ${vertS.toFixed(2)} vert/s`
+            Smallog.debug(`Generated Level=${level}, Time=${dbgT.toFixed(2)} ms, ${
+                vertS.toFixed(2)} vert/s, Visible=${totalVisiblePoints}/${totalVertices} (${
+                visiblePercent.toFixed(1)}%), Min=${minVisiblePoints}, Max=${maxVisiblePoints}`
             );
         } catch (e) {
             Smallog.error(
@@ -814,6 +1190,7 @@ export class GeometryHolder extends CComponent {
                 // use "obj"-to-"camera" distance with "step" to get "frequency" data
                 // then process it
                 const dist = camZ - prnt.object.position.z;
+                const absDist = Math.abs(dist);
 
                 stepDist = Math.round(dist / step);
                 freqIdx = Math.min(
@@ -843,6 +1220,8 @@ export class GeometryHolder extends CComponent {
 
                 // distance scaling
                 const distScale = (1.1 - dist / orbtSize) ** 3 / 2;
+
+                this.updateSubsetLod(prnt, absDist, orbtSize);
 
                 prnt.object.scale.z = distScale * 1.5;
 
@@ -972,6 +1351,8 @@ export class GeometryHolder extends CComponent {
                 const dist = Math.abs(camZ - prnt.object.position.z);
                 const distScale = 1.2 - dist / orbtSize;
 
+                this.updateSubsetLod(prnt, dist, orbtSize);
+
                 // sizing
                 const pm = prnt.object.material as PointsMaterial;
 
@@ -1082,6 +1463,117 @@ export class GeometryHolder extends CComponent {
         }
 
         return Math.max(Math.min(val, max), min);
+    }
+
+    /**
+     * Update rendered point budget based on camera distance. This creates a
+     * smooth density LOD without alpha cross-fading, so it reduces work
+     * instead of adding more blended fragments in transition regions.
+     * @param {Subset} subset subset to update
+     * @param {number} dist absolute distance to camera
+     * @param {number} orbitSize total depth span of the orbit system
+     * @returns {void}
+     */
+    private updateSubsetLod(subset: Subset, dist: number, orbitSize: number): void {
+        if (this.settings.geometry_type !== 0 || orbitSize <= 0) {
+            return;
+        }
+
+        const geometry = subset.object.geometry as BufferGeometry;
+        const lodMode = this.getDistanceLodMode();
+        const lod = this.getDistanceLodProfile(lodMode);
+        const total = Math.max(
+            1,
+            Math.min(
+                this.settings.num_points_per_subset,
+                subset.generatedVisiblePoints || this.settings.num_points_per_subset
+            )
+        );
+        const norm = this.clamp(dist / orbitSize, 0, 1);
+        let factor = 1;
+
+        if (lodMode !== PARTICLE_LOD_MODE_OFF && norm > lod.near) {
+            const denom = Math.max(
+                lod.far - lod.near,
+                Number.EPSILON
+            );
+            const t = this.clamp(
+                (norm - lod.near) / denom,
+                0,
+                1
+            );
+            const smooth = t * t * (3 - 2 * t);
+
+            factor = 1 - smooth * (1 - lod.minFactor);
+        }
+
+        let visible = Math.round(total * factor);
+
+        // Quantize draw counts so the density transition remains stable and
+        // avoids changing by a handful of points every frame.
+        if (total > lod.countStep && visible >= lod.countStep) {
+            visible = Math.max(
+                lod.countStep,
+                Math.floor(visible / lod.countStep)
+                * lod.countStep
+            );
+        }
+
+        visible = Math.max(1, Math.min(total, visible));
+
+        if (geometry.drawRange.count !== visible) {
+            geometry.setDrawRange(0, visible);
+        }
+    }
+
+    private getDistanceLodMode(): number {
+        const rawMode = this.settings.distance_lod as unknown;
+
+        if (rawMode === true) {
+            return PARTICLE_LOD_MODE_MEDIUM;
+        }
+
+        if (!rawMode) {
+            return PARTICLE_LOD_MODE_OFF;
+        }
+
+        return this.clamp(
+            Number(rawMode) || 0,
+            PARTICLE_LOD_MODE_OFF,
+            PARTICLE_LOD_MODE_STRONG
+        );
+    }
+
+    private getDistanceLodProfile(mode: number): {
+        near: number;
+        far: number;
+        minFactor: number;
+        countStep: number;
+    } {
+        switch (mode) {
+            case PARTICLE_LOD_MODE_LOW:
+                return {
+                    near: 0.35,
+                    far: 0.92,
+                    minFactor: 0.55,
+                    countStep: 128
+                };
+            case PARTICLE_LOD_MODE_STRONG:
+                return {
+                    near: 0.1,
+                    far: 0.72,
+                    minFactor: 0.08,
+                    countStep: 64
+                };
+            case PARTICLE_LOD_MODE_MEDIUM:
+            default:
+                return {
+                    near: 0.2,
+                    far: 0.85,
+                    minFactor: 0.2,
+                    countStep: 64
+                };
+        }
     }
 
 }

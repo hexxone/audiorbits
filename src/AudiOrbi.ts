@@ -55,6 +55,7 @@ const ReInit: string[] = [
     'level_depth',
     'level_shifting',
     'level_spiralize',
+    'spiral',
     'num_subsets_per_level',
     'num_points_per_subset',
     'custom_fps',
@@ -67,6 +68,9 @@ const ReInit: string[] = [
 ];
 
 const TextLabels: string[] = ['text', 'label'];
+const BrowserFpsCandidates: number[] = [
+    30, 48, 50, 60, 72, 75, 90, 100, 120, 144, 165, 180, 200, 240
+];
 
 // temporary properties
 let temProps = null;
@@ -136,6 +140,8 @@ class AudiOrbits extends CComponent {
     private swirlStep = 0;
     // Wallpaper Engine Event Listener
     private weListener: WEventListener = null;
+    private receivedGeneralFps = false;
+    private browserFpsEstimate?: Promise<void>;
 
     /**
      * Intialize Wallpaper...
@@ -206,8 +212,19 @@ class AudiOrbits extends CComponent {
                 this.ctxHolder.setRenderer(!isPaused);
             },
 
-            // currently not used
-            applyGeneralProperties: () => {},
+            applyGeneralProperties: (props: any) => {
+                if (!props || props.fps === undefined) {
+                    return;
+                }
+
+                const fps = Number(props.fps);
+
+                if (!isNaN(fps) && fps > 0) {
+                    this.receivedGeneralFps = true;
+                    this.applySetting('wallpaper_fps', fps);
+                    this.updateAll();
+                }
+            },
             userDirectoryFilesAddedOrChanged: () => {},
             userDirectoryFilesRemoved: () => {}
         };
@@ -245,7 +262,7 @@ class AudiOrbits extends CComponent {
     private _applyMainColorProp(propValue: string): void {
         const cO = rgbToObj(propValue);
 
-        document.body.style.backgroundColor = `rgb(${cO.r},${cO.g},${cO.b})`;
+        document.body.style.backgroundColor = `rgba(${cO.r},${cO.g},${cO.b},${cO.a / 255})`;
     }
 
     private _applyImageProp(imgID: string, srcVal: string): void {
@@ -336,6 +353,7 @@ class AudiOrbits extends CComponent {
         }
 
         this._applyDebuggingProp();
+        this.ensureBrowserFpsTarget();
 
         return reInitFlag;
     }
@@ -358,6 +376,7 @@ class AudiOrbits extends CComponent {
      * @returns {void}
      */
     private initOnce(): void {
+        this.ensureBrowserFpsTarget();
         // initializing and wait for seizure warning
         this.initSystem(this.warnHelper.show());
     }
@@ -412,6 +431,110 @@ class AudiOrbits extends CComponent {
                 // as Smallog only logs to console.
                 alert(m);
             });
+    }
+
+    private ensureBrowserFpsTarget(): void {
+        if (
+            this.receivedGeneralFps
+            || this.ctxHolder.settings.custom_fps
+            || this.browserFpsEstimate
+        ) {
+            return;
+        }
+
+        this.browserFpsEstimate = this.estimateBrowserFpsTarget()
+            .then((fps) => {
+                if (
+                    this.receivedGeneralFps
+                    || this.ctxHolder.settings.custom_fps
+                ) {
+                    return;
+                }
+
+                this.applySetting('wallpaper_fps', fps);
+                this.updateAll();
+                Smallog.debug(`Estimated browser refresh target: ${fps} FPS`);
+            })
+            .catch((err) => {
+                Smallog.warn(`Failed to estimate browser refresh rate: ${err}`);
+            })
+            .finally(() => {
+                this.browserFpsEstimate = null;
+            });
+    }
+
+    private estimateBrowserFpsTarget(sampleCount: number = 45): Promise<number> {
+        if (document.hidden) {
+            return Promise.resolve(60);
+        }
+
+        return new Promise((resolve) => {
+            const deltas: number[] = [];
+            let lastTime = 0;
+            let rafId = 0;
+            let timeoutId = 0;
+
+            const finish = () => {
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                }
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                if (deltas.length === 0) {
+                    resolve(60);
+
+                    return;
+                }
+
+                deltas.sort((a, b) => {
+                    return a - b;
+                });
+                const median = deltas[Math.floor(deltas.length / 2)];
+                const hz = 1000 / Math.max(median, Number.EPSILON);
+
+                resolve(this.snapBrowserFps(hz));
+            };
+
+            const sample = (now: number) => {
+                if (lastTime > 0) {
+                    const delta = now - lastTime;
+
+                    if (delta > 0 && delta < 100) {
+                        deltas.push(delta);
+                    }
+                }
+
+                lastTime = now;
+
+                if (deltas.length >= sampleCount) {
+                    finish();
+
+                    return;
+                }
+
+                rafId = requestAnimationFrame(sample);
+            };
+
+            timeoutId = window.setTimeout(finish, 2500);
+            rafId = requestAnimationFrame(sample);
+        });
+    }
+
+    private snapBrowserFps(hz: number): number {
+        let best = BrowserFpsCandidates[0];
+        let bestDiff = Math.abs(hz - best);
+
+        BrowserFpsCandidates.forEach((candidate) => {
+            const diff = Math.abs(hz - candidate);
+
+            if (diff < bestDiff) {
+                best = candidate;
+                bestDiff = diff;
+            }
+        });
+
+        return best;
     }
 
     // /////////////////////////////////////////////

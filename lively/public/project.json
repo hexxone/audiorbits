@@ -131,6 +131,16 @@
                 "ui_ao_1210": "VR Mode (BETA)",
                 "ui_ao_1220": "Epilepsiewarnung",
                 "ui_ao_1230": "Debugging",
+                "ui_ao_1303": "Distanz-LOD",
+                "ui_ao_1303_1": "Aus",
+                "ui_ao_1303_2": "Niedrig",
+                "ui_ao_1303_3": "Mittel",
+                "ui_ao_1303_4": "Stark",
+                "ui_ao_1304": "Hotspot-Vermeidung",
+                "ui_ao_1304_1": "Aus",
+                "ui_ao_1304_2": "Niedrig",
+                "ui_ao_1304_3": "Mittel",
+                "ui_ao_1304_4": "Stark",
                 "ui_ao_1250": "<hr><h4><small>Danke fürs benutzen :)</small></h4>"
             },
             "en-us": {
@@ -263,6 +273,16 @@
                 "ui_ao_1210": "VR Mode (BETA)",
                 "ui_ao_1220": "Epilepsy warning",
                 "ui_ao_1230": "Debugging",
+                "ui_ao_1303": "Distance LOD",
+                "ui_ao_1303_1": "Off",
+                "ui_ao_1303_2": "Low",
+                "ui_ao_1303_3": "Medium",
+                "ui_ao_1303_4": "Strong",
+                "ui_ao_1304": "Hotspot avoidance",
+                "ui_ao_1304_1": "Off",
+                "ui_ao_1304_2": "Low",
+                "ui_ao_1304_3": "Medium",
+                "ui_ao_1304_4": "Strong",
                 "ui_ao_1250": "<hr><h4><small>Thanks for using :)</small></h4>"
             },
             "es-es": {
@@ -3162,7 +3182,7 @@
                 "value": 0
             },
             "auto_parallax_speed": {
-                "condition": "HDR_PRLX.value && parallax_option.value == '2'",
+                "condition": "HDR_PRLX.value && parallax_option.value == 2",
                 "editable": true,
                 "max": 10,
                 "min": -10,
@@ -3195,7 +3215,7 @@
                 "order": 450,
                 "text": "ui_ao_0450",
                 "type": "slider",
-                "value": 69
+                "value": 42
             },
             "custom_fps": {
                 "condition": "HDR_PRLX.value",
@@ -3365,14 +3385,14 @@
                 "value": 2
             },
             "user_color_a": {
-                "condition": "HDR_COLOR.value && color_mode.value >0",
+                "condition": "HDR_COLOR.value && color_mode.value > 0",
                 "order": 620,
                 "text": "ui_ao_0620",
                 "type": "color",
                 "value": "1 0.5 0"
             },
             "user_color_b": {
-                "condition": "HDR_COLOR.value && color_mode.value >1",
+                "condition": "HDR_COLOR.value && color_mode.value > 1",
                 "order": 630,
                 "text": "ui_ao_0630",
                 "type": "color",
@@ -3561,7 +3581,7 @@
                 "type": "text"
             },
             "mirror_invert": {
-                "condition": "HDR_FILTER.value && mirror_shader.value>1",
+                "condition": "HDR_FILTER.value && mirror_shader.value > 1",
                 "order": 850,
                 "text": "ui_ao_0850",
                 "type": "bool",
@@ -3876,35 +3896,85 @@
                 "type": "bool",
                 "value": true
             },
+            "distance_lod": {
+                "condition": "HDR_ADVANCED.value",
+                "options": [
+                    {
+                        "label": "ui_ao_1303_1",
+                        "value": 0
+                    },
+                    {
+                        "label": "ui_ao_1303_2",
+                        "value": 1
+                    },
+                    {
+                        "label": "ui_ao_1303_3",
+                        "value": 2
+                    },
+                    {
+                        "label": "ui_ao_1303_4",
+                        "value": 3
+                    }
+                ],
+                "order": 1210,
+                "text": "ui_ao_1303",
+                "type": "combo",
+                "value": 2
+            },
+            "hotspot_avoidance": {
+                "condition": "HDR_ADVANCED.value",
+                "options": [
+                    {
+                        "label": "ui_ao_1304_1",
+                        "value": 0
+                    },
+                    {
+                        "label": "ui_ao_1304_2",
+                        "value": 1
+                    },
+                    {
+                        "label": "ui_ao_1304_3",
+                        "value": 2
+                    },
+                    {
+                        "label": "ui_ao_1304_4",
+                        "value": 3
+                    }
+                ],
+                "order": 1220,
+                "text": "ui_ao_1304",
+                "type": "combo",
+                "value": 2
+            },
             "xr_mode": {
                 "condition": "HDR_ADVANCED.value",
-                "order": 1210,
+                "order": 1230,
                 "text": "ui_ao_1210",
                 "type": "bool",
                 "value": false
             },
             "seizure_warning": {
                 "condition": "HDR_ADVANCED.value",
-                "order": 1220,
+                "order": 1240,
                 "text": "ui_ao_1220",
                 "type": "bool",
                 "value": false
             },
             "debugging": {
                 "condition": "HDR_ADVANCED.value",
-                "order": 1230,
+                "order": 1250,
                 "text": "ui_ao_1230",
                 "type": "bool",
                 "value": false
             },
             "SPCR_27": {
                 "condition": "HDR_ADVANCED.value",
-                "order": 1240,
+                "order": 1260,
                 "text": "ui_ao_0060",
                 "type": "text"
             },
             "HDR_THANKS": {
-                "order": 1250,
+                "order": 1270,
                 "text": "ui_ao_1250",
                 "type": "text"
             }
