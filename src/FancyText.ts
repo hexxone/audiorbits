@@ -14,6 +14,7 @@ import { Color,
     Scene,
     TextGeometry,
     Vector3 } from 'three.ts/src';
+import { Smallog } from 'we_utils/src';
 
 /**
  * @todo FIX
@@ -21,6 +22,10 @@ import { Color,
  * @public
  */
 export class FancyText {
+
+    private readonly scene: Scene;
+    private textMesh: Mesh | null = null;
+    private removeTimeout: number | null = null;
 
 
     /**
@@ -37,43 +42,72 @@ export class FancyText {
         CPos: Vector3,
         text: string,
         lookAt: Vector3 = null,
-        hideAfter = 30,
-        fontPath = '/css/HEXAGON_cup_font.json'
+        hideAfter: number = 30,
+        fontPath: string = '/css/HEXAGON_cup_font.json'
     ) {
+        this.scene = scene;
         const loader = new FontLoader();
 
-        loader.load(fontPath, (fDat) => {
-            const textGeo = new TextGeometry(text, {
-                font: fDat,
-                size: 200,
-                // TODO height: 200,
-                curveSegments: 12,
-                bevelEnabled: false,
-                bevelThickness: 10,
-                bevelSize: 8,
-                bevelOffset: 0
-                // TODO bevelSegments: 5,
-            });
+        loader.load(
+            fontPath,
+            (fDat) => {
+                const textGeo = new TextGeometry(text, {
+                    font: fDat,
+                    size: 200,
+                    depth: 20,
+                    curveSegments: 4,
+                    bevelEnabled: false,
+                    bevelThickness: 0,
+                    bevelSize: 0,
+                    bevelOffset: 0
+                }).center();
 
-            const textMaterial = new MeshPhongMaterial();
+                const textMaterial = new MeshPhongMaterial();
 
-            textMaterial.color = new Color(0xffddbb);
-            textMaterial.specular = new Color(0xffffff);
+                textMaterial.color = new Color(0xffddbb);
+                textMaterial.specular = new Color(0xffffff);
 
-            const textMesh = new Mesh(textGeo, textMaterial);
+                const textMesh = new Mesh(textGeo, textMaterial);
 
-            textMesh.position.set(CPos.x, CPos.y, CPos.z);
+                textMesh.position.set(CPos.x, CPos.y, CPos.z);
 
-            if (lookAt) {
-                textMesh.lookAt(lookAt);
+                if (lookAt) {
+                    textMesh.lookAt(lookAt);
+                }
+
+                this.textMesh = textMesh;
+                this.scene.add(textMesh);
+
+                // Remove and dispose so repeated init/reload does not leak text objects.
+                this.removeTimeout = window.setTimeout(() => {
+                    this.dispose();
+                }, hideAfter * 1000);
+            },
+            undefined,
+            (error) => {
+                Smallog.warn(`[FancyText] Failed to load font: ${error}`);
             }
-            scene.add(textMesh);
+        );
+    }
 
-            // hide again
-            setTimeout(() => {
-                scene.remove(textMesh);
-            }, hideAfter * 1000);
-        });
+    public dispose(): void {
+        if (this.removeTimeout !== null) {
+            clearTimeout(this.removeTimeout);
+            this.removeTimeout = null;
+        }
+
+        if (!this.textMesh) {
+            return;
+        }
+
+        this.scene.remove(this.textMesh);
+        this.textMesh.geometry?.dispose();
+
+        if (this.textMesh.material instanceof MeshPhongMaterial) {
+            this.textMesh.material.dispose();
+        }
+
+        this.textMesh = null;
     }
 
 }

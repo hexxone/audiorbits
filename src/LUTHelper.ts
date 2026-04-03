@@ -83,32 +83,46 @@ export class LUTHelper {
     private makeLUTTexture(info) {
         const imgLoader = new ImageLoader();
         const ctx = document.createElement('canvas').getContext('2d');
+        const lutSize = info.size || 2;
+        const width = lutSize * lutSize;
+        const height = lutSize;
+        const identityData = new Uint8Array(width * height * 4);
 
-        let texture = null;
+        for (let z = 0; z < lutSize; z++) {
+            for (let y = 0; y < lutSize; y++) {
+                for (let x = 0; x < lutSize; x++) {
+                    const px = z * lutSize + x;
+                    const idx = (y * width + px) * 4;
+
+                    identityData[idx] = (x / Math.max(lutSize - 1, 1)) * 255;
+                    identityData[idx + 1] = (y / Math.max(lutSize - 1, 1)) * 255;
+                    identityData[idx + 2] = (z / Math.max(lutSize - 1, 1)) * 255;
+                    identityData[idx + 3] = 255;
+                }
+            }
+        }
+
+        const texture = this.makeIdentityLutTexture(
+            identityData.buffer,
+            width,
+            height,
+            info.filter ? LinearFilter : NearestFilter
+        );
 
         if (info.url) {
-            const lutSize = info.size;
-
             Smallog.debug(`Loading image: ${JSON.stringify(info)}`);
             imgLoader.load(
                 info.url,
                 (image: HTMLImageElement) => {
-                    const width = lutSize * lutSize;
-                    const height = lutSize;
-
                     info.size = lutSize;
                     ctx.canvas.width = width;
                     ctx.canvas.height = height;
                     ctx.drawImage(image, 0, 0);
                     const imageData = ctx.getImageData(0, 0, width, height);
 
-                    texture = this.makeIdentityLutTexture(
-                        imageData.data.buffer,
-                        width,
-                        height,
-                        info.filter ? LinearFilter : NearestFilter
-                    );
-
+                    texture.image.data = new Uint8Array(imageData.data);
+                    texture.image.width = width;
+                    texture.image.height = height;
                     texture.needsUpdate = true;
                 },
                 null,

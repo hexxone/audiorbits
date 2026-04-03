@@ -5316,6 +5316,31 @@
                 "text": "ui_ao_0060",
                 "type": "text"
             },
+            "analyzer_mode": {
+                "condition": "HDR_AUDIO.value && audioprocessing.value",
+                "options": [
+                    {
+                        "label": "Off",
+                        "value": 0
+                    },
+                    {
+                        "label": "General",
+                        "value": 1
+                    },
+                    {
+                        "label": "EDM",
+                        "value": 2
+                    },
+                    {
+                        "label": "AI",
+                        "value": 3
+                    }
+                ],
+                "order": 1015,
+                "text": "Tempo analyzer",
+                "type": "combo",
+                "value": 0
+            },
             "equalize": {
                 "condition": "HDR_AUDIO.value && audioprocessing.value",
                 "order": 1020,

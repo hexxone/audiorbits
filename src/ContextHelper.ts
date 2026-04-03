@@ -109,7 +109,7 @@ export class ContextHelper extends CComponent {
     private resizeHandler?: ResizeHandler; // Initialized in init when camera/renderer are ready
 
     // important objects
-    private weas: WEAS = new WEAS();
+    private weas: WEAS = new WEAS(false, true);
     private colorHolder: ColorHelper = new ColorHelper();
     private shaderHolder: ShaderHolder = new ShaderHolder(this.weas);
     private weicue: WEICUE = new WEICUE(this.weas);
@@ -174,6 +174,10 @@ export class ContextHelper extends CComponent {
         }
         if (this.mainCanvas) {
             renderContainer.removeChild(this.mainCanvas);
+        }
+        if (this.textHolder) {
+            this.textHolder.dispose();
+            this.textHolder = undefined;
         }
 
         // get canvases & contexts
@@ -583,6 +587,7 @@ export class ContextHelper extends CComponent {
         // For now, assuming text is relative to world origin or initial camera setup.
 
         if (this.scene && this.camera) { // Ensure scene and camera are available
+            this.textHolder?.dispose();
             this.textHolder = new FancyText(this.scene, tPos, msg);
         } else {
             Smallog.warn('Scene or Camera not available for showMessage.');

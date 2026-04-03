@@ -1,0 +1,18 @@
+{
+    "version": 1,
+    "ready": false,
+    "modelPath": "model.onnx",
+    "inputShape": [1, 6, 192, 64],
+    "frameRate": 30,
+    "bpmMin": 55,
+    "bpmMax": 220,
+    "beatOutputName": "beat_logits",
+    "tempoOutputName": "tempo_logits",
+    "stride": 1,
+    "normalization": {
+        "inputScale": 1,
+        "deltaScale": 1,
+        "salientScale": 1
+    },
+    "note": "Placeholder manifest. Export a trained ONNX model to public/models/weas-spectrum-ai/model.onnx and set ready=true."
+}

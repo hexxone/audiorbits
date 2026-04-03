@@ -22,6 +22,7 @@ import { BlurShader,
     LUTShaderNearest,
     ShaderPass,
     Smallog,
+    TAAPass,
     UnrealBloomPass,
     WEAS } from 'we_utils/src';
 
@@ -40,6 +41,8 @@ class ShaderSettings extends CSettings {
     fx_antialiasing = true;
     blur_strength = 0;
     chroma_filter = 10;
+    temporal_aa = false;
+    taa_feedback = 0.88;
     audio_increase = 75;
 
 }
@@ -67,6 +70,7 @@ export class ShaderHolder extends CComponent {
     private blurPassX: ShaderPass;
     private blurPassY: ShaderPass;
     private chrmPass: ShaderPass;
+    private taaPass: TAAPass;
 
     /**
      * Construct the shaders
@@ -101,6 +105,9 @@ export class ShaderHolder extends CComponent {
 
         // chromatic abberation
         this.chrmPass = new ShaderPass(new ChromaticShader());
+
+        // temporal antialiasing
+        this.taaPass = new TAAPass();
     }
 
     /**
@@ -128,6 +135,8 @@ export class ShaderHolder extends CComponent {
         composer.addPass(this.blurPassY);
         // chromatic abberation
         composer.addPass(this.chrmPass);
+        // temporal antialiasing
+        composer.addPass(this.taaPass);
     }
 
     /**
@@ -221,6 +230,16 @@ export class ShaderHolder extends CComponent {
 
         // chroma
         this.chrmPass.enabled = sett.chroma_filter > 0;
+
+        // taa
+        this.taaPass.enabled = sett.temporal_aa;
+        if (!sett.temporal_aa) {
+            this.taaPass.historyValid = false;
+        }
+        this.taaPass.blendMaterial.uniforms.feedback.value = Math.max(
+            0,
+            Math.min(0.97, sett.taa_feedback)
+        );
 
         return Promise.resolve();
     }

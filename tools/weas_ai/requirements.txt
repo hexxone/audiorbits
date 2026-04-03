@@ -1,0 +1,9 @@
+torch>=2.0
+torchaudio>=2.0
+onnx>=1.16
+onnxruntime>=1.18
+numpy>=1.26
+soundfile>=0.12
+librosa>=0.10
+tqdm>=4.66
+pandas>=2.2

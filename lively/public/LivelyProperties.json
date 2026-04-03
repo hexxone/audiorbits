@@ -527,6 +527,17 @@
     "type": "label",
     "value": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   },
+  "analyzer_mode": {
+    "text": "Tempo analyzer",
+    "type": "dropdown",
+    "value": 1,
+    "items": [
+      "Off",
+      "General",
+      "EDM",
+      "AI"
+    ]
+  },
   "equalize": {
     "text": "Dynamics EQ",
     "type": "checkbox",

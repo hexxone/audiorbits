@@ -55,6 +55,7 @@
         "file-loader": "^6.2.0",
         "fork-ts-checker-webpack-plugin": "^6.2.5",
         "null-loader": "^4.0.1",
+        "onnxruntime-web": "^1.24.3",
         "prettier": "^3.2.5",
         "react": "^18.2.0",
         "replace-in-file": "^6.2.0",

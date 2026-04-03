@@ -152,6 +152,34 @@ module.exports = (env) => {
                 patterns: [
                     {
                         from: 'public'
+                    },
+                    {
+                        from: path.resolve(
+                            __dirname,
+                            'node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm'
+                        ),
+                        to: 'ort/[name][ext]'
+                    },
+                    {
+                        from: path.resolve(
+                            __dirname,
+                            'node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.wasm'
+                        ),
+                        to: 'ort/[name][ext]'
+                    },
+                    {
+                        from: path.resolve(
+                            __dirname,
+                            'node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.mjs'
+                        ),
+                        to: 'ort/[name][ext]'
+                    },
+                    {
+                        from: path.resolve(
+                            __dirname,
+                            'node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.mjs'
+                        ),
+                        to: 'ort/[name][ext]'
                     }
                 ]
             }),

@@ -2,6 +2,7 @@
 
 ## project.json
 
+- make "FXAA" checkbox into a combobox for "OFF", "FXAA" and "TAA"
 - [x] check the "LOD" and "hotspot" translations, fix them and make them the same.
 - fix "condition" for algorithm waits: && parent header
 - rework algorithm params
@@ -10,6 +11,15 @@
 - convert .pngs to webp ?
 
 ## main code
+
+- Error:
+    ```
+    BufferGeometry.ts:988 Uncaught Error: Method not implemented.
+    at TextGeometry.dispatchEvent (BufferGeometry.ts:988:15)
+    at TextGeometry.dispose (BufferGeometry.ts:982:14)
+    at FancyText.dispose (FancyText.ts:104:33)
+    at FancyText.ts:83:26
+    ```
 
 - cleanup code, make files and functions smaller, separation of concerns, "best practices," etc.
 - further optimize ".innerHTML =" template strings? is there a way to "inline" do this without breaking the current code styling?
@@ -27,8 +37,8 @@
 
 ## we_utils
 
-- fix shaders (lut - everything black, chroma - just makes image darker?)
-- implement/add "TAA" (Temporal Anti-Aliasing)
+- [x] fix shaders (lut - everything black, chroma - just makes image darker?)
+- [x] implement/add "TAA" (Temporal Anti-Aliasing)
 
 ## Three.ts
 
@@ -42,18 +52,18 @@
 - [x] fix FpStats nonsensical way too high GPU Usage:
     - `FPS: 98.00 / 144\nCPU: 0.57 %\nGPU: 247.73 %\nAll: 147.25 %\nRAM: 1.05 GB\nVRAM: 13.34 MB\nDOM: 453.02 KB\nBPM: n/a\nAudio: n/a`
     - Probably caused by "skipped frames" being calculated wrongly or something?
-- render an additional third canvas with historical diagram for the stuff like bass, mids, peaks, etc. below.
+- [x] render an additional third canvas with historical diagram for the stuff like bass, mids, peaks, etc. below.
 
 ## WEWA
 
 - [x] dropdown defaults not properly set/selected in WEWA ?
-- improve CSS (rounded corners, scroll bar, shadows, etc.)
+- [x] improve CSS (rounded corners, scroll bar, shadows, etc.)
 - [x] only apply "values" from localstorage... not the whole object/translations etc?
-- Add button to "copy to clipboard" the whole settings and "apply from clipboard" btn. Above/ Next to "Reset"
+- [x] Add button to "copy to clipboard" the whole settings and "apply from clipboard" btn. Above/ Next to "Reset"
 
 ## WEAS
 
-- improve CSS (rounded corners, scroll bar, shadows, etc.)
+- [x] improve CSS (rounded corners, scroll bar, shadows, etc.)
 - music recognition?
 
 ## other
